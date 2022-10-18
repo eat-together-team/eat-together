@@ -326,6 +326,7 @@ export default function ({ navigation }) {
           renderItem={({ item }) => (
             <EventCard
               event={item}
+              playButton={true}
               click={() => {
                 navigation.navigate("WhileYouEat", {
                   event: item,

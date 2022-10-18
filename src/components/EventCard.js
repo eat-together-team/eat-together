@@ -27,6 +27,7 @@ const EventCard = (props) => {
                 }
           }
         />
+        {props.playButton && <View style={styles.playButton}/>}
 
         <SectionContent>
           <MediumText center>{props.event.name}</MediumText>
@@ -34,7 +35,7 @@ const EventCard = (props) => {
             By{" "}
             {props.event.hostName
               ? props.event.hostName
-              : props.event.hostFirstName // TODO FIX: Not all docs have hostFirstName OR hostName
+              : props.event.hostFirstName
               ? props.event.hostFirstName +
                 " " +
                 props.event.hostLastName.substring(0, 1) +
@@ -69,6 +70,24 @@ const styles = StyleSheet.create({
     height: 150,
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
+  },
+
+  playButton: {
+    width: 0,
+    height: 0,
+    backgroundColor: "transparent",
+    borderStyle: "solid",
+    borderTopWidth: 30,
+    borderRightWidth: 0,
+    borderBottomWidth: 30,
+    borderLeftWidth: 60,
+    borderTopColor: "transparent",
+    borderRightColor: "transparent",
+    borderBottomColor: "transparent",
+    borderLeftColor: "rgba(255, 255, 255, 0.8)",
+    position: "absolute",
+    alignSelf: "center",
+    marginTop: 65,
   },
 });
 

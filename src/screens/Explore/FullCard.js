@@ -63,8 +63,8 @@ const FullCard = ({ route, navigation }) => {
       db.collection("Public Events").doc(route.params.event.id).update({
         attendees: firebase.firestore.FieldValue.arrayUnion(user.uid)
       }).then(() => {
-        navigation.goBack();
-        alert("You are signed up :)");
+        navigation.navigate("Home");
+        alert("You are signed up! Click on this event from your homepage to chat with other attendees, find icebreakers, and more.");
       });
     });
   }
