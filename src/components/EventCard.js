@@ -30,7 +30,7 @@ const EventCard = (props) => {
 
         <SectionContent>
           <MediumText center>{props.event.name}</MediumText>
-          <NormalText center>
+          {props.event.type !== "recommendation" && <NormalText center>
             By{" "}
             {props.event.hostName
               ? props.event.hostName
@@ -40,7 +40,7 @@ const EventCard = (props) => {
                 props.event.hostLastName.substring(0, 1) +
                 "."
               : ""}
-          </NormalText>
+          </NormalText>}
           <SmallText size={12} center>
             {props.event.location} |{" "}
             {props.event.startDate ? getDate(props.event.startDate.toDate()) : getDate(props.event.date.toDate())} |{" "}

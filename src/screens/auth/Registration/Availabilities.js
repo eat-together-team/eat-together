@@ -12,6 +12,7 @@ import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
 import NormalText from "../../../components/NormalText";
 import Button from "../../../components/Button";
+import BorderedButton from "../../../components/BorderedButton";
 import SelectButton from "../../../components/SelectButton";
 import Availability from "../../../components/Availability";
 
@@ -406,6 +407,13 @@ const Availabilities = props => {
             </View>
 
             <Button marginVertical={20} onPress={addTime}>Add time</Button>
+
+            <View>
+              <DateTimePickerModal isVisible={showStartTime} date={startTime} style={{width:'100%'}}
+                  mode="time" onConfirm={changeStartTime} onCancel={() => setShowStartTime(false)}/>
+              <DateTimePickerModal isVisible={showEndTime} date={endTime} style={{width:'100%'}}
+                  mode="time" onConfirm={changeEndTime} onCancel={() => setShowEndTime(false)}/>
+            </View>
         </RBSheet>
 
         <RBSheet
@@ -455,9 +463,16 @@ const Availabilities = props => {
             </View>
 
             <View style={{...styles.row, marginVertical: 20}}>
-              <Button backgroundColor="red" onPress={() => deleteTime(index, dayOfWeek)}>Delete</Button>
-              <MediumText>OR</MediumText>
               <Button onPress={saveTime}>Save</Button>
+              <MediumText>OR</MediumText>
+              <BorderedButton color="red" onPress={() => deleteTime(index, dayOfWeek)}>Delete</BorderedButton>
+            </View>
+
+            <View>
+              <DateTimePickerModal isVisible={showStartTime} date={startTime} style={{width:'100%'}}
+                  mode="time" onConfirm={changeStartTime} onCancel={() => setShowStartTime(false)}/>
+              <DateTimePickerModal isVisible={showEndTime} date={endTime} style={{width:'100%'}}
+                  mode="time" onConfirm={changeEndTime} onCancel={() => setShowEndTime(false)}/>
             </View>
         </RBSheet>
 
@@ -466,10 +481,12 @@ const Availabilities = props => {
         <DateTimePickerModal isVisible={showEndTime} date={endTime}
             mode="time" onConfirm={changeEndTime} onCancel={() => setShowEndTime(false)}/>
 
-        <Button onPress={() => props.navigation.goBack()}
-          marginHorizontal={10}>Cancel</Button> 
-        <Button onPress={saveAvailabilities}
-          marginHorizontal={10}>Save</Button>
+        <View style={styles.buttons}>
+          <Button onPress={() => props.navigation.goBack()}
+            marginHorizontal={10}>Cancel</Button> 
+          <Button onPress={saveAvailabilities}
+            marginHorizontal={10}>Save</Button>
+        </View>
     </Layout>
   );
 }

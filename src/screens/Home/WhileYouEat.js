@@ -37,16 +37,6 @@ import {
 } from "react-native-popup-menu";
 import openMap from "react-native-open-maps";
 
-import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
-import {
-  GOOGLE_AUTH_CLIENT_ID,
-  GOOGLE_AUTH_CLIENT_ID_ANDROID,
-  GOOGLE_AUTH_CLIENT_ID_IOS
-} from "@env"; //Environment variables
-
-WebBrowser.maybeCompleteAuthSession();
-
 const WhileYouEat = ({ route, navigation }) => {
   // Event details
   const [event, setEvent] = useState(route.params.event);
@@ -66,21 +56,13 @@ const WhileYouEat = ({ route, navigation }) => {
   const user = auth.currentUser;
   const [groupChat, setGroupChat] = useState(null); // Info for the group chat
 
-  const [accessToken, setAccessToken] = useState(null);
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: GOOGLE_AUTH_CLIENT_ID,
-    iosClientId: GOOGLE_AUTH_CLIENT_ID_IOS,
-    androidClientId: GOOGLE_AUTH_CLIENT_ID_ANDROID,
-    scopes: ["https://www.googleapis.com/auth/calendar"]
-  });
-
   useEffect(() => {
-    if (route.params.event.hostID === user.uid) {
+    if (event.hostID === user.uid || event.type === "recommendation") {
       getAttendees();
     }
 
     db.collection("Users")
-      .doc(route.params.event.hostID)
+      .doc(event.hostID)
       .get()
       .then((doc) => {
         setHost(doc.data());
@@ -100,13 +82,13 @@ const WhileYouEat = ({ route, navigation }) => {
         }
       });
     
-    if (route.params.event.chatID) {
+    if (event.chatID) {
       db.collection("Groups")
-        .doc(route.params.event.chatID)
+        .doc(event.chatID)
         .get()
         .then((doc) => {
           const group = {
-            groupID: route.params.event.chatID,
+            groupID: event.chatID,
             uids: doc.data().uids,
             name: doc.data().name,
             messages: doc.data().messages,
@@ -117,107 +99,9 @@ const WhileYouEat = ({ route, navigation }) => {
     }
   }, []);
 
-    const publishEventsToGoogleCalendar = async (calendarId) => {
-      if (generatedSchedule.length > 0) {
-        console.log(generatedSchedule)
-        const google_event_objects = generatedSchedule.map((activity) => {
-          return {
-            start: { dateTime: moment(activity.start_time, "YYYY-M-D H:mm:s").toDate() },
-            end: { dateTime: moment(activity.end_time, "YYYY-M-D H:mm:s").toDate() },
-            endTimeUnspecified: !activity.end_time,
-            summary: activity.name,
-            location: Array.isArray(activity.location) ? `${activity.location[0] || activity.location[1]} - ${activity.location[activity.location.length -1] || activity.location[activity.location.length -2]}` : activity.location,
-          };
-        });
-
-        for (let i = 0; i < Math.ceil(google_event_objects.length / 3); i++) {
-          console.log("helloo...", google_event_objects.slice(i * 3,(i+1)*3))
-          await Promise.all(
-              google_event_objects.slice(i * 3,(i+1)*3).map((event) =>
-                insertEventToGoogleCalendar(calendarId, event)
-              )
-            );
-            await new Promise(r => setTimeout(r, 1000));
-        }
-      }
-    };
-
-
-  useEffect(() => {
-    async function fetchData() {
-      if (response?.type === 'success') {
-        setLoading(true);
-        const accessToken = response.authentication.accessToken;
-        const email = await fetchEmail(accessToken);
-
-        const startTime = new Date(route.params.event.startDate * 1000);
-        const endTime = new Date(route.params.event.endDate * 1000);
-        const eventName = route.params.event.name;
-        const info = route.params.event.additionalInfo;
-
-        console.log(startTime.toString());
-        console.log(route.params.event.startDate*1000);
-        console.log(endTime.toString());
-        console.log(eventName);
-        console.log(info);
-
-        const oauth2Client = new Google.auth.OAuth2('clientID', 'clientSecret');
-          oauth2Client.setCredentials({
-            access_token: 'google access token',
-            refresh_token: 'google refresh token',
-            expiry_date: 'token expiry date',
-          });
-
-        const calendar = google.calendar({ version: "v3", oauth2Client });
-
-        const event = {
-           summary: eventName,
-           description: info,
-           start: {
-             dateTime: '2022-12-28T01:00:00-07:00',
-             timeZone: 'Asia/kolkata',
-           },
-           end: {
-             dateTime: '2022-12-28T05:00:00-07:00',
-             timeZone: 'Asia/Kolkata',
-           },
-         };
-
-         request = gapi.client.calendar.events.insert({
-           'calendarId': 'primary',
-           'resource': event
-         })
-//        calendar.events.insert({
-//            calendarId: "primary",
-//            resource: event,
-//        })
-        .then((event) =>  console.log('Event created: %s', event.htmlLink))
-        .catch((error) => console.log('Some error occured', error));
-      }
-    }
-
-    fetchData();
-  }, [response]);
-
-    // Get the user's email
-    const fetchEmail = async (accessToken) => {
-      const response = await fetch(
-        `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`,
-        {
-          method: "GET",
-          headers: new Headers({
-            Authorization: `Bearer ${accessToken}`,
-          }),
-        }).then(function (res) {
-          return res.json();
-        });
-
-      return response.email;
-    }
-
   // Function to navigate to the chat for this event
   const goToEventChat = () => {
-    if (route.params.event.chatID) {
+    if (event.chatID) {
       navigation.navigate("ChatRoom", {
         group: groupChat
       });
@@ -233,8 +117,8 @@ const WhileYouEat = ({ route, navigation }) => {
     setAttendees(newAttendees);
 
     const storeID = {
-      type: route.params.event.type,
-      id: route.params.event.id,
+      type: event.type,
+      id: event.id,
     };
 
     db.collection("Users")
@@ -248,8 +132,8 @@ const WhileYouEat = ({ route, navigation }) => {
 
   // Fetch all attendees of this event
   const getAttendees = () => {
-    route.params.event.attendees.forEach((attendee) => {
-      if (attendee !== user.uid) {
+    event.attendees.forEach((attendee) => {
+      if (attendee !== user.uid || event.type === "recommendation") {
         db.collection("Users")
           .doc(attendee)
           .get()
@@ -258,7 +142,7 @@ const WhileYouEat = ({ route, navigation }) => {
             let attended = false;
             const ids = data.attendedEventIDs.map((e) => e.id);
 
-            if (ids.includes(route.params.event.id)) {
+            if (ids.includes(event.id)) {
               attended = true;
             }
 
@@ -273,11 +157,11 @@ const WhileYouEat = ({ route, navigation }) => {
   function withdraw() {
     if (!loading) {
       setLoading(true);
-      route.params.deleteEvent(route.params.event.id);
+      route.params.deleteEvent(event.id);
 
       const storeID = {
-        type: route.params.event.type,
-        id: route.params.event.id,
+        type: event.type,
+        id: event.id,
       };
 
       db.collection("Users")
@@ -287,9 +171,9 @@ const WhileYouEat = ({ route, navigation }) => {
           attendedEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
         })
         .then(() => {
-          if (route.params.event.type === "private") {
-            db.collection("Private Events")
-              .doc(route.params.event.id)
+          if (event.type === "public") {
+            db.collection("Public Events")
+              .doc(event.id)
               .update({
                 attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
               })
@@ -298,8 +182,8 @@ const WhileYouEat = ({ route, navigation }) => {
                 navigation.goBack();
               });
           } else {
-            db.collection("Public Events")
-              .doc(route.params.event.id)
+            db.collection("Private Events")
+              .doc(event.id)
               .update({
                 attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
               })
@@ -349,8 +233,8 @@ const WhileYouEat = ({ route, navigation }) => {
     let friend = null;
     userInfo.friendIDs.forEach((f) => {
       if (
-        route.params.event.attendees.includes(f) &&
-        f !== route.params.event.hostID
+        event.attendees.includes(f) &&
+        f !== event.hostID
       ) {
         friend = f;
         return;
@@ -391,7 +275,7 @@ const WhileYouEat = ({ route, navigation }) => {
                     <NormalText size={18}>Report Event</NormalText>
                   </MenuOption>
                 )}
-                {event.hostID === user.uid && (
+                {event.hostID === user.uid || event.type === "recommendation" && (
                   <MenuOption
                     onSelect={() =>
                       navigation.navigate("EditEvent", {
@@ -435,52 +319,43 @@ const WhileYouEat = ({ route, navigation }) => {
           style={styles.imageBackground}
           resizeMode="cover"
         ></ImageBackground>
-        <CircularButton width={110} marginHorizontal={20} marginVertical={10}
-            onPress={() => {
-                promptAsync();
-            }}
-            >
-            <MediumText size={26} color ={"white"}>
-                {"+ Add"}
-            </MediumText>
-        </CircularButton>
         <View style={styles.infoContainer}>
           <LargeText size={24} marginBottom={10}>
             {event.name}
           </LargeText>
-          <TouchableOpacity
+          {event.type !== "recommendation" && <TouchableOpacity
             style={styles.row}
             onPress={() => {
-              if (host && route.params.event.hostID !== user.uid)
+              if (host && event.hostID !== user.uid)
                 navigation.navigate("FullProfile", {
                   person: host,
                 });
             }}
-            disabled={route.params.event.hostID === user.uid}
+            disabled={event.hostID === user.uid}
           >
             <Image
               source={
-                route.params.event.hasHostImage
-                  ? { uri: route.params.event.hostImage }
+                event.hasHostImage
+                  ? { uri: event.hostImage }
                   : require("../../../assets/logo.png")
               }
               style={styles.profileImg}
             />
             <MediumText size={18}>
-              {route.params.event.hostID === user.uid
+              {event.hostID === user.uid
                 ? "You!"
-                : route.params.event.hostFirstName
-                ? route.params.event.hostFirstName +
+                : event.hostFirstName
+                ? event.hostFirstName +
                   " " +
-                  route.params.event.hostLastName
-                : route.params.event.hostName}
+                  event.hostLastName
+                : event.hostName}
             </MediumText>
-          </TouchableOpacity>
+          </TouchableOpacity>}
 
           <View style={styles.row}>
             <NormalText>
-              {route.params.event.attendees.length} attendee
-              {route.params.event.attendees.length !== 1 && "s"}
+              {event.attendees.length} attendee
+              {event.attendees.length !== 1 && "s"}
             </NormalText>
             {friend && <NormalText>, including: </NormalText>}
             {friend && (
@@ -516,7 +391,7 @@ const WhileYouEat = ({ route, navigation }) => {
                   openMap({ query: event.location, provider: "google" })
                 }
               >
-                (view on map)
+                (map)
               </Link>
             </View>
 
@@ -573,7 +448,7 @@ const WhileYouEat = ({ route, navigation }) => {
                     </NormalText>
                   ) : (
                     people.map((person, index) => {
-                      if (person.id !== user.uid) {
+                      if (person.id !== user.uid || event.type === "recommendation") {
                         return (
                           <Attendance
                             size={17}

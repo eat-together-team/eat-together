@@ -11,12 +11,13 @@ const AuthProvider = (props) => {
   const [profileImageUri, setProfileImageUri] = useState(
     "https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png"
   );
+  const [hasNotif, setHasNotif] = useState(false);
 
   useEffect(() => {
     checkLogin();
   }, []);
 
-  function getProfileUri(u) {
+  function getProfile(u) {
     db.collection("Users")
       .doc(u.uid)
       .get()
@@ -24,6 +25,8 @@ const AuthProvider = (props) => {
         if (doc.data().hasImage) {
           setProfileImageUri(doc.data().image);
         }
+
+        setHasNotif(doc.data().hasNotif);
       });
   }
   function checkLogin() {
@@ -31,7 +34,7 @@ const AuthProvider = (props) => {
       if (u) {
         setUser(true);
         setCurrUser(u);
-        getProfileUri(u);
+        getProfile(u);
       } else {
         setUser(false);
         setCurrUser(u);
@@ -46,7 +49,9 @@ const AuthProvider = (props) => {
         user,
         currUser,
 		    profileImageUri,
-        updateProfileImg: image => setProfileImageUri(image)
+        hasNotif,
+        updateProfileImg: image => setProfileImageUri(image),
+        updateHasNotif: notif => setHasNotif(notif),
       }}
     >
       {props.children}

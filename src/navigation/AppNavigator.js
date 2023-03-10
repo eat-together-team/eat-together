@@ -92,6 +92,8 @@ const Main = () => {
 const Tabs = createBottomTabNavigator();
 const MainTabs = () => {
   const profileImageUri = useContext(AuthContext).profileImageUri;
+  const hasNotif = useContext(AuthContext).hasNotif;
+
   return (
     <Tabs.Navigator
       screenOptions={{
@@ -151,7 +153,7 @@ const MainTabs = () => {
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               focused={focused}
-              icon={"mail-outline"}
+              icon={hasNotif ? "mail-unread-outline" : "mail-outline"}
               title="Inbox"
             />
           ),
@@ -181,7 +183,6 @@ export default () => {
       currUser &&
       (currUser.emailVerified ||
         currUser.email === "rachelhu@uw.edu" ||
-        currUser.email === "elaine@uw.edu" ||
         currUser.email === "argharib@uw.edu")
     ) {
       await db
@@ -215,7 +216,6 @@ export default () => {
       currUser &&
       !currUser.emailVerified &&
       currUser.email !== "rachelhu@uw.edu" &&
-      currUser.email !== "elaine@uw.edu" &&
       currUser.email !== "argharib@uw.edu" ? (
         <VerifyEmail />
       ) : (

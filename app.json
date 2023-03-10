@@ -4,7 +4,7 @@
     "owner": "eat-together-team",
     "slug": "eat-together",
     "description": "Connecting students through shared meals.",
-    "version": "0.8.1",
+    "version": "0.8.2",
     "orientation": "portrait",
     "icon": "./assets/big_logo.png",
     "scheme": "com.eat.together",
@@ -40,7 +40,7 @@
         "android.permission.RECORD_AUDIO"
       ],
       "package": "com.eat.together",
-      "versionCode": 5
+      "versionCode": 6
     },
     "extra": {
       "eas": {
