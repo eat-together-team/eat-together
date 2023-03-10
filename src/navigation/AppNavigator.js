@@ -12,7 +12,6 @@ import ProfilePic from "../components/ProfilePic";
 
 //Screens (Make sure to import if ever adding new screen!)
 import OrganizeMain from "../screens/Organize/OrganizeMain";
-import ChatMain from "../screens/Chat/ChatMain";
 import ExploreMain from "../screens/Explore/ExploreMain";
 import HomeMain from "../screens/Home/HomeMain";
 import ProfileMain from "../screens/Profile/ProfileMain";

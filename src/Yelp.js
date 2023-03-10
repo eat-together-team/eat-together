@@ -1,6 +1,7 @@
 // Script to test out the Yelp API for food recommendations
+require('dotenv').config({ path: '../.env' });
 
-const apiKey = 'Qpp5fhhif1yAux97RX4ulrRaUvGEEBr4ZfilwXQlwH763U83Tul4KUjwR7-4877bUlAFs5oh7xyy6KR3o21_ePK1xQxzlzCeltgyDO4GwTRqiUOJkLz6ga5DfpP1Y3Yx';
+const apiKey = process.env.YELP_API_KEY;
 
 // Library that helps allows you to send HTTP requests to the API endpoint.
 const restaurant = async () => {
