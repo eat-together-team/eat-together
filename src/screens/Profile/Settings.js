@@ -28,9 +28,11 @@ export default function ({ navigation }) {
     useEffect(() => {
         if (user) {
             db.collection("Users").doc(user.uid).get().then(doc => {
-                setUserInfo(doc.data());
-                setNotifs(doc.data().settings.notifications);
-                setPrivAcct(doc.data().settings.privateAccount ? doc.data().settings.privateAccount : false);
+                if (!doc.exists) {
+                    setUserInfo(doc.data());
+                    setNotifs(doc.data().settings.notifications);
+                    setPrivAcct(doc.data().settings.privateAccount ? doc.data().settings.privateAccount : false);
+                }
             });
         }
     });
@@ -126,17 +128,26 @@ export default function ({ navigation }) {
                     text: "Yes",
                     onPress: async () => {
                         const uid = user.uid;
-                        db.collection("Users").doc(uid).delete();
-                        db.collection("Usernames").doc(userInfo.username).delete();
 
+                        // Delete image from storage
                         if (userInfo.hasImage) {
                             const ref = storage.ref().child(`profilePictures/${uid}`);
                             await ref.delete();
                         }
 
+                        db.collection("Users").doc(uid).delete();
+                        db.collection("Usernames").doc(userInfo.username).delete();
+
+                        // Delete their uid from all friends in database
+                        userInfo.friendIDs.forEach(friend => {
+                            db.collection("Users").doc(friend).update({
+                                friendIDs: firebase.firestore.FieldValue.arrayRemove(uid)
+                            });
+                        });
+
                         await user.delete().then(() => {
-                            alert("Account deleted successfully. Sorry to see you go :(");
                             signOut();
+                            alert("Account deleted successfully. Sorry to see you go :(");
                         }).catch((error) => {
                             signOut().then(() => {
                                 alert("You need to sign in again to proceed.");

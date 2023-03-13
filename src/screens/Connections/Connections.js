@@ -29,18 +29,17 @@ export default function ({ navigation }) {
         const ref = db.collection("Users").doc(user.uid);
         ref.onSnapshot((doc) => {
             const friends = doc.data().friendIDs;
-            let list = [];
-            friends.forEach((uid) => {
+            let promises = friends.map((uid) => {
                 const userRef = db.collection('Users').doc(uid);
-                userRef.get().then(onSnapshot => {
-                    if (onSnapshot.exists) {
-                        list.push(onSnapshot.data());
-                    }
-                })
-                .catch(e => console.log(e))
-                .then(() => {
-                    setUsers(list);
-                });
+                return userRef.get().then((onSnapshot) => {
+                if (onSnapshot.exists) {
+                    return onSnapshot.data();
+                }
+                }).catch((e) => console.log(e));
+            });
+            
+            Promise.all(promises).then((list) => {
+                setUsers(list.filter((user) => user != null));
             });
         });
     }, []);

@@ -17,6 +17,7 @@ import Availabilities from "../screens/auth/Registration/Availabilities";
 import Day from "../screens/auth/Registration/Day";
 
 import { db, auth, storage } from "../provider/Firebase";
+import moment from "moment";
 
 const Stack = createStackNavigator();
 const Auth = () => {
@@ -158,10 +159,13 @@ const Auth = () => {
         saturday: newTimes[5],
         sunday: newTimes[6],
       },
+      notifications: [],
+      metWith: [],
+      metAt: [],
       settings: {
         notifications: true,
       },
-      hasNotif: false,
+      hasNotif: true,
       pushTokens: [],
       verified: false,
     };
@@ -179,9 +183,8 @@ const Auth = () => {
       let newDay = [];
       list.forEach(time => {
         newDay.push({
-          startTime: time.startTime.toDate(),
-          endTime: time.endTime.toDate(),
-          available: time.available
+          startTime: moment(time.startTime).toDate(),
+          endTime: moment(time.endTime).toDate()
         });
       });
 

@@ -36,6 +36,10 @@ export default function ({ navigation }) {
         .collection("Users")
         .doc(user.uid)
         .onSnapshot(async (doc) => {
+          if (!doc.exists) {
+            return;
+          }
+          
           setUserInfo(doc.data());
           if (doc.data().settings.banner) {
             setBanner(doc.data().settings.banner);

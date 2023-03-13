@@ -50,6 +50,8 @@ export default function (props) {
 
       // Get the list of notifications from the backend
       await db.collection("Users").doc(user.uid).onSnapshot((snap) => {
+        if (!snap.exists) return;
+        
         let data = snap.data();
         setUserData(data);
 
