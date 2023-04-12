@@ -10,7 +10,6 @@ import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
 import NormalText from "../../../components/NormalText";
 import TextInput from "../../../components/TextInput";
-// import { TextInput } from "react-native-rapi-ui";
 
 import TagsSection from "../../../components/TagsSection";
 import Button from "../../../components/Button";
@@ -189,6 +188,10 @@ const Tags = props => {
                     multi={true}
                     selectedItems={schoolTagsSelected}
                     onItemSelect={(item) => {
+                        if (schoolTagsSelected.length >= 4) {
+                            alert("You can only select up to 4 tags.");
+                        }
+
                         setSchoolTagsSelected([...schoolTagsSelected, item]);
                     }}
                     onRemoveItem={(item, index) => {
@@ -208,6 +211,10 @@ const Tags = props => {
                     multi={true}
                     selectedItems={hobbyTagsSelected}
                     onItemSelect={(item) => {
+                        if (hobbyTagsSelected.length >= 4) {
+                            alert("You can only select up to 4 tags.");
+                        }
+
                         setHobbyTagsSelected([...hobbyTagsSelected, item]);
                     }}
                     onRemoveItem={(item, index) => {
@@ -227,6 +234,10 @@ const Tags = props => {
                     multi={true}
                     selectedItems={foodTagsSelected}
                     onItemSelect={(item) => {
+                        if (foodTagsSelected.length >= 4) {
+                            alert("You can only select up to 4 tags.");
+                        }
+
                         setFoodTagsSelected([...foodTagsSelected, item]);
                     }}
                     onRemoveItem={(item, index) => {

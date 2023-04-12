@@ -147,8 +147,7 @@ const Name = props => {
                   firstName === "" ||
                   lastName === "" ||
                   pronouns === "" ||
-                  age === "" ||
-                  bio.length < 10
+                  age === ""
                 }
                 onPress={goNext}
                 marginHorizontal={10}

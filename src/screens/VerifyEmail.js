@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Alert } from 'react-native';
 import { db, auth, storage } from '../provider/Firebase';
+import firebase from 'firebase/compat';
 
 import Button from '../components/Button';
 import LargeText from '../components/LargeText';
@@ -19,7 +20,7 @@ export default function ({ navigation }) {
     }, []);
 
     const resend = () => {
-        user.sendEmailVerification();
+        firebase.auth().currentUser.sendEmailVerification(); // For some reason, user.sendEmailVerification() is undefined
         setResent(true);
     }
 

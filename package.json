@@ -20,7 +20,7 @@
     "eas-cli": "^2.1.0",
     "eslint": "^8.22.0",
     "eslint-config-rallycoding": "^3.2.0",
-    "expo": "^46.0.10",
+    "expo": "~46.0.19",
     "expo-app-loading": "~2.1.0",
     "expo-application": "~4.2.2",
     "expo-auth-session": "~3.7.4",
@@ -64,7 +64,7 @@
   },
   "private": true,
   "name": "eat-together",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "Connecting students through shared meals. Our app allows you to create and join food meetups with ease.",
   "main": "index.js",
   "repository": {

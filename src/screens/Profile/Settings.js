@@ -28,7 +28,7 @@ export default function ({ navigation }) {
     useEffect(() => {
         if (user) {
             db.collection("Users").doc(user.uid).get().then(doc => {
-                if (!doc.exists) {
+                if (doc.exists) {
                     setUserInfo(doc.data());
                     setNotifs(doc.data().settings.notifications);
                     setPrivAcct(doc.data().settings.privateAccount ? doc.data().settings.privateAccount : false);
@@ -128,23 +128,24 @@ export default function ({ navigation }) {
                     text: "Yes",
                     onPress: async () => {
                         const uid = user.uid;
-
-                        // Delete image from storage
-                        if (userInfo.hasImage) {
-                            const ref = storage.ref().child(`profilePictures/${uid}`);
-                            await ref.delete();
-                        }
-
-                        db.collection("Users").doc(uid).delete();
-                        db.collection("Usernames").doc(userInfo.username).delete();
+                        const info = userInfo;
 
                         // Delete their uid from all friends in database
-                        userInfo.friendIDs.forEach(friend => {
+                        info.friendIDs.forEach(friend => {
                             db.collection("Users").doc(friend).update({
                                 friendIDs: firebase.firestore.FieldValue.arrayRemove(uid)
                             });
                         });
 
+                        // Delete image from storage
+                        if (info.hasImage) {
+                            const ref = storage.ref().child(`profilePictures/${uid}`);
+                            await ref.delete();
+                        }                        
+
+                        db.collection("Users").doc(uid).delete();
+                        db.collection("Usernames").doc(info.username).delete();
+                        
                         await user.delete().then(() => {
                             signOut();
                             alert("Account deleted successfully. Sorry to see you go :(");

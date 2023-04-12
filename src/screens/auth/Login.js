@@ -117,11 +117,10 @@ export default function ({ navigation }) {
               {loading ? "Loading" : "Login"}
             </Button>
             
-            <MediumText center>OR</MediumText>
             <Button onPress={() => {
               navigation.navigate("Name");
             }} marginVertical={10} disabled={loading} backgroundColor="white" color="#5DB075">
-              Register
+              No Account Yet?
             </Button>
 
             <View

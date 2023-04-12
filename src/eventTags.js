@@ -5,6 +5,7 @@ const eventTags = [
     'Italian cuisine',
     'Greek cuisine',
     'Spanish cuisine',
+    'Korean cuisine',
     'Mediterranean cuisine',
     'Lebanese cuisine',
     'Moroccan cuisine',

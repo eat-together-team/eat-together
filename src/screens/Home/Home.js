@@ -338,7 +338,7 @@ export default function ({ navigation }) {
           )}
         />
       :
-        <EmptyState title="No Upcoming Meals" text="Explore different meals and start making new friends!"/>
+        <EmptyState title="No Upcoming Meals" text="Explore different meals, or organize one on your own!"/>
       :
         <LoadingView/>
       }

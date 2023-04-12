@@ -49,9 +49,11 @@ export default function({ navigation }) {
         async function fetchData() {
             let userData;
             await db.collection("Users").doc(user.uid).onSnapshot(doc => {
-                userData = doc.data();
-                setUserInfo(doc.data());
-                setUnread(doc.data().hasNotif);
+                if (doc.exists) {
+                  userData = doc.data();
+                  setUserInfo(doc.data());
+                  setUnread(doc.data().hasNotif);
+                }
             });
 
             const ref = db.collection("Public Events");

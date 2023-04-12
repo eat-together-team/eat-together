@@ -128,101 +128,103 @@ export default function ({ navigation }) {
     });
 
     db.collection("Users").doc(user.uid).onSnapshot((doc) => {
-      setUserInfo(doc.data());
+      if (doc.exists) {
+        setUserInfo(doc.data());
 
-      const nameCurrent = doc.data().firstName + " " + doc.data().lastName;
-      const friends = doc.data().friendIDs;
-      const groups = doc.data().groupIDs;
+        const nameCurrent = doc.data().firstName + " " + doc.data().lastName;
+        const friends = doc.data().friendIDs;
+        const groups = doc.data().groupIDs;
 
-      // update the groups displayed
-      let temp = [];
-      let lenGroups = groups.length;
+        // update the groups displayed
+        let temp = [];
+        let lenGroups = groups.length;
 
-      groups.forEach((groupID) => {
-        db.collection("Groups")
-          .doc(groupID)
-          .get()
-          .then((doc) => {
-            // now store all the chat rooms
-            let data = doc.data();
-            // store most recent message in variable
+        groups.forEach((groupID) => {
+          db.collection("Groups")
+            .doc(groupID)
+            .get()
+            .then((doc) => {
+              // now store all the chat rooms
+              let data = doc.data();
+              // store most recent message in variable
 
-            let message = "";
-            let unread = false;
+              let message = "";
+              let unread = false;
 
-            if (data.messages.length > 0) {
-              const lastMessage = data.messages[data.messages.length - 1];
-              message = lastMessage.message;
-              if (lastMessage.unread && lastMessage.sentBy !== user.uid) {
-                unread = lastMessage.unread.filter(u => u.uid === user.uid)[0].unread;
+              if (data.messages.length > 0) {
+                const lastMessage = data.messages[data.messages.length - 1];
+                message = lastMessage.message;
+                if (lastMessage.unread && lastMessage.sentBy !== user.uid) {
+                  unread = lastMessage.unread.filter(u => u.uid === user.uid)[0].unread;
+                }
               }
-            }
 
-            let time =
-              data.messages.length != 0
-                ? data.messages[data.messages.length - 1].sentAt
-                : "";
+              let time =
+                data.messages.length != 0
+                  ? data.messages[data.messages.length - 1].sentAt
+                  : "";
 
-            // Get rid of your own name and all the ways it can be formatted in group title (if it is a DM)
-            let name = data.name;
-            if (data.uids.length >= 2) {
-              name = name.replace(nameCurrent + ", ", "");
-              if (name.endsWith(", " + nameCurrent)) {
-                name = name.slice(0, -1 * (nameCurrent.length + 2));
+              // Get rid of your own name and all the ways it can be formatted in group title (if it is a DM)
+              let name = data.name;
+              if (data.uids.length >= 2) {
+                name = name.replace(nameCurrent + ", ", "");
+                if (name.endsWith(", " + nameCurrent)) {
+                  name = name.slice(0, -1 * (nameCurrent.length + 2));
+                }
               }
-            }
 
-            temp.push({
-              groupID: groupID,
-              name: name,
-              uids: data.uids,
-              hasImage: data.hasImage,
-              message: message,
-              unread: unread,
-              time: time,
-              pictureID: data.id,
-            });
-          })
-          .then(() => {
-            lenGroups--;
-            if (lenGroups === 0) {
-              // sort display by time
-              temp.sort((a, b) => {
-                return b.time - a.time;
+              temp.push({
+                groupID: groupID,
+                name: name,
+                uids: data.uids,
+                hasImage: data.hasImage,
+                message: message,
+                unread: unread,
+                time: time,
+                pictureID: data.id,
               });
-              setGroups(temp);
-            }
-          });
-      });
-      // prepare the list of all connections for searchbar
-      let list = [];
-      let numFriends = friends.length;
-      friends.forEach((uid) => {
-        db.collection("Users")
-          .doc(uid)
-          .get()
-          .then((doc) => {
-            let data = doc.data();
-            list.push({
-              id: data.id,
-              username: data.username,
-              name: data.firstName + " " + data.lastName,
-              hasImage: data.hasImage,
-              pictureID: data.id,
+            })
+            .then(() => {
+              lenGroups--;
+              if (lenGroups === 0) {
+                // sort display by time
+                temp.sort((a, b) => {
+                  return b.time - a.time;
+                });
+                setGroups(temp);
+              }
             });
-          })
-          .then(() => {
-            setUsers(list);
-            numFriends--;
+        });
+        // prepare the list of all connections for searchbar
+        let list = [];
+        let numFriends = friends.length;
+        friends.forEach((uid) => {
+          db.collection("Users")
+            .doc(uid)
+            .get()
+            .then((doc) => {
+              let data = doc.data();
+              list.push({
+                id: data.id,
+                username: data.username,
+                name: data.firstName + " " + data.lastName,
+                hasImage: data.hasImage,
+                pictureID: data.id,
+              });
+            })
+            .then(() => {
+              setUsers(list);
+              numFriends--;
 
-            if (numFriends === 0) {
-              setLoading(false);
-            }
-          });
-      });
+              if (numFriends === 0) {
+                setLoading(false);
+              }
+            });
+        });
 
-      if (numFriends === 0) {
-        setLoading(false);
+        if (numFriends === 0) {
+          setLoading(false);
+        }
       }
     });
   }, [isFocused]);
