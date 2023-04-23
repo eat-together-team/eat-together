@@ -5,6 +5,7 @@ const hobbyTags = [
     'Soccer',
     'Basketball',
     'Tennis',
+    'Ping pong',
     'Badminton',
     'Football',
     'Volleyball',

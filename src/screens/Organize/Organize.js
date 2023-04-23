@@ -81,17 +81,19 @@ export default function ({ navigation }) {
         // Load user info
         async function fetchData() {
             await db.collection("Users").doc(user.uid).onSnapshot((doc) => {
-                setUserInfo(doc.data());
-                setUnread(doc.data().hasNotif);
+                if (doc.exists) {
+                    setUserInfo(doc.data());
+                    setUnread(doc.data().hasNotif);
+                }
             });
         }
 
         fetchData();
     }, []);
 
-//  resets icebreakers for each new event
+    //  resets icebreakers for each new event
     useEffect(() => {
-      // picks icebreaker set from set of icebreakers randomly
+        // picks icebreaker set from set of icebreakers randomly
             var breakOptions = [];
             var usedIce = [];
             db.collection("Icebreakers").doc("icebreakers").get().then(doc => {
