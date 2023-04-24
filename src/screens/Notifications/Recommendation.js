@@ -68,15 +68,27 @@ const Recommendation = ({ route, navigation }) => {
       id: route.params.event.id
     };
 
-    db.collection("Private Events").doc(route.params.event.id).update({
-      attendees: firebase.firestore.FieldValue.arrayUnion(user.uid)
+    let prevHostID;
+
+    db.collection("Private Events").doc(route.params.event.id).get().then(doc => {
+      prevHostID = doc.data().hostID;
     }).then(() => {
-      db.collection("Users").doc(user.uid).update({
-        attendingEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
-        attendedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID)
+      db.collection("Private Events").doc(route.params.event.id).update({
+        attendees: firebase.firestore.FieldValue.arrayUnion(user.uid),
+        hostID: prevHostID ? prevHostID : user.uid
       }).then(() => {
-        navigation.goBack();
-        alert("You are signed up :)");
+        db.collection("Users").doc(user.uid).update({
+          attendingEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
+          attendedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID)
+        }).then(() => {
+          navigation.goBack();
+
+          if (prevHostID) {
+            alert("You are signed up :)");
+          } else {
+            alert("You are signed up! Make sure to do attendance when the meal starts!");
+          }
+        });
       });
     });
   }
@@ -95,15 +107,16 @@ const Recommendation = ({ route, navigation }) => {
         attendedEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
       })
       .then(() => {
-        db.collection("Private Events")
-          .doc(route.params.event.id)
-          .update({
+        db.collection("Private Events").doc(route.params.event.id).get().then(doc => {
+          db.collection("Private Events").doc(route.params.event.id).update({
             attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
+            hostID: doc.data().hostID === user.uid ? "" : doc.data().hostID
           })
           .then(() => {
             alert("You withdrew from the meal :(");
             navigation.goBack();
           });
+        });
       });
   }
 
@@ -136,7 +149,8 @@ const Recommendation = ({ route, navigation }) => {
             </View>
 
             <View style={styles.row}>
-              {attendees.map((attendee, index) => 
+              {attendees.filter(attendee => attendee.id !== user.uid)
+                .map((attendee, index) => 
                 <TouchableOpacity style={styles.row}
                   onPress={() => {
                       navigation.navigate("FullProfile", {

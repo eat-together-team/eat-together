@@ -65,7 +65,7 @@ export default function ({ navigation }) {
             
             <FlatList contentContainerStyle={styles.invites} keyExtractor={item => item.id}
                     data={users} renderItem={({item}) =>
-                <PeopleList person={item} color={generateColor()} click={() => {
+                <PeopleList person={item} color="white" click={() => {
                     navigation.navigate("FullProfile", {
                         person: item
                     });

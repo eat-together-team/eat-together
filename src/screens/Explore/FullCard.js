@@ -1,16 +1,28 @@
 // Full event page
 
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, StyleSheet, ImageBackground, Dimensions, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  ImageBackground,
+  Dimensions,
+  Image,
+  TouchableOpacity,
+  Linking
+} from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
+
+import Toggle from "../../components/Toggle";
 import Button from "../../components/Button";
 import TagsList from "../../components/TagsList";
 import Link from "../../components/Link";
+import PeopleList from "../../components/PeopleList";
 
 import getDate from "../../getDate";
 import getTime from "../../getTime";
@@ -28,6 +40,10 @@ const FullCard = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
   const [host, setHost] = useState(null);
 
+  // See all attendees
+  const [people, setPeople] = useState([]);
+  const [openAttendance, setOpenAttendance] = useState(false);
+
   useEffect(() => {
     db.collection("Users").doc(user.uid).get().then(doc => {
       const events = doc.data().attendingEventIDs.map(e => e.id);
@@ -35,9 +51,10 @@ const FullCard = ({ route, navigation }) => {
       if (events.includes(route.params.event.id)) {
         setAttending(true);
       }
-
-      if (friendAttending(doc.data())) {
-        db.collection("Users").doc(friendAttending(doc.data())).get().then(doc => {
+      
+      const friend = friendAttending(doc.data());
+      if (friend) {
+        db.collection("Users").doc(friend).get().then(doc => {
           setFriend(doc.data());
         });
       }
@@ -46,9 +63,44 @@ const FullCard = ({ route, navigation }) => {
         setHost(doc.data());
       });
     }).then(() => {
+      getAttendees();
+    }).then(() => {
       setLoading(false);
     });
   }, []);
+
+  // Fetch all attendees of this event
+  const getAttendees = () => {
+    route.params.event.attendees.forEach((attendee) => {
+      if (attendee !== user.uid) {
+        db.collection("Users")
+          .doc(attendee)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              setPeople((people) => [...people, doc.data()]);
+            }
+          });
+      }
+    });
+  };
+
+  // Adds event to Google Calendar
+  const addToCalendar = async () => {
+    const details = {
+      start: route.params.event.startDate.toDate().toISOString().replace(/[:\-]|\.\d{3}/g, ''),
+      end: route.params.event.endDate.toDate().toISOString().replace(/[:\-]|\.\d{3}/g, ''),
+      name: route.params.event.name,
+      location: route.params.event.location,
+      additionalInfo: route.params.event.additionalInfo
+    };
+
+    const calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=
+      ${details.name.trim()}&details=${details.additionalInfo}&location=${details.location}
+      &dates=${details.start}/${details.end}`;
+
+    Linking.openURL(calendarUrl);
+  }
 
   // Attend an event
   const attend = () => {
@@ -180,7 +232,7 @@ const FullCard = ({ route, navigation }) => {
             <NormalText>{route.params.event.attendees.length} attendee{route.params.event.attendees.length !== 1 && "s"}</NormalText>
             {friend && <NormalText>, including: </NormalText>}
             {friend && <Image source={friend.hasImage ? { uri: friend.image } : require("../../../assets/logo.png")} style={styles.profileImg}/>}
-            {friend && <NormalText>{friend.firstName + " " + friend.lastName}</NormalText>}
+            {friend && <NormalText>{friend.firstName + " " + friend.lastName.substring(0, 1) + "."}</NormalText>}
           </View>
           {route.params.event.tags && route.params.event.tags.length > 0 &&
             <TagsList marginVertical={10} tags={route.params.event.tags} left/>}
@@ -203,6 +255,9 @@ const FullCard = ({ route, navigation }) => {
               <NormalText paddingHorizontal={10} color="black">
                 {route.params.event.startDate ? getDate(route.params.event.startDate.toDate()) : getDate(route.params.event.date.toDate())}
               </NormalText>
+              <Link onPress={() => addToCalendar()}>
+                (add to calendar)
+              </Link>
             </View>
 
             <View style={styles.row}>
@@ -217,6 +272,41 @@ const FullCard = ({ route, navigation }) => {
           <NormalText marginBottom={20} color="black">
             {route.params.event.additionalInfo}
           </NormalText>
+
+          {/* Attendance dropdown */}
+          <Toggle 
+            open={openAttendance}
+            onPress={() => setOpenAttendance(!openAttendance)}
+            title="Attendance"
+          />
+
+          {openAttendance && (
+            <View style={{ marginTop: 10 }}>
+              {people.length === 0 ? (
+                <NormalText paddingHorizontal={25} size={17} color="black">
+                  {"Just yourself"}
+                </NormalText>
+              ) : (
+                people.map(person => {
+                  if (person.id !== user.uid) {
+                    return (
+                      <PeopleList
+                        person={person}
+                        key={person.id}
+                        color="white"
+                        width="100%"
+                        click={() => {
+                          navigation.navigate("FullProfile", {
+                              person: person
+                          });
+                        }}
+                      />
+                    );
+                  }
+                })
+              )}
+            </View>
+          )}
 
           <Button onPress={attending ? withdraw : attend} disabled={route.params.event.hostID === user.uid}
             marginVertical={20} backgroundColor={loading ? "grey" : attending && 

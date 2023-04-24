@@ -120,7 +120,7 @@ async function sendInvites(
       
       navigation.goBack();
       clearAll();
-      alert("Invitations sent!");
+      alert("Invitations sent! Make sure to do attendance when the meal starts!");
     });
 }
 

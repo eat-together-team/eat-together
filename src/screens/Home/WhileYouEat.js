@@ -10,11 +10,12 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  Linking
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
-import Attendance from "../../components/Attendance";
+import PeopleList from "../../components/PeopleList";
 import Icebreaker from "../../components/Icebreaker";
 import TagsList from "../../components/TagsList";
 import CircularButton from "../../components/CircularButton";
@@ -56,6 +57,7 @@ const WhileYouEat = ({ route, navigation }) => {
   const user = auth.currentUser;
   const [groupChat, setGroupChat] = useState(null); // Info for the group chat
 
+  // Fetch meetup data on page load
   useEffect(() => {
     if (event.hostID === user.uid || event.type === "recommendation") {
       getAttendees();
@@ -81,23 +83,52 @@ const WhileYouEat = ({ route, navigation }) => {
             });
         }
       });
-    
+  }, []);
+
+  // Checking group chat updates
+  useEffect(() => {
     if (event.chatID) {
       db.collection("Groups")
         .doc(event.chatID)
-        .get()
-        .then((doc) => {
+        .onSnapshot((doc) => {
+          // Determine unread status
+          let unread = false;
+          if (doc.data().messages.length > 0) {
+            const lastMessage = doc.data().messages[doc.data().messages.length - 1];
+            if (lastMessage.unread && lastMessage.sentBy !== user.uid) {
+              unread = lastMessage.unread.filter(u => u.uid === user.uid)[0].unread;
+            }
+          }
+
           const group = {
             groupID: event.chatID,
             uids: doc.data().uids,
             name: doc.data().name,
             messages: doc.data().messages,
+            unread: unread
           };
 
           setGroupChat(group);
         });
     }
-  }, []);
+  }, [])
+
+  // Adds event to Google Calendar
+  const addToCalendar = async () => {
+    const details = {
+      start: event.startDate.toDate().toISOString().replace(/[:\-]|\.\d{3}/g, ''),
+      end: event.endDate.toDate().toISOString().replace(/[:\-]|\.\d{3}/g, ''),
+      name: event.name,
+      location: event.location,
+      additionalInfo: event.additionalInfo
+    };
+
+    const calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=
+      ${details.name.trim()}&details=${details.additionalInfo}&location=${details.location}
+      &dates=${details.start}/${details.end}`;
+
+    Linking.openURL(calendarUrl);
+  }
 
   // Function to navigate to the chat for this event
   const goToEventChat = () => {
@@ -133,7 +164,7 @@ const WhileYouEat = ({ route, navigation }) => {
   // Fetch all attendees of this event
   const getAttendees = () => {
     event.attendees.forEach((attendee) => {
-      if (attendee !== user.uid || event.type === "recommendation") {
+      if (attendee !== user.uid) {
         db.collection("Users")
           .doc(attendee)
           .get()
@@ -153,7 +184,7 @@ const WhileYouEat = ({ route, navigation }) => {
     });
   };
 
-  //Delete the event; this is the old action
+  // Delete the event; this is the old action
   function withdraw() {
     if (!loading) {
       setLoading(true);
@@ -171,26 +202,34 @@ const WhileYouEat = ({ route, navigation }) => {
           attendedEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
         })
         .then(() => {
-          if (event.type === "public") {
-            db.collection("Public Events")
-              .doc(event.id)
-              .update({
-                attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
-              })
-              .then(() => {
-                alert("You withdrew from the meal :(");
-                navigation.goBack();
-              });
+          if (event.type === "public") {  // Public events
+            db.collection("Public Events").doc(event.id).update({
+              attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
+            })
+            .then(() => {
+              alert("You withdrew from the meal :(");
+              navigation.goBack();
+            });
           } else {
-            db.collection("Private Events")
-              .doc(event.id)
-              .update({
+            if (event.type === "recommendation") {  // Recommendations
+              db.collection("Private Events").doc(event.id).get().then(doc => {
+                db.collection("Private Events").doc(event.id).update({
+                  attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
+                  hostID: doc.data().hostID === user.uid ? "" : doc.data().hostID,
+                }).then(() => {
+                  alert("You withdrew from the meal :(");
+                  navigation.goBack();
+                });
+              });
+            } else {  // Other private events
+              db.collection("Private Events").doc(event.id).update({
                 attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
               })
               .then(() => {
                 alert("You withdrew from the meal :(");
                 navigation.goBack();
               });
+            }
           }
         });
     }
@@ -275,7 +314,7 @@ const WhileYouEat = ({ route, navigation }) => {
                     <NormalText size={18}>Report Event</NormalText>
                   </MenuOption>
                 )}
-                {event.hostID === user.uid || event.type === "recommendation" && (
+                {event.hostID === user.uid && (
                   <MenuOption
                     onSelect={() =>
                       navigation.navigate("EditEvent", {
@@ -306,9 +345,11 @@ const WhileYouEat = ({ route, navigation }) => {
       {/* In-event chat button */}
       <View style={styles.eventChat}>
         <CircularButton onPress={() => goToEventChat()}>
+          {groupChat && groupChat.unread && <View style={styles.unread}/>}
           <Ionicons name="chatbox-ellipses-outline" size={30} />
         </CircularButton>
       </View>
+
       <ScrollView>
         <ImageBackground
           source={
@@ -319,7 +360,9 @@ const WhileYouEat = ({ route, navigation }) => {
           style={styles.imageBackground}
           resizeMode="cover"
         ></ImageBackground>
+
         <View style={styles.infoContainer}>
+          {event.hostID === user.uid && <NormalText size={12}>❗As host, remember to track attendance below!</NormalText>}
           <LargeText size={24} marginBottom={10}>
             {event.name}
           </LargeText>
@@ -370,7 +413,7 @@ const WhileYouEat = ({ route, navigation }) => {
             )}
             {friend && (
               <NormalText>
-                {friend.firstName + " " + friend.lastName}
+                {friend.firstName + " " + friend.lastName.substring(0, 1) + "."}
               </NormalText>
             )}
           </View>
@@ -400,6 +443,9 @@ const WhileYouEat = ({ route, navigation }) => {
               <NormalText paddingHorizontal={10} color="black">
                 {event.startDate ? getDate(event.startDate.toDate()) : getDate(event.date.toDate())}
               </NormalText>
+              <Link onPress={() => addToCalendar()}>
+                (add to calendar)
+              </Link>
             </View>
 
             <View style={styles.row}>
@@ -431,37 +477,39 @@ const WhileYouEat = ({ route, navigation }) => {
           </View>
 
           {/* Attendance dropdown */}
-          
-          {(event.hostID === user.uid || event.type === "recommendation") && (
-            <View>
-              <Toggle 
-                open={openAttendance}
-                onPress={() => setOpenAttendance(!openAttendance)}
-                title="Attendance"
-              />
+          <Toggle 
+            open={openAttendance}
+            onPress={() => setOpenAttendance(!openAttendance)}
+            title="Attendance"
+          />
 
-              {openAttendance && (
-                <View style={{ marginTop: 10 }}>
-                  {people.length === 0 ? (
-                    <NormalText paddingHorizontal={25} size={17} color="black">
-                      {"Just yourself"}
-                    </NormalText>
-                  ) : (
-                    people.map((person, index) => {
-                      if (person.id !== user.uid || event.type === "recommendation") {
-                        return (
-                          <Attendance
-                            size={17}
-                            person={person}
-                            key={person.id}
-                            attending={attendees[index]}
-                            onPress={() => markAttendee(index)}
-                          />
-                        );
-                      }
-                    })
-                  )}
-                </View>
+          {openAttendance && (
+            <View style={{ marginTop: 10 }}>
+              {people.length === 0 ? (
+                <NormalText paddingHorizontal={25} size={17} color="black">
+                  {"Just yourself"}
+                </NormalText>
+              ) : (
+                people.map((person, index) => {
+                  if (person.id !== user.uid) {
+                    return (
+                      <PeopleList
+                        person={person}
+                        key={person.id}
+                        color="white"
+                        width="100%"
+                        click={() => {
+                          navigation.navigate("FullProfile", {
+                              person: person
+                          });
+                        }}
+                        canEdit={event.hostID === user.uid}
+                        attending={attendees[index]}
+                        check={() => markAttendee(index)}
+                      />
+                    );
+                  }
+                })
               )}
             </View>
           )}
@@ -474,7 +522,7 @@ const WhileYouEat = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   infoContainer: {
     marginHorizontal: 30,
-    marginBottom: 50,
+    marginBottom: 100,
   },
 
   row: {
@@ -520,6 +568,16 @@ const styles = StyleSheet.create({
     bottom: 30,
     right: 30,
     zIndex: 1,
+  },
+
+  unread: {
+    width: 10,
+    height: 10,
+    borderRadius: 10,
+    backgroundColor: "red",
+    position: "absolute",
+    top: 5,
+    right: 5
   }
 });
 

@@ -150,7 +150,8 @@ const Tags = props => {
 
         <View style={styles.buttons}>
             <Button onPress={() => props.navigation.goBack()}
-                marginHorizontal={10}>Back</Button>
+                marginHorizontal={10} backgroundColor="white"
+                color="#5DB075">Back</Button>
             <Button onPress={() => {
                 props.setSchoolTags(schoolTagsSelected);
                 props.setHobbyTags(hobbyTagsSelected);

@@ -244,7 +244,7 @@ export default function ({ navigation }) {
                     // We set userIDs as empty, meaning this chat is open to everyone!
                     createNewChat([], chatID, name, false);
                     // We are finally done!
-                    alert("Success!");
+                    alert("Success! Make sure to do attendance when the meal starts!");
                     setLoading(false);
                 });
             });

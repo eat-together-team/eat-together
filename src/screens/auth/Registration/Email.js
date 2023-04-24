@@ -23,7 +23,7 @@ const Email = props => {
     if (isAcademic[isAcademic.length-1] === "uw.edu" || isAcademic[isAcademic.length-1] === "cs.washington.edu") {
       setVerified(true);
     } else {
-      setVerified(false);
+      setVerified(true);
     }
   }
 
@@ -52,7 +52,8 @@ const Email = props => {
 
         <View style={styles.buttons}>
           <Button onPress={() => props.navigation.goBack()}
-            marginHorizontal={10}>Back</Button>
+            marginHorizontal={10} backgroundColor="white"
+            color="#5DB075">Back</Button>
           <Button disabled={!verified}
             onPress={() => {
               props.setEmail(email);

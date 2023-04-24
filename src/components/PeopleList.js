@@ -1,8 +1,10 @@
-import React, {useEffect, useState} from 'react';
-import { View, StyleSheet, Image} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native';
+
 import MediumText from "./MediumText";
-import {TouchableOpacity} from "react-native";
-import {storage} from "../provider/Firebase";
+
+import { Foundation } from "@expo/vector-icons";
+import { storage } from "../provider/Firebase";
 
 const PeopleList = props => {
     const [image, setImage] = useState("https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png");
@@ -16,14 +18,21 @@ const PeopleList = props => {
     return (
         <View style={styles.outline}>
             <TouchableOpacity onPress={props.click}>
-                <View style={[styles.head, {backgroundColor: props.color}]}>
-                    <View style={styles.headleft}>
-                        <Image style={styles.image} source={{uri: image}}/>
-                        <MediumText style={{color: 'white'}}>
-                            {props.person.firstName + " " + props.person.lastName}
-                        </MediumText>
-                    </View>
+                <View style={[styles.head, {
+                    backgroundColor: props.color,
+                    width: props.width ? props.width : Dimensions.get('screen').width - 40
+                }]}>
+                    <Image style={styles.image} source={{uri: image}}/>
+                    <MediumText>
+                        {props.person.firstName + " " + props.person.lastName.substring(0, 1) + "."}
+                    </MediumText>
                 </View>
+
+                {props.canEdit && <TouchableOpacity style={[styles.checkBox, {
+                    borderColor: props.attending ? "#5DB075" : "grey"
+                }]} onPress={props.check}>
+                    {props.attending && <Foundation name="check" size={30} color="#5DB075"/>}
+                </TouchableOpacity>}
             </TouchableOpacity>
         </View>
     );
@@ -31,20 +40,14 @@ const PeopleList = props => {
 
 const styles = StyleSheet.create({
     outline: {
-        padding: 10
+        marginVertical: 10
     },
     head: {
-        width: 370,
         height: 80,
         backgroundColor: "grey",
         borderRadius: 15,
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between"
-    },
-    headleft: {
-        flexDirection: "row",
-        alignItems: "center"
     },
     image: {
         width: 60,
@@ -52,11 +55,22 @@ const styles = StyleSheet.create({
         borderRadius: 90,
         borderColor: "white",
         borderWidth: 2,
-        marginLeft: 25,
-        marginRight: 20
+        marginLeft: 15,
+        marginRight: 10
     },
     name: {
         marginRight: 20,
+    },
+    checkBox: {
+        position: "absolute",
+        right: 15,
+        top: "25%",
+        borderWidth: 4,
+        width: 40,
+        height: 40,
+        borderRadius: 10,
+        alignItems: "center",
+        justifyContent: "center"
     }
 })
 

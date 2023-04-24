@@ -129,6 +129,8 @@ const Password = props => {
             <Button
               onPress={() => props.navigation.goBack()}
               marginHorizontal={10}
+              backgroundColor="white"
+              color="#5DB075"
             >
               Back
             </Button>

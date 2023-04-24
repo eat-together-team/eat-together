@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import firebase from "firebase/compat";
 
+// Landing page
+import Landing from "../screens/auth/Landing";
+
 // Login and forgot password pages
 import Login from "../screens/auth/Login";
 import ForgetPassword from "../screens/auth/ForgetPassword";
@@ -214,8 +217,9 @@ const Auth = () => {
       screenOptions={{
         headerShown: false,
       }}
-      initialRouteName="Login"
+      initialRouteName="Landing"
     >
+      <Stack.Screen name="Landing" component={Landing} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="ForgetPassword" component={ForgetPassword} />
 

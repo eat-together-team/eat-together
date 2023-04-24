@@ -135,12 +135,33 @@ const Name = props => {
 
             <NormalText marginTop={20}>Note: your age will not be publicly shown to others.</NormalText>
 
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: "20%",
+                marginBottom: 10
+              }}
+            >
+              <NormalText>Already have an account? </NormalText>
+              <TouchableOpacity
+                onPress={() => {
+                  props.navigation.navigate("Login");
+                }}
+              >
+                <NormalText color="#5DB075">Login</NormalText>
+              </TouchableOpacity>
+            </View>
+
             <View style={styles.buttons}>
               <Button
                 onPress={() => props.navigation.goBack()}
                 marginHorizontal={10}
+                backgroundColor="white"
+                color="#5DB075"
               >
-                Back
+                Exit
               </Button>
               <Button
                 disabled={
@@ -212,7 +233,6 @@ const styles = StyleSheet.create({
   },
 
   buttons: {
-    marginTop: "30%",
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",

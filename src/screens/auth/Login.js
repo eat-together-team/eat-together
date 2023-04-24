@@ -71,21 +71,21 @@ export default function ({ navigation }) {
             <Image
               resizeMode="contain"
               style={{
-                height: 250,
-                width: 250,
+                height: 150,
+                width: 150,
               }}
-              source={require("../../../assets/welcome.png")}
+              source={require("../../../assets/logo.png")}
             />
           </View>
           <View
             style={{
-              flex: 5,
+              flex: 1,
               paddingHorizontal: 20,
               paddingBottom: 20,
               backgroundColor: "white",
             }}
           >
-            <LargeText center>Welcome!</LargeText>
+            <LargeText center>Welcome Back!</LargeText>
 
             <TextInput
               iconLeft="mail"
@@ -116,18 +116,12 @@ export default function ({ navigation }) {
             <Button onPress={login} marginVertical={10} disabled={loading}>
               {loading ? "Loading" : "Login"}
             </Button>
-            
-            <Button onPress={() => {
-              navigation.navigate("Name");
-            }} marginVertical={10} disabled={loading} backgroundColor="white" color="#5DB075">
-              No Account Yet?
-            </Button>
 
             <View
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                marginTop: 10,
+                marginVertical: 10,
                 justifyContent: "center",
               }}
             >
@@ -140,6 +134,30 @@ export default function ({ navigation }) {
                 <NormalText color="#5DB075">Click here</NormalText>
               </TouchableOpacity>
             </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 20,
+                justifyContent: "center",
+              }}
+            >
+              <NormalText>New? </NormalText>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("Name");
+                }}
+              >
+                <NormalText color="#5DB075">Create a new account</NormalText>
+              </TouchableOpacity>
+            </View>
+
+            <Button onPress={() => {
+              navigation.goBack();
+            }} marginVertical={10} disabled={loading} backgroundColor="white" color="#5DB075">
+              Exit
+            </Button>
           </View>
         </ScrollView>
     </KeyboardAvoidingView>

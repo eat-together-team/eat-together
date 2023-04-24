@@ -509,7 +509,8 @@ const Availabilities = props => {
 
         <View style={styles.buttons}>
           <Button onPress={() => props.navigation.goBack()}
-            marginHorizontal={10}>Cancel</Button> 
+            marginHorizontal={10} backgroundColor="white"
+            color="#5DB075">Cancel</Button> 
           <Button onPress={saveAvailabilities}
             marginHorizontal={10}>Save</Button>
         </View>
