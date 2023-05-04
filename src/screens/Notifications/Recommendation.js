@@ -39,19 +39,23 @@ const Recommendation = ({ route, navigation }) => {
 
     // Loads the tags of all the attendees
     route.params.event.suggestedAttendees.forEach(attendee => {
+      if (attendee !== user.uid) {
         db.collection("Users").doc(attendee).get().then(doc => {
-            setAttendees(prev => [...prev, doc.data()]);
-            const tags = getCommonTags(route.params.userData, doc.data());
-            let newTags = [];
-            tags.forEach(tag => {
-                if (!existingTags[tag.tag]) {
-                    existingTags[tag.tag] = true;
-                    newTags.push(tag);
-                }
-            });
+          setAttendees(prev => [...prev, doc.data()]);
 
-            setCommonTags(prev => prev.concat(newTags));
+          // Find tags that are in common between users
+          const tags = getCommonTags(route.params.userData, doc.data());
+          let newTags = [];
+          tags.forEach(tag => {
+            if (!existingTags[tag.tag]) {
+              existingTags[tag.tag] = true;
+              newTags.push(tag);
+            }
+          });
+
+          setCommonTags(prev => prev.concat(newTags));
         });
+      }
     });
 
     // Check if the user is attending the event
@@ -149,8 +153,7 @@ const Recommendation = ({ route, navigation }) => {
             </View>
 
             <View style={styles.row}>
-              {attendees.filter(attendee => attendee.id !== user.uid)
-                .map((attendee, index) => 
+              {attendees.map((attendee, index) => 
                 <TouchableOpacity style={styles.row}
                   onPress={() => {
                       navigation.navigate("FullProfile", {

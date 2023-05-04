@@ -1,31 +1,21 @@
-//Look at your connections
+// Connections/friends page
 
-import React, {useEffect, useState} from 'react';
-import {Layout, Text, TopNav} from 'react-native-rapi-ui';
-import {Ionicons} from "@expo/vector-icons";
-import HorizontalSwitch from "../../components/HorizontalSwitch";
-import {db} from "../../provider/Firebase";
-import {FlatList, StyleSheet, View} from "react-native";
+import React, { useEffect, useState } from 'react';
+import { Layout, TopNav } from 'react-native-rapi-ui';
+import { Ionicons } from "@expo/vector-icons";
+import { FlatList, StyleSheet } from "react-native";
+
+import EmptyState from "../../components/EmptyState";
 import PeopleList from "../../components/PeopleList";
-import {generateColor} from "../../methods";
-import firebase from "firebase/compat";
-import NormalText from "../../components/NormalText";
 import MediumText from "../../components/MediumText";
+
+import { db, auth } from "../../provider/Firebase";
 
 export default function ({ navigation }) {
     const [users, setUsers] = useState([]); // initial state, function used for updating initial state
 
-    //Check to see if we should display the "No Connections" placeholder text
-    function shouldDisplayPlaceholder(list) {
-        if(list == null ||list.length === 0) {
-            return "No connections. Meet friends on the Explore page!"
-        } else {
-            return ""
-        }
-    }
-
     useEffect(() => { // updates stuff right after React makes changes to the DOM
-        const user = firebase.auth().currentUser;
+        const user = auth.currentUser;
         const ref = db.collection("Users").doc(user.uid);
         ref.onSnapshot((doc) => {
             const friends = doc.data().friendIDs;
@@ -58,19 +48,18 @@ export default function ({ navigation }) {
                 }
                 leftAction={() => navigation.goBack()}
             />
-
-            <View style = {styles.noConnectionsView}>
-                <NormalText center={"center"}>{shouldDisplayPlaceholder(users)}</NormalText>
-            </View>
             
-            <FlatList contentContainerStyle={styles.invites} keyExtractor={item => item.id}
+            {users === null || users.length === 0
+                ? <EmptyState title="No Friends" text="Meet new friends on the Explore page!"/>
+                : <FlatList contentContainerStyle={styles.invites} keyExtractor={item => item.id}
                     data={users} renderItem={({item}) =>
-                <PeopleList person={item} color="white" click={() => {
-                    navigation.navigate("FullProfile", {
-                        person: item
-                    });
-                }}/>
-            }/>
+                    <PeopleList person={item} color="white" click={() => {
+                        navigation.navigate("FullProfile", {
+                            person: item
+                        });
+                    }}/>
+                }/>
+            }
 
         </Layout>
 
@@ -80,12 +69,5 @@ export default function ({ navigation }) {
 const styles = StyleSheet.create({
     invites: {
         alignItems: "center",
-    },
-    submit: {
-        position: 'absolute',
-        bottom:0,
-    },
-    switchView: {
-        marginVertical: 10
     }
 });

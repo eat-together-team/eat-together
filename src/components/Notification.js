@@ -29,17 +29,15 @@ function whichIcon(type) {
 const Notification = (props) => {
     return (
         <View style={styles.outline}>
-            <View style={styles.head}>
-                <Ionicons name={whichIcon(props.notif.type)} size={50} style={styles.icon} color="black" />
-                <View style={styles.textContainer}>
-                    <MediumText size={14}>{props.notif.title}</MediumText>
-                    <NormalText size={12}>{props.notif.body}</NormalText>
-                    {props.showButton && <View style={styles.buttons}>
-                        <CustomButton marginHorizontal={10} width={80} onPress={props.onPress}>
-                            <SmallText center color="white">Details</SmallText>
-                       </CustomButton>
-                    </View>}
-                </View>
+            <Ionicons name={whichIcon(props.notif.type)} size={50} style={styles.icon} color="black" />
+            <View style={styles.textContainer}>
+                <MediumText size={14}>{props.notif.title}</MediumText>
+                <NormalText size={12}>{props.notif.body}</NormalText>
+                {props.showButton && <View style={styles.buttons}>
+                    <CustomButton marginHorizontal={10} width={80} onPress={props.onPress}>
+                        <SmallText center color="white">Details</SmallText>
+                    </CustomButton>
+                </View>}
             </View>
         </View>
     );
@@ -48,15 +46,19 @@ const Notification = (props) => {
 const styles = StyleSheet.create({
     outline: {
         alignItems: "center",
-    },
-    head: {
         width: Dimensions.get('window').width * 0.95,
         backgroundColor: "white",
         borderRadius: 15,
         flexDirection: "row",
-        alignItems: "center",
         paddingHorizontal: 30,
-        paddingVertical: 10
+        paddingVertical: 10,
+        marginVertical: 5,
+        shadowOpacity: 0.25,
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        elevation: 10
     },
     textContainer: {
         flexDirection: "column",
