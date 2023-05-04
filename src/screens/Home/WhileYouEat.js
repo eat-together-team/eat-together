@@ -59,9 +59,7 @@ const WhileYouEat = ({ route, navigation }) => {
 
   // Fetch meetup data on page load
   useEffect(() => {
-    if (event.hostID === user.uid || event.type === "recommendation") {
-      getAttendees();
-    }
+    getAttendees();
 
     db.collection("Users")
       .doc(event.hostID)

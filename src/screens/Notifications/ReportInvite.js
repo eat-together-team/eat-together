@@ -1,12 +1,16 @@
-import React, {useState} from "react";
-import {View, StyleSheet, Dimensions, Keyboard, TouchableWithoutFeedback, ScrollView} from "react-native";
-import {Layout, TopNav, Button, TextInput} from "react-native-rapi-ui";
+// Report event invite screen
+import React, { useState } from "react";
+import { View, StyleSheet, Dimensions, ScrollView } from "react-native";
+import { Layout, TopNav } from "react-native-rapi-ui";
+import { Ionicons } from "@expo/vector-icons";
+
+import TextInput from "../../components/TextInput";
+import Button from "../../components/Button";
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
-import {Ionicons} from "@expo/vector-icons";
+
 import admin from "firebase/compat";
 import firebase from "firebase/compat";
-import keyboard from "react-native-web/dist/exports/Keyboard";
 
 const ReportInvite = ({ route, navigation }) => {
     const [report, setReport] = useState("");
@@ -27,40 +31,41 @@ const ReportInvite = ({ route, navigation }) => {
                         issue.
                     </LargeText>
                 </View>
+
                 <TextInput
                     multiline={true}
-                    containerStyle={{ paddingBottom: 70 }}
+                    mainContainerStyle={{alignItems: "flex-start"}}
+                    width={"100%"} height={130}
                     placeholder="Enter explanation here"
                     value={report}
-                    onChangeText={(val) => setReport(val)}
+                    onChangeText={val => setReport(val)}
                 />
+
                 <Button
-                    style={{ marginTop: 20 }}
-                    text="Report"
-                    status="danger"
+                    backgroundColor="red"
+                    marginVertical={30}
                     onPress={() => {
-                        admin
-                            .firestore()
-                            .collection("mail")
-                            .add({
-                                to: "eat.together.team@gmail.com",
-                                message: {
-                                    subject:
-                                        "INVITE REPORT ON " +
-                                        route.params.inviteID +
-                                        " by " +
-                                        firebase.auth().currentUser.uid,
-                                    text: report,
-                                },
-                            })
-                            .then(() => {
-                                alert(
-                                    "The team has been notified of your report and we will take action as soon as possible."
-                                );
-                                navigation.goBack();
-                            });
+                        admin.firestore().collection("mail").add({
+                            to: "eat.together.team@gmail.com",
+                            message: {
+                                subject:
+                                    "INVITE REPORT ON " +
+                                    route.params.inviteID +
+                                    " by " +
+                                    firebase.auth().currentUser.uid,
+                                text: report,
+                            },
+                        })
+                        .then(() => {
+                            alert(
+                                "The team has been notified of your report and we will take action as soon as possible."
+                            );
+                            navigation.goBack();
+                        });
                     }}
-                />
+                >
+                    Report
+                </Button>
             </ScrollView>
         </Layout>
     );

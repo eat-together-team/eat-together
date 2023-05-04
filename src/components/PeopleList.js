@@ -40,21 +40,26 @@ const PeopleList = props => {
 
 const styles = StyleSheet.create({
     outline: {
-        marginVertical: 10
+        marginVertical: 5,
+        shadowColor: "#000000",
+        backgroundColor: "white",
+        borderRadius: 15,
+        paddingVertical: 10,
+        shadowOpacity: 0.25,
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        elevation: 10
     },
     head: {
-        height: 80,
-        backgroundColor: "grey",
-        borderRadius: 15,
         flexDirection: "row",
         alignItems: "center",
     },
     image: {
-        width: 60,
-        height: 60,
-        borderRadius: 90,
-        borderColor: "white",
-        borderWidth: 2,
+        width: 50,
+        height: 50,
+        borderRadius: 50,
         marginLeft: 15,
         marginRight: 10
     },
@@ -64,7 +69,7 @@ const styles = StyleSheet.create({
     checkBox: {
         position: "absolute",
         right: 15,
-        top: "25%",
+        top: "10%",
         borderWidth: 4,
         width: 40,
         height: 40,

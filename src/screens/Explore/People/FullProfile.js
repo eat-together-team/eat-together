@@ -116,6 +116,7 @@ function removeFriend(uid, navigation) {
 function databaseRemoveFriend(uid, navigation) {
   alert("Friend removed.");
   const user = auth.currentUser;
+
   // update user's blacklist & remove from friends
   db.collection("Users")
       .doc(user.uid)
@@ -131,10 +132,13 @@ function databaseRemoveFriend(uid, navigation) {
 }
 
 const FullProfile = ({ blockBack, route, navigation }) => {
-  const [status, setStatus] = useState("Loading");
-  const [disabled, setDisabled] = useState(true);
-  const [color, setColor] = useState("grey");
-  const [events, setEvents] = useState([]);
+  const user = auth.currentUser; // Current user
+  const tryoutId = 'knVtYe1mtpaZ9D8XLDrS7FCImtm2'; // ID of the test user
+
+  const [status, setStatus] = useState("Loading"); // Status of connection
+  const [disabled, setDisabled] = useState(true); // Disable button if already connected
+  const [color, setColor] = useState("grey"); // Color of button
+  const [events, setEvents] = useState([]); // Events that this user has hosted
   const [inviterImage, setInviterImage] = useState(
     "https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png"
   );
@@ -147,7 +151,6 @@ const FullProfile = ({ blockBack, route, navigation }) => {
 
   useEffect(() => {
     // updates stuff right after React makes changes to the DOM
-    const user = firebase.auth().currentUser;
     // STEP 1: Check if user is on your connections list.
     let thisUser = db.collection("Users").doc(user.uid);
     thisUser
@@ -223,7 +226,6 @@ const FullProfile = ({ blockBack, route, navigation }) => {
 
   // Method for sending a connection request
   const connect = () => {
-    const user = firebase.auth().currentUser;
     let requestedUser = db
       .collection("Usernames")
       .doc(route.params.person.username);
@@ -258,7 +260,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
         middleContent={<MediumText center>View Profile</MediumText>}
         leftContent={<Ionicons name="chevron-back" size={20} />}
         leftAction={() => navigation.goBack()}
-        rightContent={
+        rightContent={user.uid !== tryoutId &&
           <View>
             <Menu>
               <MenuTrigger>
@@ -319,8 +321,8 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           </LargeText>
           <NormalText marginBottom={5}>({route.params.person.pronouns})</NormalText>
           <MediumText size={16}>@{route.params.person.username}</MediumText>
-
-          <View style={{ flexDirection: "row", marginVertical: 10 }}>
+          {tryoutId != user.uid && (
+            <View style={{ flexDirection: "row", marginVertical: 10 }}>
             <Button
               disabled={disabled}
               onPress={connect}
@@ -332,6 +334,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               {status}
             </Button>
           </View>
+          )}
 
           <NormalText>
             {route.params.person.attendedEventIDs.length +

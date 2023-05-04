@@ -1,13 +1,14 @@
 // Landing page for the app. This is the first page that the user sees when they open the app.
 
 import React from "react";
+import firebase from "firebase/compat";
 import {
   ScrollView,
   View,
   KeyboardAvoidingView,
   Image,
+  TouchableOpacity
 } from "react-native";
-
 
 import {
   Layout,
@@ -15,6 +16,11 @@ import {
 
 import Button from "../../components/Button";
 import LargeText from "../../components/LargeText";
+import MediumText from "../../components/MediumText";
+
+async function loginTryOut() {
+  await firebase.auth().signInWithEmailAndPassword('calebcile@gmail.com', 'tryout123');
+}
 
 export default function ({ navigation }) {
   return (
@@ -54,15 +60,19 @@ export default function ({ navigation }) {
           >
             <Button onPress={() => {
               navigation.navigate("Name");
-            }} marginVertical={10} backgroundColor="white" color="#5DB075">
+            }} marginVertical={10}>
               Sign Up
             </Button>
 
             <Button onPress={() => {
               navigation.navigate("Login");
-            }} marginVertical={10}>
+            }} marginVertical={10} backgroundColor="white" color="#5DB075">
               Login
             </Button>
+
+            <TouchableOpacity onPress={loginTryOut} style={{ marginTop: 20 }}>
+              <MediumText center color="grey">Explore as a guest!</MediumText>
+            </TouchableOpacity>
           </View>
         </ScrollView>
     </KeyboardAvoidingView>

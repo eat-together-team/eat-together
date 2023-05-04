@@ -13,13 +13,22 @@ const Button = props => {
             width: props.width ? props.width : "auto",
             marginHorizontal: props.marginHorizontal ? props.marginHorizontal : 0,
             marginVertical: props.marginVertical ? props.marginVertical : 0,
-            elevation: 5
+            elevation: 10, // modified
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 3,
+            },
+            shadowOpacity: 0.27,
+            shadowRadius: 4.65,
+            zIndex: 10,
         }} onPress={props.onPress} disabled={props.disabled}>
             <MediumText color={props.color ? props.color : "white"} center
                 size={props.fontSize ? props.fontSize : 20}>
                     {props.children}
             </MediumText>
         </TouchableOpacity>
+
     );
 }
 

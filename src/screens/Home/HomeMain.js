@@ -9,6 +9,7 @@ import FullProfile from "../Explore/People/FullProfile";
 import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ChatRoom from "../Chat/ChatRoom";
+import TryOut from "../TryOut";
 
 const Stack = createStackNavigator();
 

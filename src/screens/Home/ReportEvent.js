@@ -1,10 +1,14 @@
-import React, {useState} from "react";
-import {View, StyleSheet, Dimensions, ScrollView} from "react-native";
-import {Layout, TopNav, Button} from "react-native-rapi-ui";
+// Report event screen
+import React, { useState } from "react";
+import { View, StyleSheet, Dimensions, ScrollView } from "react-native";
+import { Layout, TopNav } from "react-native-rapi-ui";
+import { Ionicons } from "@expo/vector-icons";
+
 import TextInput from "../../components/TextInput";
+import Button from "../../components/Button";
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
-import { Ionicons } from "@expo/vector-icons";
+
 import admin from "firebase/compat";
 import firebase from "firebase/compat";
 
@@ -28,6 +32,7 @@ const ReportEvent = ({ route, navigation }) => {
                 <View style={styles.header}>
                     <LargeText style={{padding: 20}} center>We're sorry for your unfortunate experience. Please describe the issue.</LargeText>
                 </View>
+
                 <TextInput
                     multiline={true}
                     mainContainerStyle={{alignItems: "flex-start"}}
@@ -37,11 +42,12 @@ const ReportEvent = ({ route, navigation }) => {
                     value={report}
                     onChangeText={(val) => setReport(val)}
                 />
-                <Button style={{marginTop: 20}} text="Report" status="danger" onPress={() => {
-                    admin
-                        .firestore()
-                        .collection("mail")
-                        .add({
+
+                <Button
+                    backgroundColor="red"
+                    marginVertical={30}
+                    onPress={() => {
+                        admin.firestore().collection("mail").add({
                             to: "eat.together.team@gmail.com",
                             message: {
                                 subject: "EVENT REPORT ON " + route.params.eventID + " by " + firebase.auth().currentUser.uid,
@@ -52,7 +58,10 @@ const ReportEvent = ({ route, navigation }) => {
                             alert("The team has been notified of your report and we will take action as soon as possible.")
                             navigation.goBack();
                         });
-                }}/>
+                    }}
+                >
+                    Report
+                </Button>
             </ScrollView>
         </Layout>
     );

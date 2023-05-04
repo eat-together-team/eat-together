@@ -127,8 +127,12 @@ export default function ({ navigation }) {
                 {
                     text: "Yes",
                     onPress: async () => {
+                        console.log("here");
                         const uid = user.uid;
+                        console.log("here2");
+                        console.log(uid);
                         const info = userInfo;
+                        // const user = firebase.auth().currentUser;
 
                         // Delete their uid from all friends in database
                         info.friendIDs.forEach(friend => {
@@ -143,7 +147,7 @@ export default function ({ navigation }) {
                             await ref.delete();
                         }                        
 
-                        db.collection("Users").doc(uid).delete();
+                        user.delete();
                         db.collection("Usernames").doc(info.username).delete();
                         
                         await user.delete().then(() => {

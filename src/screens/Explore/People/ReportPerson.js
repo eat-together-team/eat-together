@@ -1,18 +1,14 @@
+// Report person screen
 import React, { useState } from "react";
-import {View, StyleSheet, Image, Dimensions, ScrollView} from "react-native";
-import {
-  Layout,
-  TopNav,
-  Text,
-  themeColor,
-  useTheme,
-  Button,
-} from "react-native-rapi-ui";
+import { View, StyleSheet, Dimensions, ScrollView } from "react-native";
+import { Layout, TopNav } from "react-native-rapi-ui";
+import { Ionicons } from "@expo/vector-icons";
 
 import TextInput from "../../../components/TextInput";
+import Button from "../../../components/Button";
 import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+
 import admin from "firebase/compat";
 import firebase from "firebase/compat";
 
@@ -35,6 +31,7 @@ const ReportPerson = ({ route, navigation }) => {
             issue.
           </LargeText>
         </View>
+
         <TextInput
           multiline={true}
           mainContainerStyle={{alignItems: "flex-start"}}
@@ -44,33 +41,31 @@ const ReportPerson = ({ route, navigation }) => {
           value={report}
           onChangeText={(val) => setReport(val)}
         />
+        
         <Button
-          style={{ marginTop: 20 }}
-          text="Report"
-          status="danger"
+          backgroundColor="red"
+          marginVertical={30}
           onPress={() => {
-            admin
-              .firestore()
-              .collection("mail")
-              .add({
-                to: "eat.together.team@gmail.com",
-                message: {
-                  subject:
-                    "USER REPORT ON " +
-                    route.params.user.username +
-                    " by " +
-                    firebase.auth().currentUser.uid,
-                  text: report,
-                },
-              })
-              .then(() => {
-                alert(
-                  "The team has been notified of your report and we will take action as soon as possible."
-                );
-                navigation.goBack();
-              });
+            admin.firestore().collection("mail").add({
+              to: "eat.together.team@gmail.com",
+              message: {
+                subject:
+                  "USER REPORT ON " +
+                  route.params.user.username +
+                  " by " +
+                  firebase.auth().currentUser.uid,
+                text: report,
+              },
+            }).then(() => {
+              alert(
+                "The team has been notified of your report and we will take action as soon as possible."
+              );
+              navigation.goBack();
+            });
           }}
-        />
+        >
+          Report
+        </Button>
       </ScrollView>
     </Layout>
   );

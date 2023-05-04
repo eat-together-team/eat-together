@@ -13,7 +13,6 @@ import {auth} from "../../provider/Firebase";
 import "firebase/firestore"
 import firebase from "firebase/compat";
 
-
 import {
   Layout,
 } from "react-native-rapi-ui";
@@ -23,7 +22,6 @@ import TextInput from "../../components/TextInput";
 import LargeText from "../../components/LargeText";
 import NormalText from "../../components/NormalText";
 import DeviceToken from "../utils/DeviceToken";
-import MediumText from "../../components/MediumText";
 
 export default function ({ navigation }) {
   const [email, setEmail] = useState("");

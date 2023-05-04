@@ -14,6 +14,7 @@ import ProfilePic from "../components/ProfilePic";
 import OrganizeMain from "../screens/Organize/OrganizeMain";
 import ExploreMain from "../screens/Explore/ExploreMain";
 import HomeMain from "../screens/Home/HomeMain";
+import TryOut from "../screens/TryOut";
 import ProfileMain from "../screens/Profile/ProfileMain";
 import NotificationsMain from "../screens/Notifications/NotificationsMain";
 import Loading from "../screens/utils/Loading";
@@ -25,7 +26,7 @@ import { AuthContext } from "../provider/AuthProvider";
 //Screen for if the user hasn't verified their email
 import VerifyEmail from "../screens/VerifyEmail";
 import firebase from "firebase/compat";
-import { db } from "../provider/Firebase";
+import { db, auth} from "../provider/Firebase";
 
 //Push notifications functions and imports
 import * as NotificationFunctions from "expo-notifications";
@@ -92,9 +93,12 @@ const Tabs = createBottomTabNavigator();
 const MainTabs = () => {
   const profileImageUri = useContext(AuthContext).profileImageUri;
   const hasNotif = useContext(AuthContext).hasNotif;
+  const user = auth.currentUser;
+  const tryoutId = 'knVtYe1mtpaZ9D8XLDrS7FCImtm2';
 
   return (
     <Tabs.Navigator
+      initialRouteName={user.uid === tryoutId ? "Explore" : "Home"}
       screenOptions={{
         headerShown: false,
         animationEnabled: false,
@@ -109,7 +113,7 @@ const MainTabs = () => {
     >
       <Tabs.Screen
         name="Home"
-        component={HomeMain}
+        component={user.uid == tryoutId ? TryOut : HomeMain}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon focused={focused} icon={"home-outline"} title="Home" />
@@ -131,7 +135,7 @@ const MainTabs = () => {
       />
       <Tabs.Screen
         name="Organize"
-        component={OrganizeMain}
+        component={user.uid == tryoutId ? TryOut : OrganizeMain}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
@@ -144,7 +148,7 @@ const MainTabs = () => {
       />
       <Tabs.Screen
         name="Notifs"
-        component={NotificationsMain}
+        component={user.uid == tryoutId ? TryOut : NotificationsMain}
         options={{
           tabBarLabel: ({ focused }) => (
             <TabBarText focused={focused} title="Inbox" />
@@ -160,7 +164,7 @@ const MainTabs = () => {
       />
       <Tabs.Screen
         name="Profile"
-        component={ProfileMain}
+        component={user.uid == tryoutId ? TryOut : ProfileMain}
         options={{
           tabBarIcon: () => <ProfilePic size={38} uri={profileImageUri} />,
         }}

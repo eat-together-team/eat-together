@@ -19,6 +19,8 @@ import { sortBySimilarInterests } from "../../../methods";
 
 
 export default function ({ navigation }) {
+  const tryoutId = 'knVtYe1mtpaZ9D8XLDrS7FCImtm2'; // ID of test user
+
   // Fetch current user
   const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState({});
@@ -173,7 +175,7 @@ export default function ({ navigation }) {
           onChangeText={onChangeText}
         />
 
-        <HorizontalRow>
+        {user.uid !== tryoutId && <HorizontalRow>
           <Filter
             checked={similarInterests}
             onPress={() => setSimilarInterests(!similarInterests)}
@@ -184,7 +186,7 @@ export default function ({ navigation }) {
             onPress={() => setMutualFriends(!mutualFriends)}
             text="Mutual friends"
           />
-        </HorizontalRow>
+        </HorizontalRow>}
       </View>
 
       <View style={{ flex: 1, alignItems: "center" }}>
