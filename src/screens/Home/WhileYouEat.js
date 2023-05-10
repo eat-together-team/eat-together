@@ -317,16 +317,17 @@ const WhileYouEat = ({ route, navigation }) => {
                     onSelect={() =>
                       navigation.navigate("InvitePeople", {
                         name: event.name,
+                        type: event.type === "public" ? "public" : "private",
                         location: event.location,
                         startDate: event.startDate,
                         endDate: event.endDate,
                         attendees: event.attendees,
                         additionalInfo: event.additionalInfo,
                         hasImage: event.hasImage,
-                        image: event.hasImage ? event.photo : "",
+                        image: event.hasImage ? event.image : "",
                         icebreakers: event.ice,
                         id: event.id,
-                        clearAll: () => {},
+                        from: "WhileYouEat"
                       })
                     }
                     style={styles.option}

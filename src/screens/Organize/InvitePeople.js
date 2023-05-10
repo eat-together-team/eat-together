@@ -33,6 +33,31 @@ const fetchImage = async (id) => {
   return ref.getDownloadURL();
 };
 
+// Send invites to the selected user
+async function sendInvitation(ref, invite, user, id) {
+  await ref
+    .collection("Invites")
+    .add({
+      type: invite.type,
+      startDate: invite.startDate,
+      endDate: invite.endDate,
+      description: invite.additionalInfo,
+      hostID: user.id,
+      hostFirstName: user.firstName,
+      hostLastName: user.lastName,
+      hasImage: invite.hasImage,
+      image: invite.image,
+      hasHostImage: user.hasImage,
+      hostImage: user.image,
+      location: invite.location,
+      name: invite.name,
+      inviteID: id,
+    })
+    .then((r) => {
+      invite.clearAll();
+    });
+}
+
 async function sendInvites(
   attendees,
   invite,
@@ -43,33 +68,15 @@ async function sendInvites(
   icebreakers,
   clearAll
 ) {
-  //Send invites to each of the selected users
-  async function sendInvitations(ref) {
-    ref
-      .collection("Invites")
-      .add({
-        startDate: invite.startDate,
-        endDate: invite.endDate,
-        description: invite.additionalInfo,
-        hostID: user.id,
-        hostFirstName: user.firstName,
-        hostLastName: user.lastName,
-        hasImage: invite.hasImage,
-        image: invite.image,
-        hasHostImage: user.hasImage,
-        hostImage: user.image,
-        location: invite.location,
-        name: invite.name,
-        inviteID: id,
-      })
-      .then((r) => {
-        invite.clearAll();
-        navigation.navigate("OrganizePrivate");
-      });
-  }
+  // Create the event in the database
   const chatID = String(invite.startDate) + invite.name;
+  let table = "Private Events";
+  if (invite.type === "public") {
+    table = "Public Events";
+  }
+
   await db
-    .collection("Private Events")
+    .collection(table)
     .doc(id)
     .set({
       id,
@@ -94,13 +101,13 @@ async function sendInvites(
         const ref = db.collection("User Invites").doc(attendee.id);
         ref.get().then(async (docRef) => {
           if (attendee !== user.id) {
-            await sendInvitations(ref);
+            await sendInvitation(ref, invite, user, id);
           }
         });
       });
 
       const storeID = {
-        type: "private",
+        type: invite.type, // There can be different private events
         id,
       };
 
@@ -143,6 +150,9 @@ const isMatch = (person, text) => {
   );
 };
 
+////////////////////////
+// COMPONENT STARTS HERE
+////////////////////////
 export default function ({ route, navigation }) {
   // Current user
   const user = auth.currentUser;
@@ -256,8 +266,6 @@ export default function ({ route, navigation }) {
     setDisabled(invitedUsers.length === 0);
   }, [users]);
 
-
-
   // Toggle a user's invite status
   const toggleInvite = (id) => {
     const newUsers = [...users];
@@ -368,41 +376,54 @@ export default function ({ route, navigation }) {
         disabled={disabled || loading}
         onPress={() => {
           setLoading(true);
-          let id = route.params.id;
-          if (!id) {
-            id = Date.now() + user.uid; // Generate a unique ID for the event
-          }
 
-          if (route.params.hasImage) {
-            storeImage(route.params.image, id).then(() => {
-              fetchImage(id).then((uri) => {
-                sendInvites(
-                  users.filter((user) => user.invited),
-                  route.params,
-                  navigation,
-                  userInfo,
-                  id,
-                  uri,
-                  route.params.icebreakers,
-                  route.params.clearAll
-                ).then(() => {
-                  setLoading(false);
-                });
+          // Check which page the user came from (WhileYouEat or Organize)
+          if (route.params.from === "WhileYouEat") {
+            users.filter((user) => user.invited).forEach((attendee) => {
+              const ref = db.collection("User Invites").doc(attendee.id);
+              ref.get().then(async (docRef) => {
+                if (attendee !== user.id) {
+                  await sendInvitation(ref, route.params, userInfo, route.params.id);
+                }
               });
             });
+
+            navigation.goBack();
+            alert("Invitations sent! Make sure to do attendance when the meal starts!");
           } else {
-            sendInvites(
-              users.filter((user) => user.invited),
-              route.params,
-              navigation,
-              userInfo,
-              id,
-              "",
-              route.params.icebreakers,
-              route.params.clearAll
-            ).then(() => {
-              setLoading(false);
-            });
+            let id = Date.now() + user.uid; // Generate a unique ID for the event
+
+            if (route.params.hasImage) {
+              storeImage(route.params.image, id).then(() => {
+                fetchImage(id).then((uri) => {
+                  sendInvites(
+                    users.filter((user) => user.invited),
+                    route.params,
+                    navigation,
+                    userInfo,
+                    id,
+                    uri,
+                    route.params.icebreakers,
+                    route.params.clearAll
+                  ).then(() => {
+                    setLoading(false);
+                  });
+                });
+              });
+            } else {
+              sendInvites(
+                users.filter((user) => user.invited),
+                route.params,
+                navigation,
+                userInfo,
+                id,
+                "",
+                route.params.icebreakers,
+                route.params.clearAll
+              ).then(() => {
+                setLoading(false);
+              });
+            }
           }
         }}
       >{loading ? "Sending ..." : "Send Invites"}</Button>
