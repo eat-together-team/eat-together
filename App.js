@@ -8,6 +8,10 @@ import { LogBox } from "react-native";
 export default function App() {
   LogBox.ignoreAllLogs(); //DISABLE THOSE STUPID WARNINGS SLAYYYYY
 
+  // Only uncomment if you do not want error info in terminal
+  // console.warn = function () {};
+  // console.error = function () {};
+
   const images = [
     require("./assets/icon.png"),
     require("./assets/splash.png"),

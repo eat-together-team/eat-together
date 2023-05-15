@@ -39,7 +39,7 @@
     "moment": "^2.29.4",
     "react": "18.0.0",
     "react-dom": "18.0.0",
-    "react-native": "0.69.6",
+    "react-native": "0.69.9",
     "react-native-color-picker": "^0.6.0",
     "react-native-gesture-handler": "~2.5.0",
     "react-native-image-picker": "^4.8.3",

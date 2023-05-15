@@ -16,7 +16,7 @@ const CustomButton = props => {
             alignItems: props.alignItems ? props.alignItems : "center",
             justifyContent: props.justifyContent ? props.justifyContent : "center",
             elevation: 5
-        }} onPress={props.onPress} disabled={props.disabled}>
+        }} onPress={props.onPress} disabled={props.disabled || props.clickDisabled}>
             {props.children}
         </TouchableOpacity>
     );

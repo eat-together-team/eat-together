@@ -1,7 +1,7 @@
 // Display your events
 
 import React, { useEffect, useState, useContext, useRef } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
+import {View, StyleSheet, FlatList, SectionList} from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import RBSheet from "react-native-raw-bottom-sheet";
 
@@ -18,6 +18,9 @@ import { db, auth } from "../../provider/Firebase";
 import { AuthContext } from "../../provider/AuthProvider";
 import { compareDates } from "../../methods";
 import moment from "moment";
+import MediumText from "../../components/MediumText";
+import Me from "../Profile/Me";
+import RecommendationsCard from "../../components/RecommendationsCard";
 
 export default function ({ navigation }) {
   // Get current user
@@ -27,6 +30,10 @@ export default function ({ navigation }) {
   const [events, setEvents] = useState([]); // All personal events
   const [filteredEvents, setFilteredEvents] = useState([]); // Filtered events
   const [filteredSearchedEvents, setFilteredSearchedEvents] = useState([]); // Events that are filtered and search-queried
+
+  // Get recommendations
+  const [hasRec, setHasRec] = useState(false);
+  const [recommendations, setRecommendations] = useState([])
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -96,20 +103,61 @@ export default function ({ navigation }) {
                   setEvents(newEvents);
                   setFilteredEvents(newEvents);
                   setFilteredSearchedEvents(newEvents);
-                  setLoading(false);
                 });
             });
           }
         });
     }
 
-    fetchEvents().then(() => {
-      // Verify user when they log in for the first time
-      db.collection("Users").doc(user.uid).update({
-        verified: true
-      });
+    // Get the current recommendations for the user, if any
+    async function fetchRecs() {
+      await db.collection("Users").doc(user.uid).onSnapshot((doc) => {
 
-      setLoading(false); // Stop showing loading screen
+        // Gather the recommendation IDs for each recommendation the user has
+        let recIDs = [];
+        doc.data().notifications.forEach(notif => {
+          if(notif.type === "recommendation") recIDs.push(notif.id);
+        });
+
+        if (recIDs.length === 0) {
+          setLoading(false);
+          return;
+        }
+
+        let recEvents = [];
+        let asyncCounter = 0; // Counter to see how many events have been fetched
+        recIDs.forEach(async id => {
+          await db.collection("Private Events").doc(id).onSnapshot(recDoc => {
+            let recDocData = recDoc.data();
+            recDocData.isARec = true;
+            recDocData.hostFirstName = "Eat Together Team!";
+            recDocData.hostLastName = "";
+            recEvents.push(recDocData);
+
+            asyncCounter++;
+            if(asyncCounter === recIDs.length) {
+              recEvents.sort((a, b) => {
+                return compareDates(a, b);
+              });
+
+              setHasRec(true)
+              setRecommendations(recEvents);
+              setLoading(false);
+            }
+          });
+        });
+      })
+    }
+
+    fetchEvents().then(() => {
+      fetchRecs().then(() => {
+        // Verify user when they log in for the first time
+        db.collection("Users").doc(user.uid).update({
+          verified: true
+        });
+
+        setLoading(false); // Stop showing loading screen
+      });
     });
   }, []);
 
@@ -291,6 +339,37 @@ export default function ({ navigation }) {
     setFilteredSearchedEvents(newFilteredSearchedEvents);
   }
 
+  const renderItem = ({ item }) => {
+    if(typeof item === "string") {
+      return <MediumText marginBottom={10} textAlign={"auto"}>{item}</MediumText>
+    } else if(item.isARec) {
+      return(
+        <RecommendationsCard
+          event={item}
+          click={() => {
+            navigation.navigate("Recommendation", {
+              event: item,
+              userData: userInfo
+            });
+          }}
+        />
+      )
+    } else {
+      return(
+        <EventCard
+            event={item}
+            click={() => {
+              navigation.navigate("WhileYouEat", {
+                event: item,
+                deleteEvent,
+                editEvent
+              });
+            }}
+        />
+      )
+    }
+  };
+
   return (
     <Layout>
       <Header name="Your Meals" navigation={navigation} hasNotif={unread} notifs/>
@@ -319,7 +398,14 @@ export default function ({ navigation }) {
         </HorizontalRow>
       </View>
 
-      {!loading ? filteredSearchedEvents.length > 0 ?
+      {!loading ? filteredSearchedEvents.length > 0 ? (searchQuery === "" && hasRec) ?
+        <FlatList
+            contentContainerStyle={styles.cards}
+            keyExtractor={(item) => item.id}
+            data={["Recommendations"].concat(recommendations, ["Your Meals"], filteredSearchedEvents)}
+            renderItem={renderItem}
+        />
+      :
         <FlatList
           contentContainerStyle={styles.cards}
           keyExtractor={(item) => item.id}
@@ -338,7 +424,15 @@ export default function ({ navigation }) {
           )}
         />
       :
-        <EmptyState title="No Upcoming Meals" text="Explore different meals, or organize one on your own!"/>
+          (searchQuery === "" && hasRec) ?
+              <FlatList
+                  contentContainerStyle={styles.cards}
+                  keyExtractor={(item) => item.id}
+                  data={["Recommendations"].concat(recommendations)}
+                  renderItem={renderItem}
+              />
+              :
+              <EmptyState title="No Upcoming Meals" text="Explore different meals, or organize one on your own!"/>
       :
         <LoadingView/>
       }
@@ -415,5 +509,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 20,
     paddingBottom: 40,
-  },
+  }
 });
