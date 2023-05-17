@@ -53,6 +53,7 @@ function TextInput(props) {
         iconRightDisabled = false,
         displayLeftIcon = iconLeft !== "" ? "flex" : "none",
         displayRightIcon = iconRight !== "" ? "flex" : "none",
+        iconLeftOnPress = () => {},
         iconRightOnPress = () => {},        
         leftContainerStyle = {},
         rightContainerStyle = {},
@@ -111,13 +112,17 @@ function TextInput(props) {
   
     return (
         <View style={styles.mainContainer}>
-            <View style={styles.leftContainer}>
+            {/* <View style={styles.leftContainer}>
                 {iconLeftType === "Ionicons" && 
                 <Ionicons size={iconFontSize} name={iconLeft} color={iconLeftColor}/>}
 
                 {iconLeftType === "FontAwesome" && 
                 <FontAwesome size={iconFontSize} name={iconLeft} color={iconLeftColor}/>}
-            </View>
+            </View> */}
+            <TouchableOpacity onPress={iconLeftOnPress} style={styles.leftContainer}>
+                {iconLeftType === "Ionicons" && 
+                <Ionicons size={iconFontSize} name={iconLeft} color={iconLeftColor}/>}
+            </TouchableOpacity>
             <ReactNativeTextInput 
                 style={styles.textInput}
                 onChangeText={onChangeText}

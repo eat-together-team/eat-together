@@ -21,7 +21,7 @@ import { KeyboardAvoidingView } from "react-native";
 import TextInput from "../../components/TextInput";
 import TextMessage from "../../components/TextMessage";
 import MediumText from "../../components/MediumText";
-import CircularButton from "../../components/CircularButton";
+import Button from "../../components/Button";
 
 import firebase from "firebase/compat";
 import { db, auth, storage } from "../../provider/Firebase";
@@ -31,9 +31,7 @@ export default function ({ route, navigation }) {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]); // Users in group chat
   const [message, setMessage] = useState(""); // Text input for message
-  // const [imageURL, setImageURL] = useState(null); // Image URL for message
 
-  const [uploading, setUploading] = useState(false); // Uploading state for image
   const [loading, setLoading] = useState(true); // Loading state for the page
 
   // Common constant references
@@ -89,10 +87,8 @@ export default function ({ route, navigation }) {
         try {
           await ref;
           const downloadURL = await ref.snapshot.ref.getDownloadURL();
-          // setImageURL(downloadURL);
-          // console.log(downloadURL);
           onSend(downloadURL);
-          Alert.alert("Image uploaded!");
+          Alert.alert("Image Sent!");
         } catch (e) {
           console.log(e);
           Alert.alert("Failed to upload image.");
@@ -101,7 +97,7 @@ export default function ({ route, navigation }) {
       }
     } catch (error) {
       console.log(error);
-      Alert.alert("Error picking image.");
+      // Alert.alert("Error picking image.");
     }
   };
   
@@ -205,20 +201,22 @@ export default function ({ route, navigation }) {
             inverted={true}
             keyExtractor={(item) => item.sentAt.toString()}
           />
-          <CircularButton onPress={handleUploadImage}>
-            <Ionicons name="camera-outline" size={30} />
-          </CircularButton>
-          <TextInput
-            placeholder="Send Message"
-            value={message}
-            onChangeText={(val) => setMessage(val)}
-            width="100%"
-            iconRight="send"
-            iconRightColor="#D3D3D3"
-            iconRightFontSize={20}
-            iconRightDisabled={message.length === 0}
-            iconRightOnPress={() => { onSend(null) }}
-          />
+          <View style={styles.container}>
+            {/* <Ionicons name="camera-outline" onPress={handleUploadImage} size={30} /> */}
+            <TextInput
+              style={styles.textInput}
+              placeholder="Send Message"
+              value={message}
+              onChangeText={setMessage}
+              iconLeft="camera-outline"
+              iconRight="send"
+              iconRightColor="#D3D3D3"
+              iconRightFontSize={20}
+              iconRightDisabled={message.length === 0}
+              iconLeftOnPress={handleUploadImage}
+              iconRightOnPress={() => onSend(null)}
+            />
+          </View>
         </KeyboardAvoidingView>
       }
     </Layout>
@@ -245,12 +243,12 @@ const styles = StyleSheet.create({
     height: 100,
     backgroundColor: "#5DB075",
   },
-  image: {
-    width: 175,
-    height: 175,
-    borderColor: "white",
-    borderWidth: 3,
-    borderRadius: 10,
-    backgroundColor: "white",
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  textInput: {
+    width: '300%',
   },
 });
