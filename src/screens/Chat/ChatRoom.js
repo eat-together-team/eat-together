@@ -201,22 +201,20 @@ export default function ({ route, navigation }) {
             inverted={true}
             keyExtractor={(item) => item.sentAt.toString()}
           />
-          <View style={styles.container}>
-            {/* <Ionicons name="camera-outline" onPress={handleUploadImage} size={30} /> */}
-            <TextInput
-              style={styles.textInput}
-              placeholder="Send Message"
-              value={message}
-              onChangeText={setMessage}
-              iconLeft="camera-outline"
-              iconRight="send"
-              iconRightColor="#D3D3D3"
-              iconRightFontSize={20}
-              iconRightDisabled={message.length === 0}
-              iconLeftOnPress={handleUploadImage}
-              iconRightOnPress={() => onSend(null)}
-            />
-          </View>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Send Message"
+            width="100%"
+            value={message}
+            onChangeText={setMessage}
+            iconLeft="camera-outline"
+            iconRight="send"
+            iconRightColor="#D3D3D3"
+            iconRightFontSize={20}
+            iconRightDisabled={message.length === 0}
+            iconLeftOnPress={handleUploadImage}
+            iconRightOnPress={() => onSend(null)}
+          />
         </KeyboardAvoidingView>
       }
     </Layout>
@@ -242,13 +240,5 @@ const styles = StyleSheet.create({
     width: Dimensions.get("screen").width,
     height: 100,
     backgroundColor: "#5DB075",
-  },
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-  },
-  textInput: {
-    width: '300%',
-  },
+  }
 });
