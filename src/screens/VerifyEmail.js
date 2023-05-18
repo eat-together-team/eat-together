@@ -37,16 +37,9 @@ export default function ({ navigation }) {
                 {
                     text: "Yes",
                     onPress: async () => {
-                        db.collection("Users").doc(uid).delete();
-                        db.collection("Usernames").doc(userInfo.username).delete();
-
-                        if (userInfo.hasImage) {
-                            const ref = storage.ref().child(`profilePictures/${uid}`);
-                            ref.delete();
-                        }
                         await user.delete().then(() => {
-                            alert("Account deleted successfully. Sorry to see you go :(");
                             auth.signOut();
+                            alert("Account deleted successfully. Sorry to see you go :(");
                         }).catch((error) => {
                             auth.signOut().then(() => {
                                 alert("You need to sign in again to proceed.");
