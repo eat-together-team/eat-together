@@ -6,9 +6,14 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
-  Platform
+  Platform,
+  Alert,
+  Image,
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
+import * as ImagePicker from 'expo-image-picker';
+// import { Camera} from 'expo-camera';
+
 import { Ionicons } from "@expo/vector-icons";
 
 import { KeyboardAvoidingView } from "react-native";
@@ -16,9 +21,10 @@ import { KeyboardAvoidingView } from "react-native";
 import TextInput from "../../components/TextInput";
 import TextMessage from "../../components/TextMessage";
 import MediumText from "../../components/MediumText";
+import Button from "../../components/Button";
 
 import firebase from "firebase/compat";
-import { db, auth } from "../../provider/Firebase";
+import { db, auth, storage } from "../../provider/Firebase";
 import moment from "moment";
 
 export default function ({ route, navigation }) {
@@ -30,6 +36,7 @@ export default function ({ route, navigation }) {
 
   // Common constant references
   let group = route.params.group;
+  let uri = "https://firebasestorage.googleapis.com/v0/b/eat-together-303ec.appspot.com/o/groups%2FThu%20May%2018%202023%2021%3A18%3A00%20GMT-0700%20(PDT)Garden%20Dinner%2FF347FF36-60AC-4B7A-9159-A3E52A611943.png?alt=media&token=70d5f2d6-7e39-4240-a62e-9d5c8cd74a7e";
   const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState(null);
   const messageRef = db.collection("Groups").doc(group.groupID);
@@ -57,6 +64,44 @@ export default function ({ route, navigation }) {
     });
   }, []);
 
+  const handleUploadImage = async () => {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+      });
+  
+      if (!result.cancelled) {
+        const source = { uri: result.uri };
+  
+        const response = await fetch(source.uri);
+        const blob = await response.blob();
+        const filename = source.uri.substring(source.uri.lastIndexOf('/') + 1);
+  
+        // Upload to this group's folder
+        var ref = storage.ref().child('groups/' + group.groupID + "/" + filename).put(blob, {
+          contentType: 'image/jpeg'
+        });
+  
+        try {
+          await ref;
+          const downloadURL = await ref.snapshot.ref.getDownloadURL();
+          onSend(downloadURL);
+          Alert.alert("Image Sent!");
+        } catch (e) {
+          console.log(e);
+          Alert.alert("Failed to upload image.");
+        }
+        onSend();
+      }
+    } catch (error) {
+      console.log(error);
+      // Alert.alert("Error picking image.");
+    }
+  };
+  
+
   // Set all messages to read
   const setRead = (messages) => {
     let temp = [];
@@ -81,7 +126,7 @@ export default function ({ route, navigation }) {
     });
   }
 
-  const onSend = () => {
+  const onSend = (imageURL) => {
     // Add unread to all users in group except current user
     let unread = [];
     users.forEach((uid) => {
@@ -101,11 +146,13 @@ export default function ({ route, navigation }) {
           sentAt: moment().unix(),
           sentBy: user.uid,
           sentName: userInfo.firstName + " " + userInfo.lastName.substring(0, 1) + ".",
-          unread: unread
+          unread: unread,
+          url: imageURL,
         }),
       })
       .then(() => {
         setMessage("");
+        setImageURL(null);
       });
     
     users.forEach((uid) => {
@@ -141,7 +188,7 @@ export default function ({ route, navigation }) {
           <MediumText center>Hang tight ...</MediumText>
         </View>
       :
-
+        
         <KeyboardAvoidingView 
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : ""}
@@ -154,20 +201,21 @@ export default function ({ route, navigation }) {
             inverted={true}
             keyExtractor={(item) => item.sentAt.toString()}
           />
-        
           <TextInput
+            style={styles.textInput}
             placeholder="Send Message"
-            value={message}
-            onChangeText={(val) => setMessage(val)}
             width="100%"
+            value={message}
+            onChangeText={setMessage}
+            iconLeft="camera-outline"
             iconRight="send"
             iconRightColor="#D3D3D3"
             iconRightFontSize={20}
             iconRightDisabled={message.length === 0}
-            iconRightOnPress={() => { onSend() }}
+            iconLeftOnPress={handleUploadImage}
+            iconRightOnPress={() => onSend(null)}
           />
         </KeyboardAvoidingView>
-
       }
     </Layout>
   );
