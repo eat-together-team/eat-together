@@ -127,29 +127,6 @@ export default function ({ navigation }) {
                 {
                     text: "Yes",
                     onPress: async () => {
-                        console.log("here");
-                        const uid = user.uid;
-                        console.log("here2");
-                        console.log(uid);
-                        const info = userInfo;
-                        // const user = firebase.auth().currentUser;
-
-                        // Delete their uid from all friends in database
-                        info.friendIDs.forEach(friend => {
-                            db.collection("Users").doc(friend).update({
-                                friendIDs: firebase.firestore.FieldValue.arrayRemove(uid)
-                            });
-                        });
-
-                        // Delete image from storage
-                        if (info.hasImage) {
-                            const ref = storage.ref().child(`profilePictures/${uid}`);
-                            await ref.delete();
-                        }                        
-
-                        user.delete();
-                        db.collection("Usernames").doc(info.username).delete();
-                        
                         await user.delete().then(() => {
                             signOut();
                             alert("Account deleted successfully. Sorry to see you go :(");
