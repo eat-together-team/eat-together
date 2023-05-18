@@ -127,7 +127,7 @@ export default function ({ navigation }) {
         let recEvents = [];
         let asyncCounter = 0; // Counter to see how many events have been fetched
         recIDs.forEach(async id => {
-          await db.collection("Private Events").doc(id).onSnapshot(recDoc => {
+          await db.collection("Private Events").doc(id).get().then(recDoc => {
             let recDocData = recDoc.data();
             recDocData.isARec = true;
             recDocData.hostFirstName = "Eat Together Team!";

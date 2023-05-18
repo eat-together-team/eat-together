@@ -6,13 +6,10 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
-  Platform,
-  Alert,
-  Image,
+  Platform
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import * as ImagePicker from 'expo-image-picker';
-// import { Camera} from 'expo-camera';
 
 import { Ionicons } from "@expo/vector-icons";
 
@@ -21,7 +18,6 @@ import { KeyboardAvoidingView } from "react-native";
 import TextInput from "../../components/TextInput";
 import TextMessage from "../../components/TextMessage";
 import MediumText from "../../components/MediumText";
-import Button from "../../components/Button";
 
 import firebase from "firebase/compat";
 import { db, auth, storage } from "../../provider/Firebase";
@@ -36,7 +32,6 @@ export default function ({ route, navigation }) {
 
   // Common constant references
   let group = route.params.group;
-  let uri = "https://firebasestorage.googleapis.com/v0/b/eat-together-303ec.appspot.com/o/groups%2FThu%20May%2018%202023%2021%3A18%3A00%20GMT-0700%20(PDT)Garden%20Dinner%2FF347FF36-60AC-4B7A-9159-A3E52A611943.png?alt=media&token=70d5f2d6-7e39-4240-a62e-9d5c8cd74a7e";
   const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState(null);
   const messageRef = db.collection("Groups").doc(group.groupID);
@@ -88,10 +83,10 @@ export default function ({ route, navigation }) {
           await ref;
           const downloadURL = await ref.snapshot.ref.getDownloadURL();
           onSend(downloadURL);
-          Alert.alert("Image Sent!");
+          alert("Image Sent!");
         } catch (e) {
           console.log(e);
-          Alert.alert("Failed to upload image.");
+          alert("Failed to upload image.");
         }
         onSend();
       }
@@ -152,7 +147,6 @@ export default function ({ route, navigation }) {
       })
       .then(() => {
         setMessage("");
-        setImageURL(null);
       });
     
     users.forEach((uid) => {
