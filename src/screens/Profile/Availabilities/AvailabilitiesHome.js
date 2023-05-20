@@ -24,7 +24,8 @@ const AvailabilitiesHome = props => {
     expoClientId: GOOGLE_AUTH_CLIENT_ID,
     iosClientId: GOOGLE_AUTH_CLIENT_ID_IOS,
     androidClientId: GOOGLE_AUTH_CLIENT_ID_ANDROID,
-    scopes: ["https://www.googleapis.com/auth/calendar"]
+    scopes: ["https://www.googleapis.com/auth/calendar"],
+    redirectUri: "https://auth.expo.io/@eat-together-team/eat-together"
   }); // For Google Calendar API
 
   const [freeTimes, setFreeTimes] = useState([]); // List of user's available times

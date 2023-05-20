@@ -131,10 +131,6 @@ export default function ({ navigation }) {
         setTagsValue(tags);
     }, [name, location, type, tagsSelected]);
 
-    useEffect(() => {
-        console.log(endDate);
-    }, [endDate]);
-
     // For selecting a start date and time
     const changeStartDate = (selectedDate) => {
         const start = cloneDeep(selectedDate) || startDate;
@@ -453,6 +449,7 @@ export default function ({ navigation }) {
                                 }
                                 navigation.navigate("InvitePeople", {
                                     name,
+                                    type: "private",
                                     location,
                                     startDate,
                                     endDate,
@@ -460,7 +457,9 @@ export default function ({ navigation }) {
                                     hasImage: hasImage,
                                     image: hasImage ? photo : "",
                                     icebreakers,
-                                    clearAll
+                                    attendees: [],
+                                    clearAll,
+                                    from: "Organize"
                                 });
                             }
                         }}>

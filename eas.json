@@ -16,6 +16,11 @@
     "production": {
       "android": {
         "serviceAccountKeyPath": "pc-api-5329078435669230928-498-364c0ff73145.json"
+      },
+      "ios": {
+        "appleId": "eat.together.team@gmail.com",
+        "ascAppId": "6443467064",
+        "appleTeamId": "MHFJG75UKU"
       }
     }
   }

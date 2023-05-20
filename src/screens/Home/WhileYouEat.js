@@ -315,6 +315,29 @@ const WhileYouEat = ({ route, navigation }) => {
                 {event.hostID === user.uid && (
                   <MenuOption
                     onSelect={() =>
+                      navigation.navigate("InvitePeople", {
+                        name: event.name,
+                        type: event.type === "public" ? "public" : "private",
+                        location: event.location,
+                        startDate: event.startDate,
+                        endDate: event.endDate,
+                        attendees: event.attendees,
+                        additionalInfo: event.additionalInfo,
+                        hasImage: event.hasImage,
+                        image: event.hasImage ? event.image : "",
+                        icebreakers: event.ice,
+                        id: event.id,
+                        from: "WhileYouEat"
+                      })
+                    }
+                    style={styles.option}
+                  >
+                    <NormalText size={18}>Invite People</NormalText>
+                  </MenuOption>
+                )}
+                {event.hostID === user.uid && (
+                  <MenuOption
+                    onSelect={() =>
                       navigation.navigate("EditEvent", {
                         event,
                         editEvent,
