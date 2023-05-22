@@ -2,12 +2,12 @@ import React from "react";
 import {
     StyleSheet,
     Dimensions,
-    TouchableOpacity, Image, View,
+    TouchableOpacity,
+    Image,
+    View
 } from "react-native";
 import { Section, SectionContent, SectionImage } from "react-native-rapi-ui";
 import MediumText from "./MediumText";
-import SmallText from "./SmallText";
-import CustomButton from "./CustomButton";
 
 const RecommendationsCard = (props) => {
     return (
@@ -23,9 +23,14 @@ const RecommendationsCard = (props) => {
                             }
                     }
                 />
+                
+                <View style={styles.moreInfo} borderRadius={30}>
+                    <MediumText center color="white" size={14}>Recommended!</MediumText>
+                </View>
+
                 <SectionContent style={{alignItems: "center", paddingTop: 10, paddingHorizontal: 10}} height={75}>
                     <View style={{flexDirection: "row", alignItems: "center"}}>
-                        <Image style={{width: 50, height: 54}} source={require("../../assets/stars.png")}/>
+                        <Image style={{width: 50, height: 50}} source={require("../../assets/sparkles.gif")}/>
                         <MediumText center>{props.event.name}</MediumText>
                     </View>
                 </SectionContent>
@@ -53,6 +58,14 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
     },
+
+    moreInfo: {
+        position: "absolute",
+        top: 10,
+        right: 10,
+        padding: 10,
+        backgroundColor: "#5DB075"
+    }
 });
 
 export default RecommendationsCard;
