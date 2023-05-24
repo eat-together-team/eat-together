@@ -89,6 +89,8 @@ export default function edit({ route, navigation }) {
             alert("Pronouns have inappropriate words");
         } else if (checkProfanity(bio)) {
             alert("Fun fact has inappropriate words");
+        } else if (bio.length < 10 || bio.length > 100) {
+            alert("Fun fact must be between 10 and 100 characters");
         } else {
             route.params.updateInfo(firstName, lastName, pronouns, bio, tags, image);
 
@@ -214,7 +216,7 @@ export default function edit({ route, navigation }) {
                     <View style={styles.row}>
                         <TextInput
                             keyboardType="numeric"
-                            placeholder="Age"
+                            placeholder="Birth year"
                             onChangeText={(val) => setAge(val)}
                             width={"47%"}
                             iconLeftType="Ionicons"

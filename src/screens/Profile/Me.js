@@ -164,19 +164,6 @@ export default function ({ navigation }) {
             }}
           ></Ionicons>
         </View>
-        <View style={styles.calendar}>
-          <Ionicons
-            name="calendar-sharp"
-            size={40}
-            color="white"
-            onPress={() => {
-              navigation.navigate("AvailabilitiesHome", {
-                user: userInfo,
-                updateAvailabilities,
-              });
-            }}
-          ></Ionicons>
-        </View>
 
         <Image
           style={styles.image}
@@ -187,16 +174,9 @@ export default function ({ navigation }) {
           }
         />
 
-        <View style={styles.name}>
-          <LargeText>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
-          <NormalText marginBottom={5}>({userInfo.pronouns})</NormalText>
-          <NormalText>
-            {mealsAttended + "/" + mealsSignedUp + " meals attended"}
-          </NormalText>
-          <MediumText>@{userInfo.username}</MediumText>
-
+        <View style={styles.links}>
           <TouchableOpacity
-            style={styles.connections}
+            style={styles.link}
             onPress={() => {
               navigation.navigate("Connections", {
                 user: userInfo,
@@ -204,25 +184,45 @@ export default function ({ navigation }) {
                 updateInfo,
               });
             }}
-            marginVertical={10}
           >
             <Ionicons name="list-circle" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Connections</NormalText>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.edit}
+            style={styles.link}
             onPress={() => {
               navigation.navigate("Edit", {
                 user: userInfo,
                 updateInfo,
               });
             }}
-            marginVertical={10}
           >
             <Feather name="edit-2" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Edit Profile</NormalText>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.link}
+            onPress={() => {
+              navigation.navigate("AvailabilitiesHome", {
+                user: userInfo,
+                updateAvailabilities,
+              });
+            }}
+          >
+            <Ionicons name="time" size={20} color="#4C6FB1" />
+            <NormalText color="#4C6FB1"> Eating Times</NormalText>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.name}>
+          <LargeText>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
+          <NormalText marginBottom={5}>({userInfo.pronouns})</NormalText>
+          <NormalText>
+            {mealsAttended + "/" + mealsSignedUp + " meals attended"}
+          </NormalText>
+          <MediumText>@{userInfo.username}</MediumText>
         </View>
 
         <TagsList tags={userInfo.tags ? userInfo.tags : []} />
@@ -314,19 +314,16 @@ const styles = StyleSheet.create({
     top: 70,
   },
 
-  connections: {
-    position: "absolute",
-    left: "2%",
-    top: -25,
+  links: {
+    marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-evenly",
+    width: "100%",
   },
 
-  edit: {
-    position: "absolute",
-    right: "2%",
-    top: -25,
+  link: {
     flexDirection: "row",
     alignItems: "center",
-  },
+  }
 });

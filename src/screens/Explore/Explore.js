@@ -42,7 +42,6 @@ export default function({ navigation }) {
     const [evening, setEvening] = useState(false);
 
     // Display a bottom drawer showing more filters
-    const showSortFilterRef = useRef();
     const showTimeFilterRef = useRef();
 
     const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
@@ -215,6 +214,12 @@ export default function({ navigation }) {
 
       return newEvents;
     };
+
+    // Filter events by time of day
+    const filterByTime = (time, newEvents) => {
+      newEvents = newEvents.filter(e => getTimeOfDay(e.date.toDate()) === time);
+      return newEvents;
+    }
 
     return (
       <Layout>
