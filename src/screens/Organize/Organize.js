@@ -280,9 +280,9 @@ export default function ({ navigation }) {
                             </View>
                         </ImageBackground>
                     </TouchableOpacity>
-                    <ScrollView style={styles.content} >
+                    <ScrollView style={styles.content}>
                         <TextInput
-                            placeholder="Meal Name"
+                            placeholder="Meal Name (e.g. 'Lunchtime')"
                             value={name}
                             width="100%"
                             onChangeText={(val) => {
@@ -351,7 +351,7 @@ export default function ({ navigation }) {
                         </View>
 
                         <TextInput
-                            placeholder="Location"
+                            placeholder="Location (e.g. 'Cafe on the Ave')"
                             value={location}
                             onChangeText={(val) => {
                                 setLocation(val);
@@ -369,7 +369,7 @@ export default function ({ navigation }) {
                             minimumDate={startDate} maximumDate={moment().add(1, "months").toDate()}/>
 
                         <TextInput
-                            placeholder="Additional Info"
+                            placeholder="Additional Info (optional)"
                             value={additionalInfo}
                             onChangeText={(val) => setAdditionalInfo(val)}
                             multiline={true}
@@ -385,7 +385,7 @@ export default function ({ navigation }) {
                             style={styles.input}>
                             <View pointerEvents="none">
                                 <TextInput
-                                    placeholder="Tags"
+                                    placeholder="Tags (optional)"
                                     value={tagsValue}
                                     width="100%"
                                     iconLeft="pricetags-outline"
@@ -406,7 +406,7 @@ export default function ({ navigation }) {
                             <Link width="35%" onPress={confirmClear}>Clear all details</Link>
                         </View>
 
-                        {type === "public" ? <Button disabled={disabled || loading} onPress={() => {
+                        {type === "public" ? <Button marginVertical={10} disabled={disabled || loading} onPress={() => {
                             if (startDate > endDate) {
                                 alert("Start time must be before end time");
                             } else if (checkProfanity(name)) {
@@ -433,7 +433,7 @@ export default function ({ navigation }) {
                         }}>
                             {loading ? "Posting ..." : "Post"}
                         </Button> :
-                        <Button disabled={disabled} onPress={() => {
+                        <Button marginVertical={10} disabled={disabled} onPress={() => {
                             if (startDate > endDate) {
                                 alert("Start time must be before end time");
                             } else if (checkProfanity(name)) {
@@ -511,7 +511,6 @@ export default function ({ navigation }) {
 const styles = StyleSheet.create({
     content: {
         paddingHorizontal: 20,
-        paddingBottom: 10,
         flexGrow: 1
     },
 

@@ -112,17 +112,14 @@ function TextInput(props) {
   
     return (
         <View style={styles.mainContainer}>
-            {/* <View style={styles.leftContainer}>
-                {iconLeftType === "Ionicons" && 
-                <Ionicons size={iconFontSize} name={iconLeft} color={iconLeftColor}/>}
-
-                {iconLeftType === "FontAwesome" && 
-                <FontAwesome size={iconFontSize} name={iconLeft} color={iconLeftColor}/>}
-            </View> */}
             <TouchableOpacity onPress={iconLeftOnPress} style={styles.leftContainer}>
                 {iconLeftType === "Ionicons" && 
                 <Ionicons size={iconFontSize} name={iconLeft} color={iconLeftColor}/>}
+                
+                {iconLeftType === "FontAwesome" && 
+                <FontAwesome size={iconFontSize} name={iconLeft} color={iconLeftColor}/>}
             </TouchableOpacity>
+
             <ReactNativeTextInput 
                 style={styles.textInput}
                 onChangeText={onChangeText}
