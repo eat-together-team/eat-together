@@ -102,7 +102,7 @@ const Name = props => {
 
             <View style={styles.row}>
               <TextInput
-                placeholder="Age"
+                placeholder="Birth year"
                 value={age}
                 width="47%"
                 height="100%"
@@ -133,7 +133,7 @@ const Name = props => {
               iconLeft="exclamation"
             />
 
-            <NormalText marginTop={20}>Note: your age will not be publicly shown to others.</NormalText>
+            <NormalText marginTop={20}>Note: your birth year will not be publicly shown to others.</NormalText>
 
             <View
               style={{

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
-import { Layout, TextInput } from "react-native-rapi-ui";
+import { Layout } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import RBSheet from "react-native-raw-bottom-sheet";
 
@@ -10,6 +10,7 @@ import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 
+import TextInput from "../../components/TextInput";
 import TagsSection from "../../components/TagsSection";
 import Button from "../../components/Button";
 
@@ -89,11 +90,11 @@ const EditTags = props => {
             }}>
                 <View pointerEvents="none">
                     <TextInput
+                        height={40}
+                        width="100%"
                         placeholder="Tags"
                         value={schoolTagsValue}
-                        leftContent={
-                            <Ionicons name="pricetags-outline" size={20}/>
-                        }
+                        iconLeft="pricetags-outline"
                         editable={false}
                     />
                 </View>
@@ -111,11 +112,11 @@ const EditTags = props => {
             }}>
                 <View pointerEvents="none">
                     <TextInput
+                        height={40}
+                        width="100%"
                         placeholder="Tags"
                         value={hobbyTagsValue}
-                        leftContent={
-                            <Ionicons name="pricetags-outline" size={20}/>
-                        }
+                        iconLeft="pricetags-outline"
                         editable={false}
                     />
                 </View>
@@ -133,11 +134,11 @@ const EditTags = props => {
             }}>
                 <View pointerEvents="none">
                     <TextInput
+                        height={40}
+                        width="100%"
                         placeholder="Tags"
                         value={foodTagsValue}
-                        leftContent={
-                            <Ionicons name="pricetags-outline" size={20}/>
-                        }
+                        iconLeft="pricetags-outline"
                         editable={false}
                     />
                 </View>
