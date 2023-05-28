@@ -22,7 +22,7 @@
     "eas-cli": "^2.1.0",
     "eslint": "^8.22.0",
     "eslint-config-rallycoding": "^3.2.0",
-    "expo": "~46.0.19",
+    "expo": "~46.0.21",
     "expo-app-loading": "~2.1.0",
     "expo-application": "~4.2.2",
     "expo-auth-session": "~3.7.4",
