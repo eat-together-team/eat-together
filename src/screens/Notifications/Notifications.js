@@ -9,15 +9,14 @@ import { Ionicons } from "@expo/vector-icons";
 import Header from "../../components/Header";
 import HorizontalSwitch from "../../components/HorizontalSwitch";
 import MediumText from "../../components/MediumText";
-import NormalText from "../../components/NormalText";
 import Notification from "../../components/Notification";
 import EmptyState from "../../components/EmptyState";
+import Link from "../../components/Link";
 
 import { db } from "../../provider/Firebase";
 import firebase from "firebase/compat";
 import moment from "moment";
 import { AuthContext } from "../../provider/AuthProvider";
-import Button from "../../components/Button";
 
 export default function (props) {
   // Current user stuff
@@ -280,13 +279,9 @@ export default function (props) {
           }
           {readNotifs.length !== 0 &&
             <View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <MediumText>Read</MediumText>
-                <TouchableOpacity
-                  onPress={deleteAlert}
-                >
-                  <Ionicons name="trash-outline" size={30}/>
-                </TouchableOpacity>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between" }}>
+                <MediumText> Read</MediumText>
+                <Link onPress={deleteAlert}>Clear Notifications </Link>
               </View>
               
               <FlatList

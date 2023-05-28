@@ -94,7 +94,12 @@ const WhileYouEat = ({ route, navigation }) => {
           if (doc.data().messages.length > 0) {
             const lastMessage = doc.data().messages[doc.data().messages.length - 1];
             if (lastMessage.unread && lastMessage.sentBy !== user.uid) {
-              unread = lastMessage.unread.filter(u => u.uid === user.uid)[0].unread;
+              const unread_exists = lastMessage.unread.filter(u => u.uid === user.uid);
+              if (unread_exists.length !== 0) {
+                unread = lastMessage.unread.filter(u => u.uid === user.uid)[0].unread;
+              } else {
+                unread = false;
+              }
             }
           }
 
