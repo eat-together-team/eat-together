@@ -1,7 +1,7 @@
 // First page of registration
 
 import React, { useState } from "react";
-import { View, StyleSheet, Dimensions, Image, TouchableOpacity, SafeAreaView } from "react-native";
+import { View, StyleSheet, Dimensions, Image, ImageBackground, TouchableOpacity, SafeAreaView } from "react-native";
 import { Feather } from '@expo/vector-icons';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -68,10 +68,15 @@ const Name = props => {
             {image !== "" ? (
               <Image style={styles.image} source={{ uri: image }} />
             ) : (
-              <Image
+              <ImageBackground
                 style={styles.image}
+                imageStyle={{ borderRadius: 125 }}
                 source={require("../../../../assets/logo.png")}
-              />
+              >
+                <View style={styles.overImage}>
+                  <NormalText center color="white">Image of yourself</NormalText>
+                </View>
+              </ImageBackground>
             )}
             <TouchableOpacity style={styles.editImage} onPress={pickImage}>
               <Feather name="edit-2" size={24} color="black" />
@@ -124,7 +129,7 @@ const Name = props => {
             </View>
 
             <TextInput
-              placeholder="Fun fact (10 to 100 characters)"
+              placeholder="Fun fact"
               value={bio}
               width="100%"
               height="10%"
@@ -169,8 +174,7 @@ const Name = props => {
                   lastName === "" ||
                   pronouns === "" ||
                   age === "" ||
-                  bio.length < 10 ||
-                  bio.length > 100
+                  bio === ""
                 }
                 onPress={goNext}
                 marginHorizontal={10}
@@ -200,7 +204,15 @@ const styles = StyleSheet.create({
   image: {
     width: 150,
     height: 150,
-    borderRadius: 125
+    borderRadius: 125,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  
+  overImage: {
+    width: "90%",
+    backgroundColor: "#AAAAAA",
+    borderRadius: 5
   },
 
   editImage: {
