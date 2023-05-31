@@ -234,7 +234,7 @@ export default function edit({ route, navigation }) {
                     </View>
                     
                     <TextInput
-                        placeholder="Fun fact (10 to 100 characters)"
+                        placeholder="Fun fact"
                         onChangeText={(val) => setBio(val)}
                         width={"100%"}
                         iconLeftType="FontAwesome"

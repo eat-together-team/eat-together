@@ -1,7 +1,7 @@
 // Notifications page
 
 import React, { useEffect, useState, useContext } from "react";
-import { ScrollView, FlatList, View, StyleSheet, ActivityIndicator } from "react-native";
+import { ScrollView, FlatList, View, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
 
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -11,6 +11,7 @@ import HorizontalSwitch from "../../components/HorizontalSwitch";
 import MediumText from "../../components/MediumText";
 import Notification from "../../components/Notification";
 import EmptyState from "../../components/EmptyState";
+import Link from "../../components/Link";
 
 import { db } from "../../provider/Firebase";
 import firebase from "firebase/compat";
@@ -84,6 +85,41 @@ export default function (props) {
       setLoading(false);
     });
   }, []);
+
+  // Alert the user if they want to withdraw from the event or not
+  const deleteAlert = () => {
+    Alert.alert(
+      "Delete Notifications",
+      "Are you sure you want to delete all read notifications?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "OK", onPress: () => removeReadNotifications() },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const removeReadNotifications = () => {
+    try {
+      const notifIds = [];
+      readNotifs.forEach((doc) => {
+        notifIds.push(doc.id);
+      });
+  
+      db.collection("Users").doc(user.uid).update({
+        notifications: firebase.firestore.FieldValue.arrayRemove(...readNotifs)
+      });
+  
+      console.log("All read notifications removed successfully");
+    } catch (error) {
+      console.error("Error removing read notifications:", error);
+    }
+  };
+  
 
   return (
     <Layout>
@@ -243,7 +279,11 @@ export default function (props) {
           }
           {readNotifs.length !== 0 &&
             <View>
-              <MediumText> Read </MediumText>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between" }}>
+                <MediumText> Read</MediumText>
+                <Link onPress={deleteAlert}>Clear Notifications </Link>
+              </View>
+              
               <FlatList
                 contentContainerStyle={styles.cards}
                 keyExtractor={(item) => item.id}
