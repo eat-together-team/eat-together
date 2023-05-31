@@ -1,7 +1,7 @@
 // A component that provides a brief explanation of a component/feature via a bubble that appears right beside it
 
 import React from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
+import { View, StyleSheet } from "react-native";
 
 const Explanation = props => {
     return (
