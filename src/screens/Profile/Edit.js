@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { View, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native';
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons, Feather, FontAwesome } from '@expo/vector-icons';
@@ -12,8 +12,13 @@ import MediumText from "../../components/MediumText";
 import DeviceToken from "../utils/DeviceToken";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 
+import pronounTags from "../../pronounTags";
+
 import { AuthContext } from "../../provider/AuthProvider";
 import { checkProfanity } from "../../methods";
+import RBSheet from "react-native-raw-bottom-sheet";
+import SuggestSelection from "../../components/SuggestSelection";
+import { cloneDeep } from "lodash";
 
 
 export default function edit({ route, navigation }) {
@@ -22,6 +27,7 @@ export default function edit({ route, navigation }) {
     const [lastName, setLastName] = useState(route.params.user.lastName);
     const [age, setAge] = useState(route.params.user.age + "");
     const [pronouns, setPronouns] = useState(route.params.user.pronouns);
+    const [pronounTagsSelected, setPronounTagsSelected] = useState(pronouns.split(","));
     const [bio, setBio] = useState(route.params.user.bio);
     const [tags, setTags] = useState(route.params.user.tags);
     const [tagText, setTagText] = useState('');
@@ -34,9 +40,15 @@ export default function edit({ route, navigation }) {
 
     const updateProfileImg = useContext(AuthContext).updateProfileImg;
 
+    const refRBSheet = useRef();
+
     useEffect(() => {
         setTagText(displayTags(route.params.user.tags));
     }, []);
+
+    useEffect(() => {
+        setPronouns(pronounTagsSelected.join(","));
+    }, [pronounTagsSelected])
 
     // Display text for tags
     const displayTags = tags => {
@@ -223,14 +235,20 @@ export default function edit({ route, navigation }) {
                             iconLeft="md-pencil"
                             value={age}
                         />
-                        <TextInput
-                            placeholder="Pronouns"
-                            onChangeText={(val) => setPronouns(val)}
-                            width={"47%"}
-                            iconLeftType="FontAwesome"
-                            iconLeft="quote-left"
-                            value={pronouns}
-                        />
+                        <TouchableOpacity style={{width: "47%"}} onPress={() => {
+                            refRBSheet.current.open();
+                        }}>
+                            <View pointerEvents="none">
+                                <TextInput
+                                    placeholder="Pronouns"
+                                    onChangeText={(val) => setPronouns(val)}
+                                    width={"100%"}
+                                    iconLeftType="FontAwesome"
+                                    iconLeft="quote-left"
+                                    value={pronouns}
+                                />
+                            </View>
+                        </TouchableOpacity>
                     </View>
                     
                     <TextInput
@@ -270,6 +288,44 @@ export default function edit({ route, navigation }) {
                         }}>
                         {loading ? "Updating ..." : "Update Profile"}
                     </Button>
+
+                    <RBSheet
+                        height={400}
+                        ref={refRBSheet}
+                        closeOnDragDown={true}
+                        closeOnPressMask={false}
+                        customStyles={{
+                            wrapper: {
+                                backgroundColor: "rgba(0,0,0,0.5)",
+                            },
+                            draggableIcon: {
+                                backgroundColor: "#5DB075"
+                            },
+                            container: {
+                                borderTopLeftRadius: 20,
+                                borderTopRightRadius: 20,
+                                padding: 10
+                            }
+                    }}>
+                        <SuggestSelection
+                          multi={true}
+                          selectedItems={pronounTagsSelected}
+                          onItemSelect={(item) => {
+                            setPronounTagsSelected([...pronounTagsSelected, item]);
+                          }}
+                          onRemoveItem={(_, index) => {
+                              const newTags = pronounTagsSelected.filter((_, i) => i !== index);
+                              setPronounTagsSelected(newTags);
+                          }}
+                          textInputProps = {{
+                            placeholder: "Select your pronoun(s) or enter them",
+                          }}
+                          updateSelectedItems={(newSelectedItems) => {setPronounTagsSelected(newSelectedItems)}} 
+                          items={cloneDeep(pronounTags)}
+                          chip={true}
+                          resetValue={false}
+                        />
+                    </RBSheet>
                 </View>
             </KeyboardAvoidingWrapper>
         </Layout>
