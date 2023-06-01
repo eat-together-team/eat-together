@@ -1,6 +1,6 @@
 // First page of registration
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Dimensions, Image, ImageBackground, TouchableOpacity, SafeAreaView } from "react-native";
 import { Feather } from '@expo/vector-icons';
 
@@ -11,7 +11,6 @@ import LargeText from "../../../components/LargeText";
 import Button from "../../../components/Button";
 import SuggestSelection from "../../../components/SuggestSelection";
 import KeyboardAvoidingWrapper from "../../../components/KeyboardAvoidingWrapper";
-import RBSheet from "react-native-raw-bottom-sheet";
 import NormalText from "../../../components/NormalText";
 
 import { checkProfanity } from "../../../methods";
@@ -25,11 +24,12 @@ const Name = props => {
   const [lastName, setLastName] = useState(props.lastName);
   const [age, setAge] = useState(props.age);
   const [pronouns, setPronouns] = useState(props.pronouns);
-  const [pronounTagsSelected, setPronounTagsSelected] = useState([]);
+  const [pronounTagsSelected, setPronounTagsSelected] = useState(pronouns ? [pronouns] : []);
   const [bio, setBio] = useState(props.bio);
   const [image, setImage] = useState(props.image);
 
-  const refRBSheet = useRef(); 
+  // Height of parent view for SuggestSelection TextInput
+  const [rowHeight, setRowHeight] = useState();
 
   const goNext = () => {
     if (checkProfanity(firstName) || checkProfanity(lastName)) {
@@ -63,12 +63,12 @@ const Name = props => {
   }
 
   useEffect(() => {
-    setPronouns(pronounTagsSelected.join(","));
+    setPronouns(pronounTagsSelected.join(""));
   }, [pronounTagsSelected])
 
   return (
     <SafeAreaView>
-      <KeyboardAvoidingWrapper>
+      <KeyboardAvoidingWrapper keyboardVerticalOffset={-50}>
         <View>
           <View style={styles.header}>
             <LargeText color="white" center size={25}>
@@ -129,22 +129,55 @@ const Name = props => {
                 keyboardType="numeric"
               />
               
-              <TouchableOpacity style={{width: "47%"}} onPress={() => {
-                refRBSheet.current.open();
-              }}>
-                <View pointerEvents="none">
-                  <TextInput
-                    placeholder="Pronouns"
-                    value={pronouns}
-                    width="100%"
-                    height="100%"
-                    textInputStyle={{paddingLeft: 5}}
-                    onChangeText={(val) => setPronouns(val)}
-                    iconLeftType="FontAwesome"
-                    iconLeft="quote-left"
-                  />
-                </View>
-              </TouchableOpacity>
+              <View style={{width: "47%"}} onLayout={((e) => { setRowHeight(e.nativeEvent.layout.height); })}>
+                <SuggestSelection
+                  multi={true}
+                  selectedItems={pronounTagsSelected}
+                  onItemSelect={(item) => {
+                    setPronounTagsSelected(item.length !== 0 ? [item] : []);
+                  }}
+                  onRemoveItem={() => {
+                    setPronounTagsSelected([]);
+                  }}
+                  itemStyle={{
+                    padding: 10,
+                    borderWidth: 2,
+                    borderColor: '#5DB075',
+                    borderRadius: 10,
+                    marginTop: 2,
+                    width: "100%",
+                    height: 40,
+                    backgroundColor: "white"
+                  }}
+                  selectedItemsStyle={{
+                    margin: 0,
+                    height: rowHeight,
+                    width: "100%",
+                    justifyContent: "space-around",
+                    backgroundColor: "white",
+                    borderColor: "lightgrey",
+                    borderWidth: 1,
+                    borderRadius: 10,
+                  }}
+                  height={rowHeight}
+                  textInputProps = {{
+                    placeholder: "Enter pronouns", 
+                  }}
+                  onSubmitEditing = {(e) => {
+                      if (e.nativeEvent.text.length !== 0) {
+                        const newSelectedItems = [e.nativeEvent.text];
+                        setPronounTagsSelected(newSelectedItems);
+                      }}
+                  }
+                  containerStyle = {{
+                    height: 200,
+                  }}
+                  selectedItemsWidth={"47%"}
+                  items={cloneDeep(pronounTags)}
+                  chip={true}
+                  resetValue={false}
+                />
+              </View>
             </View>
 
             <TextInput
@@ -155,9 +188,10 @@ const Name = props => {
               onChangeText={(val) => setBio(val)}
               iconLeftType="FontAwesome"
               iconLeft="exclamation"
+              mainContainerStyle={{zIndex: -1000}}
             />
 
-            <NormalText marginTop={20}>Note: your birth year will not be publicly shown to others.</NormalText>
+            <NormalText marginTop={20} style={{zIndex: -1000}}>Note: your birth year will not be publicly shown to others.</NormalText>
 
             <View
               style={{
@@ -202,46 +236,6 @@ const Name = props => {
               </Button>
             </View>
           </View>
-
-          <RBSheet
-            height={400}
-            ref={refRBSheet}
-            closeOnDragDown={true}
-            closeOnPressMask={true}
-            customStyles={{
-                wrapper: {
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                },
-                draggableIcon: {
-                    backgroundColor: "#5DB075"
-                },
-                container: {
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
-                    padding: 10
-                }
-            }}>
-          
-            <SuggestSelection
-              multi={true}
-              selectedItems={pronounTagsSelected}
-              onItemSelect={(item) => {
-                setPronounTagsSelected([...pronounTagsSelected, item]);
-              }}
-              onRemoveItem={(_, index) => {
-                  const newTags = pronounTagsSelected.filter((_, i) => i !== index);
-                  setPronounTagsSelected(newTags);
-              }}
-              textInputProps = {{
-                placeholder: "Select your pronoun(s) or enter them",
-              }}
-              updateSelectedItems={(newSelectedItems) => {setPronounTagsSelected(newSelectedItems)}} 
-              items={cloneDeep(pronounTags)}
-              chip={true}
-              resetValue={false}
-            />
-          </RBSheet>
-
         </View>
       </KeyboardAvoidingWrapper>
     </SafeAreaView>
