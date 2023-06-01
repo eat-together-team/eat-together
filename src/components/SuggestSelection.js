@@ -1,21 +1,22 @@
 // Note: this is a modification of the library https://github.com/zubairpaizer/react-native-searchable-dropdown
-// This is a modification of TagsSection.js that lets users create their own tags (aren't forced to select one of the options)
 
 import React, { Component } from 'react';
 import {
   FlatList,
   View,
   TouchableOpacity,
-  Keyboard,
   StyleSheet
 } from 'react-native';
 
 import TextInput from './TextInput';
-import Tag from './Tag';
-import TagsList from './TagsList';
-import NormalText from "./NormalText";
+import { Ionicons } from '@expo/vector-icons';
+import NormalText from './NormalText';
 
-export default class SuggestSelection extends Component {
+const defaultItemValue = {
+  name: '', id: 0
+};
+
+export default class SearchableDropDown extends Component {
   constructor(props) {
     super(props);
     this.renderTextInput = this.renderTextInput.bind(this);
@@ -23,9 +24,8 @@ export default class SuggestSelection extends Component {
     this.searchedItems = this.searchedItems.bind(this);
     this.renderItems = this.renderItems.bind(this);
     this.state = {
-      item: "",
+      item: {},
       listItems: [],
-      customListItems: [],
       focus: false
     };
   }
@@ -53,7 +53,6 @@ export default class SuggestSelection extends Component {
       return (
         <FlatList
           { ...flatListProps }
-          style={{ maxHeight: 150 }}
         />
       );
     }
@@ -73,63 +72,86 @@ export default class SuggestSelection extends Component {
   };
 
   searchedItems = searchedText => {
-      let setSort = this.props.setSort;
-      if (!setSort && typeof setSort !== 'function') {
-          setSort = (item, searchedText) => { 
-              return item.toLowerCase().indexOf(searchedText.toLowerCase()) > -1
-          };
-      }
+    let setSort = this.props.setSort;
+    if (!setSort && typeof setSort !== 'function') {
+        setSort = (item, searchedText) => { 
+          return item.toLowerCase().indexOf(searchedText.toLowerCase()) > -1
+        };
+    }
 
-      var ac = this.props.items.filter((item) => {
-          return setSort(item, searchedText);
-      });
+    var ac = this.props.items.filter((item) => {
+      return setSort(item, searchedText);
+    });
 
-      this.setState({ listItems: ac, item: searchedText });
+    let item = {
+      id: -1,
+      name: searchedText
+    };
+
+    this.setState({ listItems: ac, item: item });
+
+    const onTextChange = this.props.onTextChange || this.props.textInputProps.onTextChange || this.props.onChangeText || this.props.textInputProps.onChangeText;
+    if (onTextChange && typeof onTextChange === 'function') {
+      setTimeout(() => {
+        onTextChange(searchedText);
+      }, 0);
+    }
   };
 
   renderItems = (item, index) => {
-    if (this.props.multi && this.props.selectedItems && this.props.selectedItems.length > 0) {
-        return (
-            this.props.selectedItems.find(sitem => sitem === item) ?
-
-            <TouchableOpacity style={{...styles.item, backgroundColor: "#5DB075", borderBottomWidth: 0}}>
-                <NormalText color="white">{ item }</NormalText>
-            </TouchableOpacity>
-
-            : <TouchableOpacity
-                onPress={() => {
-                    this.setState({
-                        focus: false,
-                        item: "",
-                        listItems: this.props.items
-                    });
-
-                    this.props.onItemSelect(item);
-                    Keyboard.dismiss();
-                }}
-                style={styles.item}>
-                <NormalText>{ item }</NormalText>
-            </TouchableOpacity>
-        )
-    } else {
-        return (
-            <TouchableOpacity
-                style={styles.item}
-                onPress={() => {
-                    this.setState({ item: item, focus: false, listItems: this.props.items });
-                    this.props.onItemSelect(item);
-
-                    if (this.props.resetValue) {
-                        this.setState({ focus: true, item: "" });
-                        this.input.focus();
-                    }
-
-                    Keyboard.dismiss();
-                }}
-            >
+    if(this.props.multi && this.props.selectedItems && this.props.selectedItems.length > 0) {
+      return (
+          this.props.selectedItems.find(sitem => sitem.id === item.id) 
+          ? 
+          <TouchableOpacity style={{ ...this.props.itemStyle, flex: 1, flexDirection: 'row' }}>
+            <View style={{ flex: 0.9, flexDirection: 'row', alignItems: 'flex-start' }}>
               <NormalText>{ item }</NormalText>
+            </View>
+            <View style={{ flex: 0.1, flexDirection: 'row', alignItems: 'flex-end' }}>
+            <TouchableOpacity onPress={() => setTimeout(() => { this.props.onRemoveItem(item, index) }, 0) } style={styles.close}>
+              <Ionicons name="ios-close" size={15}/>
             </TouchableOpacity>
-        );
+            </View>
+          </TouchableOpacity>
+         :
+          <TouchableOpacity
+          onPress={() => {
+            this.setState({ item: item });
+            setTimeout(() => {
+              this.props.onItemSelect(item);
+            }, 0);
+          }}
+          style={{ ...this.props.itemStyle, flex: 1, flexDirection: 'row' }}>
+            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'flex-start' }}>
+              <NormalText>{ item }</NormalText>
+            </View>
+          </TouchableOpacity>
+      )
+    } else {
+      return (
+        <TouchableOpacity
+          style={{ ...this.props.itemStyle }}
+          onPress={() => {
+            this.setState({ item: item, focus: false });
+            this.props.onItemSelect(item);
+
+            if (this.props.resetValue) {
+              this.setState({ focus: true, item: defaultItemValue });
+              /*BUGGY: FIX LATER --> this.input.focus();*/
+            }
+
+            //Keyboard.dismiss();
+          }}
+        >
+          { 
+            this.props.selectedItems && this.props.selectedItems.length > 0 && this.props.selectedItems.find(x => x.id === item.id) 
+            ?
+              <NormalText style={{ ...this.props.itemTextStyle }}>{item}</NormalText>
+            :
+              <NormalText style={{ ...this.props.itemTextStyle }}>{item}</NormalText>
+          }
+        </TouchableOpacity>
+      );
     }
   };
 
@@ -141,14 +163,15 @@ export default class SuggestSelection extends Component {
     const textInputProps = { ...this.props.textInputProps };
     const oldSupport = [
       { key: 'ref', val: e => (this.input = e) }, 
-      { key: 'onChangeText', val: (text) => { this.searchedItems(text) } },
+      { key: 'onChangeText', val: (text) => { this.searchedItems(text) } }, 
+      { key: 'underlineColorAndroid', val: this.props.underlineColorAndroid }, 
       { 
         key: 'onFocus', 
         val: () => {
           this.props.onFocus && this.props.onFocus()
           this.setState({
             focus: true,
-            item: "",
+            item: defaultItemValue,
             listItems: this.props.items
           });
         } 
@@ -195,27 +218,23 @@ export default class SuggestSelection extends Component {
     return (
       <TextInput
         { ...textInputProps }
-        onSubmitEditing={(e) => {
-          if (this.props.selectedItems && this.props.updateSelectedItems && e.nativeEvent.text.length !== 0) {
-            const newSelectedItems = [...this.props.selectedItems, e.nativeEvent.text];
-            this.props.updateSelectedItems(newSelectedItems);
-          }
-        }}
-        iconLeft="pricetag"
+        iconLeft="search"
+        iconLeftType="FontAwesome"
         iconLeftFontSize={20}
         width="100%"
+        onSubmitEditing={this.props.onSubmitEditing}
+        height={this.props.height ? this.props.height : 50}
         onBlur={(e) => {
-            if (this.props.onBlur) {
-                this.props.onBlur(e);
-            }
+          if (this.props.onBlur) {
+            this.props.onBlur(e);
+          }
 
-            if (this.props.textInputProps && this.props.textInputProps.onBlur) {
-                this.props.textInputProps.onBlur(e);
-            }
-            
-            this.setState({ focus: false, item: this.props.selectedItems });
+          if (this.props.textInputProps && this.props.textInputProps.onBlur) {
+            this.props.textInputProps.onBlur(e);
+          }
+          
+          this.setState({ focus: false, item: this.props.selectedItems });
         }}
-        marginBottom={10}
       />
     )
   }
@@ -224,66 +243,53 @@ export default class SuggestSelection extends Component {
     return (
       <View
         keyboardShouldPersist="always"
-        style={{ padding: 0 }}
+        style={{ ...this.props.containerStyle }}
       >
-        { this.renderTextInput() }
-        { this.renderListType() }
         { this.renderSelectedItems() }
+        { this.props.selectedItems.length === 0 && this.renderTextInput() }
+        { this.props.selectedItems.length === 0 && this.renderListType() }
       </View>
     );
   };
 
   renderSelectedItems() {
     let items = this.props.selectedItems || [];
-    if (items !== undefined && items.length > 0 && this.props.chip && this.props.multi) {
-      if (this.props.inline) {
-        return <TagsList tags={items} remove={this.props.onRemoveItem}/>
-      } else {
-        return (
-          <View style={styles.itemDisplay}>
-            { items.map((tag, i) => 
-              <Tag key={i} text={tag} remove={() => this.props.onRemoveItem(tag, i)}/>
-            )}
-          </View>
-        );
-      }
+    if(items !== undefined && items.length > 0 && this.props.chip && this.props.multi){
+      return  <View style={{flexDirection: 'row',  flexWrap: 'wrap', paddingBottom: 10 }}>
+          { items.map((item, index) => {
+                     return (
+                         <View key={index} style={{
+                                 width: (item.length * 8) + 60,
+                                 justifyContent: 'center',
+                                 flex: 0,
+                                 backgroundColor: '#eee',
+                                 flexDirection: 'row',
+                                 alignItems: 'center',
+                                 margin: 5,
+                                 padding: 8,
+                                 borderRadius: 15,
+                                 ...this.props.selectedItemsStyle,  
+                             }}>
+                             <NormalText>{item}</NormalText>
+                             <TouchableOpacity onPress={() => setTimeout(() => { this.props.onRemoveItem(item, index); }, 0) } style={styles.close}>
+                                 <Ionicons name="ios-close" size={15}/>
+                             </TouchableOpacity>
+                         </View>
+                 )
+             }) 
+         }
+         </View>
     }
-  }
+ }
 }
 
 const styles = StyleSheet.create({
-    item: {
-        flex: 1,
-        flexDirection: 'row',
-        padding: 10,
-        borderBottomWidth: 2,
-        borderBottomColor: '#5DB075',
-        borderRadius: 5,
-        marginTop: 2
-    },
-
-    itemDisplay: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        paddingBottom: 10,
-        marginTop: 5
-    },
-
-    tag: {
-        justifyContent: 'center',
-        flex: 0,
-        backgroundColor: 'black',
-        flexDirection: 'row',
-        alignItems: 'center',
-        margin: 2,
-        borderRadius: 20,
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-    },
-
-    close: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginLeft: 10
-    }
+  close: {
+    backgroundColor: '#5DB075',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 20,
+    height: 20,
+    borderRadius: 8
+  }
 });
