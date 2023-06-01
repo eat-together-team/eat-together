@@ -64,7 +64,6 @@ const Name = props => {
 
   useEffect(() => {
     setPronouns(pronounTagsSelected.join(""));
-    alert(pronounTagsSelected);
   }, [pronounTagsSelected])
 
   return (
