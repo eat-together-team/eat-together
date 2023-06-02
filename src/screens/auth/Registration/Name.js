@@ -1,7 +1,7 @@
 // First page of registration
 
-import React, { useState } from "react";
-import { View, StyleSheet, Dimensions, Image, TouchableOpacity, SafeAreaView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, Dimensions, Image, ImageBackground, TouchableOpacity, SafeAreaView } from "react-native";
 import { Feather } from '@expo/vector-icons';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -9,10 +9,14 @@ import * as ImagePicker from 'expo-image-picker';
 import TextInput from "../../../components/TextInput";
 import LargeText from "../../../components/LargeText";
 import Button from "../../../components/Button";
+import SuggestSelection from "../../../components/SuggestSelection";
 import KeyboardAvoidingWrapper from "../../../components/KeyboardAvoidingWrapper";
+import NormalText from "../../../components/NormalText";
 
 import { checkProfanity } from "../../../methods";
-import NormalText from "../../../components/NormalText";
+import pronounTags from "../../../pronounTags";
+
+import { cloneDeep } from "lodash";
 
 const Name = props => {
   // Input fields
@@ -20,8 +24,12 @@ const Name = props => {
   const [lastName, setLastName] = useState(props.lastName);
   const [age, setAge] = useState(props.age);
   const [pronouns, setPronouns] = useState(props.pronouns);
+  const [pronounTagsSelected, setPronounTagsSelected] = useState(pronouns ? [pronouns] : []);
   const [bio, setBio] = useState(props.bio);
   const [image, setImage] = useState(props.image);
+
+  // Height of parent view for SuggestSelection TextInput
+  const [rowHeight, setRowHeight] = useState();
 
   const goNext = () => {
     if (checkProfanity(firstName) || checkProfanity(lastName)) {
@@ -54,9 +62,13 @@ const Name = props => {
     }
   }
 
+  useEffect(() => {
+    setPronouns(pronounTagsSelected.join(""));
+  }, [pronounTagsSelected])
+
   return (
     <SafeAreaView>
-      <KeyboardAvoidingWrapper>
+      <KeyboardAvoidingWrapper keyboardVerticalOffset={-50}>
         <View>
           <View style={styles.header}>
             <LargeText color="white" center size={25}>
@@ -68,10 +80,15 @@ const Name = props => {
             {image !== "" ? (
               <Image style={styles.image} source={{ uri: image }} />
             ) : (
-              <Image
+              <ImageBackground
                 style={styles.image}
+                imageStyle={{ borderRadius: 125 }}
                 source={require("../../../../assets/logo.png")}
-              />
+              >
+                <View style={styles.overImage}>
+                  <NormalText center color="white">Image of yourself</NormalText>
+                </View>
+              </ImageBackground>
             )}
             <TouchableOpacity style={styles.editImage} onPress={pickImage}>
               <Feather name="edit-2" size={24} color="black" />
@@ -111,29 +128,70 @@ const Name = props => {
                 iconLeft="md-pencil"
                 keyboardType="numeric"
               />
-
-              <TextInput
-                placeholder="Pronouns"
-                value={pronouns}
-                width="47%"
-                height="100%"
-                onChangeText={(val) => setPronouns(val)}
-                iconLeftType="FontAwesome"
-                iconLeft="quote-left"
-              />
+              
+              <View style={{width: "47%"}} onLayout={((e) => { setRowHeight(e.nativeEvent.layout.height); })}>
+                <SuggestSelection
+                  multi={true}
+                  selectedItems={pronounTagsSelected}
+                  onItemSelect={(item) => {
+                    setPronounTagsSelected(item.length !== 0 ? [item] : []);
+                  }}
+                  onRemoveItem={() => {
+                    setPronounTagsSelected([]);
+                  }}
+                  itemStyle={{
+                    padding: 10,
+                    borderWidth: 2,
+                    borderColor: '#5DB075',
+                    borderRadius: 10,
+                    marginTop: 2,
+                    width: "100%",
+                    height: 40,
+                    backgroundColor: "white"
+                  }}
+                  selectedItemsStyle={{
+                    margin: 0,
+                    height: rowHeight,
+                    width: "100%",
+                    justifyContent: "space-around",
+                    backgroundColor: "white",
+                    borderColor: "lightgrey",
+                    borderWidth: 1,
+                    borderRadius: 10,
+                  }}
+                  height={rowHeight}
+                  textInputProps = {{
+                    placeholder: "Enter pronouns", 
+                  }}
+                  onSubmitEditing = {(e) => {
+                      if (e.nativeEvent.text.length !== 0) {
+                        const newSelectedItems = [e.nativeEvent.text];
+                        setPronounTagsSelected(newSelectedItems);
+                      }}
+                  }
+                  containerStyle = {{
+                    height: 200,
+                  }}
+                  selectedItemsWidth={"47%"}
+                  items={cloneDeep(pronounTags)}
+                  chip={true}
+                  resetValue={false}
+                />
+              </View>
             </View>
 
             <TextInput
-              placeholder="Fun fact (10 to 100 characters)"
+              placeholder="Fun fact"
               value={bio}
               width="100%"
               height="10%"
               onChangeText={(val) => setBio(val)}
               iconLeftType="FontAwesome"
               iconLeft="exclamation"
+              mainContainerStyle={{zIndex: -1000}}
             />
 
-            <NormalText marginTop={20}>Note: your birth year will not be publicly shown to others.</NormalText>
+            <NormalText marginTop={20} style={{zIndex: -1000}}>Note: your birth year will not be publicly shown to others.</NormalText>
 
             <View
               style={{
@@ -169,8 +227,7 @@ const Name = props => {
                   lastName === "" ||
                   pronouns === "" ||
                   age === "" ||
-                  bio.length < 10 ||
-                  bio.length > 100
+                  bio === ""
                 }
                 onPress={goNext}
                 marginHorizontal={10}
@@ -184,6 +241,8 @@ const Name = props => {
     </SafeAreaView>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   header: {
@@ -200,7 +259,15 @@ const styles = StyleSheet.create({
   image: {
     width: 150,
     height: 150,
-    borderRadius: 125
+    borderRadius: 125,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  
+  overImage: {
+    width: "90%",
+    backgroundColor: "#AAAAAA",
+    borderRadius: 5
   },
 
   editImage: {

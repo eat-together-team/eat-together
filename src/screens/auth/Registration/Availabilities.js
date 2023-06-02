@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity
 } from "react-native";
-import { Layout, TextInput } from "react-native-rapi-ui";
+import { Layout } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -20,6 +20,7 @@ import Button from "../../../components/Button";
 import BorderedButton from "../../../components/BorderedButton";
 import SelectButton from "../../../components/SelectButton";
 import Availability from "../../../components/Availability";
+import TextInput from "../../../components/TextInput";
 
 import getTime from "../../../getTime";
 import moment from "moment";

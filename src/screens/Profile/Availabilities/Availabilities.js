@@ -1,7 +1,7 @@
 // Specify availabilities for days of the week
 
 import React, { useState, useRef, useEffect } from "react";
-import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { View, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 
 import DateTimePickerModal from "react-native-modal-datetime-picker";

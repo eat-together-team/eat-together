@@ -11,9 +11,13 @@ import Button from "../../components/Button";
 import MediumText from "../../components/MediumText";
 import DeviceToken from "../utils/DeviceToken";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
+import SuggestSelection from "../../components/SuggestSelection";
+
+import pronounTags from "../../pronounTags";
 
 import { AuthContext } from "../../provider/AuthProvider";
 import { checkProfanity } from "../../methods";
+import { cloneDeep } from "lodash";
 
 
 export default function edit({ route, navigation }) {
@@ -22,6 +26,7 @@ export default function edit({ route, navigation }) {
     const [lastName, setLastName] = useState(route.params.user.lastName);
     const [age, setAge] = useState(route.params.user.age + "");
     const [pronouns, setPronouns] = useState(route.params.user.pronouns);
+    const [pronounTagsSelected, setPronounTagsSelected] = useState(pronouns ? [pronouns] : []);
     const [bio, setBio] = useState(route.params.user.bio);
     const [tags, setTags] = useState(route.params.user.tags);
     const [tagText, setTagText] = useState('');
@@ -37,6 +42,10 @@ export default function edit({ route, navigation }) {
     useEffect(() => {
         setTagText(displayTags(route.params.user.tags));
     }, []);
+
+    useEffect(() => {
+        setPronouns(pronounTagsSelected.join(""));
+    }, [pronounTagsSelected])
 
     // Display text for tags
     const displayTags = tags => {
@@ -223,18 +232,58 @@ export default function edit({ route, navigation }) {
                             iconLeft="md-pencil"
                             value={age}
                         />
-                        <TextInput
-                            placeholder="Pronouns"
-                            onChangeText={(val) => setPronouns(val)}
-                            width={"47%"}
-                            iconLeftType="FontAwesome"
-                            iconLeft="quote-left"
-                            value={pronouns}
-                        />
+                        <View style={{width: "47%"}}>
+                            <SuggestSelection
+                                multi={true}
+                                selectedItems={pronounTagsSelected}
+                                onItemSelect={(item) => {
+                                    setPronounTagsSelected(item.length !== 0 ? [item] : []);
+                                }}
+                                onRemoveItem={() => {
+                                    setPronounTagsSelected([]);
+                                }}
+                                itemStyle={{
+                                    padding: 10,
+                                    borderWidth: 2,
+                                    borderColor: '#5DB075',
+                                    borderRadius: 10,
+                                    marginTop: 2,
+                                    width: "100%",
+                                    height: 40
+                                }}
+                                selectedItemsStyle={{
+                                    margin: 0,
+                                    height: 40,
+                                    width: "100%",
+                                    justifyContent: "space-around",
+                                    backgroundColor: "white",
+                                    borderColor: "lightgrey",
+                                    borderWidth: 1,
+                                    borderRadius: 10,
+                                }}
+                                height={40}
+                                textInputProps = {{
+                                    placeholder: "Enter pronouns",
+                                }}
+                                containerStyle = {{
+                                    maxHeight: 200
+                                }}
+                                onSubmitEditing = {(e) => {
+                                    if (e.nativeEvent.text.length !== 0) {
+                                        const newSelectedItems = [e.nativeEvent.text];
+                                        setPronounTagsSelected(newSelectedItems);
+                                    }}
+                                }
+                                selectedItemsWidth={"47%"}
+                                items={cloneDeep(pronounTags)}
+                                chip={true}
+                                resetValue={false}
+                            />
+                        </View>
                     </View>
                     
                     <TextInput
-                        placeholder="Fun fact (10 to 100 characters)"
+                        placeholder="Fun fact"
                         onChangeText={(val) => setBio(val)}
                         width={"100%"}
                         iconLeftType="FontAwesome"

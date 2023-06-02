@@ -15,7 +15,8 @@ const NormalText = props => {
                 textAlign: props.center ? "center" : "auto",
                 paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
                 marginBottom: props.marginBottom ? props.marginBottom : 0,
-                marginTop: props.marginTop ? props.marginTop : 0
+                marginTop: props.marginTop ? props.marginTop : 0,
+                ...props.style
             }}>
                 {props.children}
             </Text>
@@ -30,7 +31,8 @@ const NormalText = props => {
             textAlign: props.center ? "center" : "auto",
             paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
             marginBottom: props.marginBottom ? props.marginBottom : 0,
-            marginTop: props.marginTop ? props.marginTop : 0
+            marginTop: props.marginTop ? props.marginTop : 0,
+            ...props.style
         }}>
             {props.children}
         </Text>
