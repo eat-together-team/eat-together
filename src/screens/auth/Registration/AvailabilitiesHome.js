@@ -22,9 +22,12 @@ WebBrowser.maybeCompleteAuthSession();
 
 const AvailabilitiesHome = props => {
   const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: GOOGLE_AUTH_CLIENT_ID,
-    iosClientId: GOOGLE_AUTH_CLIENT_ID_IOS,
-    androidClientId: GOOGLE_AUTH_CLIENT_ID_ANDROID,
+    expoClientId: process.env.GOOGLE_AUTH_CLIENT_ID ?
+      process.env.GOOGLE_AUTH_CLIENT_ID : GOOGLE_AUTH_CLIENT_ID,
+    iosClientId: process.env.GOOGLE_AUTH_CLIENT_ID_IOS ?
+      process.env.GOOGLE_AUTH_CLIENT_ID_IOS : GOOGLE_AUTH_CLIENT_ID_IOS,
+    androidClientId: process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID ?
+      process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID : GOOGLE_AUTH_CLIENT_ID_ANDROID,
     scopes: ["https://www.googleapis.com/auth/calendar"],
     redirectUri: "https://auth.expo.io/@eat-together-team/eat-together"
   }); // For Google Calendar API
