@@ -22,7 +22,7 @@
     },
     "android": {
       "package": "com.eat.together",
-      "versionCode": 14,
+      "versionCode": 15,
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ],
