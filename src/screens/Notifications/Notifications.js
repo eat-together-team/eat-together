@@ -257,15 +257,7 @@ export default function (props) {
                             });
                             break;
                           case "user profile":
-                            db.collection("Usernames").doc(item.id).get().then((ss) => {
-                              db.collection("Users").doc(ss.data().id).get().then((ss2) => {
-                                props.navigation.navigate("FullProfile", {
-                                  person: ss2.data()
-                                })
-                              })
-                            }).catch(() => {
-                              alert("This user doesn't seem to exist :(");
-                            });
+                            props.navigation.navigate("Requests");
                             break;
                           default:
                             alert("Sorry, an error has occurred.");
@@ -331,15 +323,7 @@ export default function (props) {
                           });
                           break;
                         case "user profile":
-                          db.collection("Usernames").doc(item.id).get().then((ss) => {
-                            db.collection("Users").doc(ss.data().id).get().then((ss2) => {
-                              props.navigation.navigate("FullProfile", {
-                                person: ss2.data()
-                              })
-                            })
-                          }).catch(() => {
-                            alert("This user doesn't seem to exist :(");
-                          });
+                          props.navigation.navigate("Requests");
                           break;
                         default:
                           alert("Sorry, an error has occurred.");

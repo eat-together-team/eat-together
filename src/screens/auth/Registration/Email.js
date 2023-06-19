@@ -23,7 +23,7 @@ const Email = props => {
     if (isAcademic[isAcademic.length-1] === "uw.edu" || isAcademic[isAcademic.length-1] === "cs.washington.edu") {
       setVerified(true);
     } else {
-      setVerified(false);
+      setVerified(true);
     }
   }
 
@@ -31,7 +31,7 @@ const Email = props => {
     <Layout style={styles.page}>
         <Image source={require("../../../../assets/backpack.png")}/>
         <View style={{marginVertical: 20}}>
-          <MediumText center>Verify your student email address</MediumText>
+          <MediumText center>Enter your student email address</MediumText>
         </View>
 
         <TextInput placeholder="Enter email address ..." value={email}

@@ -1,6 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import {Ionicons} from "@expo/vector-icons";
+import {
+    View,
+    StyleSheet,
+    Image,
+    TouchableOpacity,
+    Dimensions
+} from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
 
 import MediumText from "./MediumText";
 
@@ -12,78 +18,91 @@ const MessageList = props => {
     
     return (
         <View style={styles.outline}>
-            <View style={styles.head}>
-                <TouchableOpacity onPress={props.click}>
+            <TouchableOpacity onPress={props.click}>
+                <View style={[styles.head, {
+                    backgroundColor: props.color,
+                    width: props.width ? props.width : Dimensions.get('screen').width - 40
+                }]}>
                     <View style={styles.headleft}>
                         <Image style={styles.image} source={{uri: props.person.profile}}/>
-                        <MediumText>{props.person.name}</MediumText>
+                        <MediumText>
+                            {props.person.name.length > 20
+                            ? props.person.name.substring(0, 20) + "..."
+                            : props.person.name}
+                        </MediumText>
                     </View>
-                </TouchableOpacity>
-                <View style={styles.response}>
-                    <TouchableOpacity onPress={() => {
-                        db.collection("User Invites").doc(user.uid).collection("Connections").doc(props.person.id).delete().then(() => {
-                            alert("Request Declined");
-                        }).catch(() => {
-                            alert("Couldn't delete request, try again later.");
-                        });
-                    }}>
-                        <Ionicons name={"close-circle-outline"} color={"white"} size={40}/>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {
-                        const user = firebase.auth().currentUser;
-                        db.collection("Usernames").doc(props.person.username).get().then((doc) => {
-                            // STEP 1: Add friend to current user's data
-                            db.collection("Users").doc(user.uid).update({
-                                friendIDs: firebase.firestore.FieldValue.arrayUnion(doc.data().id)
-                            }).then(() => {
-                                // STEP 2: Add current user as friend to other user's data
-                                db.collection("Users").doc(doc.data().id).update({
-                                    friendIDs: firebase.firestore.FieldValue.arrayUnion(user.uid)
+                
+                    <View style={styles.response}>
+                        <TouchableOpacity onPress={() => {
+                            db.collection("User Invites").doc(user.uid).collection("Connections").doc(props.person.id).delete().then(() => {
+                                alert("Request Declined");
+                            }).catch(() => {
+                                alert("Couldn't delete request, try again later.");
+                            });
+                        }}>
+                            <Ionicons name={"close-circle-outline"} size={40}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            const user = firebase.auth().currentUser;
+                            db.collection("Usernames").doc(props.person.username).get().then((doc) => {
+                                // STEP 1: Add friend to current user's data
+                                db.collection("Users").doc(user.uid).update({
+                                    friendIDs: firebase.firestore.FieldValue.arrayUnion(doc.data().id)
                                 }).then(() => {
-                                    // STEP 3: Delete invite
-                                    db.collection("User Invites").doc(user.uid).collection("Connections").doc(doc.data().id).delete().then(() => {
-                                        props.delete(props.person.id);
-                                        alert("Taste Bud Added");
-                                    });
+                                    // STEP 2: Add current user as friend to other user's data
+                                    db.collection("Users").doc(doc.data().id).update({
+                                        friendIDs: firebase.firestore.FieldValue.arrayUnion(user.uid)
+                                    }).then(() => {
+                                        // STEP 3: Delete invite
+                                        db.collection("User Invites").doc(user.uid).collection("Connections").doc(doc.data().id).delete().then(() => {
+                                            props.delete(props.person.id);
+                                            alert("Taste Bud Added");
+                                        });
+                                    })
                                 })
+                            }).catch(() => {
+                                alert("This user seems to no longer exist :(");
                             })
-                        }).catch(() => {
-                            alert("This user seems to no longer exist :(");
-                        })
-                    }}>
-                        <Ionicons name={"checkmark-circle-outline"} color={"white"} size={40}/>
-                    </TouchableOpacity>
+                        }}>
+                            <Ionicons name={"checkmark-circle-outline"} size={40}/>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     outline: {
-        padding: 10
+        marginVertical: 5,
+        shadowColor: "#000000",
+        backgroundColor: "white",
+        borderRadius: 15,
+        paddingVertical: 10,
+        shadowOpacity: 0.25,
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        elevation: 10
     },
     head: {
-        width: 370,
-        height: 80,
-        backgroundColor: "grey",
-        borderRadius: 15,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between"
     },
     headleft: {
         flexDirection: "row",
-        alignItems: "center"
+        alignItems: "center",
+        flexWrap: "wrap"
     },
     image: {
-        width: 60,
-        height: 60,
-        borderRadius: 90,
-        borderColor: "white",
-        borderWidth: 2,
-        marginLeft: 25,
-        marginRight: 20
+        width: 50,
+        height: 50,
+        borderRadius: 50,
+        marginLeft: 15,
+        marginRight: 10
     },
     name: {
         marginRight: 20,
