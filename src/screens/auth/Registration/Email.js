@@ -23,7 +23,7 @@ const Email = props => {
     if (isAcademic[isAcademic.length-1] === "uw.edu" || isAcademic[isAcademic.length-1] === "cs.washington.edu") {
       setVerified(true);
     } else {
-      setVerified(true);
+      setVerified(false);
     }
   }
 
