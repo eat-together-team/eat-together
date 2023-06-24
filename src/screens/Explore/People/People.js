@@ -209,7 +209,7 @@ export default function ({ navigation }) {
             )}
           />
         : 
-          <EmptyState title="Empty" text="Either you're friends with everyone or no one is using the app :("/>
+          <EmptyState title="Empty" text="No results :("/>
         }
       </View>
     </Layout>

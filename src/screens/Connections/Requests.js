@@ -1,6 +1,6 @@
 //Look at your connection requests
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet } from "react-native";
 import { Layout, TopNav } from 'react-native-rapi-ui';
 import { Ionicons } from "@expo/vector-icons";
@@ -10,8 +10,7 @@ import EmptyState from '../../components/EmptyState';
 import MessageList from "../../components/MessageList";
 import MediumText from "../../components/MediumText";
 
-import {generateColor} from "../../methods";
-import {db} from "../../provider/Firebase";
+import { db } from "../../provider/Firebase";
 import firebase from "firebase/compat";
 
 export default function ({ back, navigation }) {
@@ -63,7 +62,7 @@ export default function ({ back, navigation }) {
             : requests.length > 0 ?
                 <FlatList contentContainerStyle={styles.invites} keyExtractor={item => item.id}
                         data={requests} renderItem={({item}) =>
-                    <MessageList person={item} color={generateColor()} click={() => {
+                    <MessageList person={item} click={() => {
                         db.collection("Users").doc(item.id).get().then((doc) => {
                             if (doc.data()) {
                                 navigation.navigate("FullProfile", {

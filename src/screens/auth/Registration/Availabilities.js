@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity
 } from "react-native";
-import { Layout, TextInput } from "react-native-rapi-ui";
+import { Layout } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -20,6 +20,7 @@ import Button from "../../../components/Button";
 import BorderedButton from "../../../components/BorderedButton";
 import SelectButton from "../../../components/SelectButton";
 import Availability from "../../../components/Availability";
+import TextInput from "../../../components/TextInput";
 
 import getTime from "../../../getTime";
 import moment from "moment";
@@ -33,13 +34,13 @@ const Availabilities = props => {
   const [friday, setFriday] = useState(props.friday);
   const [saturday, setSaturday] = useState(props.saturday);
   const [sunday, setSunday] = useState(props.sunday);
+  const [days, setDays] = useState([]);
 
   // For the bottom drawer
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(moment(new Date()).add(1, 'hours').toDate());
   const [showStartTime, setShowStartTime] = useState(false);
   const [showEndTime, setShowEndTime] = useState(false);
-  const [daySelected, setDaySelected] = useState("Monday");
 
   // Used for editing a time slot
   const [dayOfWeek, setDayOfWeek] = useState("Monday");
@@ -113,29 +114,30 @@ const Availabilities = props => {
       alert("End time must be after start time!");
     } else {
       timeSheet.current.close();
-
-      switch (daySelected) {
-        case "Monday":
-          setMonday([...monday, { startTime: startTime, endTime: endTime }]);
-          break;
-        case "Tuesday":
-          setTuesday([...tuesday, { startTime: startTime, endTime: endTime }]);
-          break;
-        case "Wednesday":
-          setWednesday([...wednesday, { startTime: startTime, endTime: endTime }]);
-          break;
-        case "Thursday":
-          setThursday([...thursday, { startTime: startTime, endTime: endTime }]);
-          break;
-        case "Friday":
-          setFriday([...friday, { startTime: startTime, endTime: endTime }]);
-          break;
-        case "Saturday":
-          setSaturday([...saturday, { startTime: startTime, endTime: endTime }]);
-          break;
-        case "Sunday":
-          setSunday([...sunday, { startTime: startTime, endTime: endTime }]);
-          break;
+      for (let i = 0; i < days.length; i++) {
+          switch (days[i]) {
+            case "Monday":
+              setMonday([...monday, { startTime: startTime, endTime: endTime }]);
+              break;
+            case "Tuesday":
+              setTuesday([...tuesday, { startTime: startTime, endTime: endTime }]);
+              break;
+            case "Wednesday":
+              setWednesday([...wednesday, { startTime: startTime, endTime: endTime }]);
+              break;
+            case "Thursday":
+              setThursday([...thursday, { startTime: startTime, endTime: endTime }]);
+              break;
+            case "Friday":
+              setFriday([...friday, { startTime: startTime, endTime: endTime }]);
+              break;
+            case "Saturday":
+              setSaturday([...saturday, { startTime: startTime, endTime: endTime }]);
+              break;
+            case "Sunday":
+              setSunday([...sunday, { startTime: startTime, endTime: endTime }]);
+              break;
+          }
       }
     }
   }
@@ -258,7 +260,9 @@ const Availabilities = props => {
 
         <ScrollView contentContainerStyle={styles.dates}>
           <View style={styles.day}>
-            <TouchableOpacity onPress={() => {setDaySelected("Monday"); timeSheet.current.open()}}>
+            <TouchableOpacity onPress={() => {
+              setDays(["Monday"])
+              timeSheet.current.open()}}>
               <MediumText>Monday</MediumText>
               {monday.length === 0 && <NormalText>None</NormalText>}
             </TouchableOpacity>
@@ -274,7 +278,9 @@ const Availabilities = props => {
           </View>
 
           <View style={styles.day}>
-            <TouchableOpacity onPress={() => {setDaySelected("Tuesday"); timeSheet.current.open()}}>
+            <TouchableOpacity onPress={() => {
+              setDays(["Tuesday"])
+              timeSheet.current.open()}}>
               <MediumText>Tuesday</MediumText>
               {tuesday.length === 0 && <NormalText>None</NormalText>} 
             </TouchableOpacity>
@@ -290,7 +296,9 @@ const Availabilities = props => {
           </View>
             
           <View style={styles.day}>
-            <TouchableOpacity onPress={() => {setDaySelected("Wednesday"); timeSheet.current.open()}}>
+            <TouchableOpacity onPress={() => {
+              setDays(["Wednesday"])
+              timeSheet.current.open()}}>
               <MediumText>Wednesday</MediumText>
               {wednesday.length === 0 && <NormalText>None</NormalText>}
             </TouchableOpacity>
@@ -306,7 +314,9 @@ const Availabilities = props => {
           </View>
 
           <View style={styles.day}>
-            <TouchableOpacity onPress={() => {setDaySelected("Thursday"); timeSheet.current.open()}}>
+            <TouchableOpacity onPress={() => {
+              setDays(["Thursday"])
+              timeSheet.current.open()}}>
               <MediumText>Thursday</MediumText>
               {thursday.length === 0 && <NormalText>None</NormalText>}
             </TouchableOpacity>
@@ -322,7 +332,9 @@ const Availabilities = props => {
           </View>
 
           <View style={styles.day}>
-            <TouchableOpacity onPress={() => {setDaySelected("Friday"); timeSheet.current.open()}}>
+            <TouchableOpacity onPress={() => {
+              setDays(["Friday"])
+              timeSheet.current.open()}}>
               <MediumText>Friday</MediumText>
               {friday.length === 0 && <NormalText>None</NormalText>}
             </TouchableOpacity>
@@ -338,7 +350,9 @@ const Availabilities = props => {
           </View>
 
           <View style={styles.day}>
-            <TouchableOpacity onPress={() => {setDaySelected("Saturday"); timeSheet.current.open()}}>
+            <TouchableOpacity onPress={() => {
+              setDays(["Saturday"])
+              timeSheet.current.open()}}>
               <MediumText>Saturday</MediumText>
               {saturday.length === 0 && <NormalText>None</NormalText>}
             </TouchableOpacity>
@@ -354,7 +368,9 @@ const Availabilities = props => {
           </View>
 
           <View style={styles.day}>
-            <TouchableOpacity onPress={() => {setDaySelected("Sunday"); timeSheet.current.open()}}>
+            <TouchableOpacity onPress={() => {
+                setDays(["Sunday"])
+              timeSheet.current.open()}}>
               <MediumText>Sunday</MediumText>
               {sunday.length === 0 && <NormalText>None</NormalText>}
             </TouchableOpacity>
@@ -400,9 +416,8 @@ const Availabilities = props => {
                     <View pointerEvents="none">
                         <TextInput
                             value={getTime(startTime)}
-                            leftContent={
-                                <Ionicons name="time-outline" size={20}/>
-                            }
+                            iconLeft="time-outline"
+                            width="100%"
                             editable={false}
                         />
                     </View>
@@ -413,9 +428,8 @@ const Availabilities = props => {
                         <NormalText center>End time</NormalText>
                         <TextInput
                             value={getTime(endTime)}
-                            leftContent={
-                                <Ionicons name="time-outline" size={20}/>
-                            }
+                            iconLeft="time-outline"
+                            width="100%"
                             editable={false}
                         />
                     </View>
@@ -423,13 +437,55 @@ const Availabilities = props => {
             </View>
 
             <View style={styles.row}>
-              <SelectButton selected={daySelected === "Monday"} onPress={() => setDaySelected("Monday")}>M</SelectButton>
-              <SelectButton selected={daySelected === "Tuesday"} onPress={() => setDaySelected("Tuesday")}>Tu</SelectButton>
-              <SelectButton selected={daySelected === "Wednesday"} onPress={() => setDaySelected("Wednesday")}>W</SelectButton>
-              <SelectButton selected={daySelected === "Thursday"} onPress={() => setDaySelected("Thursday")}>Th</SelectButton>
-              <SelectButton selected={daySelected === "Friday"} onPress={() => setDaySelected("Friday")}>F</SelectButton>
-              <SelectButton selected={daySelected === "Saturday"} onPress={() => setDaySelected("Saturday")}>Sa</SelectButton>
-              <SelectButton selected={daySelected === "Sunday"} onPress={() => setDaySelected("Sunday")}>Su</SelectButton>
+              <SelectButton selected={days.includes("Monday")} onPress={() => {
+                if (days.includes("Monday")) {
+                  setDays(days.filter(day => day !== "Monday"))
+                } else {
+                  setDays([...days, "Monday"])
+                }
+              }}>M</SelectButton>
+              <SelectButton selected={days.includes("Tuesday")} onPress={() => {
+                if (days.includes("Tuesday")) {
+                  setDays(days.filter(day => day !== "Tuesday"))
+                } else {
+                  setDays([...days, "Tuesday"])
+                }
+              }}>Tu</SelectButton>
+              <SelectButton selected={days.includes("Wednesday")} onPress={() => {
+                if (days.includes("Wednesday")) {
+                  setDays(days.filter(day => day !== "Wednesday"))
+                } else {
+                  setDays([...days, "Wednesday"])
+                }
+              }}>W</SelectButton>
+              <SelectButton selected={days.includes("Thursday")} onPress={() => {
+                if (days.includes("Thursday")) {
+                  setDays(days.filter(day => day !== "Thursday"))
+                } else {
+                  setDays([...days, "Thursday"])
+                }
+              }}>Th</SelectButton>
+              <SelectButton selected={days.includes("Friday")} onPress={() => {
+                if (days.includes("Friday")) {
+                  setDays(days.filter(day => day !== "Friday"))
+                } else {
+                  setDays([...days, "Friday"])
+                }
+              }}>F</SelectButton>
+              <SelectButton selected={days.includes("Saturday")} onPress={() => {
+                if (days.includes("Saturday")) {
+                  setDays(days.filter(day => day !== "Saturday"))
+                } else {
+                  setDays([...days, "Saturday"])
+                }
+              }}>Sa</SelectButton>
+              <SelectButton selected={days.includes("Sunday")} onPress={() => {
+                if (days.includes("Sunday")) {
+                  setDays(days.filter(day => day !== "Sunday"))
+                } else {
+                  setDays([...days, "Sunday"])
+                }
+              }}>Su</SelectButton>
             </View>
 
             <Button marginVertical={20} onPress={addTime}>Add time</Button>
@@ -466,9 +522,8 @@ const Availabilities = props => {
                     <View pointerEvents="none">
                         <TextInput
                             value={getTime(startTime)}
-                            leftContent={
-                                <Ionicons name="time-outline" size={20}/>
-                            }
+                            iconLeft="time-outline"
+                            width="100%"
                             editable={false}
                         />
                     </View>
@@ -479,9 +534,8 @@ const Availabilities = props => {
                         <NormalText center>End time</NormalText>
                         <TextInput
                             value={getTime(endTime)}
-                            leftContent={
-                                <Ionicons name="time-outline" size={20}/>
-                            }
+                            iconLeft="time-outline"
+                            width="100%"
                             editable={false}
                         />
                     </View>
@@ -501,16 +555,12 @@ const Availabilities = props => {
                   mode="time" onConfirm={changeEndTime} onCancel={() => setShowEndTime(false)}/>
             </View>
         </RBSheet>
-
-        <DateTimePickerModal isVisible={showStartTime} date={startTime}
-            mode="time" onConfirm={changeStartTime} onCancel={() => setShowStartTime(false)}/>
-        <DateTimePickerModal isVisible={showEndTime} date={endTime}
-            mode="time" onConfirm={changeEndTime} onCancel={() => setShowEndTime(false)}/>
-
+        
+        
         <View style={styles.buttons}>
           <Button onPress={() => props.navigation.goBack()}
             marginHorizontal={10} backgroundColor="white"
-            color="#5DB075">Cancel</Button> 
+            color="#5DB075">Cancel</Button>
           <Button onPress={saveAvailabilities}
             marginHorizontal={10}>Save</Button>
         </View>

@@ -72,27 +72,16 @@ const Recommendation = ({ route, navigation }) => {
       id: route.params.event.id
     };
 
-    let prevHostID;
 
-    db.collection("Private Events").doc(route.params.event.id).get().then(doc => {
-      prevHostID = doc.data().hostID;
+    db.collection("Private Events").doc(route.params.event.id).update({
+      attendees: firebase.firestore.FieldValue.arrayUnion(user.uid),
     }).then(() => {
-      db.collection("Private Events").doc(route.params.event.id).update({
-        attendees: firebase.firestore.FieldValue.arrayUnion(user.uid),
-        hostID: prevHostID ? prevHostID : user.uid
+      db.collection("Users").doc(user.uid).update({
+        attendingEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
+        attendedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID)
       }).then(() => {
-        db.collection("Users").doc(user.uid).update({
-          attendingEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
-          attendedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID)
-        }).then(() => {
-          navigation.goBack();
-
-          if (prevHostID) {
-            alert("You are signed up :)");
-          } else {
-            alert("You are signed up! Make sure to do attendance when the meal starts!");
-          }
-        });
+        navigation.goBack();
+        alert("You are signed up :)");
       });
     });
   }
@@ -104,24 +93,17 @@ const Recommendation = ({ route, navigation }) => {
       id: route.params.event.id,
     };
 
-    db.collection("Users")
-      .doc(user.uid)
-      .update({
-        attendingEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
-        attendedEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
-      })
-      .then(() => {
-        db.collection("Private Events").doc(route.params.event.id).get().then(doc => {
-          db.collection("Private Events").doc(route.params.event.id).update({
-            attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
-            hostID: doc.data().hostID === user.uid ? "" : doc.data().hostID
-          })
-          .then(() => {
-            alert("You withdrew from the meal :(");
-            navigation.goBack();
-          });
-        });
+    db.collection("Users").doc(user.uid).update({
+      attendingEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
+      attendedEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
+    }).then(() => {
+      db.collection("Private Events").doc(route.params.event.id).update({
+        attendees: firebase.firestore.FieldValue.arrayRemove(user.uid)
+      }).then(() => {
+        alert("You withdrew from the meal :(");
+        navigation.goBack();
       });
+    });
   }
 
   return (

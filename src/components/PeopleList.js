@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     },
     head: {
         flexDirection: "row",
-        alignItems: "center",
+        alignItems: "center"
     },
     image: {
         width: 50,

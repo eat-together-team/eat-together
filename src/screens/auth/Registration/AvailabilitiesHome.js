@@ -22,11 +22,16 @@ WebBrowser.maybeCompleteAuthSession();
 
 const AvailabilitiesHome = props => {
   const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: GOOGLE_AUTH_CLIENT_ID,
-    iosClientId: GOOGLE_AUTH_CLIENT_ID_IOS,
-    androidClientId: GOOGLE_AUTH_CLIENT_ID_ANDROID,
+    expoClientId: process.env.GOOGLE_AUTH_CLIENT_ID ?
+      process.env.GOOGLE_AUTH_CLIENT_ID : GOOGLE_AUTH_CLIENT_ID,
+    iosClientId: process.env.GOOGLE_AUTH_CLIENT_ID_IOS ?
+      process.env.GOOGLE_AUTH_CLIENT_ID_IOS : GOOGLE_AUTH_CLIENT_ID_IOS,
+    androidClientId: process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID ?
+      process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID : GOOGLE_AUTH_CLIENT_ID_ANDROID,
     scopes: ["https://www.googleapis.com/auth/calendar"],
     redirectUri: "https://auth.expo.io/@eat-together-team/eat-together"
+  }, {
+    projectNameForProxy: "@eat-together-team/eat-together",
   }); // For Google Calendar API
 
   const [freeTimes, setFreeTimes] = useState([]); // List of user's available times
@@ -131,7 +136,9 @@ const AvailabilitiesHome = props => {
         <NormalText center>This is to help suggest meals/meetups that meet your schedule.</NormalText>
 
         <View style={styles.main}>
-            <Button disabled={!request} marginVertical={10} onPress={() => promptAsync()}>Link with Google Calendar</Button>
+            <Button disabled={!request} marginVertical={10} onPress={() => promptAsync({
+              projectNameForProxy: "@eat-together-team/eat-together",
+            })}>Link with Google Calendar</Button>
             <MediumText center>OR</MediumText>
             <Button marginVertical={10} onPress={() => props.navigation.navigate("Availabilities")}>Enter manually</Button>
         </View>

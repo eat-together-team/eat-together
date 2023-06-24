@@ -13,22 +13,27 @@
       "resizeMode": "contain",
       "backgroundColor": "#73AE7B"
     },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
+    "updates": {
+      "fallbackToCacheTimeout": 1000,
+      "url": "https://u.expo.dev/605daf62-9a09-4742-8204-1f8dfb5e4363"
+    },
     "android": {
       "package": "com.eat.together",
-      "versionCode": 11,
+      "versionCode": 15,
       "permissions": [
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      //"runtimeVersion": "1.0.0"
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.eat.together"
+      "bundleIdentifier": "com.eat.together",
+      "runtimeVersion": {
+        "policy": "sdkVersion"
+      }
     },
     "web": {
       "favicon": "./assets/big_logo.png"
@@ -39,6 +44,12 @@
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you pick a profile image."
+        }
+      ],
+      [
+        "expo-updates",
+        {
+          "username": "eat-together"
         }
       ]
     ],

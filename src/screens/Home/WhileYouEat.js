@@ -59,14 +59,17 @@ const WhileYouEat = ({ route, navigation }) => {
 
   // Fetch meetup data on page load
   useEffect(() => {
-    getAttendees();
+    getAttendees(); // Fetch attendees
 
-    db.collection("Users")
-      .doc(event.hostID)
-      .get()
-      .then((doc) => {
-        setHost(doc.data());
-      });
+    // Fetch host info (not for recommendations)
+    if (event.hostID) {
+      db.collection("Users")
+        .doc(event.hostID)
+        .get()
+        .then((doc) => {
+          setHost(doc.data());
+        });
+    }
 
     db.collection("Users")
       .doc(user.uid)
@@ -205,35 +208,20 @@ const WhileYouEat = ({ route, navigation }) => {
           attendedEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
         })
         .then(() => {
-          if (event.type === "public") {  // Public events
-            db.collection("Public Events").doc(event.id).update({
-              attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
-            })
-            .then(() => {
-              alert("You withdrew from the meal :(");
-              navigation.goBack();
-            });
-          } else {
-            if (event.type === "recommendation") {  // Recommendations
-              db.collection("Private Events").doc(event.id).get().then(doc => {
-                db.collection("Private Events").doc(event.id).update({
-                  attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
-                  hostID: doc.data().hostID === user.uid ? "" : doc.data().hostID,
-                }).then(() => {
-                  alert("You withdrew from the meal :(");
-                  navigation.goBack();
-                });
-              });
-            } else {  // Other private events
-              db.collection("Private Events").doc(event.id).update({
-                attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
-              })
-              .then(() => {
-                alert("You withdrew from the meal :(");
-                navigation.goBack();
-              });
-            }
+          // Determine which database to find event in
+          let db_name = "Private Events";
+          if (event.type === "public") {
+            db_name = "Public Events";
           }
+
+          // Remove user from the event
+          db.collection(db_name).doc(event.id).update({
+            attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
+          })
+          .then(() => {
+            alert("You withdrew from the meal :(");
+            navigation.goBack();
+          });
         });
     }
   }
@@ -340,7 +328,7 @@ const WhileYouEat = ({ route, navigation }) => {
                     <NormalText size={18}>Invite People</NormalText>
                   </MenuOption>
                 )}
-                {event.hostID === user.uid && (
+                {event.hostID === user.uid || event.type === "recommendation" && (
                   <MenuOption
                     onSelect={() =>
                       navigation.navigate("EditEvent", {
