@@ -1,9 +1,11 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+
 import Chats from "./Chats";
 import ChatRoom from "./ChatRoom";
 import ChatRoomDetails from "./ChatRoomDetails";
 import FullProfile from "../Explore/People/FullProfile";
+import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
 
 import Requests from "../Connections/Requests";
 import FullCard from "../Explore/FullCard";
@@ -27,6 +29,7 @@ export default function () {
       <Stack.Screen name="FullProfile">
         {props => <FullProfile {...props} blockBack="Chats" />}
       </Stack.Screen>
+      <Stack.Screen name="AvailabilitiesStatic" component={AvailabilitiesStatic}/>
 
       <Stack.Screen name="Requests">
         {props => <Requests {...props} back="Chats"/>}
