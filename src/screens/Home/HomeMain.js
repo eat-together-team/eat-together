@@ -6,6 +6,8 @@ import WhileYouEat from "./WhileYouEat";
 import ReportEvent from "./ReportEvent";
 import EditEvent from "./EditEvent";
 import FullProfile from "../Explore/People/FullProfile";
+import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
+
 import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ChatRoom from "../Chat/ChatRoom";
@@ -30,6 +32,8 @@ export default function () {
       <Stack.Screen name="FullProfile">
         {props => <FullProfile {...props} blockBack="Home" />}
       </Stack.Screen>
+      <Stack.Screen name="AvailabilitiesStatic" component={AvailabilitiesStatic} />
+      
       <Stack.Screen name="FullCard" component={FullCard} />
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
       <Stack.Screen name="ChatRoom" component={ChatRoom} />
