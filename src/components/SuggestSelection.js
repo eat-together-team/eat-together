@@ -35,7 +35,7 @@ export default class SearchableDropDown extends Component {
       const flatListProps = { ...this.props.listProps };
       const oldSupport = [
         { key: 'keyboardShouldPersistTaps', val: 'always' }, 
-        { key: 'nestedScrollEnabled', val : false },
+        { key: 'nestedScrollEnabled', val : true },
         { key: 'style', val : { ...this.props.itemsContainerStyle } },
         { key: 'data', val : this.state.listItems },
         { key: 'keyExtractor', val : (item, index) => index.toString() },
