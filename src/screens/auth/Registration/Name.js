@@ -1,7 +1,7 @@
 // First page of registration
 
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Dimensions, Image, ImageBackground, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
+import { View, StyleSheet, Dimensions, Image, ImageBackground, TouchableOpacity, SafeAreaView, ScrollView, Platform } from "react-native";
 import { Feather } from '@expo/vector-icons';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -30,6 +30,8 @@ const Name = props => {
 
   // Height of parent view for SuggestSelection TextInput
   const [rowHeight, setRowHeight] = useState();
+  // Height of banner for KeyboardAvoidingView
+  const [bannerHeight, setBannerHeight] = useState();
 
   const goNext = () => {
     if (checkProfanity(firstName) || checkProfanity(lastName)) {
@@ -68,19 +70,21 @@ const Name = props => {
 
   return (
     <SafeAreaView>
+      <View onLayout={(e) => {setBannerHeight(e.nativeEvent.layout.height)}} style={styles.header}>
+        <LargeText color="white" center size={25}>
+          Let's set up your profile!
+        </LargeText>
+      </View>
       <ScrollView 
         scrollEnabled={true} 
         keyboardShouldPersistTaps="always" 
         nestedScrollEnabled={true}
+        contentContainerStyle={{flexGrow: 1}}
       >
-        <KeyboardAvoidingWrapper>
+        <KeyboardAvoidingWrapper
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -bannerHeight}
+        >
           <View>
-            <View style={styles.header}>
-              <LargeText color="white" center size={25}>
-                Let's set up your profile!
-              </LargeText>
-            </View>
-
             <View style={styles.imageContainer}>
               {image !== "" ? (
                 <Image style={styles.image} source={{ uri: image }} />
@@ -101,7 +105,7 @@ const Name = props => {
             </View>
 
             <View style={styles.content}>
-              <View style={styles.row}>
+              <View style={styles.row} onLayout={(e) => {setRowHeight(e.nativeEvent.layout.height)}}>
                 <TextInput
                   placeholder="First name"
                   value={firstName}
@@ -134,7 +138,7 @@ const Name = props => {
                   keyboardType="numeric"
                 />
                 
-                <View style={{width: "47%"}} onLayout={((e) => { setRowHeight(e.nativeEvent.layout.height); })}>
+                <View style={{width: "47%"}}>
                   <SuggestSelection
                     multi={true}
                     selectedItems={pronounTagsSelected}
@@ -151,7 +155,7 @@ const Name = props => {
                       borderRadius: 10,
                       marginTop: 2,
                       width: "100%",
-                      height: 40,
+                      height: rowHeight,
                       backgroundColor: "white"
                     }}
                     selectedItemsStyle={{
