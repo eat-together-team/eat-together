@@ -69,7 +69,7 @@ const Name = props => {
   }, [pronounTagsSelected])
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{flex: 1}}>
       <View onLayout={(e) => {setBannerHeight(e.nativeEvent.layout.height)}} style={styles.header}>
         <LargeText color="white" center size={25}>
           Let's set up your profile!
@@ -82,7 +82,7 @@ const Name = props => {
         contentContainerStyle={{flexGrow: 1}}
       >
         <KeyboardAvoidingWrapper
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -bannerHeight}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -bannerHeight-50}
         >
           <View>
             <View style={styles.imageContainer}>
