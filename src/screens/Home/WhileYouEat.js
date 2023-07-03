@@ -88,7 +88,7 @@ const WhileYouEat = ({ route, navigation }) => {
 
   // Checking group chat updates
   useEffect(() => {
-    if (event.chatID) {
+    if (!event.chatID) {
       db.collection("Groups")
         .doc(event.chatID)
         .onSnapshot((doc) => {
