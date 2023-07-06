@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
 import { Layout } from "react-native-rapi-ui";
-import { Ionicons } from "@expo/vector-icons";
+import * as Progress from 'react-native-progress';
 import RBSheet from "react-native-raw-bottom-sheet";
 
 import LargeText from "../../../components/LargeText";
@@ -162,6 +162,9 @@ const Tags = props => {
                 || hobbyTagsSelected.length > 4 || foodTagsSelected.length < 1 || foodTagsSelected.length > 4}
               marginHorizontal={10}>Next</Button>
         </View>
+
+        <Progress.Bar progress={0.4} width={200} color="#5DB075" style={{marginTop: 30}}/>
+        <NormalText>Step 2 of 5</NormalText>
 
         <RBSheet
             height={400}

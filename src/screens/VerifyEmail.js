@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Alert } from 'react-native';
-import { db, auth, storage } from '../provider/Firebase';
+import { db, auth } from '../provider/Firebase';
 import firebase from 'firebase/compat';
 
 import Button from '../components/Button';
 import LargeText from '../components/LargeText';
 import NormalText from '../components/NormalText';
 
-export default function ({ navigation }) {
+const VerifyEmail = props => {
     const user = auth.currentUser;
     const uid = user.uid;
     const [userInfo, setUserInfo] = useState({});
@@ -17,6 +17,18 @@ export default function ({ navigation }) {
         db.collection('Users').doc(uid).onSnapshot(doc => {
             setUserInfo(doc.data());
         });
+
+        // Every 2 seconds, check if user has verified their email
+        let interval = setInterval(() => {
+            if (firebase.auth().currentUser) {
+                firebase.auth().currentUser.reload().then(() => {
+                    if (firebase.auth().currentUser.emailVerified) {
+                        props.setCurrUser(firebase.auth().currentUser);
+                        clearInterval(interval);
+                    }
+                });
+            }
+        }, 2000);
     }, []);
 
     const resend = () => {
@@ -75,3 +87,5 @@ export default function ({ navigation }) {
         </View>
     );
 }
+
+export default VerifyEmail;

@@ -29,6 +29,7 @@ const AuthProvider = (props) => {
         setHasNotif(doc.data().hasNotif);
       });
   }
+
   function checkLogin() {
     auth.onAuthStateChanged(u => {
       if (u) {
@@ -48,6 +49,7 @@ const AuthProvider = (props) => {
       value={{
         user,
         currUser,
+        setCurrUser,
 		    profileImageUri,
         hasNotif,
         updateProfileImg: image => setProfileImageUri(image),

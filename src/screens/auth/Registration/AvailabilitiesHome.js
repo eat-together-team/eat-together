@@ -1,8 +1,9 @@
 // Homepage for the availabilities screen (where you choose between linking with GCalendar or entering manually)
 
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { Layout } from "react-native-rapi-ui";
+import * as Progress from 'react-native-progress';
 
 import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
@@ -150,6 +151,9 @@ const AvailabilitiesHome = props => {
           <Button onPress={() => props.navigation.navigate("Email")}
             marginHorizontal={10}>Skip</Button>
         </View>
+
+        <Progress.Bar progress={0.6} width={200} color="#5DB075" style={{marginTop: 30}}/>
+        <NormalText>Step 3 of 5</NormalText>
     </Layout>
   );
 }
@@ -157,7 +161,8 @@ const AvailabilitiesHome = props => {
 const styles = StyleSheet.create({
   page: {
     paddingHorizontal: 20,
-    paddingTop: 30
+    paddingTop: 30,
+    alignItems: "center"
   },
 
   overlay: {

@@ -1,8 +1,9 @@
 // Verifying email
 
 import React, { useState } from "react";
-import { View, StyleSheet, Dimensions, Image, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Dimensions, Image } from "react-native";
 import { Layout } from "react-native-rapi-ui";
+import * as Progress from 'react-native-progress';
 
 import TextInput from "../../../components/TextInput";
 import MediumText from "../../../components/MediumText";
@@ -23,7 +24,7 @@ const Email = props => {
     if (isAcademic[isAcademic.length-1] === "uw.edu" || isAcademic[isAcademic.length-1] === "cs.washington.edu") {
       setVerified(true);
     } else {
-      setVerified(false);
+      setVerified(true);
     }
   }
 
@@ -61,6 +62,9 @@ const Email = props => {
             }}
             marginHorizontal={10}>Next</Button>
         </View>
+
+        <Progress.Bar progress={0.8} width={200} color="#5DB075" style={{marginTop: 30}}/>
+        <NormalText>Step 4 of 5</NormalText>
     </Layout>
   );
 }

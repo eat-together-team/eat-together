@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Dimensions, Image, ImageBackground, TouchableOpacity, SafeAreaView, ScrollView, Platform } from "react-native";
 import { Feather } from '@expo/vector-icons';
+import * as Progress from 'react-native-progress';
 
 import * as ImagePicker from 'expo-image-picker';
 
@@ -207,7 +208,7 @@ const Name = props => {
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "center",
-                  marginTop: "20%",
+                  marginTop: "10%",
                   marginBottom: 10
                 }}
               >
@@ -244,6 +245,9 @@ const Name = props => {
                   Next
                 </Button>
               </View>
+
+              <Progress.Bar progress={0.2} width={200} color="#5DB075" style={{marginTop: 30}}/>
+              <NormalText>Step 1 of 5</NormalText>
             </View>
           </View>
         </KeyboardAvoidingWrapper>

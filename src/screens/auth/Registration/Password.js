@@ -1,13 +1,13 @@
 // First page of registration
 
 import React, { useState, useEffect } from "react";
-import {View, StyleSheet, Dimensions, Image, TouchableOpacity, SafeAreaView, Alert, Linking} from "react-native";
-// import { TextInput } from "react-native-rapi-ui";
-import { FontAwesome, Entypo, Ionicons } from '@expo/vector-icons';
+import { View, StyleSheet, Dimensions, SafeAreaView, Alert, Linking } from "react-native";
+import * as Progress from 'react-native-progress';
 
 import TextInput from "../../../components/TextInput";
 import LargeText from "../../../components/LargeText";
 import SmallText from "../../../components/SmallText";
+import NormalText from "../../../components/NormalText";
 import Button from "../../../components/Button";
 import KeyboardAvoidingWrapper from "../../../components/KeyboardAvoidingWrapper";
 
@@ -148,6 +148,9 @@ const Password = props => {
               Finish!
             </Button>
           </View>
+
+          <Progress.Bar progress={1} width={200} color="#5DB075" style={{marginTop: 30}}/>
+          <NormalText>Step 5 of 5</NormalText>
         </View>
       </KeyboardAvoidingWrapper>
     </SafeAreaView>
