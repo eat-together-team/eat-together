@@ -54,7 +54,7 @@ const Password = props => {
           },
           {
             text: "Read Terms of Service",
-            onPress: () => Linking.openURL("https://eattogetherteam.wixsite.com/mysite/terms-and-conditions"),
+            onPress: () => Linking.openURL("https://www.eat-together.tech/terms-and-conditions"),
             style: "cancel"
           }
         ]

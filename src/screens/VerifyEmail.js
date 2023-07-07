@@ -72,7 +72,8 @@ const VerifyEmail = props => {
             justifyContent: "center"
         }}>
             <LargeText center marginBottom={10}>Check your email inbox to verify your account!</LargeText>
-            <NormalText center>Once verified, log out of here and then log back in. Make sure to check your spam too if you can't find your verification.</NormalText>
+            <NormalText center>If verifying didn't automatically take you to the homescreen,
+                log out and then log back in. Also, make sure to check your spam.</NormalText>
             <View style={{marginBottom: 40, marginTop: 30}}>
                 <Button onPress={resend} marginVertical={5}>Resend Verification</Button>
                 {resent && <NormalText color="#5DB075" center>Sent!</NormalText>}

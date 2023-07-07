@@ -156,7 +156,7 @@ export default function ({ navigation }) {
         {
             name: " Privacy Policy",
             icon: "hand-left",
-            func: () => {Linking.openURL("https://eattogetherteam.wixsite.com/mysite/privacy-policy")}
+            func: () => {Linking.openURL("https://www.eat-together.tech/privacy-policy")}
         },
         {
             name: " Report a Bug",
