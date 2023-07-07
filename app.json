@@ -14,7 +14,8 @@
       "backgroundColor": "#73AE7B"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 3,
+      "url": "https://u.expo.dev/605daf62-9a09-4742-8204-1f8dfb5e4363"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -24,11 +25,15 @@
       "versionCode": 11,
       "permissions": [
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "runtimeVersion": "1.0.0"
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.eat.together"
+      "bundleIdentifier": "com.eat.together",
+      "runtimeVersion": {
+        "policy": "sdkVersion"
+      }
     },
     "web": {
       "favicon": "./assets/big_logo.png"

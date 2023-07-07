@@ -79,6 +79,9 @@ const Tags = props => {
     <Layout style={styles.page}>
         <LargeText center marginBottom={20}>Next, add some tags!</LargeText>
 
+        <NormalText center size={12}>Note: each of the 3 categories below must contain:</NormalText>
+        <MediumText center size={12} marginBottom={20}>Minimum 1 tag, maximum 4 tags</MediumText>
+
         <View style={styles.tagSection}>
             <MediumText center marginBottom={5}>School</MediumText>
             <NormalText center marginBottom={5}>E.g. year, major</NormalText>
@@ -145,9 +148,6 @@ const Tags = props => {
             </TouchableOpacity>
         </View>
 
-        <NormalText center size={12}>Note: each of the 3 categories above must contain:</NormalText>
-        <MediumText center size={12}>Minimum 1 tag, maximum 4 tags</MediumText>
-
         <View style={styles.buttons}>
             <Button onPress={() => props.navigation.goBack()}
                 marginHorizontal={10} backgroundColor="white"
@@ -167,7 +167,7 @@ const Tags = props => {
             height={400}
             ref={refRBSheet}
             closeOnDragDown={true}
-            closeOnPressMask={false}
+            closeOnPressMask={true}
             customStyles={{
                 wrapper: {
                     backgroundColor: "rgba(0,0,0,0.5)",
@@ -191,9 +191,9 @@ const Tags = props => {
                     onItemSelect={(item) => {
                         if (schoolTagsSelected.length >= 4) {
                             alert("You can only select up to 4 tags.");
+                        } else {
+                            setSchoolTagsSelected([...schoolTagsSelected, item]);
                         }
-
-                        setSchoolTagsSelected([...schoolTagsSelected, item]);
                     }}
                     onRemoveItem={(item, index) => {
                         const newTags = schoolTagsSelected.filter((tag, i) => i !== index);
@@ -214,9 +214,9 @@ const Tags = props => {
                     onItemSelect={(item) => {
                         if (hobbyTagsSelected.length >= 4) {
                             alert("You can only select up to 4 tags.");
+                        } else {
+                            setHobbyTagsSelected([...hobbyTagsSelected, item]);
                         }
-
-                        setHobbyTagsSelected([...hobbyTagsSelected, item]);
                     }}
                     onRemoveItem={(item, index) => {
                         const newTags = hobbyTagsSelected.filter((tag, i) => i !== index);
@@ -237,9 +237,9 @@ const Tags = props => {
                     onItemSelect={(item) => {
                         if (foodTagsSelected.length >= 4) {
                             alert("You can only select up to 4 tags.");
+                        } else {
+                            setFoodTagsSelected([...foodTagsSelected, item]);
                         }
-
-                        setFoodTagsSelected([...foodTagsSelected, item]);
                     }}
                     onRemoveItem={(item, index) => {
                         const newTags = foodTagsSelected.filter((tag, i) => i !== index);
