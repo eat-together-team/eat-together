@@ -97,6 +97,7 @@ const Name = props => {
                 onChangeText={(val) => setLastName(val)}
                 iconLeft = "person"
                 autoComplete="name"
+                required="true"
               />
             </View>
 
