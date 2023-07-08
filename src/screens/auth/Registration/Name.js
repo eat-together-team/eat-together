@@ -115,6 +115,7 @@ const Name = props => {
                   onChangeText={(val) => setFirstName(val)}
                   iconLeft = "person"
                   autoComplete="name"
+                  required="true"
                 />
                 <TextInput
                   placeholder="Last name"
@@ -124,6 +125,7 @@ const Name = props => {
                   onChangeText={(val) => setLastName(val)}
                   iconLeft = "person"
                   autoComplete="name"
+                  required="true"
                 />
               </View>
 

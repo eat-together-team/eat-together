@@ -1,5 +1,5 @@
 import { useFonts, Inter_600SemiBold, Inter_400Regular } from "@expo-google-fonts/inter";
-import { StyleSheet, TextInput as ReactNativeTextInput, Keyboard, Platform, View, TouchableOpacity } from "react-native"
+import { StyleSheet, TextInput as ReactNativeTextInput, Keyboard, Platform, View, TouchableOpacity, Text} from "react-native"
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 
 function TextInput(props) {
@@ -57,6 +57,7 @@ function TextInput(props) {
         iconRightOnPress = () => {},        
         leftContainerStyle = {},
         rightContainerStyle = {},
+        required = false,
 
         ...restOfProps
     } = props;
@@ -108,6 +109,15 @@ function TextInput(props) {
             justifyContent: "center",
             ...rightContainerStyle
       },
+        requiredContainer: {
+            display: "flex",
+            color: "red",
+            fontSize: 25,
+            marginTop: "7%",
+            marginRight: "3%",
+            justifyContent: "center",
+            ...rightContainerStyle
+        },
     });
   
     return (
@@ -141,6 +151,7 @@ function TextInput(props) {
 
                 {...textInputProps}
             />
+                
             <TouchableOpacity disabled={iconRightDisabled} onPress={iconRightOnPress} style={styles.rightContainer}>
                 {iconRightType === "Ionicons" && 
                 <Ionicons size={iconFontSize} name={iconRight} color={iconRightColor}/>}
@@ -148,6 +159,9 @@ function TextInput(props) {
                 {iconRightType === "FontAwesome" && 
                 <FontAwesome size={iconFontSize} name={iconRight} color={iconRightColor}/>}
             </TouchableOpacity>
+            {props.required && <Text style={styles.requiredContainer}>
+                *
+            </Text>}
         </View>
     );
   }
