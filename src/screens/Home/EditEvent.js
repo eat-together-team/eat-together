@@ -212,6 +212,7 @@ export default function ({ route, navigation }) {
                                 }}
                                 iconLeft="chatbubble-outline"
                                 mainContainerStyle={styles.input}
+                                required
                             />
 
                             <TouchableOpacity onPress={() => {
@@ -224,6 +225,7 @@ export default function ({ route, navigation }) {
                                         iconLeft="calendar-outline"
                                         editable={false}
                                         width="100%"
+                                        required
                                     />
                                 </View>
                             </TouchableOpacity>
@@ -240,6 +242,7 @@ export default function ({ route, navigation }) {
                                             iconLeft="time-outline"
                                             width="100%"
                                             editable={false}
+                                            required
                                         />
                                     </View>
                                 </TouchableOpacity>
@@ -255,6 +258,7 @@ export default function ({ route, navigation }) {
                                             iconLeft="time-outline"
                                             width="100%"
                                             editable={false}
+                                            required
                                         />
                                     </View>
                                 </TouchableOpacity>
@@ -275,6 +279,7 @@ export default function ({ route, navigation }) {
                                 }}
                                 iconLeft="location-outline"
                                 mainContainerStyle={styles.input}
+                                required
                             />
                             
                             <TextInput

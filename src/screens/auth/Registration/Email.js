@@ -24,7 +24,7 @@ const Email = props => {
     if (isAcademic[isAcademic.length-1] === "uw.edu" || isAcademic[isAcademic.length-1] === "cs.washington.edu") {
       setVerified(true);
     } else {
-      setVerified(true);
+      setVerified(false);
     }
   }
 
@@ -44,6 +44,7 @@ const Email = props => {
           autoComplete="email" 
           keyboardType="email-address"
           iconLeft="mail"
+          required
         />
         <Button disabled={!checkEmail(email)} onPress={verifyEmail} marginVertical={15}>Verify</Button>
         {verified !== null &&

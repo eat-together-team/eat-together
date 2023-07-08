@@ -67,7 +67,7 @@ const Name = props => {
 
   useEffect(() => {
     setPronouns(pronounTagsSelected.join(""));
-  }, [pronounTagsSelected])
+  }, [pronounTagsSelected]);
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -106,6 +106,7 @@ const Name = props => {
             </View>
 
             <View style={styles.content}>
+              <NormalText color="red">* = required</NormalText>
               <View style={styles.row} onLayout={(e) => {setRowHeight(e.nativeEvent.layout.height)}}>
                 <TextInput
                   placeholder="First name"
@@ -115,7 +116,7 @@ const Name = props => {
                   onChangeText={(val) => setFirstName(val)}
                   iconLeft = "person"
                   autoComplete="name"
-                  required="true"
+                  required
                 />
                 <TextInput
                   placeholder="Last name"
@@ -125,7 +126,7 @@ const Name = props => {
                   onChangeText={(val) => setLastName(val)}
                   iconLeft = "person"
                   autoComplete="name"
-                  required="true"
+                  required
                 />
               </View>
 
@@ -139,6 +140,7 @@ const Name = props => {
                   iconLeftType="Ionicons"
                   iconLeft="md-pencil"
                   keyboardType="numeric"
+                  required
                 />
                 
                 <View style={{width: "47%"}}>
@@ -169,11 +171,11 @@ const Name = props => {
                       backgroundColor: "white",
                       borderColor: "lightgrey",
                       borderWidth: 1,
-                      borderRadius: 10,
+                      borderRadius: 10
                     }}
                     height={rowHeight}
-                    textInputProps = {{
-                      placeholder: "Enter pronouns", 
+                    textInputProps={{
+                      placeholder: "Pronouns"
                     }}
                     onSubmitEditing = {(e) => {
                         if (e.nativeEvent.text.length !== 0) {
@@ -188,6 +190,7 @@ const Name = props => {
                     items={cloneDeep(pronounTags)}
                     chip={true}
                     resetValue={false}
+                    required
                   />
                 </View>
               </View>
@@ -200,10 +203,10 @@ const Name = props => {
                 onChangeText={(val) => setBio(val)}
                 iconLeftType="FontAwesome"
                 iconLeft="exclamation"
-                mainContainerStyle={{zIndex: -1000}}
+                required
               />
 
-              <NormalText marginTop={20} style={{zIndex: -1000}}>Note: your birth year will not be publicly shown to others.</NormalText>
+              <NormalText marginTop={10}>Note: your birth year will not be publicly shown to others.</NormalText>
 
               <View
                 style={{
@@ -300,7 +303,7 @@ const styles = StyleSheet.create({
   },
 
   row: {
-    width:"100%",
+    width: "100%",
     height: "10%",
     marginBottom: 10,
     flexDirection: "row",

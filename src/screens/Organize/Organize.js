@@ -17,6 +17,7 @@ import eventTags from "../../eventTags";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import RBSheet from "react-native-raw-bottom-sheet";
 import TagsSection from "../../components/TagsSection";
+import SuggestSelection from "../../components/SuggestSelection";
 
 import Header from "../../components/Header";
 import getDate from "../../getDate";
@@ -45,11 +46,8 @@ export default function ({ navigation }) {
     const [unread, setUnread] = useState(false);
 
     // The type of event (public or private, for now)
-    const [type, setType] = useState("");
-    const items = [
-        { label: 'Public', value: 'public' },
-        { label: 'Private', value: 'private' },
-    ];
+    const [type, setType] = useState(null);
+    const types = ["public", "private"];
 
     // State variables for the inputs
     const [photo, setPhoto] = useState("https://images.unsplash.com/photo-1504674900247-0877df9cc836?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=60&raw_url=true&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8Zm9vZHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=1400");
@@ -190,6 +188,7 @@ export default function ({ navigation }) {
     const clearAll = () => {
         setSemiPrivate(false);
         setName("");
+        setType(null);
         setLocation("");
         setStartDate(new Date());
         setEndDate(moment(new Date()).add(1, 'hours').toDate());
@@ -288,7 +287,14 @@ export default function ({ navigation }) {
                             </View>
                         </ImageBackground>
                     </TouchableOpacity>
-                    <ScrollView style={styles.content}>
+                    <ScrollView
+                        scrollEnabled={true}
+                        keyboardShouldPersistTaps="always"
+                        nestedScrollEnabled={true}
+                        style={styles.content}    
+                    >
+                        <NormalText center color="red" marginTop={5}>* = required</NormalText>
+
                         <TextInput
                             placeholder="Meal Name (e.g. 'Lunchtime')"
                             value={name}
@@ -298,15 +304,57 @@ export default function ({ navigation }) {
                             }}
                             iconLeft="chatbubble-outline"
                             mainContainerStyle={styles.input}
+                            required
                         />
 
                         <View style={styles.multiple}>
                             <View style={styles.smallInput}>
-                                <Picker
-                                    items={items}
-                                    value={type}
-                                    placeholder="Type of meal"
-                                    onValueChange={(val) => setType(val)}
+                                <SuggestSelection
+                                    multi={true}
+                                    selectedItems={type ? [type] : []}
+                                    onItemSelect={(item) => {
+                                        setType(item);
+                                    }}
+                                    onRemoveItem={() => {
+                                        setType(null);
+                                    }}
+                                    itemStyle={{
+                                        padding: 10,
+                                        borderWidth: 2,
+                                        borderColor: '#5DB075',
+                                        borderRadius: 10,
+                                        marginTop: 2,
+                                        width: "100%",
+                                        height: 40,
+                                        backgroundColor: "white"
+                                    }}
+                                    selectedItemsStyle={{
+                                        margin: 0,
+                                        height: 40,
+                                        width: "100%",
+                                        justifyContent: "space-around",
+                                        backgroundColor: "white",
+                                        borderColor: "lightgrey",
+                                        borderWidth: 1,
+                                        borderRadius: 10
+                                    }}
+                                    height={40}
+                                    textInputProps={{
+                                        placeholder: "Meal type"
+                                    }}
+                                    onSubmitEditing = {(e) => {
+                                        if (e.nativeEvent.text.length !== 0) {
+                                            setType(e.nativeEvent.text);
+                                        }}
+                                    }
+                                    containerStyle = {{
+                                        height: 150,
+                                    }}
+                                    selectedItemsWidth={"4%"}
+                                    items={cloneDeep(types)}
+                                    chip={true}
+                                    resetValue={false}
+                                    required
                                 />
                             </View>
 
@@ -318,9 +366,9 @@ export default function ({ navigation }) {
                                     <TextInput
                                         value={getDate(startDate, false)}
                                         width="100%"
-                                        height="100%"
                                         iconLeft="calendar-outline"
                                         editable={false}
+                                        required
                                     />
                                 </View>
                             </TouchableOpacity>
@@ -338,6 +386,7 @@ export default function ({ navigation }) {
                                         iconLeft="time-outline"
                                         width="100%"
                                         editable={false}
+                                        required
                                     />
                                 </View>
                             </TouchableOpacity>
@@ -353,6 +402,7 @@ export default function ({ navigation }) {
                                         iconLeft="time-outline"
                                         width="100%"
                                         editable={false}
+                                        required
                                     />
                                 </View>
                             </TouchableOpacity>
@@ -367,6 +417,7 @@ export default function ({ navigation }) {
                             width="100%"
                             iconLeft="location-outline"
                             mainContainerStyle={styles.input}
+                            required
                         />
 
                         <DateTimePickerModal isVisible={showStartDate} date={startDate}
@@ -542,6 +593,8 @@ const styles = StyleSheet.create({
     },
 
     multiple: {
+        wodth: "100%",
+        height: "10%",
         marginTop: 10,
         flexDirection: "row",
         justifyContent: "space-between"

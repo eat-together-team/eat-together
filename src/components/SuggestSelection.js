@@ -53,6 +53,7 @@ export default class SearchableDropDown extends Component {
       return (
         <FlatList
           { ...flatListProps }
+          style={{ zIndex: 1000 }}
         />
       );
     }
@@ -235,6 +236,7 @@ export default class SearchableDropDown extends Component {
           
           this.setState({ focus: false, item: this.props.selectedItems });
         }}
+        required={this.props.required}
       />
     )
   }

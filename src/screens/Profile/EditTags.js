@@ -99,6 +99,7 @@ const EditTags = props => {
                         value={schoolTagsValue}
                         iconLeft="pricetags-outline"
                         editable={false}
+                        required
                     />
                 </View>
             </TouchableOpacity>
@@ -121,6 +122,7 @@ const EditTags = props => {
                         value={hobbyTagsValue}
                         iconLeft="pricetags-outline"
                         editable={false}
+                        required
                     />
                 </View>
             </TouchableOpacity>
@@ -143,6 +145,7 @@ const EditTags = props => {
                         value={foodTagsValue}
                         iconLeft="pricetags-outline"
                         editable={false}
+                        required
                     />
                 </View>
             </TouchableOpacity>

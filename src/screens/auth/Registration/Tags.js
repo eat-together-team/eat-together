@@ -99,6 +99,7 @@ const Tags = props => {
                         value={schoolTagsValue}
                         iconLeft="pricetags-outline"
                         editable={false}
+                        required
                     />
                 </View>
             </TouchableOpacity>
@@ -114,13 +115,14 @@ const Tags = props => {
                 refRBSheet.current.open();
             }}>
                 <View pointerEvents="none">
-                <TextInput
+                    <TextInput
                         height={40}
                         width="100%"
                         placeholder="Tags"
                         value={hobbyTagsValue}
                         iconLeft="pricetags-outline"
                         editable={false}
+                        required
                     />
                 </View>
             </TouchableOpacity>
@@ -136,13 +138,14 @@ const Tags = props => {
                 refRBSheet.current.open();
             }}>
                 <View pointerEvents="none">
-                <TextInput
+                    <TextInput
                         height={40}
                         width="100%"
                         placeholder="Tags"
                         value={foodTagsValue}
                         iconLeft="pricetags-outline"
                         editable={false}
+                        required
                     />
                 </View>
             </TouchableOpacity>

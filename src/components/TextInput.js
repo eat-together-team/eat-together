@@ -1,5 +1,5 @@
 import { useFonts, Inter_600SemiBold, Inter_400Regular } from "@expo-google-fonts/inter";
-import { StyleSheet, TextInput as ReactNativeTextInput, Keyboard, Platform, View, TouchableOpacity, Text} from "react-native"
+import { StyleSheet, TextInput as ReactNativeTextInput, Platform, View, TouchableOpacity, Text } from "react-native"
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 
 function TextInput(props) {
@@ -72,15 +72,14 @@ function TextInput(props) {
             flex: 1,
             margin: "0%",
             paddingHorizontal: "3%",
-
             textAlignVertical: "center",
-            
             fontSize: fontSize,
             fontFamily: fontFamily,
             color: color,
 
             ...textInputStyle,
-      },
+        },
+
         mainContainer: {
             flexDirection: 'row',
             height: height,
@@ -96,26 +95,23 @@ function TextInput(props) {
             alignItems: "center",
 
             ...mainContainerStyle
-      }, 
+        },
+
         leftContainer: {
             display: displayLeftIcon,
             marginLeft: "3%",
             justifyContent: "center",
+
             ...leftContainerStyle
-      }, 
+        },
+
         rightContainer: {
-            display: displayRightIcon,
+            display: props.required ? "flex" : displayRightIcon,
+            flexDirection: "row",
+            alignItems: "center",
             marginRight: "3%",
             justifyContent: "center",
-            ...rightContainerStyle
-      },
-        requiredContainer: {
-            display: "flex",
-            color: "red",
-            fontSize: 25,
-            marginTop: "7%",
-            marginRight: "3%",
-            justifyContent: "center",
+
             ...rightContainerStyle
         },
     });
@@ -158,10 +154,9 @@ function TextInput(props) {
 
                 {iconRightType === "FontAwesome" && 
                 <FontAwesome size={iconFontSize} name={iconRight} color={iconRightColor}/>}
+                
+                {props.required && <FontAwesome size={8} name={"asterisk"} color={"red"} style={{ marginHorizontal: 2 }}/>}
             </TouchableOpacity>
-            {props.required && <Text style={styles.requiredContainer}>
-                *
-            </Text>}
         </View>
     );
   }

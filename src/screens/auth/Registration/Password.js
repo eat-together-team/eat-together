@@ -79,6 +79,7 @@ const Password = props => {
             width="100%"
             iconLeftType="FontAwesome"
             iconLeft="user"
+            required
           />
 
           {username.length >= 4 && (
@@ -103,6 +104,7 @@ const Password = props => {
             iconLeft="lock-closed"
             iconRight={!showPass ? "eye" : "eye-off"}
             iconRightOnPress={() => setShowPass(!showPass)}
+            required
           />
 
           <TextInput
@@ -117,6 +119,7 @@ const Password = props => {
             iconLeft="lock-closed"
             iconRight={!showConfirmPass ? "eye" : "eye-off"}
             iconRightOnPress={() => setShowConfirmPass(!showConfirmPass)}
+            required
           />
 
           {password.length >= 8 && (

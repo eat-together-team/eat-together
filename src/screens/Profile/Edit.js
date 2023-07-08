@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { View, StyleSheet, Image, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { Layout, TopNav } from "react-native-rapi-ui";
-import { Ionicons, Feather, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, Feather } from '@expo/vector-icons';
 
 import * as ImagePicker from 'expo-image-picker';
 import { db, storage } from "../../provider/Firebase";
@@ -18,6 +18,7 @@ import pronounTags from "../../pronounTags";
 import { AuthContext } from "../../provider/AuthProvider";
 import { checkProfanity } from "../../methods";
 import { cloneDeep } from "lodash";
+import NormalText from "../../components/NormalText";
 
 
 export default function edit({ route, navigation }) {
@@ -207,6 +208,8 @@ export default function edit({ route, navigation }) {
                             </TouchableOpacity>
                         </View>
 
+                        <NormalText center color="red">* = required</NormalText>
+
                         <View style={styles.row}>
                             <TextInput
                                 placeholder="First name"
@@ -215,6 +218,7 @@ export default function edit({ route, navigation }) {
                                 value={firstName}
                                 width={"47%"}
                                 height={40}
+                                required
                             />
                             <TextInput
                                 placeholder="Last name"
@@ -223,6 +227,7 @@ export default function edit({ route, navigation }) {
                                 value={lastName}
                                 width={"47%"}
                                 height={40}
+                                required
                             />
                         </View>
 
@@ -235,6 +240,7 @@ export default function edit({ route, navigation }) {
                                 iconLeftType="Ionicons"
                                 iconLeft="md-pencil"
                                 value={age}
+                                required
                             />
                             <View style={{width: "47%"}}>
                                 <SuggestSelection
@@ -282,6 +288,7 @@ export default function edit({ route, navigation }) {
                                     items={cloneDeep(pronounTags)}
                                     chip={true}
                                     resetValue={false}
+                                    required
                                 />
                             </View>
                         </View>
@@ -294,6 +301,7 @@ export default function edit({ route, navigation }) {
                             iconLeft="exclamation"
                             value={bio}
                             marginBottom={10}
+                            required
                         />
 
                         <TouchableOpacity onPress={() => navigation.navigate("EditTags", {
@@ -310,6 +318,7 @@ export default function edit({ route, navigation }) {
                                     iconLeft="pricetag"
                                     value={tagText}
                                     editable={false}
+                                    required
                                 />
                             </View>
                         </TouchableOpacity>
