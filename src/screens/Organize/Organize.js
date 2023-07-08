@@ -77,7 +77,6 @@ export default function ({ navigation }) {
 
     // Loading notifications
     useEffect(() => {
-
         // Load user info
         async function fetchData() {
             await db.collection("Users").doc(user.uid).onSnapshot((doc) => {
@@ -145,6 +144,8 @@ export default function ({ navigation }) {
             start.setHours(startDate.getHours());
             start.setMinutes(startDate.getMinutes());
             start.setSeconds(0);
+        } else {
+            setEndDate(moment(start).add(1, 'hours').toDate()); // Set end date to 1 hour after start
         }
 
         setStartDate(start); // Set the date
@@ -199,11 +200,18 @@ export default function ({ navigation }) {
         setPhoto("https://images.unsplash.com/photo-1504674900247-0877df9cc836?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=60&raw_url=true&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8Zm9vZHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=1400");
     }
 
-    const chatID = String(startDate) + name; // To be stored in the event
-  // For posting the event
+    // For posting the event
     const storeEvent = (id, hasImage, image) => {
         db.collection("Users").doc(user.uid).get().then((doc) => {
-            let userFriends  = semiPrivate? doc.data().friendIDs : null;
+            let userFriends = semiPrivate ? doc.data().friendIDs : null; // Only visible to specified frields
+            let chatID = String(startDate) + name; // ID for group chat
+
+            // Check if chatID has forward slashes (this is not allowed in Firestore doc names)
+            // If so, replace with commas
+            if (chatID.includes("/")) {
+                chatID = chatID.replace(/\//g, ",");
+            }
+
             db.collection("Public Events").doc(id).set({
                 id,
                 name,
@@ -238,7 +246,7 @@ export default function ({ navigation }) {
 
                     // Create the in-event group chat
                     // We set userIDs as empty, meaning this chat is open to everyone!
-                    createNewChat([], chatID, name, false);
+                    createNewChat([], chatID, name, true);
                     // We are finally done!
                     alert("Success! Make sure to do attendance when the meal starts!");
                     setLoading(false);

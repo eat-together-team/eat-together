@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Alert } from 'react-native';
-import { db, auth, storage } from '../provider/Firebase';
+import { db, auth } from '../provider/Firebase';
 import firebase from 'firebase/compat';
 
 import Button from '../components/Button';
 import LargeText from '../components/LargeText';
 import NormalText from '../components/NormalText';
 
-export default function ({ navigation }) {
+const VerifyEmail = props => {
     const user = auth.currentUser;
     const uid = user.uid;
     const [userInfo, setUserInfo] = useState({});
@@ -17,6 +17,18 @@ export default function ({ navigation }) {
         db.collection('Users').doc(uid).onSnapshot(doc => {
             setUserInfo(doc.data());
         });
+
+        // Every 2 seconds, check if user has verified their email
+        let interval = setInterval(() => {
+            if (firebase.auth().currentUser) {
+                firebase.auth().currentUser.reload().then(() => {
+                    if (firebase.auth().currentUser.emailVerified) {
+                        props.setCurrUser(firebase.auth().currentUser);
+                        clearInterval(interval);
+                    }
+                });
+            }
+        }, 2000);
     }, []);
 
     const resend = () => {
@@ -60,7 +72,8 @@ export default function ({ navigation }) {
             justifyContent: "center"
         }}>
             <LargeText center marginBottom={10}>Check your email inbox to verify your account!</LargeText>
-            <NormalText center>Once verified, log out of here and then log back in. Make sure to check your spam too if you can't find your verification.</NormalText>
+            <NormalText center>If verifying didn't automatically take you to the homescreen,
+                log out and then log back in. Also, make sure to check your spam.</NormalText>
             <View style={{marginBottom: 40, marginTop: 30}}>
                 <Button onPress={resend} marginVertical={5}>Resend Verification</Button>
                 {resent && <NormalText color="#5DB075" center>Sent!</NormalText>}
@@ -75,3 +88,5 @@ export default function ({ navigation }) {
         </View>
     );
 }
+
+export default VerifyEmail;

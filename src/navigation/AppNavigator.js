@@ -26,7 +26,7 @@ import { AuthContext } from "../provider/AuthProvider";
 //Screen for if the user hasn't verified their email
 import VerifyEmail from "../screens/VerifyEmail";
 import firebase from "firebase/compat";
-import { db, auth} from "../provider/Firebase";
+import { db, auth } from "../provider/Firebase";
 
 //Push notifications functions and imports
 import * as NotificationFunctions from "expo-notifications";
@@ -174,9 +174,9 @@ const MainTabs = () => {
 };
 
 export default () => {
-  const auth = useContext(AuthContext);
-  const user = auth.user;
-  const currUser = auth.currUser;
+  const auth_context = useContext(AuthContext);
+  const user = auth_context.user;
+  const currUser = auth_context.currUser;
 
   async function getUser() {
     const token = await registerForPushNotificationsAsync();
@@ -216,14 +216,15 @@ export default () => {
       {user === null && <Loading />}
       {user === false && <Auth />}
       {user === true &&
-      currUser &&
-      !currUser.emailVerified &&
-      currUser.email !== "rachelhu@uw.edu" &&
-      currUser.email !== "argharib@uw.edu" ? (
-        <VerifyEmail />
-      ) : (
-        user === true && <Main />
-      )}
+        currUser &&
+        !currUser.emailVerified &&
+        currUser.email !== "rachelhu@uw.edu" &&
+        currUser.email !== "argharib@uw.edu" ? (
+          <VerifyEmail setCurrUser={auth_context.setCurrUser}/>
+        ) : (
+          user === true && <Main />
+        )
+      }
     </NavigationContainer>
   );
 };

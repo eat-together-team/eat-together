@@ -19,7 +19,7 @@
   "submit": {
     "production": {
       "android": {
-        "serviceAccountKeyPath": "pc-api-5329078435669230928-498-364c0ff73145.json"
+        "serviceAccountKeyPath": "eat-together-expo.json"
       },
       "ios": {
         "appleId": "eat.together.team@gmail.com",

@@ -8,6 +8,7 @@ import {
   Dimensions,
   ScrollView,
   Alert,
+  TouchableOpacity
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -343,6 +344,18 @@ const FullProfile = ({ blockBack, route, navigation }) => {
                 route.params.person.attendingEventIDs.length) +
               " meals attended"}
           </NormalText>
+
+          <TouchableOpacity
+            style={styles.link}
+            onPress={() => {
+              navigation.navigate("AvailabilitiesStatic", {
+                user: route.params.person
+              });
+            }}
+          >
+            <Ionicons name="time" size={20} color="#4C6FB1" />
+            <NormalText color="#4C6FB1"> Eating Times</NormalText>
+          </TouchableOpacity>
         </View>
 
         <TagsList tags={route.params.person.tags} />
@@ -404,6 +417,12 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40,
   },
+
+  link: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5
+  }
 });
 
 export default FullProfile;

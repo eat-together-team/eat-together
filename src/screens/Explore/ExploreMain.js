@@ -7,6 +7,7 @@ import PeopleMain from "./People/PeopleMain";
 import FullProfile from "./People/FullProfile";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ReportEvent from "../Home/ReportEvent";
+import AvailabilitiesStatic from "./People/AvailabilitiesStatic";
 
 const Stack = createStackNavigator();
 
@@ -29,6 +30,7 @@ export default function () {
       </Stack.Screen>
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
       <Stack.Screen name="ReportEvent" component={ReportEvent}/>
+      <Stack.Screen name="AvailabilitiesStatic" component={AvailabilitiesStatic}/>
     </Stack.Navigator>
   );
 }

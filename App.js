@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { AuthProvider } from "./src/provider/AuthProvider";
 import { ThemeProvider } from "react-native-rapi-ui";
 import { MenuProvider } from "react-native-popup-menu";
 import { LogBox } from "react-native";
+import * as Updates from 'expo-updates';
 
 export default function App() {
   LogBox.ignoreAllLogs(); //DISABLE THOSE STUPID WARNINGS SLAYYYYY
@@ -11,6 +12,17 @@ export default function App() {
   // Only uncomment if you do not want error info in terminal
   // console.warn = function () {};
   // console.error = function () {};
+
+  // Check for app updates
+  useEffect(() => {
+    Updates.addListener(async (event) => {
+      if (event.type === Updates.UpdateEventType.UPDATE_AVAILABLE) {
+        await Updates.fetchUpdateAsync();
+        alert("An update is available!");
+        await Updates.reloadAsync();
+      }
+    });
+  }, []);
 
   const images = [
     require("./assets/icon.png"),

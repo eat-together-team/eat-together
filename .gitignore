@@ -15,6 +15,9 @@ web-build/
 #Env. variables
 .env
 
+#For deployment
+eat-together-expo.json
+
 package-lock.json
 .idea/*
 app.json

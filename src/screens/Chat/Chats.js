@@ -34,7 +34,7 @@ export const createNewChat = (
   db.collection("Groups").doc(chatID).set({
     uids: userIDs,
     name: chatName,
-    messages: [],
+    messages: []
   });
   // If we want to display this chat on the chat page, update each user's data to include this chat
   if (toIncludeOnChatPage) {

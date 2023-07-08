@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Image, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons, Feather, FontAwesome } from '@expo/vector-icons';
 
@@ -193,134 +193,139 @@ export default function edit({ route, navigation }) {
                 }
                 leftAction={() => navigation.goBack()}
             />
-
-            <KeyboardAvoidingWrapper>
-                <View style={{ paddingHorizontal: 20 }}>
-                    <View style={styles.imageContainer}>
-                        <Image style={styles.image} source={image ? {uri: image} : require("../../../assets/logo.png")}/>
-                        <TouchableOpacity style={styles.editImage} onPress={pickImage}>
-                            <Feather name="edit-2" size={25} color="black"/>
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.row}>
-                        <TextInput
-                            placeholder="First name"
-                            onChangeText={(val) => setFirstName(val)}
-                            iconLeft="person-circle-outline"
-                            value={firstName}
-                            width={"47%"}
-                            height={40}
-                        />
-                        <TextInput
-                            placeholder="Last name"
-                            onChangeText={(val) => setLastName(val)}
-                            iconLeft="person-circle-outline"
-                            value={lastName}
-                            width={"47%"}
-                            height={40}
-                        />
-                    </View>
-
-                    <View style={styles.row}>
-                        <TextInput
-                            keyboardType="numeric"
-                            placeholder="Birth year"
-                            onChangeText={(val) => setAge(val)}
-                            width={"47%"}
-                            iconLeftType="Ionicons"
-                            iconLeft="md-pencil"
-                            value={age}
-                        />
-                        <View style={{width: "47%"}}>
-                            <SuggestSelection
-                                multi={true}
-                                selectedItems={pronounTagsSelected}
-                                onItemSelect={(item) => {
-                                    setPronounTagsSelected(item.length !== 0 ? [item] : []);
-                                }}
-                                onRemoveItem={() => {
-                                    setPronounTagsSelected([]);
-                                }}
-                                itemStyle={{
-                                    padding: 10,
-                                    borderWidth: 2,
-                                    borderColor: '#5DB075',
-                                    borderRadius: 10,
-                                    marginTop: 2,
-                                    width: "100%",
-                                    height: 40
-                                }}
-                                selectedItemsStyle={{
-                                    margin: 0,
-                                    height: 40,
-                                    width: "100%",
-                                    justifyContent: "space-around",
-                                    backgroundColor: "white",
-                                    borderColor: "lightgrey",
-                                    borderWidth: 1,
-                                    borderRadius: 10,
-                                }}
-                                height={40}
-                                textInputProps = {{
-                                    placeholder: "Enter pronouns",
-                                }}
-                                containerStyle = {{
-                                    maxHeight: 200
-                                }}
-                                onSubmitEditing = {(e) => {
-                                    if (e.nativeEvent.text.length !== 0) {
-                                        const newSelectedItems = [e.nativeEvent.text];
-                                        setPronounTagsSelected(newSelectedItems);
-                                    }}
-                                }
-                                selectedItemsWidth={"47%"}
-                                items={cloneDeep(pronounTags)}
-                                chip={true}
-                                resetValue={false}
-                            />
+            <ScrollView 
+                scrollEnabled={true} 
+                keyboardShouldPersistTaps="always" 
+                nestedScrollEnabled={true}
+            >
+                <KeyboardAvoidingWrapper>
+                    <View style={{ paddingHorizontal: 20 }}>
+                        <View style={styles.imageContainer}>
+                            <Image style={styles.image} source={image ? {uri: image} : require("../../../assets/logo.png")}/>
+                            <TouchableOpacity style={styles.editImage} onPress={pickImage}>
+                                <Feather name="edit-2" size={25} color="black"/>
+                            </TouchableOpacity>
                         </View>
-                    </View>
-                    
-                    <TextInput
-                        placeholder="Fun fact"
-                        onChangeText={(val) => setBio(val)}
-                        width={"100%"}
-                        iconLeftType="FontAwesome"
-                        iconLeft="exclamation"
-                        value={bio}
-                        marginBottom={10}
-                    />
 
-                    <TouchableOpacity onPress={() => navigation.navigate("EditTags", {
-                        schoolTags: tags.filter(tag => tag.type === "school").map(tag => tag.tag),
-                        hobbyTags: tags.filter(tag => tag.type === "hobby").map(tag => tag.tag),
-                        foodTags: tags.filter(tag => tag.type === "food").map(tag => tag.tag),
-                        updateTags
-                    })}>
-                        <View pointerEvents="none">
+                        <View style={styles.row}>
                             <TextInput
-                                placeholder="Tags"
-                                onChangeText={(val) => setBio(val)}
-                                width={"100%"}
-                                iconLeft="pricetag"
-                                value={tagText}
-                                editable={false}
+                                placeholder="First name"
+                                onChangeText={(val) => setFirstName(val)}
+                                iconLeft="person-circle-outline"
+                                value={firstName}
+                                width={"47%"}
+                                height={40}
+                            />
+                            <TextInput
+                                placeholder="Last name"
+                                onChangeText={(val) => setLastName(val)}
+                                iconLeft="person-circle-outline"
+                                value={lastName}
+                                width={"47%"}
+                                height={40}
                             />
                         </View>
-                    </TouchableOpacity>
 
-                    <Button disabled={firstName === "" || lastName === "" || bio === "" || loading}
-                        marginVertical={40}
-                        onPress={async () => {
-                            setLoading(true);
-                            await updateUser();
-                            setLoading(false);
-                        }}>
-                        {loading ? "Updating ..." : "Update Profile"}
-                    </Button>
-                </View>
-            </KeyboardAvoidingWrapper>
+                        <View style={styles.row}>
+                            <TextInput
+                                keyboardType="numeric"
+                                placeholder="Birth year"
+                                onChangeText={(val) => setAge(val)}
+                                width={"47%"}
+                                iconLeftType="Ionicons"
+                                iconLeft="md-pencil"
+                                value={age}
+                            />
+                            <View style={{width: "47%"}}>
+                                <SuggestSelection
+                                    multi={true}
+                                    selectedItems={pronounTagsSelected}
+                                    onItemSelect={(item) => {
+                                        setPronounTagsSelected(item.length !== 0 ? [item] : []);
+                                    }}
+                                    onRemoveItem={() => {
+                                        setPronounTagsSelected([]);
+                                    }}
+                                    itemStyle={{
+                                        padding: 10,
+                                        borderWidth: 2,
+                                        borderColor: '#5DB075',
+                                        borderRadius: 10,
+                                        marginTop: 2,
+                                        width: "100%",
+                                        height: 40
+                                    }}
+                                    selectedItemsStyle={{
+                                        margin: 0,
+                                        height: 40,
+                                        width: "100%",
+                                        justifyContent: "space-around",
+                                        backgroundColor: "white",
+                                        borderColor: "lightgrey",
+                                        borderWidth: 1,
+                                        borderRadius: 10,
+                                    }}
+                                    height={40}
+                                    textInputProps = {{
+                                        placeholder: "Enter pronouns",
+                                    }}
+                                    containerStyle = {{
+                                        maxHeight: 200
+                                    }}
+                                    onSubmitEditing = {(e) => {
+                                        if (e.nativeEvent.text.length !== 0) {
+                                            const newSelectedItems = [e.nativeEvent.text];
+                                            setPronounTagsSelected(newSelectedItems);
+                                        }}
+                                    }
+                                    selectedItemsWidth={"47%"}
+                                    items={cloneDeep(pronounTags)}
+                                    chip={true}
+                                    resetValue={false}
+                                />
+                            </View>
+                        </View>
+                        
+                        <TextInput
+                            placeholder="Fun fact"
+                            onChangeText={(val) => setBio(val)}
+                            width={"100%"}
+                            iconLeftType="FontAwesome"
+                            iconLeft="exclamation"
+                            value={bio}
+                            marginBottom={10}
+                        />
+
+                        <TouchableOpacity onPress={() => navigation.navigate("EditTags", {
+                            schoolTags: tags.filter(tag => tag.type === "school").map(tag => tag.tag),
+                            hobbyTags: tags.filter(tag => tag.type === "hobby").map(tag => tag.tag),
+                            foodTags: tags.filter(tag => tag.type === "food").map(tag => tag.tag),
+                            updateTags
+                        })}>
+                            <View pointerEvents="none">
+                                <TextInput
+                                    placeholder="Tags"
+                                    onChangeText={(val) => setBio(val)}
+                                    width={"100%"}
+                                    iconLeft="pricetag"
+                                    value={tagText}
+                                    editable={false}
+                                />
+                            </View>
+                        </TouchableOpacity>
+
+                        <Button disabled={firstName === "" || lastName === "" || bio === "" || loading}
+                            marginVertical={40}
+                            onPress={async () => {
+                                setLoading(true);
+                                await updateUser();
+                                setLoading(false);
+                            }}>
+                            {loading ? "Updating ..." : "Update Profile"}
+                        </Button>
+                    </View>
+                </KeyboardAvoidingWrapper>
+            </ScrollView>
         </Layout>
     );
 }

@@ -1,8 +1,9 @@
 // Homepage for the availabilities screen (where you choose between linking with GCalendar or entering manually)
 
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { Layout } from "react-native-rapi-ui";
+import * as Progress from 'react-native-progress';
 
 import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
@@ -22,11 +23,16 @@ WebBrowser.maybeCompleteAuthSession();
 
 const AvailabilitiesHome = props => {
   const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: GOOGLE_AUTH_CLIENT_ID,
-    iosClientId: GOOGLE_AUTH_CLIENT_ID_IOS,
-    androidClientId: GOOGLE_AUTH_CLIENT_ID_ANDROID,
+    expoClientId: process.env.GOOGLE_AUTH_CLIENT_ID ?
+      process.env.GOOGLE_AUTH_CLIENT_ID : GOOGLE_AUTH_CLIENT_ID,
+    iosClientId: process.env.GOOGLE_AUTH_CLIENT_ID_IOS ?
+      process.env.GOOGLE_AUTH_CLIENT_ID_IOS : GOOGLE_AUTH_CLIENT_ID_IOS,
+    androidClientId: process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID ?
+      process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID : GOOGLE_AUTH_CLIENT_ID_ANDROID,
     scopes: ["https://www.googleapis.com/auth/calendar"],
     redirectUri: "https://auth.expo.io/@eat-together-team/eat-together"
+  }, {
+    projectNameForProxy: "@eat-together-team/eat-together",
   }); // For Google Calendar API
 
   const [freeTimes, setFreeTimes] = useState([]); // List of user's available times
@@ -131,7 +137,9 @@ const AvailabilitiesHome = props => {
         <NormalText center>This is to help suggest meals/meetups that meet your schedule.</NormalText>
 
         <View style={styles.main}>
-            <Button disabled={!request} marginVertical={10} onPress={() => promptAsync()}>Link with Google Calendar</Button>
+            <Button disabled={!request} marginVertical={10} onPress={() => promptAsync({
+              projectNameForProxy: "@eat-together-team/eat-together",
+            })}>Link with Google Calendar</Button>
             <MediumText center>OR</MediumText>
             <Button marginVertical={10} onPress={() => props.navigation.navigate("Availabilities")}>Enter manually</Button>
         </View>
@@ -143,6 +151,9 @@ const AvailabilitiesHome = props => {
           <Button onPress={() => props.navigation.navigate("Email")}
             marginHorizontal={10}>Skip</Button>
         </View>
+
+        <Progress.Bar progress={0.6} width={200} color="#5DB075" style={{marginTop: 30}}/>
+        <NormalText>Step 3 of 5</NormalText>
     </Layout>
   );
 }
@@ -150,7 +161,8 @@ const AvailabilitiesHome = props => {
 const styles = StyleSheet.create({
   page: {
     paddingHorizontal: 20,
-    paddingTop: 30
+    paddingTop: 30,
+    alignItems: "center"
   },
 
   overlay: {
