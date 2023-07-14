@@ -12,6 +12,7 @@ import HorizontalRow from "../../components/HorizontalRow";
 import Filter from "../../components/Filter";
 import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
+import TutorialMessage from "../../components/TutorialMessage";
 import Link from "../../components/Link";
 
 import { db, auth } from "../../provider/Firebase";
@@ -25,7 +26,9 @@ import RecommendationsCard from "../../components/RecommendationsCard";
 export default function ({ navigation }) {
   // Get current user
   const user = auth.currentUser;
+  
   const [userInfo, setUserInfo] = useState(null);
+  const [step, setStep] = useState(1); // Used to display tutorial message
 
   const [events, setEvents] = useState([]); // All personal events
   const [filteredEvents, setFilteredEvents] = useState([]); // Filtered events
@@ -369,14 +372,78 @@ export default function ({ navigation }) {
       )
     }
   };
+  const tutorialSteps = [
+    {
+      left: '10%',
+      top: '80%',
+      title: 'Find a meal!',
+      content: 'Use this tab to explore upcoming meetups and connect with new friends!',
+      nextText: 'Next->',
+      next: () => {
+        setStep(2);
+      },
+    },
+    {
+      left: '10%',
+      top: '80%',
+      title: 'Host a meal!',
+      content: 'Go to this tab to organize meetups that are available to everyone or to people you can invite specifically!',
+      nextText: 'Next->',
+      next: () => {
+        setStep(3);
+      },
+    },
+    {
+      left: '10%',
+      top: '80%',
+      title: 'Messages!',
+      content: 'This is where you can find notifications (e.g. about invited meetups) and messages from friends!',
+      nextText: 'Next->',
+      next: () => {
+        setStep(4);
+      },
+    },
+    {
+      left: '10%',
+      top: '80%',
+      title: 'Messages!',
+      content: 'This is where you can find notifications (e.g. about invited meetups) and messages from friends!',
+      nextText: 'Next->',
+      next: () => {
+        setStep(5);
+      },
+    },
+    {
+      left: '10%',
+      top: '80%',
+      title: 'You!',
+      content: 'Your preference and information comes here, you can also find meals that you have attended here!',
+      nextText: 'Next->',
+      next: () => {
+        // Todo: set user's tutorial to false
+      },
+    },
+  ];
+  
 
+  // Todo: for some reason, the step state is undefined when we finish the second step.
+  // Todo: the dark overlay background and the triangle and the bright circle needs to be added.
   return (
     <Layout>
+      {userInfo && userInfo.tutorial && <TutorialMessage
+        left={tutorialSteps[step].left}
+        top={tutorialSteps[step].top}
+        title={tutorialSteps[step].title}
+        content={tutorialSteps[step].content}
+        nextText={tutorialSteps[step].nextText}
+        next={tutorialSteps[step].next}
+        />}
       <Header name="Your Meals" navigation={navigation} hasNotif={unread} notifs/>
 
       <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
         <Searchbar
           placeholder="Search by name, tags, or host name"
+          // placeholder={step}
           value={searchQuery}
           onChangeText={onChangeText}
         />
