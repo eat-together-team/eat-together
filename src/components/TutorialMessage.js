@@ -15,7 +15,9 @@ const TutorialMessage = (props) => {
         },
         {
           text: 'Yes',
-          onPress: () => setModalVisible(false),
+          onPress: () => {
+            props.skip()
+            setModalVisible(false)},
           // and change this person's database status to "not first time logged in"
         },
       ],

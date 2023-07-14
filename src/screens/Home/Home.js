@@ -422,6 +422,9 @@ export default function ({ navigation }) {
       next: () => {
         // Todo: set user's tutorial to false
       },
+      skip: () => {
+        // Todo: set user's tutorial to false
+      }
     },
   ];
   
