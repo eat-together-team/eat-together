@@ -428,6 +428,7 @@ export default function ({ navigation }) {
 
   // Todo: for some reason, the step state is undefined when we finish the second step.
   // Todo: the dark overlay background and the triangle and the bright circle needs to be added.
+  // Todo: the finished page
   return (
     <Layout>
       {userInfo && userInfo.tutorial && <TutorialMessage
