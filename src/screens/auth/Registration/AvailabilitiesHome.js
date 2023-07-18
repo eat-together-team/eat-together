@@ -8,6 +8,7 @@ import * as Progress from 'react-native-progress';
 import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
 import NormalText from "../../../components/NormalText";
+import GoogleButton from "../../../components/GoogleButton";
 import Button from "../../../components/Button";
 
 import { getFreeTimes } from "../../../methods";
@@ -137,11 +138,11 @@ const AvailabilitiesHome = props => {
         <NormalText center>This is to help suggest meals/meetups that meet your schedule.</NormalText>
 
         <View style={styles.main}>
-            <Button disabled={!request} marginVertical={10} onPress={() => promptAsync({
-              projectNameForProxy: "@eat-together-team/eat-together",
-            })}>Link with Google Calendar</Button>
-            <MediumText center>OR</MediumText>
-            <Button marginVertical={10} onPress={() => props.navigation.navigate("Availabilities")}>Enter manually</Button>
+          <GoogleButton disabled={!request} marginVertical={10} onPress={() => promptAsync({
+            projectNameForProxy: "@eat-together-team/eat-together",
+          })}>Link with Google Calendar</GoogleButton>
+          <MediumText center>OR</MediumText>
+          <Button marginVertical={10} onPress={() => props.navigation.navigate("Availabilities")}>Enter manually</Button>
         </View>
 
         <View style={styles.buttons}>
