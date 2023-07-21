@@ -168,7 +168,7 @@ const Auth = () => {
       settings: {
         notifications: true,
       },
-      hasNotif: true,
+      hasNotif: false,
       pushTokens: [],
       verified: false,
       tutorial: true,

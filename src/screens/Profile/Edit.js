@@ -97,10 +97,12 @@ export default function edit({ route, navigation }) {
             alert("Name has inappropriate words");
         } else if (checkProfanity(pronouns)) {
             alert("Pronouns have inappropriate words");
+        } else if (pronouns.length === 0) {
+            alert("Pronouns can't be empty (select from dropdown, or type and press \"Enter\")");
         } else if (checkProfanity(bio)) {
             alert("Fun fact has inappropriate words");
-        } else if (bio.length < 10 || bio.length > 100) {
-            alert("Fun fact must be between 10 and 100 characters");
+        } else if (bio.length === 0) {
+            alert("Fun fact can't be empty");
         } else {
             route.params.updateInfo(firstName, lastName, pronouns, bio, tags, image);
 
@@ -259,7 +261,8 @@ export default function edit({ route, navigation }) {
                                         borderRadius: 10,
                                         marginTop: 2,
                                         width: "100%",
-                                        height: 40
+                                        height: 40,
+                                        backgroundColor: "white"
                                     }}
                                     selectedItemsStyle={{
                                         margin: 0,
@@ -273,10 +276,10 @@ export default function edit({ route, navigation }) {
                                     }}
                                     height={40}
                                     textInputProps = {{
-                                        placeholder: "Enter pronouns",
+                                        placeholder: "Pronouns",
                                     }}
                                     containerStyle = {{
-                                        maxHeight: 200
+                                        height: 200
                                     }}
                                     onSubmitEditing = {(e) => {
                                         if (e.nativeEvent.text.length !== 0) {
@@ -376,6 +379,7 @@ const styles = StyleSheet.create({
 
     row: {
         width: "100%",
+        height: "7%",
         flexDirection: "row",
         justifyContent: "space-between",
         marginBottom: 10

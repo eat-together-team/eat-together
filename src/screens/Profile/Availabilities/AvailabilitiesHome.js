@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import MediumText from "../../../components/MediumText";
 import Button from "../../../components/Button";
+import GoogleButton from "../../../components/GoogleButton";
 
 import { getFreeTimes } from "../../../methods";
 import * as WebBrowser from "expo-web-browser";
@@ -149,9 +150,9 @@ const AvailabilitiesHome = props => {
         />
 
         <View style={styles.main}>
-            <Button disabled={!request} marginVertical={10} onPress={() => promptAsync({
+            <GoogleButton disabled={!request} marginVertical={10} onPress={() => promptAsync({
               projectNameForProxy: "@eat-together-team/eat-together",
-            })}>Link with Google Calendar</Button>
+            })}>Link with Google Calendar</GoogleButton>
             <MediumText center>OR</MediumText>
             <Button marginVertical={10} onPress={() => props.navigation.navigate("Availabilities", {
               user: props.route.params.user,
