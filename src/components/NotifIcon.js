@@ -6,9 +6,9 @@ const NotifIcon = (props) => {
 
   //Choose either regular mail or mail with notif
   if (props.hasNotif) {
-    iconName = "mail-unread-outline";
+    iconName = "notifications-circle";
   } else {
-    iconName = "mail-outline";
+    iconName = "notifications";
   }
 
   return (
