@@ -30,7 +30,7 @@ const AvailabilitiesHome = props => {
       process.env.GOOGLE_AUTH_CLIENT_ID_IOS : GOOGLE_AUTH_CLIENT_ID_IOS,
     androidClientId: process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID ?
       process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID : GOOGLE_AUTH_CLIENT_ID_ANDROID,
-    scopes: ["https://www.googleapis.com/auth/calendar"],
+    scopes: ["https://www.googleapis.com/auth/calendar.events.readonly"],
     redirectUri: "https://auth.expo.io/@eat-together-team/eat-together"
   }, {
     projectNameForProxy: "@eat-together-team/eat-together",

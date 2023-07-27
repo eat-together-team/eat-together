@@ -217,7 +217,7 @@ export default function({ navigation }) {
 
     // Filter events by time of day
     const filterByTime = (time, newEvents) => {
-      newEvents = newEvents.filter(e => getTimeOfDay(e.date.toDate()) === time);
+      newEvents = newEvents.filter(e => getTimeOfDay(e.startDate.toDate()) === time);
       return newEvents;
     }
 
