@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 const NotifIcon = (props) => {
   let iconName;
 
-  //Choose either regular mail or mail with notif
+  // Choose either regular bell or bell with badge for notification
   if (props.hasNotif) {
     iconName = "bell-badge-outline";
   } else {

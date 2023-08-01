@@ -41,6 +41,8 @@ const Name = props => {
       alert("Pronouns have inappropriate words >:(");
     } else if (checkProfanity(bio)) {
       alert("Fun fact has inappropriate words >:(");
+    } else if (new Date().getFullYear() - age < 18) {
+      alert("You must be 18 years or older to use this app.");
     } else {
       props.setFirstName(firstName);
       props.setLastName(lastName);
