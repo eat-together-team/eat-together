@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   searchArea: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
   chats: {
     paddingHorizontal: 20,
