@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Alert, Image, Modal, StyleSheet, Text, Pressable, View } from 'react-native';
+import { Alert, Image, Modal, StyleSheet, View } from 'react-native';
+
+import NormalText from './NormalText';
+import MediumText from './MediumText';
+import Link from './Link';
+import Button from './Button';
+import BorderedButton from './BorderedButton';
 
 const TutorialMessage = (props) => {
   const [modalVisible, setModalVisible] = useState(true);
@@ -16,64 +22,67 @@ const TutorialMessage = (props) => {
         {
           text: 'Yes',
           onPress: () => {
-            props.skip()
-            setModalVisible(false)},
-          // and change this person's database status to "not first time logged in"
+            setModalVisible(false);
+            // TODO: change this person's database status so that they don't see the tutorial again (using Firestore)
+          },
+          
         },
       ],
     );
   };
 
   return (
-    <View style={styles.centeredView}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-      >
-        <View style={styles.centeredView}>
-          <View style={[styles.modalView, { marginTop: props.top, marginLeft: props.left }]}>
-            <View style={styles.modalContent}>
-              <Text style={styles.titleText}>{props.title}</Text>
-              <Text style={styles.tutorialText}>{props.content}</Text>
-            </View>
-            <View style={styles.buttonContainer}>
-              <Image
-                style={styles.image}
-                source={require('eat-together/assets/tutorial.png')}
-              />
-              <Pressable
-                style={[styles.buttonSkip]}
-                onPress={handleSkipTutorial}
-              >
-                <Text style={styles.skipText}>skip tutorial</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.buttonNext]}
-                onPress={props.next}
-              >
-                <Text style={styles.nextText}>{props.nextText}</Text>
-              </Pressable>
-            </View>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={modalVisible}
+    >
+      <View style={[styles.modalView, {"bottom": props.bottom ? props.bottom : "10%"}]}>
+        <View style={styles.modalContent}>
+          <View style={styles.spacedRow}>
+            <MediumText style={styles.titleText}>{props.title}</MediumText>
+            <Link onPress={handleSkipTutorial}>Skip Tutorial</Link>
           </View>
+          
+          <NormalText style={styles.tutorialText}>{props.content}</NormalText>
         </View>
-      </Modal>
-    </View>
+        <View style={styles.buttonContainer}>
+          <Image
+            style={styles.image}
+            source={require('eat-together/assets/logo.png')}
+          />
+          <BorderedButton
+            marginHorizontal={10}
+            paddingVertical={10}
+            paddingHorizontal={20}
+            fontSize={14}
+            onPress={props.prev}
+          >
+            Back
+          </BorderedButton>
+          <Button
+            paddingVertical={10}
+            paddingHorizontal={20}
+            fontSize={14}
+            onPress={props.next}
+          >
+            Next
+          </Button>
+        </View>
+      </View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   modalView: {
-    margin: 20,
+    position: 'absolute',
+    bottom: "10%",
+    left: 10,
+    right: 10,
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 35,
-    alignItems: 'flex-start', // Align items to the left
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -83,62 +92,28 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  modalContent: {
-    marginBottom: 15,
-    marginLeft: -15,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-  buttonContainer: {
-    marginBottom:-15,
-    marginLeft: -25,
-    marginTop: 10,
+
+  spacedRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  buttonSkip: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-    marginLeft: 10,
-  },
-  buttonNext: {
-    borderRadius: 20,
-    borderWidth: 3,
-    borderColor: '#306A41',
-    paddingLeft: 20,
-    paddingRight: 20,
-    elevation: 30, // modified
-    shadowColor: "black",
-    shadowOffset: {
-      width: 3,
-      height: 3,
-    },
-    shadowOpacity: 0.57,
-    shadowRadius: 4.65,
-    marginLeft: 10,
-  },
-  nextText: {
-    paddingTop: 40,
-    color: '#306A41',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  tutorialText: {
-    textAlign: 'left', // Align text to the left
-  },
-  titleText: {
-    marginTop: -20,
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 10,
-    color: '#306A41',
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'left',
   },
+
+  modalContent: {
+    marginBottom: 15
+  },
+
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+
   image: {
     width: 80,
     height: 80,
   },
+
   skipText: {
     color: '#767676',
     paddingTop: 50,
