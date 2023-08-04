@@ -5,6 +5,7 @@ import { ThemeProvider } from "react-native-rapi-ui";
 import { MenuProvider } from "react-native-popup-menu";
 import { LogBox } from "react-native";
 import * as Updates from 'expo-updates';
+import * as Network from 'expo-network';
 
 export default function App() {
   LogBox.ignoreAllLogs(); //DISABLE THOSE STUPID WARNINGS SLAYYYYY
@@ -15,6 +16,15 @@ export default function App() {
 
   // Check for app updates
   useEffect(() => {
+    async function getNetwork() {
+      const hasNetwork = await Network.getNetworkStateAsync();
+      if (!hasNetwork.isConnected) {
+        alert("No/weak internet connection :(");
+      }
+    }
+
+    getNetwork();
+
     Updates.addListener(async (event) => {
       if (event.type === Updates.UpdateEventType.UPDATE_AVAILABLE) {
         await Updates.fetchUpdateAsync();

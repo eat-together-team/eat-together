@@ -1,5 +1,3 @@
-// TODO: Josh | You may need to edit this file
-
 import React from 'react';
 import { View } from 'react-native';
 import NormalText from './NormalText';

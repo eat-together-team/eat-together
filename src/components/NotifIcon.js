@@ -1,18 +1,18 @@
 import React from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const NotifIcon = (props) => {
   let iconName;
 
-  //Choose either regular mail or mail with notif
+  // Choose either regular bell or bell with badge for notification
   if (props.hasNotif) {
-    iconName = "mail-unread-outline";
+    iconName = "bell-badge-outline";
   } else {
-    iconName = "mail-outline";
+    iconName = "bell-outline";
   }
 
   return (
-    <Ionicons
+    <MaterialCommunityIcons
       name={iconName}
       size={40}
       color="black"
