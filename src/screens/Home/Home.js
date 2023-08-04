@@ -1,7 +1,7 @@
-// Display your events
+// Homepage! Displays your meals as well as recommendations
 
 import React, { useEffect, useState, useContext, useRef } from "react";
-import {View, StyleSheet, FlatList, SectionList} from "react-native";
+import { View, StyleSheet, FlatList } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import RBSheet from "react-native-raw-bottom-sheet";
 
@@ -18,9 +18,7 @@ import Link from "../../components/Link";
 import { db, auth } from "../../provider/Firebase";
 import { AuthContext } from "../../provider/AuthProvider";
 import { compareDates } from "../../methods";
-import moment from "moment";
 import MediumText from "../../components/MediumText";
-import Me from "../Profile/Me";
 import RecommendationsCard from "../../components/RecommendationsCard";
 
 export default function ({ navigation }) {
@@ -417,7 +415,7 @@ export default function ({ navigation }) {
   // TODO: add the tutorials for the other pages (will need to look into other files for this)
   return (
     <Layout>
-      {userInfo && !userInfo.tutorial && // NOTE: set "userInfo.tutorial" to "!userInfo.tutorial" to see the tutorial
+      {userInfo && userInfo.tutorial && // NOTE: set "userInfo.tutorial" to "!userInfo.tutorial" to see the tutorial
         <TutorialMessage
           bottom={tutorialSteps[step].bottom}
           title={tutorialSteps[step].title}
