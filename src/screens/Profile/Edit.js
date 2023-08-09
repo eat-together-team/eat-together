@@ -233,7 +233,7 @@ export default function edit({ route, navigation }) {
                             />
                         </View>
 
-                        <View style={styles.row}>
+                        <View style={{...styles.row, zIndex: 1}}>
                             <TextInput
                                 keyboardType="numeric"
                                 placeholder="Birth year"
