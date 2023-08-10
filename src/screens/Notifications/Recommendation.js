@@ -31,6 +31,7 @@ const Recommendation = ({ route, navigation }) => {
   const [commonTags, setCommonTags] = useState([]); // Common tags between the user and others
   const [isAttending, setIsAttending] = useState(false); // Whether the user has accepted the invite or not
 
+
   const [openMenu, setOpenMenu] = useState(false);
   const [loading, setLoading] = useState(true); // Loading state for the button
 
@@ -146,6 +147,10 @@ const Recommendation = ({ route, navigation }) => {
                   <Image source={attendee.hasImage ? { uri: attendee.image }
                     : require("../../../assets/logo.png")} style={styles.profileImg}/>
                   <NormalText size={16}>{attendee.firstName + " " + attendee.lastName.substring(0, 1) + "."}</NormalText>
+                  {route.params.event.attendees.includes(attendee.id) && 
+                    <Ionicons name="checkmark-circle" size={20} color="#5DB075" />}
+                  {!route.params.event.attendees.includes(attendee.id) && 
+                    <Ionicons name="help-circle" size={20} color="grey" />}
                 </TouchableOpacity>
               )}
             </View>
