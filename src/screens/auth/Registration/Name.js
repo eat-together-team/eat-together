@@ -132,7 +132,7 @@ const Name = props => {
                 />
               </View>
 
-              <View style={styles.row}>
+              <View style={{...styles.row, zIndex: 1}}>
                 <TextInput
                   placeholder="Birth year"
                   value={age}

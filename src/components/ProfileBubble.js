@@ -7,64 +7,46 @@ import Tag from "./Tag";
 
 const ProfileBubble = props => {
     // Generates text for school tags in common with the user
-    const generateSchoolText = tags => {
-        const schoolTags = tags.filter(tag => tag.type === "school");
-
-        if (schoolTags.length > 0) {
-            let text = schoolTags[0].tag;
-
-            for (let i = 1; i < schoolTags.length; i++) {
-                text += ", " + schoolTags[i].tag;
-            }
-
-            return text;
-        }
-        
-        return "";
+    const getCommonSchoolTags = tags => {
+        return tags.filter(tag => tag.type === "school");
     }
 
     // Generates text for hobby and food tags in common with the user
-    const generateHobbyFoodText = tags => {
-        const hobbyFoodTags = tags.filter(tag => tag.type === "hobby" || tag.type === "food");
-
-        if (hobbyFoodTags.length > 0) {
-            let text = hobbyFoodTags[0].tag;
-
-            for (let i = 1; i < hobbyFoodTags.length; i++) {
-                text += ", " + hobbyFoodTags[i].tag;
-            }
-
-            return text;
-        }
-        
-        return "";
+    const getCommonHobbyFoodTags = tags => {
+        return tags.filter(tag => tag.type === "hobby" || tag.type === "food");
     }
 
     return (
         <View style={[styles.card, {}]}>
             <TouchableOpacity onPress={props.click}>
-                <MediumText size={18}>{props.person.bio}</MediumText>
-                <View style={styles.row}>
-                    <NormalText>
-                        {props.person.firstName + " " + props.person.lastName.substring(0, 1) + "."}
-                    </NormalText>
-
-                    <ScrollView horizontal={true} style={{ marginLeft: 10 }}>
-                        <View onStartShouldSetResponder={() => true} style={{ flexDirection: "row" }}>
-                            {props.person.selectedTags.map(tag =>
-                                <Tag text={tag.tag} key={tag.tag} type={tag.type}/>)}
-                        </View>
-                    </ScrollView>
-                </View>
+                <MediumText size={18}>
+                    {props.person.firstName + " " + props.person.lastName.substring(0, 1) + "."}
+                </MediumText>
+                <MediumText size={14}>
+                    🗯️ "{props.person.bio}"
+                </MediumText>
                 
                 {props.person.inCommon.length > 0 && (<View style={styles.common}>
-                    {generateSchoolText(props.person.inCommon) !== "" && (<View style={styles.commonRow}>
-                        <NormalText>🏫 You both are: {generateSchoolText(props.person.inCommon)} </NormalText>
+                    {getCommonSchoolTags(props.person.inCommon).length !== 0 && (<View style={styles.commonRow}>
+                        <NormalText>🏫 You both are: </NormalText>
+                        <ScrollView horizontal={true}>
+                            <View onStartShouldSetResponder={() => true} style={{ flexDirection: "row" }}>
+                                {getCommonSchoolTags(props.person.inCommon).map(tag =>
+                                    <Tag text={tag.tag} key={tag.tag} type={tag.type}/>)}
+                            </View>
+                        </ScrollView>
                     </View>)}
-                    {generateHobbyFoodText(props.person.inCommon) !== "" && (<View style={styles.commonRow}>
-                        <NormalText>🙂 You both enjoy: {generateHobbyFoodText(props.person.inCommon)} </NormalText>
+                    {getCommonHobbyFoodTags(props.person.inCommon).length !== 0 && (<View style={styles.commonRow}>
+                        <NormalText>🤩 You both enjoy: </NormalText>
+                        <ScrollView horizontal={true}>
+                            <View onStartShouldSetResponder={() => true} style={{ flexDirection: "row" }}>
+                                {getCommonHobbyFoodTags(props.person.inCommon).map(tag =>
+                                    <Tag text={tag.tag} key={tag.tag} type={tag.type}/>)}
+                            </View>
+                        </ScrollView>
                     </View>)}
                 </View>)}
+
             </TouchableOpacity>
         </View>
     );
@@ -85,12 +67,6 @@ const styles = StyleSheet.create({
             height: 4,
         },
         elevation: 10
-    },
-
-    row: {
-        flexDirection: "row",
-        alignItems: "center",
-        width: "100%"
     },
 
     common: {

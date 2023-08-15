@@ -171,6 +171,7 @@ const Auth = () => {
       hasNotif: false,
       pushTokens: [],
       verified: false,
+      tutorial: true,
     };
 
     await db.collection("Users").doc(`${uid}`).set(userData);
