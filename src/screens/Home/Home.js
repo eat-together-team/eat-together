@@ -415,15 +415,18 @@ export default function ({ navigation }) {
   // TODO: add the tutorials for the other pages (will need to look into other files for this)
   return (
     <Layout>
-      {userInfo && userInfo.tutorial && // NOTE: set "userInfo.tutorial" to "!userInfo.tutorial" to see the tutorial
-        <TutorialMessage
-          bottom={tutorialSteps[step].bottom}
-          title={tutorialSteps[step].title}
-          content={tutorialSteps[step].content}
-          nextText={tutorialSteps[step].nextText}
-          next={!tutorialSteps[step].disableNext ? incrementStep : null}
-          prev={!tutorialSteps[step].disablePrev ? decrementStep : null}
-        />
+      {userInfo && !userInfo.tutorial && // NOTE: set "userInfo.tutorial" to "!userInfo.tutorial" to see the tutorial
+        <>
+          <Backdrop />
+          <TutorialMessage
+            bottom={tutorialSteps[step].bottom}
+            title={tutorialSteps[step].title}
+            content={tutorialSteps[step].content}
+            nextText={tutorialSteps[step].nextText}
+            next={!tutorialSteps[step].disableNext ? incrementStep : null}
+            prev={!tutorialSteps[step].disablePrev ? decrementStep : null}
+          />
+        </>
       }
 
       <Header name="Your Meals" navigation={navigation} hasNotif={unread} notifs/>
@@ -566,3 +569,18 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   }
 });
+
+const Backdrop = () => {
+  return (
+    <View style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      zIndex: 1,
+      pointerEvents: "none"
+    }} />
+  );
+};
