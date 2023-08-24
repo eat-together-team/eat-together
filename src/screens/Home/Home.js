@@ -407,6 +407,15 @@ export default function ({ navigation }) {
       disableNext: true
     },
   ];
+
+  // Note: callback example here
+  /**
+  function setuserInfoCallbacl() {
+    let userInfoCopy = userInfo;
+    userInfoCopy.tutorial = false;
+    setUserInfo(userInfoCopy);
+  }
+   */
   
 
   // NOTE: SEE MOCKUPS ON FIGMA FOR REFERENCE!!!
@@ -425,6 +434,7 @@ export default function ({ navigation }) {
             nextText={tutorialSteps[step].nextText}
             next={!tutorialSteps[step].disableNext ? incrementStep : null}
             prev={!tutorialSteps[step].disablePrev ? decrementStep : null}
+            //callback={ () => setuserInfoCallbacl()} callback example usage
           />
         </>
       }

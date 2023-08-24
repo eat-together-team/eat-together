@@ -23,6 +23,17 @@ const TutorialMessage = (props) => {
           text: 'Yes',
           onPress: () => {
             setModalVisible(false);
+
+            //Note callback example usage here
+            /**
+            // Firbase call first...
+            db.collection("Users").doc(props.userId).set(
+                tutorial: false
+            ).then( () => {
+              props.callback()
+            })
+             */
+
             // TODO: change this person's database status so that they don't see the tutorial again (using Firestore)
           },
           
