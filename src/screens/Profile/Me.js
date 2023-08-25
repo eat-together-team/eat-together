@@ -217,10 +217,10 @@ export default function ({ navigation }) {
         </View>
 
         <View style={styles.name}>
-          <LargeText>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
-          <NormalText marginBottom={5}>({userInfo.pronouns})</NormalText>
+          <LargeText size={24}>{userInfo.firstName + " " + userInfo.lastName + " (" + userInfo.pronouns + ")"}</LargeText>
+          <NormalText marginBottom={5}>🏫 {userInfo.school ? userInfo.school : "UW-Seattle"}</NormalText>
           <NormalText>
-            {mealsAttended + "/" + mealsSignedUp + " meals attended"}
+            🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
           </NormalText>
           <MediumText>@{userInfo.username}</MediumText>
         </View>

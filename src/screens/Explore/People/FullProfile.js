@@ -317,11 +317,18 @@ const FullProfile = ({ blockBack, route, navigation }) => {
         />
 
         <View style={styles.name}>
-          <LargeText>
-            {route.params.person.firstName + " " + route.params.person.lastName}
+          <LargeText size={24}>
+            {route.params.person.firstName + " " + route.params.person.lastName + " (" + route.params.person.pronouns + ")"}
           </LargeText>
-          <NormalText marginBottom={5}>({route.params.person.pronouns})</NormalText>
-          <MediumText size={16}>@{route.params.person.username}</MediumText>
+          <NormalText marginBottom={5}>🏫 {route.params.person.school ? route.params.person.school : "UW-Seattle"}</NormalText>
+          <NormalText>
+            🍽️ {route.params.person.attendedEventIDs.length +
+              "/" +
+              (route.params.person.archivedEventIDs.length +
+                route.params.person.attendingEventIDs.length) +
+              " meals attended"}
+          </NormalText>
+          <MediumText>@{route.params.person.username}</MediumText>
           {tryoutId != user.uid && (
             <View style={{ flexDirection: "row", marginVertical: 10 }}>
             <Button
@@ -337,13 +344,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           </View>
           )}
 
-          <NormalText>
-            {route.params.person.attendedEventIDs.length +
-              "/" +
-              (route.params.person.archivedEventIDs.length +
-                route.params.person.attendingEventIDs.length) +
-              " meals attended"}
-          </NormalText>
+          
 
           <TouchableOpacity
             style={styles.link}

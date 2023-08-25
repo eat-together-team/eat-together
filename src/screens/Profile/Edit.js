@@ -14,12 +14,12 @@ import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import SuggestSelection from "../../components/SuggestSelection";
 
 import pronounTags from "../../pronounTags";
+import schools from "../../schools";
 
 import { AuthContext } from "../../provider/AuthProvider";
 import { checkProfanity } from "../../methods";
 import { cloneDeep } from "lodash";
 import NormalText from "../../components/NormalText";
-
 
 export default function edit({ route, navigation }) {
     // Input fields
@@ -31,6 +31,8 @@ export default function edit({ route, navigation }) {
     const [bio, setBio] = useState(route.params.user.bio);
     const [tags, setTags] = useState(route.params.user.tags);
     const [tagText, setTagText] = useState('');
+    const [school, setSchool] = useState(route.params.user.school);
+    const [schoolSelected, setSchoolSelected] = useState(school ? [school] : []);
 
     // Used to check if image has been updated or not; if not, don't update the DB
     const [oldImage, setOldImage] = useState(route.params.user.image);
@@ -46,7 +48,11 @@ export default function edit({ route, navigation }) {
 
     useEffect(() => {
         setPronouns(pronounTagsSelected.join(""));
-    }, [pronounTagsSelected])
+    }, [pronounTagsSelected]);
+
+    useEffect(() => {
+        setSchool(schoolSelected.join(""));
+    }, [schoolSelected]);
 
     // Display text for tags
     const displayTags = tags => {
@@ -118,7 +124,8 @@ export default function edit({ route, navigation }) {
                             bio,
                             tags,
                             hasImage: !(!image),
-                            image: uri
+                            image: uri,
+                            school
                         }).then(() => {
                             alert("Profile updated!");
                             navigation.goBack();
@@ -133,7 +140,8 @@ export default function edit({ route, navigation }) {
                     age: parseInt(age),
                     pronouns,
                     bio,
-                    tags
+                    tags,
+                    school
                 }).then(() => {
                     alert("Profile updated!");
                     navigation.goBack();
@@ -295,36 +303,90 @@ export default function edit({ route, navigation }) {
                                 />
                             </View>
                         </View>
+                        <View style={styles.school}>
+                            <SuggestSelection
+                                multi={true}
+                                selectedItems={schoolSelected}
+                                onItemSelect={(item) => {
+                                    setSchoolSelected(item.length !== 0 ? [item] : []);
+                                }}
+                                onRemoveItem={() => {
+                                    setSchoolSelected([]);
+                                }}
+                                itemStyle={{
+                                    padding: 10,
+                                    borderWidth: 2,
+                                    borderColor: '#5DB075',
+                                    borderRadius: 10,
+                                    marginTop: 2,
+                                    width: "100%",
+                                    height: 40,
+                                    backgroundColor: "white"
+                                }}
+                                selectedItemsStyle={{
+                                    margin: 0,
+                                    height: 40,
+                                    width: "100%",
+                                    justifyContent: "space-around",
+                                    backgroundColor: "white",
+                                    borderColor: "lightgrey",
+                                    borderWidth: 1,
+                                    borderRadius: 10
+                                }}
+                                height={40}
+                                textInputProps={{
+                                    placeholder: "School"
+                                }}
+                                onSubmitEditing = {(e) => {
+                                    if (e.nativeEvent.text.length !== 0) {
+                                        const newSelectedItems = [e.nativeEvent.text];
+                                        setSchoolSelected(newSelectedItems);
+                                    }}
+                                }
+                                containerStyle = {{
+                                    height: 200,
+                                }}
+                                selectedItemsWidth={"100%"}
+                                items={cloneDeep(schools)}
+                                chip={true}
+                                resetValue={false}
+                                required
+                            />
+                        </View>
                         
-                        <TextInput
-                            placeholder="Fun fact"
-                            onChangeText={(val) => setBio(val)}
-                            width={"100%"}
-                            iconLeftType="FontAwesome"
-                            iconLeft="exclamation"
-                            value={bio}
-                            marginBottom={10}
-                            required
-                        />
-
-                        <TouchableOpacity onPress={() => navigation.navigate("EditTags", {
-                            schoolTags: tags.filter(tag => tag.type === "school").map(tag => tag.tag),
-                            hobbyTags: tags.filter(tag => tag.type === "hobby").map(tag => tag.tag),
-                            foodTags: tags.filter(tag => tag.type === "food").map(tag => tag.tag),
-                            updateTags
-                        })}>
-                            <View pointerEvents="none">
-                                <TextInput
-                                    placeholder="Tags"
-                                    onChangeText={(val) => setBio(val)}
-                                    width={"100%"}
-                                    iconLeft="pricetag"
-                                    value={tagText}
-                                    editable={false}
-                                    required
-                                />
-                            </View>
-                        </TouchableOpacity>
+                        <View style={styles.row}>
+                            <TextInput
+                                placeholder="Fun fact"
+                                onChangeText={(val) => setBio(val)}
+                                width={"100%"}
+                                iconLeftType="FontAwesome"
+                                iconLeft="exclamation"
+                                value={bio}
+                                marginBottom={10}
+                                required
+                            />
+                        </View>
+                        
+                        <View style={{height: "6%"}}>
+                            <TouchableOpacity onPress={() => navigation.navigate("EditTags", {
+                                schoolTags: tags.filter(tag => tag.type === "school").map(tag => tag.tag),
+                                hobbyTags: tags.filter(tag => tag.type === "hobby").map(tag => tag.tag),
+                                foodTags: tags.filter(tag => tag.type === "food").map(tag => tag.tag),
+                                updateTags
+                            })}>
+                                <View pointerEvents="none">
+                                    <TextInput
+                                        placeholder="Tags"
+                                        onChangeText={(val) => setBio(val)}
+                                        width={"100%"}
+                                        iconLeft="pricetag"
+                                        value={tagText}
+                                        editable={false}
+                                        required
+                                    />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
 
                         <Button disabled={firstName === "" || lastName === "" || bio === "" || loading}
                             marginVertical={40}
@@ -379,10 +441,16 @@ const styles = StyleSheet.create({
 
     row: {
         width: "100%",
-        height: "7%",
+        height: "6%",
         flexDirection: "row",
         justifyContent: "space-between",
         marginBottom: 10
+    },
+
+    school: {
+        width: "100%",
+        height: "8%",
+        zIndex: 100
     }
 });
 
