@@ -28,20 +28,6 @@ const TutorialMessage = (props) => {
           text: 'Yes',
           onPress: () => {
             setModalVisible(false);
-<<<<<<< HEAD
-
-            //Note callback example usage here
-            /**
-            // Firbase call first...
-            db.collection("Users").doc(props.userId).set(
-                tutorial: false
-            ).then( () => {
-              props.callback()
-            })
-             */
-
-            // TODO: change this person's database status so that they don't see the tutorial again (using Firestore)
-=======
             setArrowVisible(false);
 
             db.collection("Users").doc(props.userId).update({
@@ -54,7 +40,6 @@ const TutorialMessage = (props) => {
             }).catch((error) => {
               console.error("Error updating document: ", error);
             });
->>>>>>> 7b4eb06 (finished tutorial system)
           },
           
         },

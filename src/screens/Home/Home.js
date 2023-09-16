@@ -433,16 +433,6 @@ export default function ({ navigation }) {
     },
   ];
 
-<<<<<<< HEAD
-  // Note: callback example here
-  /**
-  function setuserInfoCallbacl() {
-    let userInfoCopy = userInfo;
-    userInfoCopy.tutorial = false;
-    setUserInfo(userInfoCopy);
-  }
-   */
-=======
   // recommended tutorial steps
   const recTutorialSteps = [
     {
@@ -462,7 +452,6 @@ export default function ({ navigation }) {
       completed: true,
     }
   ];
->>>>>>> 7b4eb06 (finished tutorial system)
   
 
   // Callback function to update user info
@@ -566,10 +555,6 @@ export default function ({ navigation }) {
             angle={tutorialSteps[step].angle}
             length={tutorialSteps[step].length}
             next={!tutorialSteps[step].disableNext ? incrementStep : null}
-<<<<<<< HEAD
-            prev={!tutorialSteps[step].disablePrev ? decrementStep : null}
-            //callback={ () => setuserInfoCallbacl()} callback example usage
-=======
             back={!tutorialSteps[step].disableBack ? decrementStep : null}
             disableNext={tutorialSteps[step].disableNext}
             disableBack={tutorialSteps[step].disableBack}
@@ -588,7 +573,6 @@ export default function ({ navigation }) {
             nextText={recTutorialSteps[recStep].nextText}
             completedTutorial={recTutorialSteps[recStep].completed}
             callback={setuserInfoCallBack}
->>>>>>> 7b4eb06 (finished tutorial system)
           />
         </>
       }
