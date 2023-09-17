@@ -17,12 +17,14 @@ We don't have any strict guidelines for your development conventions, but here a
 ## Navigating the Repository
 
 The majority of development will be happening in the `src` folder. Inside the `src` folder, there are other subfolders:
+
 1. `components`: contains files for our app's self-made components (e.g. buttons, icons, text containers, etc.). Make sure you use them as much as possible! And feel free to create your own :)
 2. `navigation`: contains files related to how you navigate around the app as well as authenticating users.
 3. `provider`: contains Firebase-related files.
 4. `screens`: all of the app's pages are located here! Most of your work will be done here. Any questions about this subdirectory can be directed to Rachel, Eric, or Arya!
 
 There are also some miscellaneous JS scripts (e.g. `allTags.js`) in `src`:
+
 1. `allTags.js` + `eventTags.js` + `foodTags.js` + `schoolTags.js` + `hobbyTags.js`: lists of all the user/event tags in the system.
 2. `getDate.js` + `getTime.js`: returns strings of the date and time, respectively, of JS Date objects.
 3. `methods.js`: various miscellaneous methods for the app. Make sure to check it out!
@@ -30,47 +32,63 @@ There are also some miscellaneous JS scripts (e.g. `allTags.js`) in `src`:
 5. `timeSlots.js`: contains a list of time slots (used for scheduling in the app).
 
 Other (less but kinda) important files/folders to know:
+
 1. `assets`: contains static images for the app (e.g. logo, stock images).
 2. `node_modules`: contains all downloaded libraries for the app (including default React Native stuff). DON'T TOUCH!
 3. `.gitignore`: contains a list of files to ignore when pushing to git.
 4. `package.json` + `yarn.lock`: contains information about libraries/dependencies the app needs to run (`npm install` and `yarn.lock` rely on this file).
 
-
 ## React Native Expo Installation
 
 1. Install [node.js](https://nodejs.org/en/). To ensure that you properly downloaded it, type `npm -v` in the terminal. This will diplsay the currently installed version, if any.
+
 2. Install Expo:
 
-   ```jsx
-   npm install --global expo-cli
-   ```
+```jsx
+npm install --global expo-cli
+
+```
 
 3. Clone this repo.
+
 4. In the home/main directory of this repo, install all required libraries/dependencies:
 
-   ```jsx
-   npm install
-   ```
-   for mac users who are unable to use npm, use yarn instead:
-   ```
-   npm install --global yarn
-   yarn install
-   ```
-5. To link this project with Firebase, download the `.env` file from our [Google Drive](https://drive.google.com/drive/folders/1eOrcYGYxwPWrVTMVeQIACACIpNpj3vNb). Simply put it in the root directory.
+```jsx
+npm install
+
+```
+
+for mac users who are unable to use npm, use yarn instead:
+
+```sh
+npm install --global yarn
+yarn install
+
+```
+
+5. To link this project with Firebase, download the `.env` file from our [Google Drive](https://drive.google.com/drive/folders/1Sd5dg3o2bf9jp_CcY5rv2EPJ_zzD0fJh). Simply put it in the root directory.
+
 6. Start the environment:
 
-   ```jsx
-   npm start
-   ```
-   or start directly from expo:
-   ```
-   expo start
-   ```
-   for yarn users, use the following command:
-   ```
-   yarn start
-   ```
-   
+```jsx
+npm start
+
+```
+
+or start directly from expo:
+
+```sh
+expo start
+
+```
+
+for yarn users, use the following command:
+
+```sh
+yarn start
+
+```
+
 7. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app.
 
 ### Firebase Backend Setup (Ignore this section if you used the `.env` file)
@@ -89,12 +107,12 @@ const firebaseConfig = {
 	messagingSenderId: '',
 	appId: '',
 };
+
 ```
 
 and you are good to go!
 
 Check out https://console.firebase.google.com/u/0/ to look at our database.
-
 
 ### How React Navigation Auth Flow Works
 
@@ -119,20 +137,32 @@ export default () => {
 		</NavigationContainer>
 	);
 };
+
 ```
 
 ## Common Bugs & Fixes 🐛
+
 While there are many bugs that can arise while setting up the project, here are a few of the most common ones. Note that this list is not comprehensive nor final.
+
 - Mac users: if `npm install` does not work and displays a long series of errors, it is often because of your computer's security permissions. Try `sudo npm install`, which will prompt you for your password. This will run the install as admin, which should work.
+
 - Mac users: if attempting to launch via simulator and you get the error `Error: xcrun exited with non-zero code: 2
 An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=2):
 Unable to boot device because we cannot determine the runtime bundle.
 No such file or directory`, run the following command in Terminal:
 
-	```
-	open -a simulator 
-	```
-	Once the simulator boots up, immediately quit the simulator app. Run `npm start` or `yarn start` again from the project directory, and open 		simulator. It should then be resolved.
+```sh
+open -a simulator 
+
+```
+
+```ts
+  Once the simulator boots up, immediately quit the simulator app. Run `npm start` or `yarn start` again from the project directory, and open 		simulator. It should then be resolved.
+
+```
+
 - If you ever get a "giant red screen of death" (you'll know what it looks like when you see it), try running `expo start -c` or `yarn start -c` to clear the cache. This will often fix the problem.
+
 - If you get an error saying that a certain library is not installed, try running `npm install` or `yarn install` again. If that doesn't work, try deleting the `node_modules` folder and running `npm install` or `yarn install` again.
+
 - ENSURE THAT THE NETWORK USED BY YOUR LAPTOP AND PHONE IS THE EXACT SAME! Otherwise, the app won't load. If this fails, you can also try the tunnel connection using `expo start --tunnel` or `yarn start --tunnel`.
