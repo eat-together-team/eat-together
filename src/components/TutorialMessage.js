@@ -7,7 +7,7 @@ import Link from './Link';
 import Button from './Button';
 import BorderedButton from './BorderedButton';
 
-import { db, /*auth*/ } from "../provider/Firebase";
+import { db } from "../provider/Firebase";
 
 const TutorialMessage = (props) => {
   const [modalVisible, setModalVisible] = useState(true);
@@ -108,10 +108,6 @@ const TutorialMessage = (props) => {
           <NormalText style={styles.tutorialText}>{props.content}</NormalText>
         </View>
         <View style={styles.buttonContainer}>
-          <Image
-            style={styles.image}
-            source={require('eat-together/assets/logo.png')}
-          />
           {!props.disableBack && (
             <BorderedButton
               marginHorizontal={10}

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Alert, StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import NormalText from './NormalText';
 import MediumText from './MediumText';
 import Link from './Link';
+import Button from './Button';
 import BorderedButton from './BorderedButton';
 
 import { db } from "../provider/Firebase";
@@ -71,7 +72,7 @@ const RecTutorialMessage = (props) => {
           </BorderedButton>
         )}
         {props.enableNext && (
-          <BorderedButton
+          <Button
             marginHorizontal={10}
             paddingVertical={10}
             paddingHorizontal={20}
@@ -79,10 +80,10 @@ const RecTutorialMessage = (props) => {
             onPress={props.onNext}
           >
             Next
-          </BorderedButton>
+          </Button>
         )}
         {props.goHome && (
-        <BorderedButton
+        <Button
           marginHorizontal={10}
           paddingVertical={10}
           paddingHorizontal={20}
@@ -90,10 +91,10 @@ const RecTutorialMessage = (props) => {
           onPress={handleGoHome}
         >
           Next
-        </BorderedButton>
+        </Button>
       )}
         {props.completedTutorial && (
-          <BorderedButton
+          <Button
             marginHorizontal={10}
             paddingVertical={10}
             paddingHorizontal={20}
@@ -101,7 +102,7 @@ const RecTutorialMessage = (props) => {
             onPress={handleSkipTutorial}
           >
             Done
-          </BorderedButton>
+          </Button>
         )}
       </View>
     </View>

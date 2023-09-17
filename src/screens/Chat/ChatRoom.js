@@ -190,7 +190,7 @@ export default function ({ route, navigation }) {
   const chatStep = [
     {
       title: 'Meal Chat',
-      content: 'It can be hard to find each other for the first time when the meetup start. We suggest you talk about: Which table you’re sitting at, what clothes you’re wearing today, how far away you are from the location, etc.',
+      content: 'It can be hard to find each other for the first time when the meetup starts. These following topics can help: Which table you’re sitting at, what clothes you’re wearing today, how far away you are from the location, etc.',
       enableNext: true,
       goHome: true,
       bottom: "5%",
