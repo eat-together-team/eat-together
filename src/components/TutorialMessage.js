@@ -7,13 +7,18 @@ import Link from './Link';
 import Button from './Button';
 import BorderedButton from './BorderedButton';
 
+import { db, /*auth*/ } from "../provider/Firebase";
+
 const TutorialMessage = (props) => {
   const [modalVisible, setModalVisible] = useState(true);
+  const [arrowVisible, setArrowVisible] = useState(true);
+  const estimatedModalHeight = 200;
+  const actualModalHeight = props.modalHeight ? props.modalHeight : estimatedModalHeight;
 
   const handleSkipTutorial = () => {
     Alert.alert(
       'Confirmation',
-      'Are you sure you want to skip the tutorial?',
+      'Are you sure you want to end the tutorial?',
       [
         {
           text: 'No',
@@ -23,7 +28,18 @@ const TutorialMessage = (props) => {
           text: 'Yes',
           onPress: () => {
             setModalVisible(false);
-            // TODO: change this person's database status so that they don't see the tutorial again (using Firestore)
+            setArrowVisible(false);
+
+            db.collection("Users").doc(props.userId).update({
+              "settings.tabsTutorial": false
+            }).then(() => {
+              console.log("Document successfully updated!");
+              if (props.callback) {
+                props.callback();
+              }
+            }).catch((error) => {
+              console.error("Error updating document: ", error);
+            });
           },
           
         },
@@ -32,12 +48,57 @@ const TutorialMessage = (props) => {
   };
 
   return (
+    <>
+      {modalVisible && <Backdrop />}
+      {arrowVisible && (
+        <>
+          {/* Rotation Container for Line with Arrow */}
+          <View
+            style={{
+              position: 'absolute',
+              zIndex: 2,
+              bottom: props.bottom ? parseInt(props.bottom) + actualModalHeight : 10 + actualModalHeight,
+              left: '50%',
+              width: 1,
+              height: 1,
+              transform: [{rotate: `${props.angle ? props.angle : 0}deg`}], // Rotation
+            }}
+          >
+          {/* Line with Arrow */}
+          <View
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              width: 7,
+              height: props.length ? props.length * 10 : 50,
+              backgroundColor: 'white',
+            }}
+          >
+            <View 
+              style={{
+                position: 'absolute',
+                top: -20, // Place at the top end of the line
+                left: -7, // Center the arrow
+                width: 0,
+                height: 0,
+                borderColor: 'transparent',
+                borderTopColor: 'white',
+                borderWidth: 10,
+                transform: [{ rotate: '180deg' }],  // Rotate the arrow to point in the opposite direction
+              }}
+            />
+          </View>
+        </View>
+      </>
+    )}
     <Modal
       animationType="slide"
       transparent={true}
       visible={modalVisible}
+      style={{ pointerEvents: 'none' }}
     >
-      <View style={[styles.modalView, {"bottom": props.bottom ? props.bottom : "10%"}]}>
+      <View style={[styles.modalView, {"bottom": props.bottom ? props.bottom : "10%"}]} pointerEvents="box-none">
         <View style={styles.modalContent}>
           <View style={styles.spacedRow}>
             <MediumText style={styles.titleText}>{props.title}</MediumText>
@@ -51,26 +112,42 @@ const TutorialMessage = (props) => {
             style={styles.image}
             source={require('eat-together/assets/logo.png')}
           />
-          <BorderedButton
-            marginHorizontal={10}
-            paddingVertical={10}
-            paddingHorizontal={20}
-            fontSize={14}
-            onPress={props.prev}
-          >
-            Back
-          </BorderedButton>
-          <Button
-            paddingVertical={10}
-            paddingHorizontal={20}
-            fontSize={14}
-            onPress={props.next}
-          >
-            Next
-          </Button>
+          {!props.disableBack && (
+            <BorderedButton
+              marginHorizontal={10}
+              paddingVertical={10}
+              paddingHorizontal={20}
+              fontSize={14}
+              onPress={props.back}
+            >
+              Back
+            </BorderedButton>
+          )}
+          <View style={props.disableBack ? { marginLeft: 10 } : {}}>
+            {props.disableNext ? (
+              <Button
+                paddingVertical={10}
+                paddingHorizontal={20}
+                fontSize={14}
+                onPress={handleSkipTutorial}
+              >
+                Done
+              </Button>
+            ) : (
+              <Button
+                paddingVertical={10}
+                paddingHorizontal={20}
+                fontSize={14}
+                onPress={props.next}
+              >
+                Next
+              </Button>
+            )}
+          </View>
         </View>
       </View>
     </Modal>
+    </>
   );
 };
 
@@ -91,6 +168,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    borderWidth: 1,  // Add this line to specify border width
+    borderColor: '#5DB075',  // Add this line to specify border color
   },
 
   spacedRow: {
@@ -120,5 +199,19 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   }
 });
+
+const Backdrop = () => {
+  return (
+    <View style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      zIndex: 1,
+    }} />
+  );
+};
 
 export default TutorialMessage;

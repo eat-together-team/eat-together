@@ -14,6 +14,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from "@expo/vector-icons";
 
 import { KeyboardAvoidingView } from "react-native";
+import RecTutorialMessage from "../../components/RecTutorialMessage";  // Tutorial message for recommendations
 
 import TextInput from "../../components/TextInput";
 import TextMessage from "../../components/TextMessage";
@@ -35,6 +36,10 @@ export default function ({ route, navigation }) {
   const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState(null);
   const messageRef = db.collection("Groups").doc(group.groupID);
+
+  // Keep track of tutorial state
+  const [attendingTutorial, setAttendingTutorial] = useState(true);  // State to see if we should show the attending an event tutorial
+  const [isDataFetched, setIsDataFetched] = useState(false);  // State to track whether data has been fetched
 
   // On update, push messages
   useEffect(() => {
@@ -158,10 +163,56 @@ export default function ({ route, navigation }) {
     });
   };
 
+  // TUTORIAL FUNCTIONS
 
+  // Fetch data from Firestore to see if the user has seen the tutorial before or not
+  useEffect(() => {
+    const fetchData = async () => {
+      const docRef = db.collection('Users').doc(user.uid);
+      const doc = await docRef.get();
+
+      if (doc.exists) {
+        const data = doc.data();
+
+        if (data.settings?.attendingTutorial !== undefined) {
+          setAttendingTutorial(data.settings.attendingTutorial);
+        }
+        
+      } else {
+        console.log('No such document!');
+      }
+      setIsDataFetched(true); // Set the fetched state to true after fetching is complete
+    };
+
+    fetchData();
+  }, []);
+
+  const chatStep = [
+    {
+      title: 'Meal Chat',
+      content: 'It can be hard to find each other for the first time when the meetup start. We suggest you talk about: Which table you’re sitting at, what clothes you’re wearing today, how far away you are from the location, etc.',
+      enableNext: true,
+      goHome: true,
+      bottom: "5%",
+    },
+  ];
 
   return (
     <Layout style={{flex: 1}}>
+
+    {attendingTutorial && 
+        <>
+          <RecTutorialMessage
+            userId={user.uid}
+            title={chatStep[0].title}
+            content={chatStep[0].content}
+            bottom={chatStep[0].bottom}
+            navigation = {navigation}
+            goHome={chatStep[0].goHome}
+          />
+        </>
+      }
+
       <TopNav
         middleContent={
           <TouchableOpacity onPress={() => navigation.navigate("ChatRoomDetails", {
