@@ -241,7 +241,7 @@ export default function edit({ route, navigation }) {
                             />
                         </View>
 
-                        <View style={{...styles.row, zIndex: 1}}>
+                        <View style={{...styles.row, zIndex: 11}}>
                             <TextInput
                                 keyboardType="numeric"
                                 placeholder="Birth year"
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     school: {
         width: "100%",
         height: "8%",
-        zIndex: 100
+        zIndex: 10
     }
 });
 

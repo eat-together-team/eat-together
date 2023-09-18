@@ -308,7 +308,7 @@ export default function ({ navigation }) {
                         />
 
                         <View style={styles.multiple}>
-                            <View style={styles.smallInput}>
+                            <View style={{...styles.smallInput, zIndex: 10}}>
                                 <SuggestSelection
                                     multi={true}
                                     selectedItems={type ? [type] : []}
