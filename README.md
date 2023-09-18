@@ -41,20 +41,20 @@ Other (less but kinda) important files/folders to know:
 ## React Native Expo Installation
 
 1. Install [node.js](https://nodejs.org/en/). To ensure that you properly downloaded it, type `npm -v` in the terminal. This will diplsay the currently installed version, if any.
-
 2. Install Expo:
 
 ```jsx
 npm install --global expo-cli
 
+
 ```
 
 3. Clone this repo.
-
 4. In the home/main directory of this repo, install all required libraries/dependencies:
 
 ```jsx
 npm install
+
 
 ```
 
@@ -64,14 +64,16 @@ for mac users who are unable to use npm, use yarn instead:
 npm install --global yarn
 yarn install
 
+
 ```
 
 5. To link this project with Firebase, download the `.env` file from our [Google Drive](https://drive.google.com/drive/folders/1Sd5dg3o2bf9jp_CcY5rv2EPJ_zzD0fJh). Simply put it in the root directory.
-
-6. Start the environment:
+6. In `app.json`, comment out the line that says `"runtimeVersion": "1.0.0"` (if it isn't commented out already).
+7. Start the environment:
 
 ```jsx
 npm start
+
 
 ```
 
@@ -80,12 +82,14 @@ or start directly from expo:
 ```sh
 expo start
 
+
 ```
 
 for yarn users, use the following command:
 
 ```sh
 yarn start
+
 
 ```
 
@@ -107,6 +111,7 @@ const firebaseConfig = {
 	messagingSenderId: '',
 	appId: '',
 };
+
 
 ```
 
@@ -138,6 +143,7 @@ export default () => {
 	);
 };
 
+
 ```
 
 ## Common Bugs & Fixes 🐛
@@ -145,24 +151,23 @@ export default () => {
 While there are many bugs that can arise while setting up the project, here are a few of the most common ones. Note that this list is not comprehensive nor final.
 
 - Mac users: if `npm install` does not work and displays a long series of errors, it is often because of your computer's security permissions. Try `sudo npm install`, which will prompt you for your password. This will run the install as admin, which should work.
-
 - Mac users: if attempting to launch via simulator and you get the error `Error: xcrun exited with non-zero code: 2
-An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=2):
-Unable to boot device because we cannot determine the runtime bundle.
-No such file or directory`, run the following command in Terminal:
+   An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=2):
+   Unable to boot device because we cannot determine the runtime bundle.
+   No such file or directory`, run the following command in Terminal:
 
 ```sh
 open -a simulator 
+
 
 ```
 
 ```ts
   Once the simulator boots up, immediately quit the simulator app. Run `npm start` or `yarn start` again from the project directory, and open 		simulator. It should then be resolved.
 
+
 ```
 
 - If you ever get a "giant red screen of death" (you'll know what it looks like when you see it), try running `expo start -c` or `yarn start -c` to clear the cache. This will often fix the problem.
-
 - If you get an error saying that a certain library is not installed, try running `npm install` or `yarn install` again. If that doesn't work, try deleting the `node_modules` folder and running `npm install` or `yarn install` again.
-
 - ENSURE THAT THE NETWORK USED BY YOUR LAPTOP AND PHONE IS THE EXACT SAME! Otherwise, the app won't load. If this fails, you can also try the tunnel connection using `expo start --tunnel` or `yarn start --tunnel`.
