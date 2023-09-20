@@ -23,14 +23,19 @@
     },
     "android": {
       "package": "com.eat.together",
-      "versionCode": 18,
+      "versionCode": 19,
       "permissions": [
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "runtimeVersion": "1.0.0"
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.eat.together"
+      "bundleIdentifier": "com.eat.together",
+      "buildNumber": "2",
+      "runtimeVersion": {
+        "policy": "sdkVersion"
+      }
     },
     "web": {
       "favicon": "./assets/big_logo.png"
