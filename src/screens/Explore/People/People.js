@@ -16,11 +16,9 @@ import LoadingView from "../../../components/LoadingView";
 import { generateColor, randomize3, getCommonTags } from "../../../methods";
 import { db, auth } from "../../../provider/Firebase";
 import { sortBySimilarInterests } from "../../../methods";
-
+import { tryoutId } from "../../../constants";
 
 export default function ({ navigation }) {
-  const tryoutId = 'knVtYe1mtpaZ9D8XLDrS7FCImtm2'; // ID of test user
-
   // Fetch current user
   const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState({});

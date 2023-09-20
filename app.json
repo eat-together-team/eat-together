@@ -26,15 +26,11 @@
       "versionCode": 18,
       "permissions": [
         "android.permission.RECORD_AUDIO"
-      ],
-      "runtimeVersion": "1.0.0"
+      ]
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.eat.together",
-      "runtimeVersion": {
-        "policy": "sdkVersion"
-      }
+      "bundleIdentifier": "com.eat.together"
     },
     "web": {
       "favicon": "./assets/big_logo.png"
