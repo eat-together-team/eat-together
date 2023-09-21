@@ -84,7 +84,12 @@ export default function ({ navigation }) {
 
         setPeople(users);
         setFilteredPeople(users);
-        setFilteredSearchPeople(users.filter(person => (person.settings.privateAccount == null || !person.settings.privateAccount)));
+        setFilteredSearchPeople(
+          users.filter(
+            (person) =>
+              !person.settings?.privateAccount
+          )
+        );
         setLoading(false);
       });
     }
@@ -147,7 +152,7 @@ export default function ({ navigation }) {
   const onChangeText = (text) => {
     setSearchQuery(text);
     const searchedPeople = search(filteredPeople, text);
-    const newPeople = searchedPeople.filter(person => (person.settings.privateAccount == null || (!person.settings.privateAccount || text === person.username)))
+    const newPeople = searchedPeople.filter(person => (person.settings?.privateAccount == null || text === person.username))
     setFilteredSearchPeople(newPeople);
   };
 
