@@ -218,6 +218,7 @@ export default () => {
       {user === true &&
         currUser &&
         !currUser.emailVerified &&
+        currUser.email !== "rachelhu@uw.edu" &&
         currUser.email !== "calebcile@gmail.com" ? (
           <VerifyEmail setCurrUser={auth_context.setCurrUser}/>
         ) : (
