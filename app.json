@@ -23,7 +23,7 @@
     },
     "android": {
       "package": "com.eat.together",
-      "versionCode": 19,
+      "versionCode": 20,
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ],
@@ -32,7 +32,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "2",
+      "buildNumber": "3",
       "runtimeVersion": {
         "policy": "sdkVersion"
       }
