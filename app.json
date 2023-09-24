@@ -32,7 +32,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "3",
+      "buildNumber": "4",
       "runtimeVersion": {
         "policy": "sdkVersion"
       }
