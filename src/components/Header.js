@@ -1,14 +1,14 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import {View, StyleSheet, TouchableOpacity, Alert} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { auth} from "../provider/Firebase";
 
 import LargeText from "./LargeText";
 import NotifIcon from "./NotifIcon";
+import {tryoutId} from "../constants";
 
 const Header = (props) => {
   const user = auth.currentUser;
-  const tryoutId = 'knVtYe1mtpaZ9D8XLDrS7FCImtm2';
   return (
     <View style={styles.header}>
       <LargeText>{props.name}</LargeText>
@@ -20,8 +20,8 @@ const Header = (props) => {
         </TouchableOpacity>}
         {props.notifs && props.navigation && <TouchableOpacity
           onPress={() => {
-            if (user.uid == tryoutId) {
-              alert('Please log in to use this feature!');
+            if (user.uid === tryoutId) {
+              alert('Please log in to view notifications!');
             } else {
               props.navigation.navigate("Notifications", {
                 fromNav: false
