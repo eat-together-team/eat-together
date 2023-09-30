@@ -17,6 +17,7 @@ import Filter from "../../components/Filter";
 
 import { sortBySimilarInterests, generateColor, isAvailable, randomize3 } from "../../methods";
 import { createNewChat } from "../Chat/Chats";
+import { tryoutId } from "../../constants";
 
 // Stores image in Firebase Storage
 const storeImage = async (uri, event_id) => {
@@ -210,7 +211,12 @@ export default function ({ route, navigation }) {
         const list = [];
         query.forEach((doc) => {
           let data = doc.data();
-          if (data.verified && data.id !== user.uid && !route.params.attendees.includes(data.id) && !currUser.blockedIDs.includes(data.id) && !data.blockedIDs.includes(user.uid) && (!data.settings.privateAccount || currUser.friendIDs.includes(data.id))) { // Only show verified + unblocked + nonprivate users
+          if (data.verified && data.id !== user.uid
+              && data.id !== tryoutId
+              && !route.params.attendees.includes(data.id)
+              && !currUser.blockedIDs.includes(data.id)
+              && !data.blockedIDs.includes(user.uid)
+              && (!data.settings.privateAccount || currUser.friendIDs.includes(data.id))) { // Only show verified + unblocked + nonprivate users
             data.invited = false;
             data.color = generateColor();
             data.selectedTags = randomize3(data.tags);
