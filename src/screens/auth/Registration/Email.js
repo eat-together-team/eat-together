@@ -17,7 +17,7 @@ import KeyboardAvoidingWrapper from "../../../components/KeyboardAvoidingWrapper
 
 const Email = props => {
   const [email, setEmail] = useState(props.email);
-  const [verified, setVerified] = useState(null);
+  const [verified, setVerified] = useState(true);
   const [school, setSchool] = useState(props.school);
   const [schoolSelected, setSchoolSelected] = useState(school ? [school] : []);
 
@@ -25,6 +25,10 @@ const Email = props => {
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     return emailPattern.test(email); 
   }
+  // const checkEmail = email => {
+  //   const isAcademic = email.split("@");
+  //   return isAcademic[isAcademic.length-1] === "uw.edu" || isAcademic[isAcademic.length-1] === "cs.washington.edu";
+  // }
 
   const verifyEmail = () => {
     const isAcademic = email.split("@");
@@ -48,10 +52,12 @@ const Email = props => {
             <MediumText center>School Information</MediumText>
           </View>
 
-          <TextInput placeholder="School email address ..." value={email}
+          <NormalText color="red" style={{ opacity: checkEmail(email) ? 0 : 1 }}>
+            Please enter a valid UW email
+          </NormalText>
+          <TextInput placeholder="UW School email address ..." value={email}
             onChangeText={newEmail => {
               setEmail(newEmail);
-              setVerified(null);
             }} 
             width="100%"
             autoComplete="email" 
@@ -111,17 +117,17 @@ const Email = props => {
             />
           </View>
 
-          <Button disabled={!checkEmail(email) || school === ""} onPress={verifyEmail} marginVertical={15}>Verify</Button>
+          {/* <Button disabled={!checkEmail(email) || school === ""} onPress={verifyEmail} marginVertical={15}>Verify</Button>
             {verified !== null &&
             <NormalText center color={verified ? "#5DB075" : "red"}>
               {verified ? "Is a UW student!" : "Not a UW student"}
-          </NormalText>}
+          </NormalText>} */}
 
           <View style={styles.buttons}>
             <Button onPress={() => props.navigation.goBack()}
               marginHorizontal={10} backgroundColor="white"
               color="#5DB075">Back</Button>
-            <Button disabled={!verified}
+            <Button disabled={!checkEmail(email) || school === ""}
               onPress={() => {
                 props.setEmail(email);
                 props.setSchool(school);
@@ -153,14 +159,14 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "7%",
     marginTop: 10,
-    zIndex: 100
+    zIndex: 10
   },
 
   buttons: {
-    marginTop: 60,
+    marginTop: 150,
     display: "flex",
     flexDirection: "row",
-    justifyContent: "center"
+    justifyContent: "center",
   },
 });
 
