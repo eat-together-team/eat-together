@@ -4,7 +4,7 @@
     "owner": "eat-together-team",
     "slug": "eat-together",
     "description": "Connecting students through shared meals.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "sdkVersion": "47.0.0",
     "orientation": "portrait",
     "icon": "./assets/big_logo.png",
@@ -32,7 +32,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "runtimeVersion": {
         "policy": "sdkVersion"
       }

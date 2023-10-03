@@ -17,26 +17,17 @@ import KeyboardAvoidingWrapper from "../../../components/KeyboardAvoidingWrapper
 
 const Email = props => {
   const [email, setEmail] = useState(props.email);
-  const [verified, setVerified] = useState(true);
   const [school, setSchool] = useState(props.school);
   const [schoolSelected, setSchoolSelected] = useState(school ? [school] : []);
 
   const checkEmail = email => {
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    return emailPattern.test(email); 
+    return emailPattern.test(email) && isAcademicEmail(email);
   }
-  // const checkEmail = email => {
-  //   const isAcademic = email.split("@");
-  //   return isAcademic[isAcademic.length-1] === "uw.edu" || isAcademic[isAcademic.length-1] === "cs.washington.edu";
-  // }
 
-  const verifyEmail = () => {
+  const isAcademicEmail = email => {
     const isAcademic = email.split("@");
-    if (isAcademic[isAcademic.length-1] === "uw.edu" || isAcademic[isAcademic.length-1] === "cs.washington.edu") {
-      setVerified(true);
-    } else {
-      setVerified(false);
-    }
+    return isAcademic[isAcademic.length-1] === "uw.edu" || isAcademic[isAcademic.length-1] === "cs.washington.edu";
   }
 
   useEffect(() => {
@@ -52,10 +43,10 @@ const Email = props => {
             <MediumText center>School Information</MediumText>
           </View>
 
-          <NormalText color="red" style={{ opacity: checkEmail(email) ? 0 : 1 }}>
+          <NormalText center color="red" style={{ opacity: checkEmail(email) ? 0 : 1 }}>
             Please enter a valid UW email
           </NormalText>
-          <TextInput placeholder="UW School email address ..." value={email}
+          <TextInput placeholder="UW email address ..." value={email}
             onChangeText={newEmail => {
               setEmail(newEmail);
             }} 
@@ -117,7 +108,8 @@ const Email = props => {
             />
           </View>
 
-          {/* <Button disabled={!checkEmail(email) || school === ""} onPress={verifyEmail} marginVertical={15}>Verify</Button>
+          {// Note: not working on iOS due to the school dropdown covering it.
+          /* <Button disabled={!checkEmail(email) || school === ""} onPress={verifyEmail} marginVertical={15}>Verify</Button>
             {verified !== null &&
             <NormalText center color={verified ? "#5DB075" : "red"}>
               {verified ? "Is a UW student!" : "Not a UW student"}
