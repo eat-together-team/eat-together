@@ -352,14 +352,14 @@ const FullProfile = ({ blockBack, route, navigation }) => {
                 }}
               >
                 <Ionicons name="time" size={20} color="#4C6FB1" />
-                <NormalText color="#4C6FB1"> Eating Times</NormalText>
+                <NormalText center color="#4C6FB1"> Eating Times</NormalText>
               </TouchableOpacity>
             </View>
           )}
         </View>
 
         <TagsList tags={route.params.person.tags} />
-        <MediumText>{route.params.person.bio}</MediumText>
+        <MediumText center>{route.params.person.bio}</MediumText>
         <View style={styles.cards}>
           {events.map((event) => (
             <EventCard
