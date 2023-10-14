@@ -1,5 +1,3 @@
-// Note: this is a modification of the library https://github.com/zubairpaizer/react-native-searchable-dropdown
-
 import React, { Component } from 'react';
 import {
   FlatList,
@@ -53,7 +51,7 @@ export default class SearchableDropDown extends Component {
       return (
         <FlatList
           { ...flatListProps }
-          style={{ zIndex: 1000 }}
+          style={{ zIndex: 1000, position: 'absolute' }} // also changing the position
         />
       );
     }
@@ -109,9 +107,9 @@ export default class SearchableDropDown extends Component {
               <NormalText>{ item }</NormalText>
             </View>
             <View style={{ flex: 0.1, flexDirection: 'row', alignItems: 'flex-end' }}>
-            <TouchableOpacity onPress={() => setTimeout(() => { this.props.onRemoveItem(item, index) }, 0) } style={styles.close}>
-              <Ionicons name="ios-close" size={15}/>
-            </TouchableOpacity>
+              <TouchableOpacity onPress={() => setTimeout(() => { this.props.onRemoveItem(item, index) }, 0) } style={styles.close}>
+                <Ionicons name="ios-close" size={15}/>
+              </TouchableOpacity>
             </View>
           </TouchableOpacity>
          :
@@ -245,7 +243,7 @@ export default class SearchableDropDown extends Component {
     return (
       <View
         keyboardShouldPersist="always"
-        style={{ ...this.props.containerStyle }}
+        style={{ ...this.props.containerStyle}}
       >
         { this.renderSelectedItems() }
         { this.props.selectedItems.length === 0 && this.renderTextInput() }
@@ -282,7 +280,7 @@ export default class SearchableDropDown extends Component {
          }
          </View>
     }
- }
+  }
 }
 
 const styles = StyleSheet.create({

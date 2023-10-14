@@ -287,7 +287,7 @@ export default function edit({ route, navigation }) {
                                         placeholder: "Pronouns",
                                     }}
                                     containerStyle = {{
-                                        height: 200
+                                        // height: 200 this line is causing the dropdown cover issue, without it the dropdown displays correctly
                                     }}
                                     onSubmitEditing = {(e) => {
                                         if (e.nativeEvent.text.length !== 0) {
@@ -344,7 +344,9 @@ export default function edit({ route, navigation }) {
                                     }}
                                 }
                                 containerStyle = {{
-                                    height: 200,
+                                    // height: 200, this line is causing the dropdown cover issue, without it the dropdown displays correctly
+                                    height: 0, // even if we comment out the line above, the dropdown still covers the input field, so we just set the height to 0
+                                    marginBottom: 300
                                 }}
                                 selectedItemsWidth={"100%"}
                                 items={cloneDeep(schools)}

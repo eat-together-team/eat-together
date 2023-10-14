@@ -308,7 +308,7 @@ export default function ({ navigation }) {
                         />
 
                         <View style={styles.multiple}>
-                            <View style={{...styles.smallInput, zIndex: 10}}>
+                            <View style={{...styles.smallInput}}>
                                 <SuggestSelection
                                     multi={true}
                                     selectedItems={type ? [type] : []}
@@ -348,7 +348,8 @@ export default function ({ navigation }) {
                                         }}
                                     }
                                     containerStyle = {{
-                                        height: 150,
+                                        /* for some reason we can see through start time even when we open the dropdown, so I change the height */
+                                        height: 300,
                                     }}
                                     selectedItemsWidth={"4%"}
                                     items={cloneDeep(types)}
@@ -379,7 +380,7 @@ export default function ({ navigation }) {
                                 setShowStartDate(true);
                                 setMode("time");
                             }} style={styles.smallInput}>
-                                <NormalText center>Start time</NormalText>
+                                <NormalText center styles={{zIndex : 0}}>Start time</NormalText>
                                 <View pointerEvents="none">
                                     <TextInput
                                         value={getTime(startDate)}
@@ -597,7 +598,7 @@ const styles = StyleSheet.create({
         height: "10%",
         marginTop: 10,
         flexDirection: "row",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
     },
 
     smallInput: {
