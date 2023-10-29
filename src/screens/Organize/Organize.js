@@ -278,7 +278,7 @@ export default function ({ navigation }) {
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : ""}
             >
-                <View style={{ flex: 1 }}>
+                <View style={{ ...styles.row, flex: 1, zIndex: 11 }}>
                     <Header name="Organize" navigation={navigation} hasNotif={unread} notifs/>
                     <TouchableOpacity onPress={() => handleChoosePhoto()}>
                         <ImageBackground source={{ uri: photo }} style={styles.image}>
@@ -307,7 +307,7 @@ export default function ({ navigation }) {
                             required
                         />
 
-                        <View style={styles.multiple}>
+                        <View style={{...styles.multiple, zIndex: 1000}}>
                             <View style={{...styles.smallInput}}>
                                 <SuggestSelection
                                     multi={true}
@@ -349,7 +349,8 @@ export default function ({ navigation }) {
                                     }
                                     containerStyle = {{
                                         /* for some reason we can see through start time even when we open the dropdown, so I change the height */
-                                        height: 300,
+                                        height: 200,
+                                        // position: 'absolute', width: '100%'
                                     }}
                                     selectedItemsWidth={"4%"}
                                     items={cloneDeep(types)}
@@ -380,7 +381,7 @@ export default function ({ navigation }) {
                                 setShowStartDate(true);
                                 setMode("time");
                             }} style={styles.smallInput}>
-                                <NormalText center styles={{zIndex : 0}}>Start time</NormalText>
+                                <NormalText center>Start time</NormalText>
                                 <View pointerEvents="none">
                                     <TextInput
                                         value={getTime(startDate)}
@@ -573,6 +574,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         flexGrow: 1
     },
+    row: {
+        width: "100%",
+        height: "10%",
+        marginBottom: 10,
+        // flexDirection: "row",
+        justifyContent: "space-between",
+    },
 
     imageOverlay: {
         position: "absolute",
@@ -597,6 +605,7 @@ const styles = StyleSheet.create({
         wodth: "100%",
         height: "10%",
         marginTop: 10,
+        zIndex: 1,
         flexDirection: "row",
         justifyContent: "space-between",
     },
