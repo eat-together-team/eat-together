@@ -32,10 +32,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "5",
-      "runtimeVersion": {
-        "policy": "sdkVersion"
-      }
+      "buildNumber": "6"
     },
     "web": {
       "favicon": "./assets/big_logo.png"
