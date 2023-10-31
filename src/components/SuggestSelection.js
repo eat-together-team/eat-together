@@ -51,7 +51,7 @@ export default class SearchableDropDown extends Component {
       return (
         <FlatList
           { ...flatListProps }
-          style={{ zIndex: 1000, position: 'absolute' }} // also changing the position
+          style={{ zIndex: 1000, marginTop: '25%', marginLeft: '10%', position: 'absolute'}} // also changing the position
         />
       );
     }
@@ -255,7 +255,7 @@ export default class SearchableDropDown extends Component {
   renderSelectedItems() {
     let items = this.props.selectedItems || [];
     if(items !== undefined && items.length > 0 && this.props.chip && this.props.multi){
-      return  <View style={{flexDirection: 'row',  flexWrap: 'wrap', paddingBottom: 10 }}>
+      return  <View style={{flexDirection: 'row',  flexWrap: 'wrap', paddingBottom: 10}}>
           { items.map((item, index) => {
                      return (
                          <View key={index} style={{
