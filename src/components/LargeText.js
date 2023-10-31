@@ -9,7 +9,7 @@ const LargeText = props => {
         return (
             <Text style={{
                 fontSize: props.size ? props.size : 30,
-                fontFamily: Platform.os === 'ios' ? 'AppleSDGothicNeo-Bold' : 'sans-serif-condensed',
+                fontFamily: Platform.OS === 'ios' ? 'AppleSDGothicNeo-Bold' : 'sans-serif-condensed',
                 color: props.color ? props.color : "black",
                 textAlign: props.center ? "center" : "auto",
                 paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,

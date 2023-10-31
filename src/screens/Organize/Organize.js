@@ -278,7 +278,7 @@ export default function ({ navigation }) {
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : ""}
             >
-                <View style={{ flex: 1 }}>
+                <View style={{ ...styles.row, flex: 1, zIndex: 11 }}>
                     <Header name="Organize" navigation={navigation} hasNotif={unread} notifs/>
                     <TouchableOpacity onPress={() => handleChoosePhoto()}>
                         <ImageBackground source={{ uri: photo }} style={styles.image}>
@@ -307,8 +307,8 @@ export default function ({ navigation }) {
                             required
                         />
 
-                        <View style={styles.multiple}>
-                            <View style={{...styles.smallInput, zIndex: 10}}>
+                        <View style={{...styles.multiple, zIndex: 1000}}>
+                            <View style={{...styles.smallInput}}>
                                 <SuggestSelection
                                     multi={true}
                                     selectedItems={type ? [type] : []}
@@ -348,7 +348,9 @@ export default function ({ navigation }) {
                                         }}
                                     }
                                     containerStyle = {{
-                                        height: 150,
+                                        /* for some reason we can see through start time even when we open the dropdown, so I change the height */
+                                        height: 200,
+                                        // position: 'absolute', width: '100%'
                                     }}
                                     selectedItemsWidth={"4%"}
                                     items={cloneDeep(types)}
@@ -572,6 +574,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         flexGrow: 1
     },
+    row: {
+        width: "100%",
+        height: "10%",
+        marginBottom: 10,
+        // flexDirection: "row",
+        justifyContent: "space-between",
+    },
 
     imageOverlay: {
         position: "absolute",
@@ -596,8 +605,9 @@ const styles = StyleSheet.create({
         wodth: "100%",
         height: "10%",
         marginTop: 10,
+        zIndex: 1,
         flexDirection: "row",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
     },
 
     smallInput: {
