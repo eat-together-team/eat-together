@@ -75,6 +75,10 @@ export default function (props) {
           }
         })
 
+        newReadNotifs.reverse();
+        newUnreadNotifs.reverse();
+        newRecommendations.reverse();
+
         setReadNotifs(newReadNotifs);
         setUnreadNotifs(newUnreadNotifs);
         setRecommendations(newRecommendations);
