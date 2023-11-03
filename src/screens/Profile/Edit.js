@@ -241,7 +241,7 @@ export default function edit({ route, navigation }) {
                             />
                         </View>
 
-                        <View style={{...styles.row, zIndex: 11}}>
+                        <View style={{...styles.row, zIndex: 12}}>
                             <TextInput
                                 keyboardType="numeric"
                                 placeholder="Birth year"
@@ -303,7 +303,7 @@ export default function edit({ route, navigation }) {
                                 />
                             </View>
                         </View>
-                        <View style={styles.school}>
+                        <View style={{...styles.school, zIndex: 11}}>
                             <SuggestSelection
                                 multi={true}
                                 selectedItems={schoolSelected}

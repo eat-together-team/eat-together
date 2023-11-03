@@ -51,7 +51,7 @@ export default class SearchableDropDown extends Component {
       return (
         <FlatList
           { ...flatListProps }
-          style={{ zIndex: 1000, marginTop: '25%', marginLeft: '10%', position: 'absolute'}} // also changing the position
+          style={{ zIndex: 1000, marginTop: 40, marginLeft: '10%', position: 'absolute'}} // also changing the position
         />
       );
     }

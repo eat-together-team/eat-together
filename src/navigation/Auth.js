@@ -173,6 +173,7 @@ const Auth = () => {
         attendingTutorial: true,
         attendingEvent: false,
         completedTutorial: false,
+        getRecommendations: true
       },
       hasNotif: false,
       pushTokens: [],
