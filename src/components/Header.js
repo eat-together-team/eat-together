@@ -16,7 +16,7 @@ const Header = (props) => {
         {props.connections && props.navigation && <TouchableOpacity onPress={() => {
           props.navigation.navigate("Requests");
         }}>
-          <Ionicons name="people-circle-outline" size={40} color="black" style={{ marginRight: 5 }}/>
+          <Ionicons name="people-circle-outline" size={30} color="black" style={{ marginRight: 5 }}/>
         </TouchableOpacity>}
         {props.notifs && props.navigation && <TouchableOpacity
           onPress={() => {

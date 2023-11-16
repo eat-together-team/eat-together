@@ -75,7 +75,7 @@ export default function ({ navigation }) {
                 if (eventsLength === 0) {
                   // Sort events by date
                   newEvents = newEvents.sort((a, b) => {
-                    return compareDates(a, b);
+                    return -compareDates(a, b);
                   });
 
                   setEvents(newEvents);
@@ -86,7 +86,7 @@ export default function ({ navigation }) {
 
                 eventsLength--;
                 newEvents = newEvents.sort((a, b) => {
-                  return compareDates(a, b);
+                  return -compareDates(a, b);
                 });
 
                 setEvents(newEvents);
@@ -228,7 +228,7 @@ export default function ({ navigation }) {
         <TagsList tags={userInfo.tags ? userInfo.tags : []} />
         <MediumText center>{userInfo.bio}</MediumText>
         {events.length > 0 && <View style={styles.eventRecordBackground}>
-          <LargeText color="white">Archives</LargeText>
+          <LargeText>Archives</LargeText>
           <View style={styles.cards}>
             {
               events.map((event) => (
@@ -256,7 +256,6 @@ const styles = StyleSheet.create({
   },
 
   eventRecordBackground: {
-    backgroundColor: "#808080",
     width: Dimensions.get("screen").width,
     alignItems: "center",
     paddingTop: 20,

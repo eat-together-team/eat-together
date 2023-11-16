@@ -219,7 +219,8 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               list.push(doc.data());
             }
           });
-
+          
+          list.reverse();
           setEvents(list);
         });
       });

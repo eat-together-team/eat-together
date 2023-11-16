@@ -14,7 +14,7 @@ const NotifIcon = (props) => {
   return (
     <MaterialCommunityIcons
       name={iconName}
-      size={40}
+      size={30}
       color="black"
       style={{ marginRight: 5 }}
     />
