@@ -111,8 +111,6 @@ export default function ({ navigation }) {
     }));
   };
 
-
-
   // Update user's availabilities after editing
   const updateAvailabilities = newAvailabilities => {
     setUserInfo(prev => ({
