@@ -88,23 +88,23 @@ export default function ({ navigation }) {
         fetchData();
     }, []);
 
-    //  resets icebreakers for each new event
+    // Resets icebreakers for each new event
     useEffect(() => {
-        // picks icebreaker set from set of icebreakers randomly
-            var breakOptions = [];
-            var usedIce = [];
-            db.collection("Icebreakers").doc("icebreakers").get().then(doc => {
-                while(breakOptions.length < 10) {
-                    var num = Math.floor(Math.random()*(doc.data().icebreakers.length-1));
-                    
-                    if(!usedIce.includes(num)) {
-                        breakOptions.push(doc.data().icebreakers[num]);
-                        usedIce.push(num);
-                    }
+        // Picks icebreaker set from set of icebreakers randomly
+        var breakOptions = [];
+        var usedIce = [];
+        db.collection("Icebreakers").doc("icebreakers").get().then(doc => {
+            while (breakOptions.length < 5) {
+                var num = Math.floor(Math.random()*(doc.data().icebreakers.length-1));
+                
+                if(!usedIce.includes(num)) {
+                    breakOptions.push(doc.data().icebreakers[num]);
+                    usedIce.push(num);
                 }
+            }
 
-                setIcebreakers(breakOptions);
-            });
+            setIcebreakers(breakOptions);
+        });
     }, [loading]);
 
     // Checks whether we should disable the Post button or not
