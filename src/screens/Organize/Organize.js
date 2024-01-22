@@ -307,80 +307,15 @@ export default function ({ navigation }) {
                             required
                         />
 
-                        <View style={{...styles.multiple, zIndex: 1000}}>
-                            <View style={{...styles.smallInput}}>
-                                <SuggestSelection
-                                    multi={true}
-                                    selectedItems={type ? [type] : []}
-                                    onItemSelect={(item) => {
-                                        setType(item);
-                                    }}
-                                    onRemoveItem={() => {
-                                        setType(null);
-                                    }}
-                                    itemStyle={{
-                                        padding: 10,
-                                        borderWidth: 2,
-                                        borderColor: '#5DB075',
-                                        borderRadius: 10,
-                                        marginTop: 2,
-                                        width: "100%",
-                                        height: 40,
-                                        backgroundColor: "white"
-                                    }}
-                                    selectedItemsStyle={{
-                                        margin: 0,
-                                        height: 40,
-                                        width: "100%",
-                                        justifyContent: "space-around",
-                                        backgroundColor: "white",
-                                        borderColor: "lightgrey",
-                                        borderWidth: 1,
-                                        borderRadius: 10
-                                    }}
-                                    height={40}
-                                    textInputProps={{
-                                        placeholder: "Meal type"
-                                    }}
-                                    onSubmitEditing = {(e) => {
-                                        if (e.nativeEvent.text.length !== 0) {
-                                            setType(e.nativeEvent.text);
-                                        }}
-                                    }
-                                    containerStyle = {{
-                                        /* for some reason we can see through start time even when we open the dropdown, so I change the height */
-                                        height: 200,
-                                        // position: 'absolute', width: '100%'
-                                    }}
-                                    selectedItemsWidth={"4%"}
-                                    items={cloneDeep(types)}
-                                    chip={true}
-                                    resetValue={false}
-                                    required
-                                />
-                            </View>
-
-                            <TouchableOpacity onPress={() => {
-                                setShowStartDate(true);
-                                setMode("date");
-                            }} style={styles.smallInput}>
-                                <View pointerEvents="none" style={{flex: 1}}>
-                                    <TextInput
-                                        value={getDate(startDate, false)}
-                                        width="100%"
-                                        iconLeft="calendar-outline"
-                                        editable={false}
-                                        required
-                                    />
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
                         <View style={styles.multiple}>
+                            {/* <TouchableOpacity onPress={() => {}} style={styles.smallInput}>
+                            </TouchableOpacity> */}
+
                             <TouchableOpacity onPress={() => {
+                                console.log("reached here");
                                 setShowStartDate(true);
                                 setMode("time");
-                            }} style={styles.smallInput}>
+                            }} style={styles.smallInputStart}>
                                 <NormalText center>Start time</NormalText>
                                 <View pointerEvents="none">
                                     <TextInput
@@ -394,9 +329,10 @@ export default function ({ navigation }) {
                             </TouchableOpacity>
 
                             <TouchableOpacity onPress={() => {
+                                console.log("reached here 2");
                                 setShowEndDate(true);
                                 setMode("time");
-                            }} style={styles.smallInput}>
+                            }} style={styles.smallInputEnd}>
                                 <View pointerEvents="none">
                                     <NormalText center>End time</NormalText>
                                     <TextInput
@@ -408,6 +344,74 @@ export default function ({ navigation }) {
                                     />
                                 </View>
                             </TouchableOpacity>
+                        </View>
+
+                        <View style={{...styles.multiple, zIndex: 1000}}>
+                            <TouchableOpacity onPress={() => {
+                                setShowStartDate(true);
+                                setMode("date");
+                            }} style={styles.smallInputEnd}>
+                                <View pointerEvents="none" style={{flex: 1}}>
+                                    <TextInput
+                                        value={getDate(startDate, false)}
+                                        width="100%"
+                                        iconLeft="calendar-outline"
+                                        editable={false}
+                                        required
+                                    />
+                                </View>
+                            </TouchableOpacity>
+
+                            <SuggestSelection
+                                multi={true}
+                                selectedItems={type ? [type] : []}
+                                onItemSelect={(item) => {
+                                    setType(item);
+                                }}
+                                onRemoveItem={() => {
+                                    setType(null);
+                                }}
+                                itemStyle={{
+                                    padding: 10,
+                                    borderWidth: 2,
+                                    borderColor: '#5DB075',
+                                    borderRadius: 10,
+                                    marginTop: 2,
+                                    width: "100%",
+                                    height: 40,
+                                    backgroundColor: "white"
+                                }}
+                                selectedItemsStyle={{
+                                    margin: 0,
+                                    height: 40,
+                                    width: "100%",
+                                    justifyContent: "space-around",
+                                    backgroundColor: "white",
+                                    borderColor: "lightgrey",
+                                    borderWidth: 1,
+                                    borderRadius: 10
+                                }}
+                                height={40}
+                                width={80}
+                                textInputProps={{
+                                    placeholder: "Meal type"
+                                }}
+                                onSubmitEditing = {(e) => {
+                                    if (e.nativeEvent.text.length !== 0) {
+                                        setType(e.nativeEvent.text);
+                                    }}
+                                }
+                                containerStyle = {{
+                                    /* for some reason we can see through start time even when we open the dropdown, so I change the height */
+                                    height: 200,
+                                    // position: 'absolute', width: '100%'
+                                }}
+                                selectedItemsWidth={"4%"}
+                                items={cloneDeep(types)}
+                                chip={true}
+                                resetValue={false}
+                                required
+                            />
                         </View>
 
                         <TextInput
@@ -611,7 +615,19 @@ const styles = StyleSheet.create({
     },
 
     smallInput: {
-        width: "48%"
+        width: "2%"
+    },
+
+    smallInputStart: {
+        width: "50%"
+    },
+
+    smallInputEnd: {
+        width: "50%"
+    },
+
+    testInput: {
+        width: "1%"
     },
 
     center: {

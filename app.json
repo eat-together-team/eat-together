@@ -37,7 +37,6 @@
     "web": {
       "favicon": "./assets/big_logo.png"
     },
-    "runtimeVersion": "1.0.0",
     "userInterfaceStyle": "automatic",
     "plugins": [
       [
