@@ -10,7 +10,7 @@ import {
     Dimensions,
     Alert
 } from "react-native";
-import { Layout, Picker } from "react-native-rapi-ui";
+import { Layout, Picker, Text, Section, SectionContent } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import eventTags from "../../eventTags";
 
@@ -60,6 +60,8 @@ export default function ({ navigation }) {
     const [tagsValue, setTagsValue] = useState("");
     const [icebreakers, setIcebreakers] = useState([]);
 
+    const [pickerValue, setPickerValue] = useState(null);
+
     // Other variables
     const [showStartDate, setShowStartDate] = useState(false);
     const [showEndDate, setShowEndDate] = useState(false);
@@ -71,6 +73,11 @@ export default function ({ navigation }) {
     const [semiPrivate, setSemiPrivate] = useState(false); //Checkbox state to see if public event should be semiprivate
 
     const refRBSheet = useRef(); // To toggle the bottom drawer on/off
+
+    const items = [
+        { label: 'Public', value: 'pub' },
+        { label: 'Private', value: 'pri' },
+    ];
 
 
     // Loading notifications
@@ -279,20 +286,20 @@ export default function ({ navigation }) {
                 behavior={Platform.OS === "ios" ? "padding" : ""}
             >
                 <View style={{ ...styles.row, flex: 1, zIndex: 11 }}>
-                    <Header name="Organize" navigation={navigation} hasNotif={unread} notifs/>
-                    <TouchableOpacity onPress={() => handleChoosePhoto()}>
-                        <ImageBackground source={{ uri: photo }} style={styles.image}>
-                            <View style={styles.imageOverlay}>
-                                <Ionicons name="md-image-outline" color="white" size={30}></Ionicons>
-                            </View>
-                        </ImageBackground>
-                    </TouchableOpacity>
-                    <ScrollView
-                        scrollEnabled={true}
-                        keyboardShouldPersistTaps="always"
-                        nestedScrollEnabled={true}
-                        style={styles.content}    
-                    >
+                        <Header name="Organize" navigation={navigation} hasNotif={unread} notifs/>
+                        <TouchableOpacity onPress={() => handleChoosePhoto()}>
+                            <ImageBackground source={{ uri: photo }} style={styles.image}>
+                                <View style={styles.imageOverlay}>
+                                    <Ionicons name="md-image-outline" color="white" size={30}></Ionicons>
+                                </View>
+                            </ImageBackground>
+                        </TouchableOpacity>
+                        <ScrollView
+                            scrollEnabled={true}
+                            keyboardShouldPersistTaps="always"
+                            nestedScrollEnabled={true}
+                            style={styles.content}    
+                        >
                         <NormalText center color="red" marginTop={5}>* = required</NormalText>
 
                         <TextInput
@@ -307,10 +314,38 @@ export default function ({ navigation }) {
                             required
                         />
 
-                        <View style={styles.multiple}>
-                            {/* <TouchableOpacity onPress={() => {}} style={styles.smallInput}>
-                            </TouchableOpacity> */}
+                        <View style={{...styles.multiple, zIndex: 1000}}>
+                            <Section style={{ marginHorizontal: 20, marginTop: 20 }}>
+                                <SectionContent>
+                                    <View>
+                                        <Text style={{ marginBottom: 10 }}>Picker</Text>
+                                        <Picker
+                                            items={items}
+                                            value={pickerValue}
+                                            placeholder="Choose your Meal type"
+                                            onValueChange={(val) => setPickerValue(val)}
+                                        />
+                                    </View>
+                                </SectionContent>
+                            </Section>
 
+                            <TouchableOpacity onPress={() => {
+                                setShowStartDate(true);
+                                setMode("date");
+                            }} style={styles.smallInputEnd}>
+                                <View pointerEvents="none" style={{flex: 1}}>
+                                    <TextInput
+                                        value={getDate(startDate, false)}
+                                        width="100%"
+                                        iconLeft="calendar-outline"
+                                        editable={false}
+                                        required
+                                    />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.multiple}>
                             <TouchableOpacity onPress={() => {
                                 console.log("reached here");
                                 setShowStartDate(true);
@@ -346,73 +381,6 @@ export default function ({ navigation }) {
                             </TouchableOpacity>
                         </View>
 
-                        <View style={{...styles.multiple, zIndex: 1000}}>
-                            <TouchableOpacity onPress={() => {
-                                setShowStartDate(true);
-                                setMode("date");
-                            }} style={styles.smallInputEnd}>
-                                <View pointerEvents="none" style={{flex: 1}}>
-                                    <TextInput
-                                        value={getDate(startDate, false)}
-                                        width="100%"
-                                        iconLeft="calendar-outline"
-                                        editable={false}
-                                        required
-                                    />
-                                </View>
-                            </TouchableOpacity>
-
-                            <SuggestSelection
-                                multi={true}
-                                selectedItems={type ? [type] : []}
-                                onItemSelect={(item) => {
-                                    setType(item);
-                                }}
-                                onRemoveItem={() => {
-                                    setType(null);
-                                }}
-                                itemStyle={{
-                                    padding: 10,
-                                    borderWidth: 2,
-                                    borderColor: '#5DB075',
-                                    borderRadius: 10,
-                                    marginTop: 2,
-                                    width: "100%",
-                                    height: 40,
-                                    backgroundColor: "white"
-                                }}
-                                selectedItemsStyle={{
-                                    margin: 0,
-                                    height: 40,
-                                    width: "100%",
-                                    justifyContent: "space-around",
-                                    backgroundColor: "white",
-                                    borderColor: "lightgrey",
-                                    borderWidth: 1,
-                                    borderRadius: 10
-                                }}
-                                height={40}
-                                width={80}
-                                textInputProps={{
-                                    placeholder: "Meal type"
-                                }}
-                                onSubmitEditing = {(e) => {
-                                    if (e.nativeEvent.text.length !== 0) {
-                                        setType(e.nativeEvent.text);
-                                    }}
-                                }
-                                containerStyle = {{
-                                    /* for some reason we can see through start time even when we open the dropdown, so I change the height */
-                                    height: 200,
-                                    // position: 'absolute', width: '100%'
-                                }}
-                                selectedItemsWidth={"4%"}
-                                items={cloneDeep(types)}
-                                chip={true}
-                                resetValue={false}
-                                required
-                            />
-                        </View>
 
                         <TextInput
                             placeholder="Location (e.g. 'Cafe on the Ave')"
@@ -637,3 +605,48 @@ const styles = StyleSheet.create({
         marginVertical: 10
     }
 });
+
+{/* <SuggestSelection
+    multi={true}
+    selectedItems={type ? [type] : []}
+    onItemSelect={(item) => {
+        setType(item);
+    }}
+    onRemoveItem={() => {
+        setType(null);
+    }}
+    itemStyle={{
+        padding: 10,
+        borderWidth: 2,
+        borderColor: '#5DB075',
+        borderRadius: 10,
+        marginTop: 2,
+        width: "100%",
+        height: 40,
+        backgroundColor: "white"
+    }}
+    selectedItemsStyle={{
+        margin: 0,
+        height: 40,
+        width: "100%",
+        justifyContent: "space-around",
+        backgroundColor: "white",
+        borderColor: "lightgrey",
+        borderWidth: 1,
+        borderRadius: 10
+    }}
+    height={40}
+    
+    textInputProps={{
+        placeholder: "Meal type"
+    }}
+    onSubmitEditing = {(e) => {
+        if (e.nativeEvent.text.length !== 0) {
+            setType(e.nativeEvent.text);
+        }}
+    } selectedItemsWidth={"8%"}
+    items={cloneDeep(types)}
+    chip={true}
+    resetValue={false}
+    required
+/> */}
