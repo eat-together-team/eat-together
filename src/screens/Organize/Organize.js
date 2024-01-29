@@ -314,10 +314,13 @@ export default function ({ navigation }) {
                             required
                         />
 
+                        {/* style={{ marginHorizontal: 20, marginTop: 5 }} */}
+                        {/* style={{ marginBottom: 10 }} */}
+
                         <View style={{...styles.multiple, zIndex: 1000}}>
-                            <Section style={{ marginHorizontal: 20, marginTop: 20 }}>
+                            <Section >
                                 <SectionContent>
-                                    <View>
+                                    <View style={{...styles.multiplePick, zIndex: 1000}}>
                                         <Text style={{ marginBottom: 10 }}>Picker</Text>
                                         <Picker
                                             items={items}
@@ -574,9 +577,19 @@ const styles = StyleSheet.create({
     },
 
     multiple: {
-        wodth: "100%",
+        width: "75%",
         height: "10%",
         marginTop: 10,
+        zIndex: 1,
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+
+    multiplePick: {
+        width: "75%",
+        height: "10%",
+        marginTop: 2,
+        marginBottom: 16,
         zIndex: 1,
         flexDirection: "row",
         justifyContent: "space-between",
