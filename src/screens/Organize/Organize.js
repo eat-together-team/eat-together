@@ -314,14 +314,11 @@ export default function ({ navigation }) {
                             required
                         />
 
-                        {/* style={{ marginHorizontal: 20, marginTop: 5 }} */}
-                        {/* style={{ marginBottom: 10 }} */}
-
                         <View style={{...styles.multiple, zIndex: 1000}}>
-                            <Section >
+                            {/* <Section >
                                 <SectionContent>
                                     <View style={{...styles.multiplePick, zIndex: 1000}}>
-                                        <Text style={{ marginBottom: 10 }}>Picker</Text>
+                                        <Text style={{ marginBottom: 30 }}>Picker</Text>
                                         <Picker
                                             items={items}
                                             value={pickerValue}
@@ -330,7 +327,20 @@ export default function ({ navigation }) {
                                         />
                                     </View>
                                 </SectionContent>
-                            </Section>
+                            </Section>  */}
+
+                            <Picker
+                                items={items}
+                                value={pickerValue}
+                                placeholder="Choose Meal Type"
+                                onValueChange={(val) => setPickerValue(val)}
+                                // marginVertical=True
+                                // width="100%"
+                                // required
+                                // iconRight="chatbubble-outline"
+                            />
+                            {/* <TextInput width="3%" required/> */}
+                            {/* <NormalText center color="red" marginTop={5} size="30px">*</NormalText> */}
 
                             <TouchableOpacity onPress={() => {
                                 setShowStartDate(true);
@@ -577,19 +587,10 @@ const styles = StyleSheet.create({
     },
 
     multiple: {
-        width: "75%",
+        width: "100%",
         height: "10%",
         marginTop: 10,
-        zIndex: 1,
-        flexDirection: "row",
-        justifyContent: "space-between",
-    },
-
-    multiplePick: {
-        width: "75%",
-        height: "10%",
-        marginTop: 2,
-        marginBottom: 16,
+        marginBottom: 10,
         zIndex: 1,
         flexDirection: "row",
         justifyContent: "space-between",
@@ -600,11 +601,11 @@ const styles = StyleSheet.create({
     },
 
     smallInputStart: {
-        width: "50%"
+        width: "48%"
     },
 
     smallInputEnd: {
-        width: "50%"
+        width: "48%"
     },
 
     testInput: {
