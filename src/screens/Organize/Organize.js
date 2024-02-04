@@ -88,23 +88,23 @@ export default function ({ navigation }) {
         fetchData();
     }, []);
 
-    //  resets icebreakers for each new event
+    // Resets icebreakers for each new event
     useEffect(() => {
-        // picks icebreaker set from set of icebreakers randomly
-            var breakOptions = [];
-            var usedIce = [];
-            db.collection("Icebreakers").doc("icebreakers").get().then(doc => {
-                while(breakOptions.length < 10) {
-                    var num = Math.floor(Math.random()*(doc.data().icebreakers.length-1));
-                    
-                    if(!usedIce.includes(num)) {
-                        breakOptions.push(doc.data().icebreakers[num]);
-                        usedIce.push(num);
-                    }
+        // Picks icebreaker set from set of icebreakers randomly
+        var breakOptions = [];
+        var usedIce = [];
+        db.collection("Icebreakers").doc("icebreakers").get().then(doc => {
+            while (breakOptions.length < 5) {
+                var num = Math.floor(Math.random()*(doc.data().icebreakers.length-1));
+                
+                if(!usedIce.includes(num)) {
+                    breakOptions.push(doc.data().icebreakers[num]);
+                    usedIce.push(num);
                 }
+            }
 
-                setIcebreakers(breakOptions);
-            });
+            setIcebreakers(breakOptions);
+        });
     }, [loading]);
 
     // Checks whether we should disable the Post button or not
@@ -278,7 +278,7 @@ export default function ({ navigation }) {
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : ""}
             >
-                <View style={{ flex: 1 }}>
+                <View style={{ ...styles.row, flex: 1, zIndex: 11 }}>
                     <Header name="Organize" navigation={navigation} hasNotif={unread} notifs/>
                     <TouchableOpacity onPress={() => handleChoosePhoto()}>
                         <ImageBackground source={{ uri: photo }} style={styles.image}>
@@ -307,8 +307,8 @@ export default function ({ navigation }) {
                             required
                         />
 
-                        <View style={styles.multiple}>
-                            <View style={styles.smallInput}>
+                        <View style={{...styles.multiple, zIndex: 1000}}>
+                            <View style={{...styles.smallInput}}>
                                 <SuggestSelection
                                     multi={true}
                                     selectedItems={type ? [type] : []}
@@ -348,7 +348,9 @@ export default function ({ navigation }) {
                                         }}
                                     }
                                     containerStyle = {{
-                                        height: 150,
+                                        /* for some reason we can see through start time even when we open the dropdown, so I change the height */
+                                        height: 200,
+                                        // position: 'absolute', width: '100%'
                                     }}
                                     selectedItemsWidth={"4%"}
                                     items={cloneDeep(types)}
@@ -572,6 +574,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         flexGrow: 1
     },
+    row: {
+        width: "100%",
+        height: "10%",
+        marginBottom: 10,
+        // flexDirection: "row",
+        justifyContent: "space-between",
+    },
 
     imageOverlay: {
         position: "absolute",
@@ -596,8 +605,9 @@ const styles = StyleSheet.create({
         wodth: "100%",
         height: "10%",
         marginTop: 10,
+        zIndex: 1,
         flexDirection: "row",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
     },
 
     smallInput: {

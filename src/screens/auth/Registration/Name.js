@@ -132,7 +132,7 @@ const Name = props => {
                 />
               </View>
 
-              <View style={styles.row}>
+              <View style={{...styles.row, zIndex: 1}}>
                 <TextInput
                   placeholder="Birth year"
                   value={age}
@@ -235,6 +235,7 @@ const Name = props => {
                   marginHorizontal={10}
                   backgroundColor="white"
                   color="#5DB075"
+                  zIndex={-1}
                 >
                   Exit
                 </Button>
@@ -248,6 +249,7 @@ const Name = props => {
                   }
                   onPress={goNext}
                   marginHorizontal={10}
+                  zIndex={-1}
                 >
                   Next
                 </Button>

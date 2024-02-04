@@ -6,11 +6,17 @@ import MediumText from './MediumText';
 const Tag = props => {
     return (
         <View style={props.type ? [styles.tag, {
-            backgroundColor: props.type === "school" ? "#856B2A"
-                : props.type === "hobby" ? "#4C6FB1"
-                : "#6C2087"
+            backgroundColor: props.type === "school" ? "#FFFCE5"
+                : props.type === "hobby" ? "#E5F7FF"
+                : props.type === "food" ? "#FDE5FF"
+                : "#E5FFF2"
         }] : styles.tag}>
-            <MediumText size={12} color="white">{props.text}</MediumText>
+            <MediumText size={12} color={
+                props.type === "school" ? "#CC9300"
+                : props.type === "hobby" ? "#05097A"
+                : props.type === "food" ? "#460072"
+                : "white"
+            }>{props.text}</MediumText>
             {props.remove && 
                 <TouchableOpacity onPress={props.remove} style={styles.close}>
                     <Ionicons name="close" size={16} color="white" />
@@ -31,6 +37,12 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         paddingVertical: 5,
         paddingHorizontal: 15,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        elevation: 2
     },
 
     close: {

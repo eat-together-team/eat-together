@@ -22,13 +22,14 @@ WebBrowser.maybeCompleteAuthSession();
 
 const AvailabilitiesHome = props => {
   const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: GOOGLE_AUTH_CLIENT_ID,
-    iosClientId: GOOGLE_AUTH_CLIENT_ID_IOS,
-    androidClientId: GOOGLE_AUTH_CLIENT_ID_ANDROID,
+    expoClientId: process.env.GOOGLE_AUTH_CLIENT_ID ?
+      process.env.GOOGLE_AUTH_CLIENT_ID : GOOGLE_AUTH_CLIENT_ID,
+    iosClientId: process.env.GOOGLE_AUTH_CLIENT_ID_IOS ?
+      process.env.GOOGLE_AUTH_CLIENT_ID_IOS : "1004653565107-oocja2deroml771ite7grg9gkb31g0ck.apps.googleusercontent.com",
+    androidClientId: process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID ?
+      process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID : "1004653565107-8iqi20bv02s4jmc0a1hmbjhqlta302rq.apps.googleusercontent.com",
     scopes: ["https://www.googleapis.com/auth/calendar.events.readonly"],
     redirectUri: "https://auth.expo.io/@eat-together-team/eat-together"
-  }, {
-    projectNameForProxy: "@eat-together-team/eat-together",
   }); // For Google Calendar API
 
   const [freeTimes, setFreeTimes] = useState([]); // List of user's available times

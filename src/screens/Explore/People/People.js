@@ -16,11 +16,9 @@ import LoadingView from "../../../components/LoadingView";
 import { generateColor, randomize3, getCommonTags } from "../../../methods";
 import { db, auth } from "../../../provider/Firebase";
 import { sortBySimilarInterests } from "../../../methods";
-
+import { tryoutId } from "../../../constants";
 
 export default function ({ navigation }) {
-  const tryoutId = 'knVtYe1mtpaZ9D8XLDrS7FCImtm2'; // ID of test user
-
   // Fetch current user
   const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState({});
@@ -86,7 +84,12 @@ export default function ({ navigation }) {
 
         setPeople(users);
         setFilteredPeople(users);
-        setFilteredSearchPeople(users.filter(person => (person.settings.privateAccount == null || !person.settings.privateAccount)));
+        setFilteredSearchPeople(
+          users.filter(
+            (person) =>
+              !person.settings?.privateAccount
+          )
+        );
         setLoading(false);
       });
     }
@@ -149,7 +152,7 @@ export default function ({ navigation }) {
   const onChangeText = (text) => {
     setSearchQuery(text);
     const searchedPeople = search(filteredPeople, text);
-    const newPeople = searchedPeople.filter(person => (person.settings.privateAccount == null || (!person.settings.privateAccount || text === person.username)))
+    const newPeople = searchedPeople.filter(person => (person.settings?.privateAccount == null || text === person.username))
     setFilteredSearchPeople(newPeople);
   };
 

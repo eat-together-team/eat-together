@@ -27,6 +27,7 @@ import { AuthContext } from "../provider/AuthProvider";
 import VerifyEmail from "../screens/VerifyEmail";
 import firebase from "firebase/compat";
 import { db, auth } from "../provider/Firebase";
+import { tryoutId } from "../constants";
 
 //Push notifications functions and imports
 import * as NotificationFunctions from "expo-notifications";
@@ -94,7 +95,6 @@ const MainTabs = () => {
   const profileImageUri = useContext(AuthContext).profileImageUri;
   const hasNotif = useContext(AuthContext).hasNotif;
   const user = auth.currentUser;
-  const tryoutId = 'knVtYe1mtpaZ9D8XLDrS7FCImtm2';
 
   return (
     <Tabs.Navigator
@@ -219,7 +219,7 @@ export default () => {
         currUser &&
         !currUser.emailVerified &&
         currUser.email !== "rachelhu@uw.edu" &&
-        currUser.email !== "argharib@uw.edu" ? (
+        currUser.email !== "calebcile@gmail.com" ? (
           <VerifyEmail setCurrUser={auth_context.setCurrUser}/>
         ) : (
           user === true && <Main />

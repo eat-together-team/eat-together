@@ -31,6 +31,7 @@ const Auth = () => {
   const [pronouns, setPronouns] = useState("");
   const [bio, setBio] = useState("");
   const [image, setImage] = useState("");
+  const [school, setSchool] = useState("");
 
   // Tags.js
   const [schoolTags, setSchoolTags] = useState([]);
@@ -146,6 +147,7 @@ const Auth = () => {
       tags,
       pronouns,
       bio,
+      school,
       hostedEventIDs: [],
       attendingEventIDs: [],
       attendedEventIDs: [],
@@ -167,10 +169,16 @@ const Auth = () => {
       metAt: [],
       settings: {
         notifications: true,
+        tabsTutorial: true,
+        attendingTutorial: true,
+        attendingEvent: false,
+        completedTutorial: false,
+        getRecommendations: true
       },
       hasNotif: false,
       pushTokens: [],
       verified: false,
+      tutorial: true,
     };
 
     await db.collection("Users").doc(`${uid}`).set(userData);
@@ -256,7 +264,13 @@ const Auth = () => {
         )}
       </Stack.Screen>
       <Stack.Screen name="Email" options={{ headerShown: false }}>
-        {(props) => <Email {...props} email={email} setEmail={setEmail} />}
+        {(props) => 
+          <Email {...props}
+            email={email}
+            setEmail={setEmail} 
+            school={school}
+            setSchool={setSchool}
+          />}
       </Stack.Screen>
 
       <Stack.Screen

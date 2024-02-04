@@ -1,0 +1,1 @@
+export const tryoutId = "XpTRhH6hswVzNJA5zmWgDGCfyQo1"; // ID of the user for "guest" mode

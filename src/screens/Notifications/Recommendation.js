@@ -15,6 +15,7 @@ import BorderedButton from "../../components/BorderedButton";
 import TagsList from "../../components/TagsList";
 import Link from "../../components/Link";
 import Toggle from "../../components/Toggle";
+import RecTutorialMessage from "../../components/RecTutorialMessage";  // Tutorial message for recommendations
 
 import getDate from "../../getDate";
 import getTime from "../../getTime";
@@ -33,6 +34,11 @@ const Recommendation = ({ route, navigation }) => {
 
   const [openMenu, setOpenMenu] = useState(false);
   const [loading, setLoading] = useState(true); // Loading state for the button
+
+  const [recSteps, setRecSteps] =  useState(0); // Tutorial steps for recommendations
+
+  const [attendingTutorial, setAttendingTutorial] = useState(true);  // State to see if we should show the attending an event tutorial
+  const [isDataFetched, setIsDataFetched] = useState(false);  // State to track whether data has been fetched
 
   useEffect(() => {
     let existingTags = {}; // To avoid duplicates
@@ -78,7 +84,8 @@ const Recommendation = ({ route, navigation }) => {
     }).then(() => {
       db.collection("Users").doc(user.uid).update({
         attendingEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
-        attendedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID)
+        attendedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
+        "settings.attendingEvent": true
       }).then(() => {
         navigation.goBack();
         alert("You are signed up :)");
@@ -96,6 +103,7 @@ const Recommendation = ({ route, navigation }) => {
     db.collection("Users").doc(user.uid).update({
       attendingEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
       attendedEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
+      "settings.attendingEvent": false
     }).then(() => {
       db.collection("Private Events").doc(route.params.event.id).update({
         attendees: firebase.firestore.FieldValue.arrayRemove(user.uid)
@@ -106,8 +114,73 @@ const Recommendation = ({ route, navigation }) => {
     });
   }
 
+  // Fetch data from Firestore to see if the user has seen the tutorial before or not
+  useEffect(() => {
+    const fetchData = async () => {
+      const docRef = db.collection('Users').doc(user.uid);
+      const doc = await docRef.get();
+
+      if (doc.exists) {
+        const data = doc.data();
+
+        if (data.settings?.attendingTutorial !== undefined) {
+          setAttendingTutorial(data.settings.attendingTutorial);
+        }
+        
+      } else {
+        console.log('No such document!');
+      }
+      setIsDataFetched(true); // Set the fetched state to true after fetching is complete
+    };
+
+    fetchData();
+  }, []);
+
+
+  const incrementStep = () => {
+    setRecSteps((prevStep) => prevStep + 1);
+  }
+
+  const decrementStep = () => {
+    setRecSteps((prevStep) => prevStep - 1);
+  }
+
+
+  // Tutorial message for recommendations
+  const recTutSteps = [
+    {
+      title: 'Recommendation',
+      content: 'You can see the details of the location, date, time, and people you\'re meeting with.',
+      enableNext: true,
+      bottom: "8%",
+    },
+    {
+      title: 'Recommendation',
+      content: 'Click the \"Attend!\" button if you\'re interested in the event. You can always withdraw later if you change your mind.',
+      enableBack: true,
+      bottom: "63%",
+    }
+  ];
+
+
   return (
     <Layout>
+      {attendingTutorial && 
+        <>
+          <RecTutorialMessage
+            userId={user.uid}
+            title={recTutSteps[recSteps].title}
+            content={recTutSteps[recSteps].content}
+            nextText={recTutSteps[recSteps].nextText}
+            enableNext={recTutSteps[recSteps].enableNext}
+            enableBack={recTutSteps[recSteps].enableBack}
+            onNext={incrementStep}
+            onBack={decrementStep}
+            bottom={recTutSteps[recSteps].bottom}
+          />
+        </>
+      }
+
       <TopNav
         middleContent={
           <MediumText center>Recommendation</MediumText>
@@ -122,6 +195,8 @@ const Recommendation = ({ route, navigation }) => {
       />
       <ScrollView>
         <View style={styles.infoContainer}>
+          
+
           <Container>
             <Image
               style={styles.image}
@@ -146,6 +221,10 @@ const Recommendation = ({ route, navigation }) => {
                   <Image source={attendee.hasImage ? { uri: attendee.image }
                     : require("../../../assets/logo.png")} style={styles.profileImg}/>
                   <NormalText size={16}>{attendee.firstName + " " + attendee.lastName.substring(0, 1) + "."}</NormalText>
+                  {route.params.event.attendees.includes(attendee.id) && 
+                    <Ionicons name="checkmark-circle" size={20} color="#5DB075" />}
+                  {!route.params.event.attendees.includes(attendee.id) && 
+                    <Ionicons name="help-circle" size={20} color="grey" />}
                 </TouchableOpacity>
               )}
             </View>

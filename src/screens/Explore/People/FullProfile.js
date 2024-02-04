@@ -30,6 +30,7 @@ import {
 
 import { db, auth } from "../../../provider/Firebase";
 import firebase from "firebase/compat";
+import { tryoutId } from "../../../constants";
 
 const blockPerson = (uid, navigation, back) => {
   Alert.alert("Block", "Are you sure you want to block this user? This can't be undone.", [
@@ -134,7 +135,6 @@ function databaseRemoveFriend(uid, navigation) {
 
 const FullProfile = ({ blockBack, route, navigation }) => {
   const user = auth.currentUser; // Current user
-  const tryoutId = 'knVtYe1mtpaZ9D8XLDrS7FCImtm2'; // ID of the test user
 
   const [status, setStatus] = useState("Loading"); // Status of connection
   const [disabled, setDisabled] = useState(true); // Disable button if already connected
@@ -219,7 +219,8 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               list.push(doc.data());
             }
           });
-
+          
+          list.reverse();
           setEvents(list);
         });
       });
@@ -317,49 +318,49 @@ const FullProfile = ({ blockBack, route, navigation }) => {
         />
 
         <View style={styles.name}>
-          <LargeText>
-            {route.params.person.firstName + " " + route.params.person.lastName}
+          <LargeText size={24}>
+            {route.params.person.firstName + " " + route.params.person.lastName + " (" + route.params.person.pronouns + ")"}
           </LargeText>
-          <NormalText marginBottom={5}>({route.params.person.pronouns})</NormalText>
-          <MediumText size={16}>@{route.params.person.username}</MediumText>
-          {tryoutId != user.uid && (
-            <View style={{ flexDirection: "row", marginVertical: 10 }}>
-            <Button
-              disabled={disabled}
-              onPress={connect}
-              backgroundColor={color}
-              paddingVertical={5}
-              paddingHorizontal={15}
-              fontSize={14}
-            >
-              {status}
-            </Button>
-          </View>
-          )}
-
+          <NormalText marginBottom={5}>🏫 {route.params.person.school ? route.params.person.school : "UW-Seattle"}</NormalText>
           <NormalText>
-            {route.params.person.attendedEventIDs.length +
+            🍽️ {route.params.person.attendedEventIDs.length +
               "/" +
               (route.params.person.archivedEventIDs.length +
                 route.params.person.attendingEventIDs.length) +
               " meals attended"}
           </NormalText>
+          <MediumText>@{route.params.person.username}</MediumText>
+          
+          {tryoutId != user.uid && (
+            <View style={{  marginVertical: 10 }}>
+              <Button
+                disabled={disabled}
+                onPress={connect}
+                backgroundColor={color}
+                paddingVertical={5}
+                paddingHorizontal={15}
+                fontSize={14}
+              >
+                {status}
+              </Button>
 
-          <TouchableOpacity
-            style={styles.link}
-            onPress={() => {
-              navigation.navigate("AvailabilitiesStatic", {
-                user: route.params.person
-              });
-            }}
-          >
-            <Ionicons name="time" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Eating Times</NormalText>
-          </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.link}
+                onPress={() => {
+                  navigation.navigate("AvailabilitiesStatic", {
+                    user: route.params.person
+                  });
+                }}
+              >
+                <Ionicons name="time" size={20} color="#4C6FB1" />
+                <NormalText color="#4C6FB1"> Eating Times</NormalText>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         <TagsList tags={route.params.person.tags} />
-        <MediumText>{route.params.person.bio}</MediumText>
+        <MediumText center>{route.params.person.bio}</MediumText>
         <View style={styles.cards}>
           {events.map((event) => (
             <EventCard
@@ -421,7 +422,9 @@ const styles = StyleSheet.create({
   link: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 5
+    marginTop: 5,
+    alignItems: "center",
+    justifyContent: "center"
   }
 });
 

@@ -21,7 +21,7 @@ const Button = props => {
             },
             shadowOpacity: 0.27,
             shadowRadius: 4.65,
-            zIndex: 10,
+            zIndex: props.zIndex ? props.zIndex : 10,
         }} onPress={props.onPress} disabled={props.disabled}>
             <MediumText color={props.color ? props.color : "white"} center
                 size={props.fontSize ? props.fontSize : 20}>

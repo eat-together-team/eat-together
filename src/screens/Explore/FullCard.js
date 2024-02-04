@@ -27,14 +27,14 @@ import PeopleList from "../../components/PeopleList";
 import getDate from "../../getDate";
 import getTime from "../../getTime";
 
-import {db, auth} from "../../provider/Firebase";
+import { db, auth } from "../../provider/Firebase";
 import * as firebase from "firebase/compat";
 import openMap from "react-native-open-maps";
-import {Menu, MenuOption, MenuOptions, MenuTrigger} from "react-native-popup-menu";
+import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu";
+import { tryoutId } from "../../constants";
 
 const FullCard = ({ route, navigation }) => {
   const user = auth.currentUser;
-  const tryoutId = 'knVtYe1mtpaZ9D8XLDrS7FCImtm2'; // ID of test user
 
   const [friend, setFriend] = useState(null); // Display a friend who is also attending the event
   const [attending, setAttending] = useState(false);
