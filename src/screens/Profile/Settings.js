@@ -22,6 +22,7 @@ export default function ({ navigation }) {
     const [userInfo, setUserInfo] = useState({});
     let [notifs, setNotifs] = useState(false);
     let [privAcct, setPrivAcct] = useState(false);
+    let [getRecommendations, setGetRecommendations] = useState(false);
     let [logoutDisabled, setLogoutDisabled] = useState(false); // Prevent the user from logging out "more than once"
 
     // Fetch current user info
@@ -31,12 +32,14 @@ export default function ({ navigation }) {
                 if (doc.exists) {
                     setUserInfo(doc.data());
                     setNotifs(doc.data().settings.notifications);
+                    setGetRecommendations(doc.data().settings.getRecommendations);
                     setPrivAcct(doc.data().settings.privateAccount ? doc.data().settings.privateAccount : false);
                 }
             });
         }
     });
 
+    // Changes if user gets notifications or not
     function changeNotifSettings() {
         Alert.alert(
             "Update Notification Settings",
@@ -45,7 +48,7 @@ export default function ({ navigation }) {
                 {
                     text: "Yes",
                     onPress: async () => {
-                        if(notifs) return; //Don't display a "changed" animation and alert if nothing changed
+                        if (notifs) return; //Don't display a "changed" animation and alert if nothing changed
                         await db.collection("Users").doc(user.uid).update({
                             "settings.notifications": true
                         });
@@ -57,7 +60,7 @@ export default function ({ navigation }) {
                 {
                     text: "No",
                     onPress: async () => {
-                        if(!notifs) return; //Don't display a "changed" animation and alert if nothing changed
+                        if (!notifs) return; //Don't display a "changed" animation and alert if nothing changed
                         await db.collection("Users").doc(user.uid).update({
                             "settings.notifications": false
                         });
@@ -70,6 +73,7 @@ export default function ({ navigation }) {
         );
     }
 
+    // Changes if user's acount is private or not
     function changePrivacySettings() {
         Alert.alert(
             "Update Account Status",
@@ -78,7 +82,7 @@ export default function ({ navigation }) {
                 {
                     text: "Yes",
                     onPress: async () => {
-                        if(privAcct) return; //Don't display a "changed" animation and alert if nothing changed
+                        if (privAcct) return; //Don't display a "changed" animation and alert if nothing changed
                         await db.collection("Users").doc(user.uid).update({
                             "settings.privateAccount": true
                         });
@@ -90,13 +94,47 @@ export default function ({ navigation }) {
                 {
                     text: "No",
                     onPress: async () => {
-                        if(!privAcct) return; //Don't display a "changed" animation and alert if nothing changed
+                        if (!privAcct) return; //Don't display a "changed" animation and alert if nothing changed
                         await db.collection("Users").doc(user.uid).update({
                             "settings.privateAccount": false
                         });
 
                         setPrivAcct(false);
                         alert("Account status updated!");
+                    }
+                }
+            ]
+        );
+    }
+
+    // Changes if user gets recommendations or not
+    function changeRecommendationSettings() {
+        Alert.alert(
+            "Getting Recommendations",
+            "Would you like to get weekly recommendations of meetups? You will be paired up with 3 other users based on your schedule and interests to eat at a restaurant.",
+            [
+                {
+                    text: "Yes",
+                    onPress: async () => {
+                        if (getRecommendations) return; //Don't display a "changed" animation and alert if nothing changed
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.getRecommendations": true
+                        });
+
+                        setGetRecommendations(true);
+                        alert("Recommendations preference updated!");
+                    }
+                },
+                {
+                    text: "No",
+                    onPress: async () => {
+                        if (!getRecommendations) return; //Don't display a "changed" animation and alert if nothing changed
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.getRecommendations": false
+                        });
+
+                        setGetRecommendations(false);
+                        alert("Recommendations preference updated!");
                     }
                 }
             ]
@@ -142,6 +180,41 @@ export default function ({ navigation }) {
         );
     }
 
+    function changeTutorialSettings() {
+        // if yes, set attendingTutorial and tabsTutorial to true, and completeTutorial to false
+        // if no, set attendingTutorial and tabsTutorial to false, and completeTutorial to true
+        Alert.alert(
+            "Tutorial",
+            "Would you like to attend the tutorial?",
+            [
+                {
+                    text: "Yes",
+                    onPress: async () => {
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.attendingTutorial": true,
+                            "settings.tabsTutorial": true,
+                            "settings.completeTutorial": false
+                        });
+
+                        alert("Tutorial settings updated!");
+                    }
+                },
+                {
+                    text: "No",
+                    onPress: async () => {
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.attendingTutorial": false,
+                            "settings.tabsTutorial": false,
+                            "settings.completeTutorial": true
+                        });
+
+                        alert("Tutorial settings updated!");
+                    }
+                }
+            ]
+        );
+    }
+
     const buttons = [
         {
             name: " Notification Preferences" + (notifs ? " (ON)" : " (OFF)"),
@@ -152,6 +225,11 @@ export default function ({ navigation }) {
             name: " Private Account" + (privAcct ? " (ON)" : " (OFF)"),
             icon: "shield",
             func: () => changePrivacySettings()
+        },
+        {
+            name: " Recommendations" + (getRecommendations ? " (ON)" : " (OFF)"),
+            icon: "heart",
+            func: () => changeRecommendationSettings()
         },
         {
             name: " Privacy Policy",
@@ -168,6 +246,11 @@ export default function ({ navigation }) {
             icon: "bulb",
             func: () => {navigation.navigate("Suggest Idea")}
         },
+        {   
+            name: " Tutorial",
+            icon: "book",
+            func: () => changeTutorialSettings()           
+        },
         {
             name: " Log Out",
             icon: "log-out",
@@ -181,7 +264,7 @@ export default function ({ navigation }) {
     ]
 
     const renderButton = ({ item }) => (
-        <TouchableOpacity onPress={item.func}>
+        <TouchableOpacity onPress={item.func} key={item.name}>
             <View style={styles.listView}>
                 <Ionicons name = {item.icon} size = {25}
                     color={item.name.toLowerCase().includes("delete") ? "red" : "black"}/>
