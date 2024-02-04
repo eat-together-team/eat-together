@@ -5,7 +5,6 @@
     "slug": "eat-together",
     "description": "Connecting students through shared meals.",
     "version": "1.0.2",
-    "sdkVersion": "47.0.0",
     "orientation": "portrait",
     "icon": "./assets/big_logo.png",
     "scheme": "com.eat.together",
