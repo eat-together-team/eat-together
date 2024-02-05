@@ -73,6 +73,12 @@ export default function ({ navigation }) {
             <TouchableOpacity onPress={loginTryOut} style={{ marginTop: 20 }}>
               <MediumText center color="grey">Explore as a guest!</MediumText>
             </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => {
+              navigation.navigate("Experiment");
+            }} style={{ marginTop: 20 }}>
+              <MediumText center>👀</MediumText>
+            </TouchableOpacity>
           </View>
         </ScrollView>
     </KeyboardAvoidingView>
