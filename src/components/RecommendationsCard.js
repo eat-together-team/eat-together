@@ -38,7 +38,6 @@ const RecommendationsCard = (props) => {
                     <View style={{flexDirection: "row", alignItems: "center"}}>
                         <Image style={{width: 50, height: 50}} source={require("../../assets/sparkles.gif")}/>
                         <MediumText center>{props.event.name}</MediumText>
-                        <MediumText center>{props.event.name}</MediumText>
                     </View>
                     <SmallText size={12} center>
                         {props.event.location} |{" "}
