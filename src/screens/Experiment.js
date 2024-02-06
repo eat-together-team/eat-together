@@ -3,12 +3,13 @@
 import React from "react";
 import { 
   ScrollView,
-  View,
   StyleSheet
 } from "react-native";
 import LargeText from "../components/LargeText";
-import NormalText from "../components/NormalText";
 import Button from "../components/Button";
+
+// TODO: import your component here
+import Eric from "./Experiment/Eric";
 
 export default function ({ navigation }) {
     return (
@@ -16,9 +17,7 @@ export default function ({ navigation }) {
             <LargeText>Our Cohort Members:</LargeText>
 
             {/* TODO: add a View with your name here, and style it however you want ;) */}
-            <View style={styles.eric}>
-                <NormalText>Eric Xiao :)</NormalText>
-            </View>
+            <Eric />
 
             <Button onPress={() => {
                 navigation.navigate("Landing");
@@ -28,12 +27,3 @@ export default function ({ navigation }) {
         </ScrollView>
     );
 }
-
-const styles = StyleSheet.create({
-    eric: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 10,
-        backgroundColor: "lightblue"
-    }
-});
