@@ -65,7 +65,8 @@
     "react-native-web": "~0.19.6",
     "react-schedule-selector": "^3.0.0",
     "styled-components": "^5.3.5",
-    "yelp-fusion": "^3.0.0"
+    "yelp-fusion": "^3.0.0",
+    "@expo/webpack-config": "^19.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

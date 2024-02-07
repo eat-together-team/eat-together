@@ -10,7 +10,7 @@ import Button from "../components/Button";
 
 // TODO: import your component here
 import Eric from "./Experiment/Eric";
-
+import Navneeth from "./Experiment/navneeth"
 export default function ({ navigation }) {
     return (
         <ScrollView contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}>
@@ -18,6 +18,7 @@ export default function ({ navigation }) {
 
             {/* TODO: add a View with your name here, and style it however you want ;) */}
             <Eric />
+            <Navneeth />
 
             <Button onPress={() => {
                 navigation.navigate("Landing");
