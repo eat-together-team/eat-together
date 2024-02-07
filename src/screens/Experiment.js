@@ -10,6 +10,7 @@ import Button from "../components/Button";
 
 // TODO: import your component here
 import Eric from "./Experiment/Eric";
+import Max from "./Experiment/Max";
 
 export default function ({ navigation }) {
     return (
