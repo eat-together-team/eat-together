@@ -10,6 +10,7 @@ import Button from "../components/Button";
 
 // TODO: import your component here
 import Eric from "./Experiment/Eric";
+import Meena from "./Experiment/Meena";
 
 export default function ({ navigation }) {
     return (
@@ -18,6 +19,7 @@ export default function ({ navigation }) {
 
             {/* TODO: add a View with your name here, and style it however you want ;) */}
             <Eric />
+            <Meena />
 
             <Button onPress={() => {
                 navigation.navigate("Landing");
