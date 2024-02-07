@@ -9,7 +9,7 @@ import LargeText from "../components/LargeText";
 import Button from "../components/Button";
 
 // TODO: import your component here
-import Eric from "./Experiment/Eric";
+import Eric from "./Experiment/Chaitanya";
 
 export default function ({ navigation }) {
     return (
@@ -17,7 +17,7 @@ export default function ({ navigation }) {
             <LargeText>Our Cohort Members:</LargeText>
 
             {/* TODO: add a View with your name here, and style it however you want ;) */}
-            <Eric />
+            <Chaitanya />
 
             <Button onPress={() => {
                 navigation.navigate("Landing");

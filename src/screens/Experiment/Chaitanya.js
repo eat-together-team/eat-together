@@ -4,7 +4,7 @@ import NormalText from "../../components/NormalText";
 const Eric = () => {
     return (
         <View style={styles.eric}>
-            <NormalText>Eric Xiao :)</NormalText>
+            <NormalText>Chaitanya Sekhar</NormalText>
         </View>
     );
 }
