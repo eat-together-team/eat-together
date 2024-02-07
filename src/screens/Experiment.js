@@ -9,7 +9,7 @@ import LargeText from "../components/LargeText";
 import Button from "../components/Button";
 
 // TODO: import your component here
-import Eric from "./Experiment/Akash";
+import Akash from "./Experiment/Akash";
 
 export default function ({ navigation }) {
     return (
