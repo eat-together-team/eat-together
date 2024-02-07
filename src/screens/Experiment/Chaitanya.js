@@ -1,7 +1,7 @@
 import { View, StyleSheet } from "react-native";
 import NormalText from "../../components/NormalText";
 
-const Eric = () => {
+const Chaitanya = () => {
     return (
         <View style={styles.eric}>
             <NormalText>Chaitanya Sekhar</NormalText>
@@ -14,8 +14,8 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 10,
-        backgroundColor: "lightblue"
+        backgroundColor: "lightgreen"
     }
 });
 
-export default Eric;
+export default Chaitanya;
