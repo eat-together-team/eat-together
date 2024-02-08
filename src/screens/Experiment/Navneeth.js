@@ -4,7 +4,7 @@ import NormalText from "../../components/NormalText";
 const Navneeth = () => {
     return (
         <View style={styles.navneeth}>
-            <LargeText>Navneeth Dhamotharan </LargeText>
+            <NormalText>Navneeth Dhamotharan</NormalText>
         </View>
     );
 }
@@ -14,8 +14,8 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 10,
-        backgroundColor: "lightblue"
+        backgroundColor: "lightpink"
     }
 });
 
-export default Eric;
+export default Navneeth;

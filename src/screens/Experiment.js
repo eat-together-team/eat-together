@@ -10,7 +10,7 @@ import Button from "../components/Button";
 
 // TODO: import your component here
 import Eric from "./Experiment/Eric";
-import Navneeth from "./Experiment/navneeth"
+import Navneeth from "./Experiment/navneeth";
 export default function ({ navigation }) {
     return (
         <ScrollView contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}>
