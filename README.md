@@ -10,9 +10,9 @@ We don't have any strict guidelines for your development conventions, but here a
 
 1. **Always work in a separate Git branch!** Never push to `master` directly. Instead, create a new branch and push to that. Then, create a pull request to merge your branch with `master`, and add some helpful comments to describe the changes you made. Once that's done, request Eric or Arya to review your pull request!
 2. **Use the components!** We have a lot of self-made components (e.g. buttons, text, etc.) that you can use in the `components` folder. If you need a component that doesn't exist, feel free to make one! Just make sure to put it in the `components` folder.
-3. **If you spot a bug in the app, create a task in ClickUp for it and report it to Eric/Arya.** We'll report it by the next standup and try to fix it as soon as possible!
+3. FOR CORE TEAM (NOT COHORT) MEMBERS ONLY: **If you spot a bug in the app, create a task in ClickUp for it and report it to Eric/Arya.** We'll report it by the next standup and try to fix it as soon as possible!
 4. **Follow the clean code guidelines covered in your CSE classes.** We're not nitpicky about code quality but we do want to be able to understand what it does, especially if we read it months later.
-5. **If you have any questions, ask Eric or Arya!** We're here to help you out and make sure you have a good experience developing with Eat Together. If you're stuck on something, don't hesitate to reach out, and we'll try our best to respond!
+5. **If you have any questions, ask another member of the Eat Together development team!** We're here to help you out and make sure you have a good experience developing with Eat Together. If you're stuck on something, don't hesitate to reach out, and we'll try our best to respond!
 
 ## Navigating the Repository
 

@@ -14,7 +14,7 @@ const RecommendationsCard = (props) => {
         <Section style={styles.card} borderRadius={30}>
             <TouchableOpacity onPress={props.click} disabled={props.disabled}>
                 <SectionImage
-                    height={125}
+                    height={100}
                     source={
                         props.event.hasImage
                             ? { uri: props.event.image }

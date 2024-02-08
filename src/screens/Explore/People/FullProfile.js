@@ -219,7 +219,8 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               list.push(doc.data());
             }
           });
-
+          
+          list.reverse();
           setEvents(list);
         });
       });
@@ -352,7 +353,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
                 }}
               >
                 <Ionicons name="time" size={20} color="#4C6FB1" />
-                <NormalText center color="#4C6FB1"> Eating Times</NormalText>
+                <NormalText color="#4C6FB1"> Eating Times</NormalText>
               </TouchableOpacity>
             </View>
           )}
@@ -421,7 +422,9 @@ const styles = StyleSheet.create({
   link: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 5
+    marginTop: 5,
+    alignItems: "center",
+    justifyContent: "center"
   }
 });
 
