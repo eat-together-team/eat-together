@@ -38,7 +38,7 @@ export default function ({ route, navigation }) {
   const messageRef = db.collection("Groups").doc(group.groupID);
 
   // Keep track of tutorial state
-  const [attendingTutorial, setAttendingTutorial] = useState(true);  // State to see if we should show the attending an event tutorial
+  const [attendingTutorial, setAttendingTutorial] = useState(false);  // State to see if we should show the attending an event tutorial
   const [isDataFetched, setIsDataFetched] = useState(false);  // State to track whether data has been fetched
 
   // On update, push messages
