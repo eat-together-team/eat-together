@@ -1,7 +1,7 @@
 import { View, StyleSheet } from "react-native";
 import NormalText from "../../components/NormalText";
 
-const Eric = () => {
+const Max = () => {
     return (
         <View style={styles.eric}>
             <NormalText>Eric Xiao :)</NormalText>
@@ -10,12 +10,12 @@ const Eric = () => {
 }
 
 const styles = StyleSheet.create({
-    eric: {
-        paddingVertical: 10,
+    Max: {
+        paddingVertical: 20,
         paddingHorizontal: 20,
         borderRadius: 10,
-        backgroundColor: "lightblue"
+        backgroundColor: "green"
     }
 });
 
-export default Eric;
+export default Max;
