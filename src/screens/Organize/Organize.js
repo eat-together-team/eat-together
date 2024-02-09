@@ -75,8 +75,8 @@ export default function ({ navigation }) {
     const refRBSheet = useRef(); // To toggle the bottom drawer on/off
 
     const items = [
-        { label: 'Public', value: 'pub' },
-        { label: 'Private', value: 'pri' },
+        { label: 'Public', value: 'public' },
+        { label: 'Private', value: 'private' },
     ];
 
 
@@ -333,7 +333,10 @@ export default function ({ navigation }) {
                                 items={items}
                                 value={pickerValue}
                                 placeholder="Choose Meal Type"
-                                onValueChange={(val) => setPickerValue(val)}
+                                onValueChange={(val) => {
+                                    setPickerValue(val);
+                                    setType(val);
+                                }}
                                 // marginVertical=True
                                 // width="100%"
                                 // required
