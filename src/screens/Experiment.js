@@ -11,6 +11,8 @@ import Button from "../components/Button";
 // TODO: import your component here
 import Eric from "./Experiment/Eric";
 import Helen from "./Experiment/Helen"
+import Max from "./Experiment/Max";
+import Meena from "./Experiment/Meena";
 
 export default function ({ navigation }) {
     return (
@@ -20,6 +22,8 @@ export default function ({ navigation }) {
             {/* TODO: add a View with your name here, and style it however you want ;) */}
             <Eric />
             <Helen/>
+            <Meena />
+            <Max />
 
             <Button onPress={() => {
                 navigation.navigate("Landing");
