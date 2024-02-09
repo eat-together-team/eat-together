@@ -185,7 +185,7 @@ export default function ({ navigation }) {
         // if no, set attendingTutorial and tabsTutorial to false, and completeTutorial to true
         Alert.alert(
             "Tutorial",
-            "Would you like to attend the tutorial?",
+            "Would you like to see the tutorial again?",
             [
                 {
                     text: "Yes",
@@ -193,10 +193,10 @@ export default function ({ navigation }) {
                         await db.collection("Users").doc(user.uid).update({
                             "settings.attendingTutorial": true,
                             "settings.tabsTutorial": true,
-                            "settings.completeTutorial": false
+                            "settings.completedTutorial": false
                         });
 
-                        alert("Tutorial settings updated!");
+                        alert("Reload the app to see the tutorial again!");
                     }
                 },
                 {
@@ -205,10 +205,8 @@ export default function ({ navigation }) {
                         await db.collection("Users").doc(user.uid).update({
                             "settings.attendingTutorial": false,
                             "settings.tabsTutorial": false,
-                            "settings.completeTutorial": true
+                            "settings.completedTutorial": true
                         });
-
-                        alert("Tutorial settings updated!");
                     }
                 }
             ]
