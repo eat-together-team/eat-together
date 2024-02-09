@@ -10,7 +10,6 @@ import Button from "../components/Button";
 
 // TODO: import your component here
 import Akash from "./Experiment/Akash";
-import Eric from "./Experiment/Eric";
 import Spencer from "./Experiment/Spencer";
 import Helen from "./Experiment/Helen";
 import Max from "./Experiment/Max";
@@ -23,7 +22,6 @@ export default function ({ navigation }) {
 
             {/* TODO: add a View with your name here, and style it however you want ;) */}
             <Akash />
-            <Eric />
             <Spencer />
             <Helen/>
             <Meena />

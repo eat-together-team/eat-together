@@ -3,7 +3,7 @@ import NormalText from "../../components/NormalText";
 
 const Helen = () => {
     return (
-        <View style={styles.eric}>
+        <View style={styles.helen}>
             <NormalText>Helen! :)</NormalText>
         </View>
     );
@@ -18,4 +18,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Eric;
+export default Helen;
