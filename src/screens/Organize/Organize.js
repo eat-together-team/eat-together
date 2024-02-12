@@ -37,6 +37,7 @@ import { checkProfanity } from "../../methods";
 import Checkbox from "../../components/Checkbox";
 import TextInput from "../../components/TextInput";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function ({ navigation }) {
     // Current user
@@ -47,7 +48,10 @@ export default function ({ navigation }) {
 
     // The type of event (public or private, for now)
     const [type, setType] = useState(null);
-    const types = ["public", "private"];
+    const types = [
+        { label: 'Public', value: 'public' },
+        { label: 'Private', value: 'private' },
+    ];
 
     // State variables for the inputs
     const [photo, setPhoto] = useState("https://images.unsplash.com/photo-1504674900247-0877df9cc836?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=60&raw_url=true&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8Zm9vZHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=1400");
@@ -73,12 +77,6 @@ export default function ({ navigation }) {
     const [semiPrivate, setSemiPrivate] = useState(false); //Checkbox state to see if public event should be semiprivate
 
     const refRBSheet = useRef(); // To toggle the bottom drawer on/off
-
-    const items = [
-        { label: 'Public', value: 'public' },
-        { label: 'Private', value: 'private' },
-    ];
-
 
     // Loading notifications
     useEffect(() => {
@@ -315,44 +313,34 @@ export default function ({ navigation }) {
                         />
 
                         <View style={{...styles.multiple, zIndex: 1000}}>
-                            {/* <Section >
-                                <SectionContent>
-                                    <View style={{...styles.multiplePick, zIndex: 1000}}>
-                                        <Text style={{ marginBottom: 30 }}>Picker</Text>
-                                        <Picker
-                                            items={items}
-                                            value={pickerValue}
-                                            placeholder="Choose your Meal type"
-                                            onValueChange={(val) => setPickerValue(val)}
-                                        />
-                                    </View>
-                                </SectionContent>
-                            </Section>  */}
+                            <View style={{ width: "48%" }}>
+                                <Picker
+                                    items={types}
+                                    value={pickerValue}
+                                    placeholder="Meal Type"
+                                    onValueChange={(val) => {
+                                        setPickerValue(val);
+                                        setType(val);
+                                    }}
+                                />
 
-                            <Picker
-                                items={items}
-                                value={pickerValue}
-                                placeholder="Choose Meal Type"
-                                onValueChange={(val) => {
-                                    setPickerValue(val);
-                                    setType(val);
-                                }}
-                                // marginVertical=True
-                                // width="100%"
-                                // required
-                                // iconRight="chatbubble-outline"
-                            />
-                            {/* <TextInput width="3%" required/> */}
-                            {/* <NormalText center color="red" marginTop={5} size="30px">*</NormalText> */}
+                                <FontAwesome
+                                    size={8}
+                                    name={"asterisk"}
+                                    color={"red"}
+                                    style={{ position: "absolute", right: 8, top: 20 }}
+                                />
+                            </View>
 
                             <TouchableOpacity onPress={() => {
                                 setShowStartDate(true);
                                 setMode("date");
                             }} style={styles.smallInputEnd}>
-                                <View pointerEvents="none" style={{flex: 1}}>
+                                <View pointerEvents="none" style={{ flex: 1 }}>
                                     <TextInput
                                         value={getDate(startDate, false)}
                                         width="100%"
+                                        height={50}
                                         iconLeft="calendar-outline"
                                         editable={false}
                                         required
@@ -566,7 +554,6 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "10%",
         marginBottom: 10,
-        // flexDirection: "row",
         justifyContent: "space-between",
     },
 
@@ -591,12 +578,12 @@ const styles = StyleSheet.create({
 
     multiple: {
         width: "100%",
-        height: "10%",
         marginTop: 10,
-        marginBottom: 10,
+        marginBottom: 5,
         zIndex: 1,
         flexDirection: "row",
         justifyContent: "space-between",
+        alignItems: "center"
     },
 
     smallInput: {
@@ -622,48 +609,3 @@ const styles = StyleSheet.create({
         marginVertical: 10
     }
 });
-
-{/* <SuggestSelection
-    multi={true}
-    selectedItems={type ? [type] : []}
-    onItemSelect={(item) => {
-        setType(item);
-    }}
-    onRemoveItem={() => {
-        setType(null);
-    }}
-    itemStyle={{
-        padding: 10,
-        borderWidth: 2,
-        borderColor: '#5DB075',
-        borderRadius: 10,
-        marginTop: 2,
-        width: "100%",
-        height: 40,
-        backgroundColor: "white"
-    }}
-    selectedItemsStyle={{
-        margin: 0,
-        height: 40,
-        width: "100%",
-        justifyContent: "space-around",
-        backgroundColor: "white",
-        borderColor: "lightgrey",
-        borderWidth: 1,
-        borderRadius: 10
-    }}
-    height={40}
-    
-    textInputProps={{
-        placeholder: "Meal type"
-    }}
-    onSubmitEditing = {(e) => {
-        if (e.nativeEvent.text.length !== 0) {
-            setType(e.nativeEvent.text);
-        }}
-    } selectedItemsWidth={"8%"}
-    items={cloneDeep(types)}
-    chip={true}
-    resetValue={false}
-    required
-/> */}
