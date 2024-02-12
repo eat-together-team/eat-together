@@ -73,24 +73,15 @@ Core team link: [https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AO
 
 Cohort members link: [https://drive.google.com/file/d/1nnjE3IeRhIdSdvf0qlhD68gS5fqfhzSw/view?usp=drive_link](https://drive.google.com/file/d/1nnjE3IeRhIdSdvf0qlhD68gS5fqfhzSw/view?usp=drive_link)
 
-6. In `app.json`, comment out the line that says `"runtimeVersion": "1.0.0"` (if it isn't commented out already).
-7. Start the environment:
+6. Start the environment using expo:
 
 ```jsx
-npm start
-
-
-```
-
-or start directly from expo:
-
-```sh
 expo start
 
 
 ```
 
-for yarn users, use the following command:
+For yarn users, use the following command:
 
 ```sh
 yarn start
