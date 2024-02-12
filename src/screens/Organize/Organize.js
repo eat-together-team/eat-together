@@ -351,7 +351,6 @@ export default function ({ navigation }) {
 
                         <View style={styles.multiple}>
                             <TouchableOpacity onPress={() => {
-                                console.log("reached here");
                                 setShowStartDate(true);
                                 setMode("time");
                             }} style={styles.smallInputStart}>
@@ -368,7 +367,6 @@ export default function ({ navigation }) {
                             </TouchableOpacity>
 
                             <TouchableOpacity onPress={() => {
-                                console.log("reached here 2");
                                 setShowEndDate(true);
                                 setMode("time");
                             }} style={styles.smallInputEnd}>
