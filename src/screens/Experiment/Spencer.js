@@ -1,10 +1,11 @@
 import { View, StyleSheet } from "react-native";
 import NormalText from "../../components/NormalText";
+import LargeText from "../../components/LargeText";
 
 const Eric = () => {
     return (
         <View style={styles.eric}>
-            <NormalText>Eric Xiao :)</NormalText>
+            <LargeText>Spencer</LargeText>
         </View>
     );
 }
