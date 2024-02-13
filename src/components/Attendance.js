@@ -24,7 +24,6 @@ const Attendance = props => {
         </TouchableOpacity>
     );
 }
-
 const styles = StyleSheet.create({
     outline: {
         padding: 10,
