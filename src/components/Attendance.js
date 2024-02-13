@@ -24,7 +24,12 @@ const Attendance = props => {
         </TouchableOpacity>
     );
 }
+<NormalText size={props.size ? props.size : 14} color="black">
+    {props.person.firstName + " " + props.person.lastName}
+</NormalText>
 
+<Foundation name="check" size={24} color={props.attending ? "#5DB075" : "grey"}
+    style={styles.checkMark}/>
 const styles = StyleSheet.create({
     outline: {
         padding: 10,
