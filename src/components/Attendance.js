@@ -5,6 +5,11 @@ import { Foundation } from "@expo/vector-icons";
 
 const Attendance = props => {
     return (
+        // <TouchableOpacity style={[styles.outline, {
+        //     borderColor: props.attending ? "#5DB075" : "grey"
+        // }]} onPress={props.onPress}>
+        //     <Image source={props.person.hasImage ? {uri: props.person.image}
+        //         : require("../../assets/logo.png")} style={styles.image}/>
         <TouchableOpacity style={[styles.outline, {
             borderColor: props.attending ? "#5DB075" : "grey"
         }]} onPress={props.onPress} testID="attendance-button">
@@ -31,14 +36,12 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center"
     },
-
     image: {
         width: 40,
         height: 40,
         borderRadius: 20,
         marginRight: 10
     },
-
     checkMark: {
         position: "absolute",
         right: 15,

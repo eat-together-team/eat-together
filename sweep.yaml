@@ -10,6 +10,10 @@ rules:
   - "Remove commented out code and unused imports or variables."
   - "Ensure that all code is properly formatted and follows the project's style guide."
 
+# - function comments
+# - indentation
+# - import statement formatting
+
 # This is the branch that Sweep will develop from and make pull requests to. Most people use 'main' or 'master' but some users also use 'dev' or 'staging'.
 branch: 'sweep-ai'
 
