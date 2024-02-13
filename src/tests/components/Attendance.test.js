@@ -42,7 +42,6 @@ describe('Attendance Component', () => {
         const falseButton = render(<Attendance person={mockPerson} attending={false} onPress={mockPress} />).getByTestId('attendance-button');
         expect(falseButton.props.style.borderColor).toEqual("grey");
     });
-
     it('displays the correct text when firstName or lastName is missing', () => {
         const missingLastName = { ...mockPerson, lastName: '' };
         const missingFirstName = { ...mockPerson, firstName: '' };
