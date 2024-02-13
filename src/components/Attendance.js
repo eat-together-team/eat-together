@@ -13,7 +13,8 @@ const Attendance = props => {
         <TouchableOpacity style={[styles.outline, {
             borderColor: props.attending ? "#5DB075" : "grey"
         }]} onPress={props.onPress} testID="attendance-button">
-            <Image source={props.person.hasImage ? {uri: props.person.image} : require("../../assets/logo.png")} style={styles.image} testID="person-image"/>
+            <Image source={props.person.hasImage ? {uri: props.person.image}
+                 : require("../../assets/logo.png")} style={styles.image} testID="person-image"/>
 
             <NormalText size={props.size ? props.size : 14} color="black">
                 {props.person.firstName + " " + props.person.lastName}

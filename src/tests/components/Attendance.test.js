@@ -27,6 +27,7 @@ describe('Attendance Component', () => {
         const { getByTestId } = render(<Attendance person={personWithoutImage} attending={true} onPress={mockPress} />);
         const image = getByTestId('person-image');
         expect(image.props.source).toBe(require("../../../assets/logo.png"));
+        expect(image.props.source).toBe(require("../../../assets/logo.png"));
     });
 
     it('handles onPress event', () => {
@@ -34,7 +35,6 @@ describe('Attendance Component', () => {
         fireEvent.press(getByTestId('attendance-button'));
         expect(mockPress).toHaveBeenCalled();
     });
-
     it('changes borderColor based on attending status', () => {
         const { getByTestId } = render(<Attendance person={mockPerson} attending={true} onPress={mockPress} />);
         const button = getByTestId('attendance-button');
