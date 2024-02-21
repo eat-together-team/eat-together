@@ -180,6 +180,39 @@ export default function ({ navigation }) {
         );
     }
 
+    function changeTutorialSettings() {
+        // if yes, set attendingTutorial and tabsTutorial to true, and completeTutorial to false
+        // if no, set attendingTutorial and tabsTutorial to false, and completeTutorial to true
+        Alert.alert(
+            "Tutorial",
+            "Would you like to see the tutorial again?",
+            [
+                {
+                    text: "Yes",
+                    onPress: async () => {
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.attendingTutorial": true,
+                            "settings.tabsTutorial": true,
+                            "settings.completedTutorial": false
+                        });
+
+                        alert("Reload the app to see the tutorial again!");
+                    }
+                },
+                {
+                    text: "No",
+                    onPress: async () => {
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.attendingTutorial": false,
+                            "settings.tabsTutorial": false,
+                            "settings.completedTutorial": true
+                        });
+                    }
+                }
+            ]
+        );
+    }
+
     const buttons = [
         {
             name: " Notification Preferences" + (notifs ? " (ON)" : " (OFF)"),
@@ -210,6 +243,11 @@ export default function ({ navigation }) {
             name: " Suggest an Idea",
             icon: "bulb",
             func: () => {navigation.navigate("Suggest Idea")}
+        },
+        {   
+            name: " Tutorial",
+            icon: "book",
+            func: () => changeTutorialSettings()           
         },
         {
             name: " Log Out",

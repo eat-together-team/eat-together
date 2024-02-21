@@ -1,7 +1,7 @@
 // Specify availabilities for days of the week
 
 import React, { useState, useEffect, useRef } from "react";
-import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import * as Progress from 'react-native-progress';
 import RBSheet from "react-native-raw-bottom-sheet";
@@ -77,97 +77,99 @@ const Tags = props => {
 
   return (
     <Layout style={styles.page}>
-        <LargeText center marginBottom={20}>Next, add some tags!</LargeText>
+        <ScrollView contentContainerStyle={{alignItems: "center"}}>
+            <LargeText center marginBottom={20}>Next, add some tags!</LargeText>
 
-        <NormalText center size={12}>Note: each of the 3 categories below must contain:</NormalText>
-        <MediumText center size={12} marginBottom={20}>Minimum 1 tag, maximum 4 tags</MediumText>
+            <NormalText center size={12}>Note: each of the 3 categories below must contain:</NormalText>
+            <MediumText center size={12} marginBottom={20}>Minimum 1 tag, maximum 4 tags</MediumText>
 
-        <View style={styles.tagSection}>
-            <MediumText center marginBottom={5}>School</MediumText>
-            <NormalText center marginBottom={5}>E.g. year, major</NormalText>
-            <TouchableOpacity onPress={() => {
-                setHobby(false);
-                setFood(false);
-                setSchool(true);
-                refRBSheet.current.open();
-            }}>
-                <View pointerEvents="none">
-                    <TextInput
-                        height={40}
-                        width="100%"
-                        placeholder="Tags"
-                        value={schoolTagsValue}
-                        iconLeft="pricetags-outline"
-                        editable={false}
-                        required
-                    />
-                </View>
-            </TouchableOpacity>
-        </View>
+            <View style={styles.tagSection}>
+                <MediumText center marginBottom={5}>School</MediumText>
+                <NormalText center marginBottom={5}>E.g. year, major</NormalText>
+                <TouchableOpacity onPress={() => {
+                    setHobby(false);
+                    setFood(false);
+                    setSchool(true);
+                    refRBSheet.current.open();
+                }}>
+                    <View pointerEvents="none">
+                        <TextInput
+                            height={40}
+                            width="100%"
+                            placeholder="Tags"
+                            value={schoolTagsValue}
+                            iconLeft="pricetags-outline"
+                            editable={false}
+                            required
+                        />
+                    </View>
+                </TouchableOpacity>
+            </View>
 
-        <View style={styles.tagSection}>
-            <MediumText center marginBottom={5}>Hobbies</MediumText>
-            <NormalText center marginBottom={5}>E.g. sports, reading</NormalText>
-            <TouchableOpacity onPress={() => {
-                setSchool(false);
-                setFood(false);
-                setHobby(true);
-                refRBSheet.current.open();
-            }}>
-                <View pointerEvents="none">
-                    <TextInput
-                        height={40}
-                        width="100%"
-                        placeholder="Tags"
-                        value={hobbyTagsValue}
-                        iconLeft="pricetags-outline"
-                        editable={false}
-                        required
-                    />
-                </View>
-            </TouchableOpacity>
-        </View>
+            <View style={styles.tagSection}>
+                <MediumText center marginBottom={5}>Hobbies</MediumText>
+                <NormalText center marginBottom={5}>E.g. sports, reading</NormalText>
+                <TouchableOpacity onPress={() => {
+                    setSchool(false);
+                    setFood(false);
+                    setHobby(true);
+                    refRBSheet.current.open();
+                }}>
+                    <View pointerEvents="none">
+                        <TextInput
+                            height={40}
+                            width="100%"
+                            placeholder="Tags"
+                            value={hobbyTagsValue}
+                            iconLeft="pricetags-outline"
+                            editable={false}
+                            required
+                        />
+                    </View>
+                </TouchableOpacity>
+            </View>
 
-        <View style={styles.tagSection}>
-            <MediumText center marginBottom={5}>Food-related</MediumText>
-            <NormalText center marginBottom={5}>E.g. favorite dishes, favorite cuisine</NormalText>
-            <TouchableOpacity onPress={() => {
-                setSchool(false);
-                setHobby(false);
-                setFood(true);
-                refRBSheet.current.open();
-            }}>
-                <View pointerEvents="none">
-                    <TextInput
-                        height={40}
-                        width="100%"
-                        placeholder="Tags"
-                        value={foodTagsValue}
-                        iconLeft="pricetags-outline"
-                        editable={false}
-                        required
-                    />
-                </View>
-            </TouchableOpacity>
-        </View>
+            <View style={styles.tagSection}>
+                <MediumText center marginBottom={5}>Food-related</MediumText>
+                <NormalText center marginBottom={5}>E.g. favorite dishes, favorite cuisine</NormalText>
+                <TouchableOpacity onPress={() => {
+                    setSchool(false);
+                    setHobby(false);
+                    setFood(true);
+                    refRBSheet.current.open();
+                }}>
+                    <View pointerEvents="none">
+                        <TextInput
+                            height={40}
+                            width="100%"
+                            placeholder="Tags"
+                            value={foodTagsValue}
+                            iconLeft="pricetags-outline"
+                            editable={false}
+                            required
+                        />
+                    </View>
+                </TouchableOpacity>
+            </View>
 
-        <View style={styles.buttons}>
-            <Button onPress={() => props.navigation.goBack()}
-                marginHorizontal={10} backgroundColor="white"
-                color="#5DB075">Back</Button>
-            <Button onPress={() => {
-                props.setSchoolTags(schoolTagsSelected);
-                props.setHobbyTags(hobbyTagsSelected);
-                props.setFoodTags(foodTagsSelected);
-                props.navigation.navigate("AvailabilitiesHome");
-            }}
-              disabled={schoolTagsSelected.length < 1 || schoolTagsSelected.length > 4 || hobbyTagsSelected.length < 1
-                || hobbyTagsSelected.length > 4 || foodTagsSelected.length < 1 || foodTagsSelected.length > 4}
-              marginHorizontal={10}>Next</Button>
-        </View>
+            <View style={styles.buttons}>
+                <Button onPress={() => props.navigation.goBack()}
+                    marginHorizontal={10} backgroundColor="white"
+                    color="#5DB075">Back</Button>
+                <Button onPress={() => {
+                    props.setSchoolTags(schoolTagsSelected);
+                    props.setHobbyTags(hobbyTagsSelected);
+                    props.setFoodTags(foodTagsSelected);
+                    props.navigation.navigate("AvailabilitiesHome");
+                }}
+                disabled={schoolTagsSelected.length < 1 || schoolTagsSelected.length > 4 || hobbyTagsSelected.length < 1
+                    || hobbyTagsSelected.length > 4 || foodTagsSelected.length < 1 || foodTagsSelected.length > 4}
+                marginHorizontal={10}>Next</Button>
+            </View>
 
-        <Progress.Bar progress={0.4} width={200} color="#5DB075" style={{marginTop: 30}}/>
-        <NormalText>Step 2 of 5</NormalText>
+            <Progress.Bar progress={0.4} width={200} color="#5DB075" style={{marginTop: 30}}/>
+            <NormalText>Step 2 of 5</NormalText>
+        </ScrollView>
 
         <RBSheet
             height={400}
@@ -264,6 +266,7 @@ const Tags = props => {
 
 const styles = StyleSheet.create({
   page: {
+    flex: 1,
     alignItems: "center",
     width: Dimensions.get('screen').width,
     paddingHorizontal: 10,

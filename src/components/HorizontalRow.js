@@ -1,5 +1,5 @@
 import React from "react";
-import { View, ScrollView, Dimensions } from "react-native";
+import { View, ScrollView } from "react-native";
 
 const HorizontalRow = props => {
     return (
