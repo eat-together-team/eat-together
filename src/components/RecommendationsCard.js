@@ -8,6 +8,12 @@ import {
 } from "react-native";
 import { Section, SectionContent, SectionImage } from "react-native-rapi-ui";
 import MediumText from "./MediumText";
+import SmallText from "./SmallText";
+
+import getDate from "../getDate";
+import getTime from "../getTime";
+import NormalText from "./NormalText";
+
 
 const RecommendationsCard = (props) => {
     return (
@@ -28,11 +34,17 @@ const RecommendationsCard = (props) => {
                     <MediumText center color="white" size={14}>Recommended!</MediumText>
                 </View>
 
-                <SectionContent style={{alignItems: "center", paddingTop: 10, paddingHorizontal: 10}} height={75}>
+                <SectionContent style={{alignItems: "center", paddingTop: 10, paddingHorizontal: 10}}>
                     <View style={{flexDirection: "row", alignItems: "center"}}>
                         <Image style={{width: 50, height: 50}} source={require("../../assets/sparkles.gif")}/>
                         <MediumText center>{props.event.name}</MediumText>
                     </View>
+                    <SmallText size={12} center>
+                        {props.event.location} |{" "}
+                        {props.event.startDate ? getDate(props.event.startDate.toDate()) : getDate(props.event.date.toDate())} |{" "}
+                        {props.event.startDate ? getTime(props.event.startDate.toDate()) : getTime(props.event.date.toDate())}
+                        {props.event.endDate && " - ".concat(getTime(props.event.endDate.toDate()))}
+                    </SmallText>
                 </SectionContent>
             </TouchableOpacity>
         </Section>
