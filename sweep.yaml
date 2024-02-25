@@ -3,7 +3,7 @@
 
 # This setting contains a list of rules that Sweep will check for. If any of these rules are broken in a new commit, Sweep will create an pull request to fix the broken rule.
 rules:
-  - "Add function comments and make sure all docstrings and comments should be up to date."
+  - "Add function comments and make sure all docstrings and comments should be up to date. " 
   - "Make sure all code is properly indented(2-spaced indentation) and follows consistent spacing."
   - "Avoid using magic numbers or hard-coded values. Use constants or variables instead."
   - "Ensure that all variable and function names are descriptive and follow a consistent naming convention."
@@ -47,4 +47,4 @@ sandbox:
     - trunk init
   check:
     - trunk fmt {file_path} || return 0
-    - trunk check --fix --print-failures {file_path}
+      - trunk check --fix --print-failures {file_path}
