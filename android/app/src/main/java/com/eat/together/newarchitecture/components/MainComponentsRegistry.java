@@ -6,12 +6,11 @@ import com.facebook.react.fabric.ComponentFactory;
 import com.facebook.soloader.SoLoader;
 
 /**
- * Class responsible to load the custom Fabric Components. This class has native methods and needs a
- * corresponding C++ implementation/header file to work correctly (already placed inside the jni/
+ * MainComponentsRegistry is responsible for loading custom Fabric Components. It utilizes native methods and requires
+ * a corresponding C++ implementation/header file (already placed in the jni/
  * folder for you).
  *
- * <p>Please note that this class is used ONLY if you opt-in for the New Architecture (see the
- * `newArchEnabled` property). Is ignored otherwise.
+ * This class is active only when the New Architecture is enabled (controlled by the `newArchEnabled` property).
  */
 @DoNotStrip
 public class MainComponentsRegistry {
@@ -30,6 +29,10 @@ public class MainComponentsRegistry {
   }
 
   @DoNotStrip
+  public static MainComponentsRegistry register(ComponentFactory componentFactory) {
+    return new MainComponentsRegistry(componentFactory);
+  }
+}
   public static MainComponentsRegistry register(ComponentFactory componentFactory) {
     return new MainComponentsRegistry(componentFactory);
   }
