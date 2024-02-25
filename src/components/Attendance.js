@@ -8,7 +8,7 @@ const Attendance = props => {
         // <TouchableOpacity style={[styles.outline, {
         //     borderColor: props.attending ? "#5DB075" : "grey"
         // }]} onPress={props.onPress}>
-        //     <Image source={props.person.hasImage ? {uri: props.person.image}
+        //     <    Image source={props.person.hasImage ? {uri: props.person.image}
         //         : require("../../assets/logo.png")} style={styles.image}/>
         <TouchableOpacity style={[styles.outline, {
             borderColor: props.attending ? "#5DB075" : "grey"
