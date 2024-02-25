@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
+import { View } from "react-native";
+import styles from "./styles/DayStyles";
 import { Layout } from "react-native-rapi-ui";
 import { cloneDeep } from "lodash";
 
@@ -42,21 +43,6 @@ const Day = props => {
     );
 }
 
-const styles = StyleSheet.create({
-    page: {
-      alignItems: "center",
-      width: Dimensions.get('screen').width,
-      paddingHorizontal: 20,
-      paddingVertical: 50
-    },
-  
-    buttons: {
-      marginTop: 50,
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "center"
-    }
-  });
   
 
 export default Day;
