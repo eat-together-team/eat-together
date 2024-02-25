@@ -24,6 +24,7 @@ import NormalText from "../../components/NormalText";
 import DeviceToken from "../utils/DeviceToken";
 
 export default function ({ navigation }) {
+import { signInWithEmailPassword } from "../utils/FirebaseAuthService";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,14 +32,19 @@ export default function ({ navigation }) {
 
   async function login() {
     setLoading(true);
-    await firebase.auth().signInWithEmailAndPassword(email, password).catch(function (error) {
+    signInWithEmailPassword(email, password)
+      .then((user) => {
+        // User logged in
+        // You can perform actions with the user object here
+      })
+      .catch((error) => {
         // Handle Errors here.
         var errorCode = error.code;
         var errorMessage = error.message;
         // ...
         setLoading(false);
         alert(errorMessage);
-    });
+      });
 
     const user = auth.currentUser;
 
