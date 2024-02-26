@@ -1,20 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
 import MediumText from "./MediumText";
-
 import { Foundation } from "@expo/vector-icons";
-import { storage } from "../provider/Firebase";
+import { commonStyles } from '../../utils/Styles';
+import { useImageLoader } from '../../utils/Helpers';
 
 const PeopleList = props => {
-    const [image, setImage] = useState("https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png");
-    useEffect(() => {
-        if (props.person.hasImage) {
-            storage.ref("profilePictures/" + props.person.id).getDownloadURL().then(uri => {
-                setImage(uri);
-            });
-        }
-    }, []);
+    const image = useImageLoader("https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png", props.person.hasImage ? "profilePictures/" + props.person.id : null);
     return (
         <View style={styles.outline}>
             <TouchableOpacity onPress={props.click}>
@@ -39,30 +32,17 @@ const PeopleList = props => {
 }
 
 const styles = StyleSheet.create({
-    outline: {
-        marginVertical: 5,
-        shadowColor: "#000000",
-        backgroundColor: "white",
-        borderRadius: 15,
-        paddingVertical: 10,
-        shadowOpacity: 0.25,
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        elevation: 10
-    },
+    outline: commonStyles.outline,
     head: {
-        flexDirection: "row",
-        alignItems: "center"
+        ...commonStyles.outline,
+        padding: 0,
+        borderWidth: 0,
+        elevation: 0,
+        shadowOpacity: 0,
+        backgroundColor: props.color,
+        width: props.width ? props.width : Dimensions.get('screen').width - 40
     },
-    image: {
-        width: 50,
-        height: 50,
-        borderRadius: 50,
-        marginLeft: 15,
-        marginRight: 10
-    },
+    image: commonStyles.image,
     name: {
         marginRight: 20,
     },
