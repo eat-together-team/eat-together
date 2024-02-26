@@ -1,7 +1,8 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
+import { TouchableOpacity, Image } from 'react-native';
 import NormalText from './NormalText';
 import { Foundation } from "@expo/vector-icons";
+import { commonStyles } from '../../utils/Styles';
 
 const Attendance = props => {
     return (
@@ -23,28 +24,13 @@ const Attendance = props => {
 
 const styles = StyleSheet.create({
     outline: {
-        padding: 10,
-//        may need to modify padding to make it consistent with icebreakers + "just yourself"
+        ...commonStyles.outline,
         width: Dimensions.get('screen').width - 60,
-        marginVertical: 5,
-        borderWidth: 3,
         borderRadius: 10,
-        flexDirection: "row",
-        alignItems: "center"
+        borderColor: props.attending ? "#5DB075" : "grey"
     },
-
-    image: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        marginRight: 10
-    },
-
-    checkMark: {
-        position: "absolute",
-        right: 15,
-        top: "45%"
-    }
-})
+    image: commonStyles.image,
+    checkMark: commonStyles.checkMark
+});
 
 export default Attendance;
