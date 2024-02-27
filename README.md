@@ -95,7 +95,12 @@ yarn start
 ```
 
 8. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app.
-9. 
+
+### Testing
+Before you commit your code, you can run all tests / submit new test cases for files you have worked on. To run all tests, use the following command:
+```sh
+npm tests
+```
 
 ### Firebase Backend Setup (Ignore this section if you used the `.env` file)
 
