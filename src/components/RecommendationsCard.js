@@ -12,8 +12,6 @@ import SmallText from "./SmallText";
 
 import getDate from "../getDate";
 import getTime from "../getTime";
-import NormalText from "./NormalText";
-
 
 const RecommendationsCard = (props) => {
     return (
@@ -37,7 +35,7 @@ const RecommendationsCard = (props) => {
                 <SectionContent style={{alignItems: "center", paddingTop: 10, paddingHorizontal: 10}}>
                     <View style={{flexDirection: "row", alignItems: "center"}}>
                         <Image style={{width: 50, height: 50}} source={require("../../assets/sparkles.gif")}/>
-                        <MediumText center>{props.event.name}</MediumText>
+                        <MediumText center>{props.event.name.length > 20 ? props.event.name.substring(0, 20).concat("...") : props.event.name}</MediumText>
                     </View>
                     <SmallText size={12} center>
                         {props.event.location} |{" "}
