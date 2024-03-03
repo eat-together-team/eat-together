@@ -15,6 +15,7 @@ import BorderedButton from "../../components/BorderedButton";
 import TagsList from "../../components/TagsList";
 import Link from "../../components/Link";
 import Toggle from "../../components/Toggle";
+import CircularButton from "../../components/CircularButton";
 import RecTutorialMessage from "../../components/RecTutorialMessage";  // Tutorial message for recommendations
 
 import getDate from "../../getDate";
@@ -28,6 +29,7 @@ import { getCommonTags } from "../../methods";
 const Recommendation = ({ route, navigation }) => {
   // User and other user states
   const user = auth.currentUser;
+  const [groupChat, setGroupChat] = useState(null); // Info for the group chat
   const [attendees, setAttendees] = useState([]);
   const [commonTags, setCommonTags] = useState([]); // Common tags between the user and others
   const [isAttending, setIsAttending] = useState(false); // Whether the user has accepted the invite or not
@@ -39,7 +41,6 @@ const Recommendation = ({ route, navigation }) => {
 
   const [attendingTutorial, setAttendingTutorial] = useState(true);  // State to see if we should show the attending an event tutorial
   const [isDataFetched, setIsDataFetched] = useState(false);  // State to track whether data has been fetched
-
   useEffect(() => {
     let existingTags = {}; // To avoid duplicates
 
@@ -69,6 +70,39 @@ const Recommendation = ({ route, navigation }) => {
     setIsAttending(eventIDs.includes(route.params.event.id));
     setLoading(false);
   }, []);
+
+  // Checking group chat updates
+  useEffect(() => {
+    if (route.params.event.chatID) {
+      db.collection("Groups")
+        .doc(route.params.event.chatID)
+        .onSnapshot((doc) => {
+          // Determine unread status
+          let unread = false;
+          if (doc.data().messages.length > 0) {
+            const lastMessage = doc.data().messages[doc.data().messages.length - 1];
+            if (lastMessage.unread && lastMessage.sentBy !== user.uid) {
+              const unread_exists = lastMessage.unread.filter(u => u.uid === user.uid);
+              if (unread_exists.length !== 0) {
+                unread = lastMessage.unread.filter(u => u.uid === user.uid)[0].unread;
+              } else {
+                unread = false;
+              }
+            }
+          }
+
+          const group = {
+            groupID: route.params.event.chatID,
+            uids: doc.data().uids,
+            name: doc.data().name,
+            messages: doc.data().messages,
+            unread: unread
+          };
+
+          setGroupChat(group);
+        });
+    }
+  }, [])
 
   // Confirm attendance to recommended meetup
   const attend = () => {
@@ -113,6 +147,27 @@ const Recommendation = ({ route, navigation }) => {
       });
     });
   }
+
+  // Function to navigate to the chat for this event
+  const goToEventChat = async () => {
+    if (route.params.event.chatID) {
+      navigation.navigate("ChatRoom", {
+        group: groupChat
+      });
+
+      try {
+        await db.collection("Users").doc(user.uid).update({
+          'settings.completedTutorial': true,
+        });
+      } catch (error) {
+        console.error("Error updating document: ", error);
+        // Handle the error appropriately
+      }
+
+    } else {
+      alert("This feature is still in development and will be applied to your future events!")
+    }
+  };
 
   // Fetch data from Firestore to see if the user has seen the tutorial before or not
   useEffect(() => {
@@ -193,6 +248,13 @@ const Recommendation = ({ route, navigation }) => {
         }
         leftAction={() => navigation.goBack()}
       />
+      {/* In-event chat button */}
+      <View style={styles.eventChat}>
+        <CircularButton onPress={() => goToEventChat()}>
+          {/* {groupChat && groupChat.unread && <View style={styles.unread}/>} */}
+          <Ionicons name="chatbox-ellipses-outline" size={30} />
+        </CircularButton>
+      </View>
       <ScrollView>
         <View style={styles.infoContainer}>
           
@@ -353,6 +415,23 @@ const styles = StyleSheet.create({
   logistics: {
     marginVertical: 15,
   },
+
+  eventChat: {
+    position: "absolute",
+    bottom: 30,
+    right: 30,
+    zIndex: 1,
+  },
+
+  unread: {
+    width: 10,
+    height: 10,
+    borderRadius: 10,
+    backgroundColor: "red",
+    position: "absolute",
+    top: 5,
+    right: 5
+  }
 });
 
 export default Recommendation;
