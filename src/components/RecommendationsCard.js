@@ -34,7 +34,7 @@ const RecommendationsCard = (props) => {
                     <MediumText center color="white" size={14}>Recommended!</MediumText>
                 </View>
 
-                <SectionContent style={{alignItems: "center", paddingTop: 10, paddingHorizontal: 10}} height={75}>
+                <SectionContent style={{alignItems: "center", paddingTop: 10, paddingHorizontal: 10}}>
                     <View style={{flexDirection: "row", alignItems: "center"}}>
                         <Image style={{width: 50, height: 50}} source={require("../../assets/sparkles.gif")}/>
                         <MediumText center>{props.event.name}</MediumText>
