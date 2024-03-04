@@ -37,6 +37,7 @@ import { checkProfanity } from "../../methods";
 import Checkbox from "../../components/Checkbox";
 import TextInput from "../../components/TextInput";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
+import icebreakerList from "../../icebreakerList";
 
 export default function ({ navigation }) {
     // Current user
@@ -93,18 +94,14 @@ export default function ({ navigation }) {
         // Picks icebreaker set from set of icebreakers randomly
         var breakOptions = [];
         var usedIce = [];
-        db.collection("Icebreakers").doc("icebreakers").get().then(doc => {
             while (breakOptions.length < 5) {
-                var num = Math.floor(Math.random()*(doc.data().icebreakers.length-1));
-                
+                var num = Math.floor(Math.random()*(icebreakerList.length));
                 if(!usedIce.includes(num)) {
-                    breakOptions.push(doc.data().icebreakers[num]);
+                    breakOptions.push(icebreakerList[num]);
                     usedIce.push(num);
                 }
             }
-
             setIcebreakers(breakOptions);
-        });
     }, [loading]);
 
     // Checks whether we should disable the Post button or not
