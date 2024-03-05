@@ -102,6 +102,8 @@ const Auth = () => {
               response.user.sendEmailVerification();
             });
           }
+        } else {
+          alert("Something went wrong, please try again.");
         }
       } catch (error) {
         alert(error.message);
