@@ -37,6 +37,7 @@ import { checkProfanity } from "../../methods";
 import Checkbox from "../../components/Checkbox";
 import TextInput from "../../components/TextInput";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
+import icebreakerList from "../../icebreakerList";
 import { FontAwesome } from "@expo/vector-icons";
 
 export default function ({ navigation }) {
@@ -97,19 +98,15 @@ export default function ({ navigation }) {
     useEffect(() => {
         // Picks icebreaker set from set of icebreakers randomly
         var breakOptions = [];
-        var usedIce = [];
-        db.collection("Icebreakers").doc("icebreakers").get().then(doc => {
+        var usedIce = {};
             while (breakOptions.length < 5) {
-                var num = Math.floor(Math.random()*(doc.data().icebreakers.length-1));
-                
-                if(!usedIce.includes(num)) {
-                    breakOptions.push(doc.data().icebreakers[num]);
-                    usedIce.push(num);
+                var num = Math.floor(Math.random()*(icebreakerList.length));
+                if(!usedIce.hasOwnProperty(num)) {
+                    breakOptions.push(icebreakerList[num]);
+                    usedIce[num] = null;
                 }
             }
-
             setIcebreakers(breakOptions);
-        });
     }, [loading]);
 
     // Checks whether we should disable the Post button or not
