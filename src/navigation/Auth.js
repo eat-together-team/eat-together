@@ -19,6 +19,8 @@ import AvailabilitiesHome from "../screens/auth/Registration/AvailabilitiesHome"
 import Availabilities from "../screens/auth/Registration/Availabilities";
 import Day from "../screens/auth/Registration/Day";
 
+import Experiment from "../screens/Experiment";
+
 import { db, auth, storage } from "../provider/Firebase";
 import moment from "moment";
 
@@ -100,6 +102,8 @@ const Auth = () => {
               response.user.sendEmailVerification();
             });
           }
+        } else {
+          alert("Something went wrong, please try again.");
         }
       } catch (error) {
         alert(error.message);
@@ -228,6 +232,7 @@ const Auth = () => {
       initialRouteName="Landing"
     >
       <Stack.Screen name="Landing" component={Landing} />
+      <Stack.Screen name="Experiment" component={Experiment} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="ForgetPassword" component={ForgetPassword} />
 

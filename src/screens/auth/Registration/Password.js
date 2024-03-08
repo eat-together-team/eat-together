@@ -148,7 +148,7 @@ const Password = props => {
               onPress={() => showToS()}
               marginHorizontal={10}
             >
-              Finish!
+              {!props.loading ? "Finish!" : "Loading..."}
             </Button>
           </View>
 

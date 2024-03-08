@@ -53,9 +53,6 @@ async function sendInvitation(ref, invite, user, id) {
       location: invite.location,
       name: invite.name,
       inviteID: id,
-    })
-    .then((r) => {
-      invite.clearAll();
     });
 }
 
@@ -127,7 +124,10 @@ async function sendInvites(
       createNewChat(userIDs, chatID, invite.name, false);
       
       navigation.goBack();
-      clearAll();
+      if (clearAll) {
+        clearAll();
+      }
+
       alert("Invitations sent! Make sure to do attendance when the meal starts!");
     });
 }
@@ -388,7 +388,7 @@ export default function ({ route, navigation }) {
             users.filter((user) => user.invited).forEach((attendee) => {
               const ref = db.collection("User Invites").doc(attendee.id);
               ref.get().then(async (docRef) => {
-                if (attendee !== user.id) {
+                if (attendee.id !== user.id) {
                   await sendInvitation(ref, route.params, userInfo, route.params.id);
                 }
               });
