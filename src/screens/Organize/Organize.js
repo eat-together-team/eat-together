@@ -98,12 +98,12 @@ export default function ({ navigation }) {
     useEffect(() => {
         // Picks icebreaker set from set of icebreakers randomly
         var breakOptions = [];
-        var usedIce = [];
+        var usedIce = {};
             while (breakOptions.length < 5) {
                 var num = Math.floor(Math.random()*(icebreakerList.length));
-                if(!usedIce.includes(num)) {
+                if(!usedIce.hasOwnProperty(num)) {
                     breakOptions.push(icebreakerList[num]);
-                    usedIce.push(num);
+                    usedIce[num] = null;
                 }
             }
             setIcebreakers(breakOptions);
