@@ -5,6 +5,7 @@ import NotificationFull from "./NotificationFull";
 import ReportInvite from "./ReportInvite";
 import Requests from "../Connections/Requests";
 import ChatMain from "../Chat/ChatMain";
+import ChatRoom from "../Chat/ChatRoom";
 
 import FullCard from "../Profile/FullCard";
 import FullProfile from "../Explore/People/FullProfile";
@@ -34,6 +35,7 @@ export default function ({ route }) {
       <Stack.Screen name="ReportInvite" component={ReportInvite} />
       <Stack.Screen name="Requests" component={Requests} />
       <Stack.Screen name="ChatMain" component={ChatMain} />
+      <Stack.Screen name="ChatRoom" component={ChatRoom} />
     </Stack.Navigator>
   );
 }

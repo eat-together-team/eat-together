@@ -22,6 +22,7 @@ The majority of development will be happening in the `src` folder. Inside the `s
 2. `navigation`: contains files related to how you navigate around the app as well as authenticating users.
 3. `provider`: contains Firebase-related files.
 4. `screens`: all of the app's pages are located here! Most of your work will be done here. Any questions about this subdirectory can be directed to Rachel, Eric, or Arya!
+5. `tests`: all components' and functions' unit tests will be in here.
 
 There are also some miscellaneous JS scripts (e.g. `allTags.js`) in `src`:
 
@@ -89,7 +90,13 @@ yarn start
 
 ```
 
-7. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app.
+8. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app.
+
+### Testing
+Before you commit your code, you can run all tests / submit new test cases for files you have worked on. To run all tests, use the following command:
+```sh
+npm tests
+```
 
 ### Firebase Backend Setup (Ignore this section if you used the `.env` file)
 
