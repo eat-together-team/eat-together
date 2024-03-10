@@ -39,8 +39,7 @@ import {
 } from "react-native-popup-menu";
 import openMap from "react-native-open-maps";
 
-
-const WhileYouEat = ({ route, navigation }) => {c
+const WhileYouEat = ({ route, navigation }) => {
   // Event details
   const [event, setEvent] = useState(route.params.event);
   const [friend, setFriend] = useState(null); // Display a friend who is also attending the event

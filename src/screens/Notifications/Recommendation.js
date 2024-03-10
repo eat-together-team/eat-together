@@ -248,17 +248,9 @@ const Recommendation = ({ route, navigation }) => {
         }
         leftAction={() => navigation.goBack()}
       />
-      {/* In-event chat button */}
-      <View style={styles.eventChat}>
-        <CircularButton onPress={() => goToEventChat()}>
-          {/* {groupChat && groupChat.unread && <View style={styles.unread}/>} */}
-          <Ionicons name="chatbox-ellipses-outline" size={30} />
-        </CircularButton>
-      </View>
+      
       <ScrollView>
-        <View style={styles.infoContainer}>
-          
-
+        <View style={styles.infoContainer}>  
           <Container>
             <Image
               style={styles.image}
@@ -296,55 +288,62 @@ const Recommendation = ({ route, navigation }) => {
             {/* 3 meetup details (location, date, time} + menu are below */}
 
             <View style={styles.logistics}>
-                <View style={styles.row}>
-                  <Ionicons name="location-sharp" size={20} />
-                  <NormalText paddingHorizontal={10} color="black">
-                    {route.params.event.location}
-                  </NormalText>
-                  <Link
-                    onPress={() =>
-                      openMap({ query: route.params.event.location, provider: "google" })
-                    }
-                  >
-                    (map)
-                  </Link>
-                </View>
+              {/* In-event chat button */}
+              <View style={styles.eventChat}>
+                <CircularButton onPress={() => goToEventChat()}>
+                  {/* {groupChat && groupChat.unread && <View style={styles.unread}/>} */}
+                  <Ionicons name="chatbox-ellipses-outline" size={30} />
+                </CircularButton>
+              </View>
+              <View style={styles.row}>
+                <Ionicons name="location-sharp" size={20} />
+                <NormalText paddingHorizontal={10} color="black">
+                  {route.params.event.location}
+                </NormalText>
+                <Link
+                  onPress={() =>
+                    openMap({ query: route.params.event.location, provider: "google" })
+                  }
+                >
+                  (map)
+                </Link>
+              </View>
 
-                <View style={styles.row}>
-                  <Ionicons name="calendar-outline" size={20} />
-                  <NormalText paddingHorizontal={10} color="black">
-                      {route.params.event.startDate ? getDate(route.params.event.startDate.toDate()) : getDate(route.params.event.date.toDate())}
-                  </NormalText>
-                </View>
+              <View style={styles.row}>
+                <Ionicons name="calendar-outline" size={20} />
+                <NormalText paddingHorizontal={10} color="black">
+                    {route.params.event.startDate ? getDate(route.params.event.startDate.toDate()) : getDate(route.params.event.date.toDate())}
+                </NormalText>
+              </View>
 
-                <View style={styles.row}>
-                  <Ionicons name="time-outline" size={20} />
-                  <NormalText paddingHorizontal={10} color="black">
-                      {route.params.event.startDate ? getTime(route.params.event.startDate.toDate()) : getTime(route.params.event.date.toDate())}
-                      {route.params.event.endDate && " - ".concat(getTime(route.params.event.endDate.toDate()))}
-                  </NormalText>
-                </View>
+              <View style={styles.row}>
+                <Ionicons name="time-outline" size={20} />
+                <NormalText paddingHorizontal={10} color="black">
+                    {route.params.event.startDate ? getTime(route.params.event.startDate.toDate()) : getTime(route.params.event.date.toDate())}
+                    {route.params.event.endDate && " - ".concat(getTime(route.params.event.endDate.toDate()))}
+                </NormalText>
+              </View>
 
-                <View style={{...styles.row, marginTop: 10}}>
-                  <Ionicons name="star-outline" size={20} />
-                  <NormalText paddingHorizontal={10} color="black">
-                      Rating: {route.params.event.rating} stars
-                  </NormalText>
-                </View>
+              <View style={{...styles.row, marginTop: 10}}>
+                <Ionicons name="star-outline" size={20} />
+                <NormalText paddingHorizontal={10} color="black">
+                    Rating: {route.params.event.rating} stars
+                </NormalText>
+              </View>
 
-                <View style={styles.row}>
-                  <FontAwesome5 name="comment-dollar" size={20} />
-                  <NormalText paddingHorizontal={10} color="black">
-                      Pricing: {route.params.event.price}
-                  </NormalText>
-                </View>
+              <View style={styles.row}>
+                <FontAwesome5 name="comment-dollar" size={20} />
+                <NormalText paddingHorizontal={10} color="black">
+                    Pricing: {route.params.event.price}
+                </NormalText>
+              </View>
 
-                <View style={styles.row}>
-                  <FontAwesome5 name="external-link-alt" size={20}/>
-                  <Link onPress={() => Linking.openURL(route.params.event.url)} paddingHorizontal={10}>
-                      More info
-                  </Link>
-                </View>
+              <View style={styles.row}>
+                <FontAwesome5 name="external-link-alt" size={20}/>
+                <Link onPress={() => Linking.openURL(route.params.event.url)} paddingHorizontal={10}>
+                    More info
+                </Link>
+              </View>
             </View>
 
             {route.params.event.menu && <View>
@@ -418,8 +417,8 @@ const styles = StyleSheet.create({
 
   eventChat: {
     position: "absolute",
-    bottom: 30,
-    right: 30,
+    bottom: 0,
+    right: 0,
     zIndex: 1,
   },
 
