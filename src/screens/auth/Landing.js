@@ -74,11 +74,11 @@ export default function ({ navigation }) {
               <MediumText center color="grey">Explore as a guest!</MediumText>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => {
+            {/*<TouchableOpacity onPress={() => {
               navigation.navigate("Experiment");
             }} style={{ marginTop: 20 }}>
               <MediumText center>👀</MediumText>
-            </TouchableOpacity>
+            </TouchableOpacity>*/}
           </View>
         </ScrollView>
     </KeyboardAvoidingView>

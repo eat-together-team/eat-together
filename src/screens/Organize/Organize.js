@@ -99,14 +99,15 @@ export default function ({ navigation }) {
         // Picks icebreaker set from set of icebreakers randomly
         var breakOptions = [];
         var usedIce = {};
-            while (breakOptions.length < 5) {
-                var num = Math.floor(Math.random()*(icebreakerList.length));
-                if(!usedIce.hasOwnProperty(num)) {
-                    breakOptions.push(icebreakerList[num]);
-                    usedIce[num] = null;
-                }
+        
+        while (breakOptions.length < 5) {
+            var num = Math.floor(Math.random()*(icebreakerList.length));
+            if(!usedIce.hasOwnProperty(num)) {
+                breakOptions.push(icebreakerList[num]);
+                usedIce[num] = null;
             }
-            setIcebreakers(breakOptions);
+        }
+        setIcebreakers(breakOptions);
     }, [loading]);
 
     // Checks whether we should disable the Post button or not
