@@ -161,6 +161,22 @@ export default function ({ navigation }) {
 
     // For selecting a photo
     const handleChoosePhoto = async () => {
+        Alert.alert(
+            "Pick Image",
+            "Choose an image for your event",
+            [
+                {
+                    text: "Gallery",
+                    onPress: () => galleryImageSelector(),
+                },
+                { text: "Take a photo", onPress: () => cameraImageSelector() },
+            ],
+            { cancelable: false }
+        );
+    };
+
+    //For selecting a photo from gallery 
+    const galleryImageSelector = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsEditing: true,
@@ -170,6 +186,24 @@ export default function ({ navigation }) {
             setPhoto(result.uri);
         }
     };
+
+    //For selecting a photo by capturing an image with camera
+    const cameraImageSelector = async() => {
+        try {
+            await ImagePicker.requestCameraPermissionsAsync({});
+            let result  = await ImagePicker.launchCameraAsync({
+                cameraType: ImagePicker.CameraType.back,
+                allowsEditing: true,
+                quality: 1,
+            });
+            if (!result.cancelled) {
+                setPhoto(result.uri);
+            }
+        } catch (error) {
+            alert("Error uploading message: " + error.message);
+        }
+    };
+
 
     // Stores image in Firebase Storage
     const storeImage = async (uri, event_id) => {
