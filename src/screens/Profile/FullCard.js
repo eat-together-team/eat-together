@@ -18,6 +18,7 @@ import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 import TagsList from "../../components/TagsList";
 import Link from "../../components/Link";
+import Toggle from "../../components/Toggle";
 
 import getDate from "../../getDate";
 import getTime from "../../getTime";
@@ -25,9 +26,45 @@ import getTime from "../../getTime";
 import { auth } from "../../provider/Firebase";
 import openMap from "react-native-open-maps";
 
+import { useState, useEffect } from "react";
+import PeopleList from "../../components/PeopleList";
+import { db } from "../../provider/Firebase";
+
+
 const FullCard = ({ route, navigation }) => {
   const user = auth.currentUser;
 
+  const [attendees, setAttendees] = useState([]);
+  const [people, setPeople] = useState([]);
+  const [openAttendance, setOpenAttendance] = useState(false);
+
+  useEffect(() => {
+    const event = route.params.event;  // Get the event from route parameters
+    const getAttendees = () => {
+      event.attendees.forEach((attendee) => {
+        if (attendee !== user.uid) {
+          db.collection("Users")
+            .doc(attendee)
+            .get()
+            .then((doc) => {
+              const data = doc.data();
+              let attended = false;
+              const ids = data.attendedEventIDs.map((e) => e.id);
+  
+              if (ids.includes(event.id)) {
+                attended = true;
+              }
+  
+              setPeople((people) => [...people, data]);
+              setAttendees((attendees) => [...attendees, attended]);
+            });
+        }
+      });
+    };
+  
+    getAttendees();
+  }, [route.params.event]);  // Re-fetch if the event changes
+  
   // Adds event to Google Calendar
   const addToCalendar = async () => {
     const details = {
@@ -86,8 +123,7 @@ const FullCard = ({ route, navigation }) => {
           </View>
 
           {route.params.event.tags && route.params.event.tags.length > 0 &&
-            <TagsList marginVertical={20} tags={route.params.event.tags} left/>}
-
+            <TagsList marginVertical={10} tags={route.params.event.tags} left/>}
           {/* 3 event details (location, date, time} are below */}
 
           <View style={styles.logistics}>
@@ -120,9 +156,44 @@ const FullCard = ({ route, navigation }) => {
             </View>
           </View>
 
-          <NormalText marginBottom={20} color="black">
+          {route.params.event.additionalInfo !== "" && <NormalText marginBottom={20} color="black">
             {route.params.event.additionalInfo}
-          </NormalText>
+          </NormalText>}
+
+          {/* Attendance dropdown */}
+          <Toggle 
+            open={openAttendance}
+            onPress={() => setOpenAttendance(!openAttendance)}
+            title="Attendance"
+          />
+
+          {openAttendance && (
+            <View style={{ marginTop: 10 }}>
+              {people.length === 0 ? (
+                <NormalText paddingHorizontal={25} size={17} color="black">
+                  {"Just yourself"}
+                </NormalText>
+              ) : (
+                people.map((person, index) => {
+                  if (person.id !== user.uid) {
+                    return (
+                      <PeopleList
+                        person={person}
+                        key={person.id}
+                        color="white"
+                        width="100%"
+                        click={() => {
+                          navigation.navigate("FullProfile", {
+                              person: person
+                          });
+                        }}
+                      />
+                    );
+                  }
+                })
+              )}
+            </View>
+          )}
         </View>        
       </ScrollView>
     </Layout>
