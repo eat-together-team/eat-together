@@ -163,13 +163,8 @@ export default function ({ navigation }) {
 
   return (
     <Layout>
-      <Header name="Explore" navigation={navigation} hasNotif={unread} notifs/>
-      <HorizontalSwitch
-        left="Meals"
-        right="People"
-        current="right"
-        press={() => navigation.navigate("Explore")}
-      />
+      <Header name="Choose a Buddy" navigation={navigation} hasNotif={unread} notifs/>
+
 
       <View style={{ paddingHorizontal: 20 }}>
         <Searchbar
