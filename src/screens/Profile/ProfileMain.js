@@ -13,10 +13,14 @@ import SuggestIdea from "./SuggestIdea";
 import FullProfile from "../Explore/People/FullProfile";
 import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
 import ReportPerson from "../Explore/People/ReportPerson";
+// Buddy Page import
+import BuddyPage from "./BuddyPage";
 
 import AvailabilitiesHome from "./Availabilities/AvailabilitiesHome";
 import Availabilities from "./Availabilities/Availabilities";
 import Colorpicker from "./ColorPicker";
+
+
 
 const Stack = createStackNavigator();
 
@@ -36,6 +40,8 @@ export default function () {
       <Stack.Screen name="Requests">
         {props => <Requests {...props} back="Me" />}
       </Stack.Screen>
+      {/* Adding the buddy page to the navigation stack*/}
+      <Stack.Screen name="BuddyPage" component={BuddyPage} />
 
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="FullCard" component={FullCard} />
