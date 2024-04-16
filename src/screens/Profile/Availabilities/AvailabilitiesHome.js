@@ -23,7 +23,7 @@ WebBrowser.maybeCompleteAuthSession();
 const AvailabilitiesHome = props => {
   const [request, response, promptAsync] = Google.useAuthRequest({
     expoClientId: process.env.GOOGLE_AUTH_CLIENT_ID ?
-      process.env.GOOGLE_AUTH_CLIENT_ID : GOOGLE_AUTH_CLIENT_ID,
+      process.env.GOOGLE_AUTH_CLIENT_ID : "1004653565107-1jajpuo1cho9m0701ughqisv8qkdmb72.apps.googleusercontent.com",
     iosClientId: process.env.GOOGLE_AUTH_CLIENT_ID_IOS ?
       process.env.GOOGLE_AUTH_CLIENT_ID_IOS : "1004653565107-oocja2deroml771ite7grg9gkb31g0ck.apps.googleusercontent.com",
     androidClientId: process.env.GOOGLE_AUTH_CLIENT_ID_ANDROID ?

@@ -5,7 +5,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "eject": "expo eject",
-    "eas-build-pre-install": "npm i"
+    "eas-build-pre-install": "npm i",
+    "test": "jest"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.2.2",
@@ -48,8 +49,9 @@
     "react-native-color-picker": "^0.6.0",
     "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "~2.12.0",
+    "react-native-gradle-plugin": "^0.71.19",
     "react-native-image-crop-picker": "0.38.1",
-    "react-native-image-picker": "^4.8.3",
+    "react-native-image-picker": "^4.10.0",
     "react-native-modal-datetime-picker": "^14.0.0",
     "react-native-open-maps": "^0.4.0",
     "react-native-popup-menu": "^0.16.1",
@@ -68,12 +70,14 @@
     "yelp-fusion": "^3.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9",
+    "@babel/core": "^7.20.0",
+    "@testing-library/react-native": "^12.4.3",
+    "jest": "^29.7.0",
     "react-native-dotenv": "^3.3.1"
   },
   "private": true,
   "name": "eat-together",
-  "version": "0.9.1",
+  "version": "1.1.0",
   "description": "Connecting students through shared meals. Our app allows you to create and join food meetups with ease.",
   "main": "index.js",
   "repository": {

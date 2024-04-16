@@ -22,6 +22,7 @@ The majority of development will be happening in the `src` folder. Inside the `s
 2. `navigation`: contains files related to how you navigate around the app as well as authenticating users.
 3. `provider`: contains Firebase-related files.
 4. `screens`: all of the app's pages are located here! Most of your work will be done here. Any questions about this subdirectory can be directed to Rachel, Eric, or Arya!
+5. `tests`: all components' and functions' unit tests will be in here.
 
 There are also some miscellaneous JS scripts (e.g. `allTags.js`) in `src`:
 
@@ -67,25 +68,21 @@ yarn install
 
 ```
 
-5. To link this project with Firebase, download the `.env` file from our [Google Drive](https://drive.google.com/drive/folders/1Sd5dg3o2bf9jp_CcY5rv2EPJ_zzD0fJh). Simply put it in the root directory.
-6. In `app.json`, comment out the line that says `"runtimeVersion": "1.0.0"` (if it isn't commented out already).
-7. Start the environment:
+5. To link this project with Firebase, download the `.env` file from our Google Drive. Simply put it in the root directory. Download links are below!
+
+Core team link: [https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AOOH/view?usp=drive_link](https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AOOH/view?usp=drive_link)
+
+Cohort members link: [https://drive.google.com/file/d/1nnjE3IeRhIdSdvf0qlhD68gS5fqfhzSw/view?usp=drive_link](https://drive.google.com/file/d/1nnjE3IeRhIdSdvf0qlhD68gS5fqfhzSw/view?usp=drive_link)
+
+6. Start the environment using expo:
 
 ```jsx
-npm start
-
-
-```
-
-or start directly from expo:
-
-```sh
 expo start
 
 
 ```
 
-for yarn users, use the following command:
+For yarn users, use the following command:
 
 ```sh
 yarn start
@@ -93,7 +90,13 @@ yarn start
 
 ```
 
-7. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app.
+8. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app.
+
+### Testing
+Before you commit your code, you can run all tests / submit new test cases for files you have worked on. To run all tests, use the following command:
+```sh
+npm tests
+```
 
 ### Firebase Backend Setup (Ignore this section if you used the `.env` file)
 
