@@ -165,7 +165,6 @@ export default function ({ navigation }) {
     <Layout>
       <Header name="Choose a Buddy" navigation={navigation} hasNotif={unread} notifs/>
 
-
       <View style={{ paddingHorizontal: 20 }}>
         <Searchbar
           placeholder="Search by name, username, or tags"
