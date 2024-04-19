@@ -22,6 +22,7 @@ const MediumText = props => {
     return (
         <Text style={[{
             fontSize: props.size ? props.size : 20,
+            // Determines the font weight based on the 'use700' prop. If true, uses 'Inter_700Bold' for a bolder text appearance, otherwise defaults to 'Inter_600SemiBold'.
             fontFamily: props.use700 ? 'Inter_700Bold' : 'Inter_600SemiBold',
             color: props.color ? props.color : "black",
             textAlign: props.center ? "center" : "auto",
