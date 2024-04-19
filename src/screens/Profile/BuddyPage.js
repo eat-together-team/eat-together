@@ -1,4 +1,6 @@
-//Meet other people
+// BuddyPage Screen: Designed to help users find and connect with potential buddies based on shared interests, mutual friends, and search queries.
+// This screen fetches all users from the database, filters to exclude the current user, blocked users, and non-friends, and applies filters for similar interests and mutual friends.
+// Users can also search for others by name, username, or tags, enhancing the ability to find suitable buddies.
 
 import React, { useEffect, useState } from "react";
 import { FlatList, View, ActivityIndicator, StyleSheet } from "react-native";
@@ -40,6 +42,7 @@ export default function ({ navigation }) {
   const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
 
   // Fetch all users
+  // This useEffect hook fetches all users from the database, excluding the current user, blocked users, and non-friends. It also applies initial filters based on verified status and privacy settings.
   useEffect(() => {
     // updates stuff right after React makes changes to the DOM
     async function fetchData() {
@@ -100,6 +103,7 @@ export default function ({ navigation }) {
 
 
   // Filters
+  // This useEffect hook applies filters based on similar interests and mutual friends. It updates the displayed list of users based on the selected filters.
   useEffect(() => {
     async function filter() {
       setLoading(true);
