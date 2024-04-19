@@ -224,6 +224,8 @@ export default function ({ navigation }) {
           <MediumText>@{userInfo.username}</MediumText>
         </View>
 
+        // 'Find a Buddy' feature: Allows users to navigate to the BuddyPage to find and connect with potential buddies.
+        // This option is shown to users who do not currently have a buddy.
         <View style = {styles.link}>
         <TouchableOpacity
           style ={styles.link}
@@ -232,6 +234,7 @@ export default function ({ navigation }) {
           }}>
           <NormalText>You do not have a buddy</NormalText>
             <AntDesign name="adduser" size={24} color="#4C6FB1" />
+            // Icon and text prompting users to find a buddy if they haven't connected with one yet.
             <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
           </TouchableOpacity>
         </View>
