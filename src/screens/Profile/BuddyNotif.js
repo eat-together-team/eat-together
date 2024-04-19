@@ -20,6 +20,9 @@ import { db, auth } from "../../provider/Firebase";
 import { sortBySimilarInterests } from "../../methods";
 import { tryoutId } from "../../constants";
 
+// BuddyNotif Screen: Allows users to explore and connect with other users based on mutual interests, mutual friends, and search queries.
+// It fetches all users from the database, filters out the current user, blocked users, and non-friends, then applies additional filters based on similar interests and mutual friends.
+// The search feature enables users to filter further based on name, username, or tags.
 export default function ({ navigation }) {
   // Fetch current user
   const user = auth.currentUser;
@@ -41,6 +44,7 @@ export default function ({ navigation }) {
   const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
 
   // Fetch all users
+  // This useEffect hook fetches all users from the database, excluding the current user, blocked users, and non-friends. It also applies initial filters based on verified status and privacy settings.
   useEffect(() => {
     // updates stuff right after React makes changes to the DOM
     async function fetchData() {
@@ -101,6 +105,7 @@ export default function ({ navigation }) {
 
 
   // Filters
+  // This useEffect hook applies filters based on similar interests and mutual friends. It updates the displayed list of users based on the selected filters.
   useEffect(() => {
     async function filter() {
       setLoading(true);
