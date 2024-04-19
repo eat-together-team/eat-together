@@ -27,17 +27,27 @@ import moment from "moment";
 const Stack = createStackNavigator();
 const Auth = () => {
   // Name.js
+  // Stores the user's first name entered during registration
   const [firstName, setFirstName] = useState("");
+  // Stores the user's last name entered during registration
   const [lastName, setLastName] = useState("");
+  // Stores the user's age entered during registration
   const [age, setAge] = useState("");
+  // Stores the user's pronouns selected during registration
   const [pronouns, setPronouns] = useState("");
+  // Stores the user's biography entered during registration
   const [bio, setBio] = useState("");
+  // Stores the image URI for the user's profile picture
   const [image, setImage] = useState("");
+  // Stores the user's school name entered during registration
   const [school, setSchool] = useState("");
 
   // Tags.js
+  // Stores tags related to the user's school interests
   const [schoolTags, setSchoolTags] = useState([]);
+  // Stores tags related to the user's hobbies
   const [hobbyTags, setHobbyTags] = useState([]);
+  // Stores tags related to the user's food preferences
   const [foodTags, setFoodTags] = useState([]);
 
   // Email.js
@@ -53,12 +63,17 @@ const Auth = () => {
   const [sunday, setSunday] = useState([]);
 
   // Password
+  // Stores the chosen username during registration
   const [username, setUsername] = useState("");
+  // Stores the chosen password during registration
   const [password, setPassword] = useState("");
+  // Indicates whether the registration process is currently loading
   const [loading, setLoading] = useState(false);
 
+  // Stores a list of all existing usernames to check for uniqueness
   const [usernames, setUsernames] = useState([]); // List of all usernames
 
+  // Stores a list of user's buddies
   const [buddy, setBuddy] = useState([]); // List of all buddies
 
   useEffect(() => {
@@ -75,6 +90,9 @@ const Auth = () => {
       });
   }, []);
 
+  // Function to create a new user account
+  // It checks for username uniqueness, creates a user with email and password,
+  // and stores user information in the database including handling image storage
   const createUser = async () => {
     setLoading(true);
 
