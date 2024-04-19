@@ -42,7 +42,9 @@ export default function () {
         {props => <Requests {...props} back="Me" />}
       </Stack.Screen>
       {/* Adding the buddy page to the navigation stack*/}
+      // BuddyPage: Screen for finding and connecting with potential buddies.
       <Stack.Screen name="BuddyPage" component={BuddyPage} />
+      // BuddyNotif: Screen for managing buddy requests and notifications.
       <Stack.Screen name="BuddyNotif" component={BuddyNotif} />
 
       <Stack.Screen name="Settings" component={Settings} />
