@@ -17,6 +17,7 @@ import ReportPerson from "../Explore/People/ReportPerson";
 import BuddyPage from "./BuddyPage";
 import BuddyRequest from "./BuddyRequest";
 
+import BuddyNotif from "./BuddyNotif";
 
 import AvailabilitiesHome from "./Availabilities/AvailabilitiesHome";
 import Availabilities from "./Availabilities/Availabilities";
