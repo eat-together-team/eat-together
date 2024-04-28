@@ -21,7 +21,7 @@ import EventCard from "../../components/EventCard";
 import NormalText from "../../components/NormalText";
 import WithBadge from "../../components/WithBadge";
 
-import ProfileBubble from "../../components/ProfileBubble";
+import RequestBubble from "../../components/RequestBubble";
 
 import {
   Menu,
@@ -276,11 +276,11 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
 
       {/* Box for person's profile in buddy request page */}
       <View style={{ flex: 1, alignItems: "center" }}>
-        <ProfileBubble
-          person={item}
+        <RequestBubble
+          person={route.params.person}
           click={() => {
             navigation.navigate("BuddyRequest", {
-              person: item,
+              person: route.params.person.id,
             });
          }}
         />
@@ -288,19 +288,19 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
 
 
 
-        <Image
+        {/* <Image
           style={styles.image}
           source={
             route.params.person.hasImage
               ? { uri: route.params.person.image }
               : require("../../../assets/logo.png")
           }
-        />
+        /> */}
 
-        <View style={styles.name}>
+        {/* <View style={styles.name}>
           <LargeText size={24}>
             {route.params.person.firstName + " " + route.params.person.lastName + " (" + route.params.person.pronouns + ")"}
-          </LargeText>
+          </LargeText> */}
           {/* <NormalText marginBottom={5}>🏫 {route.params.person.school ? route.params.person.school : "UW-Seattle"}</NormalText>
           <NormalText>
             🍽️ {route.params.person.attendedEventIDs.length +
@@ -309,8 +309,8 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
                 route.params.person.attendingEventIDs.length) +
               " meals attended"}
           </NormalText> */}
-          <MediumText>@{route.params.person.username}</MediumText>
-
+          {/* <MediumText>@{route.params.person.username}</MediumText> */}
+{/*
           {tryoutId != user.uid && (
             <View style={{  marginVertical: 10 }}>
               <Button
@@ -337,9 +337,9 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
               </TouchableOpacity>
             </View>
           )}
-        </View>
+        </View> */}
 
-        <TagsList tags={route.params.person.tags} />
+        {/* <TagsList tags={route.params.person.tags} />
         <MediumText center>{route.params.person.bio}</MediumText>
         <View style={styles.cards}>
           {events.map((event) => (
@@ -353,7 +353,7 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
               }}
             />
           ))}
-        </View>
+        </View> */}
       </ScrollView>
     </Layout>
   );
