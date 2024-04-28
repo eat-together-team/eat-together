@@ -20,6 +20,7 @@ import Button from "../../components/Button";
 import EventCard from "../../components/EventCard";
 import NormalText from "../../components/NormalText";
 import WithBadge from "../../components/WithBadge";
+import Header from "../../components/Header";
 
 import RequestBubble from "../../components/RequestBubble";
 
@@ -264,7 +265,7 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
         leftContent={<Ionicons name="chevron-back" size={20} />}
         leftAction={() => navigation.goBack()}
       />
-
+      <Header name="Send Buddy Request"/>
       <ScrollView contentContainerStyle={styles.page}>
 
         {/* <View style={styles.badge}>
