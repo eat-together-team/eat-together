@@ -7,7 +7,7 @@ import ReportEvent from "./ReportEvent";
 import EditEvent from "./EditEvent";
 import FullProfile from "../Explore/People/FullProfile";
 import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
-
+import Gallery from "./Gallery";
 import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ChatRoom from "../Chat/ChatRoom";
@@ -39,6 +39,7 @@ export default function () {
       <Stack.Screen name="ChatRoom" component={ChatRoom} />
       <Stack.Screen name="Recommendation" component={Recommendation} />
       <Stack.Screen name="InvitePeople" component={InvitePeople} />
+      <Stack.Screen name="Gallery" component={Gallery} />
     </Stack.Navigator>
   );
 }
