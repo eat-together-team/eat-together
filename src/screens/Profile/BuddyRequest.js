@@ -23,6 +23,8 @@ import WithBadge from "../../components/WithBadge";
 import Header from "../../components/Header";
 
 import RequestBubble from "../../components/RequestBubble";
+import RequestMessage from "../../components/RequestMessage";
+import BorderedButton from "../../components/BorderedButton";
 
 import {
   Menu,
@@ -285,6 +287,17 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
             });
          }}
         />
+        <RequestMessage/>
+        <BorderedButton
+          marginHorizontal={10}
+          paddingVertical={10}
+          paddingHorizontal={20}
+          width={Dimensions.get('screen').width - 40}
+          height={38}
+          fontSize={14}
+        >
+          Send without message
+        </BorderedButton>
       </View>
 
 
