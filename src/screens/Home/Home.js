@@ -25,7 +25,7 @@ import RecommendationsCard from "../../components/RecommendationsCard";
 export default function ({ navigation }) {
   // Get current user
   const user = auth.currentUser;
-  
+
   const [userInfo, setUserInfo] = useState(null);
   const [step, setStep] = useState(0); // Used to display tutorial message
   const [recStep, setRecStep] = useState(0);  // Used to display rec tutorial message
@@ -65,7 +65,7 @@ export default function ({ navigation }) {
     console.log(step);
   }, [step]);
 
-  useEffect(() => {    
+  useEffect(() => {
     // updates stuff right after React makes changes to the DOM
     async function fetchEvents() {
       await db
@@ -212,7 +212,7 @@ export default function ({ navigation }) {
   };
 
   // Determines if an event matches search query or not
-  const isMatch = (event, text) => {    
+  const isMatch = (event, text) => {
     // Name
     if (event.name.toLowerCase().includes(text.toLowerCase())) {
       return true;
@@ -224,12 +224,12 @@ export default function ({ navigation }) {
         return true;
       }
     }
-    
+
     // Host
     if (event.hostName) {
       return event.hostName.toLowerCase().includes(text.toLowerCase());
     }
-    
+
     const fullName = event.hostFirstName + " " + event.hostLastName;
     return fullName.toLowerCase().includes(text.toLowerCase());
   }
@@ -439,18 +439,18 @@ export default function ({ navigation }) {
       completed: true,
     }
   ];
-  
+
 
   // Callback function to update user info
   const setuserInfoCallBack = () => {
     // Create a new object rather than mutating the existing one to ensure React updates the component
     const updatedUserInfo = { ...userInfo, tutorial: false };
     setUserInfo(updatedUserInfo);
-  
+
     // Set tabsTutorial to false and attendingTutorial to true to initiate RecTutorialMessage
     setTabsTutorial(false);
     setAttendingTutorial(true);
-  
+
     // Update the database with new values for tabsTutorial and attendingTutorial
     db.collection('Users').doc(user.uid).set({
       settings: {
@@ -477,7 +477,7 @@ export default function ({ navigation }) {
         if (data.settings?.attendingTutorial !== undefined) {
           setAttendingTutorial(data.settings.attendingTutorial);
         }
-        
+
       } else {
         console.log('No such document!');
       }
@@ -492,14 +492,14 @@ export default function ({ navigation }) {
   useEffect(() => {
     // Fetch the attendingEvent value from Firebase here
     const docRef = db.collection('Users').doc(user.uid);
-  
+
     // Listen for real-time updates
     const unsubscribe = docRef.onSnapshot((doc) => {
       if (doc.exists) {
         const data = doc.data();
         const attendingEvent = data?.settings?.attendingEvent; // Correct path to attendingEvent
         const completedTutorial = data?.settings?.completedTutorial; // Correct path to attendingTutorial
-  
+
         // Change the recStep based on attendingEvent value
         if (attendingEvent) {
           setRecStep((prevRecStep) => {
@@ -516,10 +516,10 @@ export default function ({ navigation }) {
         }
       }
     });
-  
+
     // Clean up the listener when the component unmounts
     return () => unsubscribe();
-  
+
   }, []);
 
   if (!isDataFetched) return null; // Don't render anything if data hasn't been fetched
@@ -546,7 +546,7 @@ export default function ({ navigation }) {
         </>
       }
 
-      {userInfo && !tabsTutorial && attendingTutorial && 
+      {userInfo && !tabsTutorial && attendingTutorial &&
         <>
           <RecTutorialMessage
             userId={user.uid}
@@ -573,11 +573,11 @@ export default function ({ navigation }) {
         <HorizontalRow>
           <Filter checked={publicEvents || privateEvents}
             onPress={() => showTypeRef.current.open()}
-            text={publicEvents ? "Public" : 
+            text={publicEvents ? "Public" :
               privateEvents ? "Private" : "Type of meal"}/>
           <Filter checked={fromYourself || fromFriends}
             onPress={() => showFromRef.current.open()}
-            text={fromYourself ? "Yourself" : 
+            text={fromYourself ? "Yourself" :
               fromFriends ? "Friends" : "Hosted by"}/>
           <Filter
             checked={friendsAttending}

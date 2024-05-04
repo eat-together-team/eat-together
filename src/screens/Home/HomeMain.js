@@ -13,6 +13,7 @@ import ReportPerson from "../Explore/People/ReportPerson";
 import ChatRoom from "../Chat/ChatRoom";
 import Recommendation from "../Notifications/Recommendation";
 import InvitePeople from "../Organize/InvitePeople";
+import StartGame from "./StartGame";
 
 const Stack = createStackNavigator();
 
@@ -33,12 +34,15 @@ export default function () {
         {props => <FullProfile {...props} blockBack="Home" />}
       </Stack.Screen>
       <Stack.Screen name="AvailabilitiesStatic" component={AvailabilitiesStatic} />
-      
+
       <Stack.Screen name="FullCard" component={FullCard} />
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
       <Stack.Screen name="ChatRoom" component={ChatRoom} />
       <Stack.Screen name="Recommendation" component={Recommendation} />
       <Stack.Screen name="InvitePeople" component={InvitePeople} />
+
+      {/* WYR Game Screens */}
+      <Stack.Screen name="StartGame" component={StartGame}/>
     </Stack.Navigator>
   );
 }
