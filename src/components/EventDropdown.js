@@ -4,9 +4,11 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import NormalText from "./NormalText";
 
 const EventDropdown = ({ visible, onClose }) => {
+  // State for managing dropdown visibility and selected option
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
 
+  // List of event options
   const eventList = [
     "Meetup at Sunright Tea Studio",
     "Meetup at Chipotle",
@@ -14,15 +16,19 @@ const EventDropdown = ({ visible, onClose }) => {
     "Meetup at Jewel of India",
   ];
 
+  // Handler for selecting an option from the dropdown
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
-    setIsDropdownOpen(false);
+    setIsDropdownOpen(false); // Close the dropdown after selection
   };
 
+  // Handler for confirming the selected option
   const handleConfirm = () => {
     console.log("Selected Option:", selectedOption);
+    // Add further logic here for handling the confirmed option
   };
 
+  // Renderer for individual dropdown options
   const renderOption = ({ item }) => (
     <TouchableOpacity
       style={styles.dropdownOption}
@@ -33,13 +39,18 @@ const EventDropdown = ({ visible, onClose }) => {
   );
 
   return (
+    // Modal for displaying the dropdown
     <Modal visible={visible} transparent={true} animationType="fade">
+      {/* Background TouchableOpacity to close the modal */}
       <TouchableOpacity style={styles.modalBackground} onPress={onClose}>
         <View style={styles.modalContainer}>
+          {/* Close button for the modal */}
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Ionicons name="close-outline" size={24} color="black" />
           </TouchableOpacity>
+          {/* Title of the modal */}
           <NormalText style={styles.title}>Assign photo to an event</NormalText>
+          {/* Dropdown button */}
           <TouchableOpacity
             style={styles.dropdown}
             onPress={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -47,12 +58,14 @@ const EventDropdown = ({ visible, onClose }) => {
             <NormalText style={styles.dropdownText}>
               {selectedOption || "Select from your attended events"}
             </NormalText>
+            {/* Dropdown icon */}
             <Ionicons
               name={isDropdownOpen ? "chevron-up" : "chevron-down"}
               size={20}
               color="black"
             />
           </TouchableOpacity>
+          {/* Dropdown list */}
           {isDropdownOpen && (
             <FlatList
               data={eventList}
@@ -61,7 +74,9 @@ const EventDropdown = ({ visible, onClose }) => {
               style={styles.dropdownList}
             />
           )}
+          {/* Spacer */}
           <View style={styles.spacer} />
+          {/* Confirm button */}
           <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
             <NormalText style={styles.confirmButtonText}>Confirm</NormalText>
           </TouchableOpacity>
@@ -71,6 +86,7 @@ const EventDropdown = ({ visible, onClose }) => {
   );
 };
 
+// Styles for the component
 const styles = StyleSheet.create({
   modalBackground: {
     flex: 1,
