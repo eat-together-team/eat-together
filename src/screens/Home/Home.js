@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
 import { View, StyleSheet, FlatList } from "react-native";
 import { Layout } from "react-native-rapi-ui";
+import { Ionicons } from "@expo/vector-icons";
 import RBSheet from "react-native-raw-bottom-sheet";
 
 import EventCard from "../../components/EventCard";
@@ -15,6 +16,8 @@ import LoadingView from "../../components/LoadingView";
 import TutorialMessage from "../../components/TutorialMessage";
 import RecTutorialMessage from "../../components/RecTutorialMessage";
 import Link from "../../components/Link";
+import Button from "../../components/Button"
+import Gallery from "./Gallery";
 
 import { db, auth } from "../../provider/Firebase";
 import { AuthContext } from "../../provider/AuthProvider";
@@ -124,41 +127,42 @@ export default function ({ navigation }) {
     // Get the current recommendations for the user, if any
     async function fetchRecs() {
       await db.collection("Users").doc(user.uid).onSnapshot((doc) => {
-
-        // Gather the recommendation IDs for each recommendation the user has
-        let recIDs = [];
-        doc.data().notifications.forEach(notif => {
-          if(notif.type === "recommendation") recIDs.push(notif.id);
-        });
-
-        if (recIDs.length === 0) {
-          setLoading(false);
-          return;
-        }
-
-        let recEvents = [];
-        let asyncCounter = 0; // Counter to see how many events have been fetched
-        recIDs.forEach(async id => {
-          await db.collection("Private Events").doc(id).get().then(recDoc => {
-            let recDocData = recDoc.data();
-            recDocData.isARec = true;
-            recDocData.hostFirstName = "Eat Together Team!";
-            recDocData.hostLastName = "";
-            recEvents.push(recDocData);
-
-            asyncCounter++;
-            if(asyncCounter === recIDs.length) {
-              recEvents.sort((a, b) => {
-                return compareDates(a, b);
-              });
-
-              setHasRec(true)
-              setRecommendations(recEvents);
-              setLoading(false);
-            }
+        if (doc.data()) {
+          // Gather the recommendation IDs for each recommendation the user has
+          let recIDs = [];
+          doc.data().notifications.forEach(notif => {
+            if(notif.type === "recommendation") recIDs.push(notif.id);
           });
-        });
-      })
+
+          if (recIDs.length === 0) {
+            setLoading(false);
+            return;
+          }
+
+          let recEvents = [];
+          let asyncCounter = 0; // Counter to see how many events have been fetched
+          recIDs.forEach(async id => {
+            await db.collection("Private Events").doc(id).get().then(recDoc => {
+              let recDocData = recDoc.data();
+              recDocData.isARec = true;
+              recDocData.hostFirstName = "Eat Together Team!";
+              recDocData.hostLastName = "";
+              recEvents.push(recDocData);
+
+              asyncCounter++;
+              if(asyncCounter === recIDs.length) {
+                recEvents.sort((a, b) => {
+                  return compareDates(a, b);
+                });
+
+                setHasRec(true)
+                setRecommendations(recEvents);
+                setLoading(false);
+              }
+            });
+          });
+        }
+      });
     }
 
     fetchEvents().then(() => {
@@ -242,18 +246,6 @@ export default function ({ navigation }) {
 
   // Deletes event from DOM and updates Firestore
   const deleteEvent = (id) => {
-    // TODO: Rachel Fix!
-    /*
-        const user = auth.currentUser;
-        db.collection("Private Events").doc(id).update({
-            attendees : firebase.firestore.FieldValue.arrayRemove(user.uid)
-        }).then(() => {
-            db.collection("Private Events").doc(id).get().then((doc) => {
-                if (doc.data().attendees.length == 0) {
-                }
-            });
-        });
-         */
     const newEvents = events.filter((e) => e.id !== id);
     const newFilteredEvents = filteredEvents.filter((e) => e.id !== id);
     const newFilteredSearchedEvents = filteredSearchedEvents.filter((e) => e.id !== id);
@@ -535,10 +527,6 @@ export default function ({ navigation }) {
 
   if (!isDataFetched) return null; // Don't render anything if data hasn't been fetched
 
-  // NOTE: SEE MOCKUPS ON FIGMA FOR REFERENCE!!!
-  // TODO: the dark overlay background and an indicator for the current page being pointed to
-  // (e.g. using a bordered circle) must be added
-  // TODO: add the tutorials for the other pages (will need to look into other files for this)
   return (
     <Layout>
       {userInfo && /*!userInfo.tutorial && */ tabsTutorial && // NOTE: set "userInfo.tutorial" to "!userInfo.tutorial" to see the tutorial
@@ -704,6 +692,12 @@ export default function ({ navigation }) {
           Clear
         </Link>
       </RBSheet>
+            {/* Button to redirect to personal Photo Gallery */}
+
+      <View style={styles.button}>
+        <Button onPress={() => navigation.navigate("Gallery")}> <Ionicons name="md-image-outline" color="white" size={20}/> My Photo Gallery </Button>
+      </View>
+
     </Layout>
   );
 }
@@ -713,5 +707,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 20,
     paddingBottom: 40,
-  }
+  },
+  button: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    zIndex: 1,
+
+},
 });

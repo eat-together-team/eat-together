@@ -10,7 +10,7 @@ import {
     Dimensions,
     Alert
 } from "react-native";
-import { Layout, Picker } from "react-native-rapi-ui";
+import { Layout, Picker, Text, Section, SectionContent } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import eventTags from "../../eventTags";
 
@@ -37,6 +37,8 @@ import { checkProfanity } from "../../methods";
 import Checkbox from "../../components/Checkbox";
 import TextInput from "../../components/TextInput";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
+import icebreakerList from "../../icebreakerList";
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function ({ navigation }) {
     // Current user
@@ -47,7 +49,10 @@ export default function ({ navigation }) {
 
     // The type of event (public or private, for now)
     const [type, setType] = useState(null);
-    const types = ["public", "private"];
+    const types = [
+        { label: 'Public', value: 'public' },
+        { label: 'Private', value: 'private' },
+    ];
 
     // State variables for the inputs
     const [photo, setPhoto] = useState("https://images.unsplash.com/photo-1504674900247-0877df9cc836?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=60&raw_url=true&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8Zm9vZHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=1400");
@@ -60,6 +65,8 @@ export default function ({ navigation }) {
     const [tagsValue, setTagsValue] = useState("");
     const [icebreakers, setIcebreakers] = useState([]);
 
+    const [pickerValue, setPickerValue] = useState(null);
+
     // Other variables
     const [showStartDate, setShowStartDate] = useState(false);
     const [showEndDate, setShowEndDate] = useState(false);
@@ -71,7 +78,6 @@ export default function ({ navigation }) {
     const [semiPrivate, setSemiPrivate] = useState(false); //Checkbox state to see if public event should be semiprivate
 
     const refRBSheet = useRef(); // To toggle the bottom drawer on/off
-
 
     // Loading notifications
     useEffect(() => {
@@ -92,19 +98,16 @@ export default function ({ navigation }) {
     useEffect(() => {
         // Picks icebreaker set from set of icebreakers randomly
         var breakOptions = [];
-        var usedIce = [];
-        db.collection("Icebreakers").doc("icebreakers").get().then(doc => {
-            while (breakOptions.length < 5) {
-                var num = Math.floor(Math.random()*(doc.data().icebreakers.length-1));
-                
-                if(!usedIce.includes(num)) {
-                    breakOptions.push(doc.data().icebreakers[num]);
-                    usedIce.push(num);
-                }
+        var usedIce = {};
+        
+        while (breakOptions.length < 5) {
+            var num = Math.floor(Math.random()*(icebreakerList.length));
+            if(!usedIce.hasOwnProperty(num)) {
+                breakOptions.push(icebreakerList[num]);
+                usedIce[num] = null;
             }
-
-            setIcebreakers(breakOptions);
-        });
+        }
+        setIcebreakers(breakOptions);
     }, [loading]);
 
     // Checks whether we should disable the Post button or not
@@ -279,20 +282,20 @@ export default function ({ navigation }) {
                 behavior={Platform.OS === "ios" ? "padding" : ""}
             >
                 <View style={{ ...styles.row, flex: 1, zIndex: 11 }}>
-                    <Header name="Organize" navigation={navigation} hasNotif={unread} notifs/>
-                    <TouchableOpacity onPress={() => handleChoosePhoto()}>
-                        <ImageBackground source={{ uri: photo }} style={styles.image}>
-                            <View style={styles.imageOverlay}>
-                                <Ionicons name="md-image-outline" color="white" size={30}></Ionicons>
-                            </View>
-                        </ImageBackground>
-                    </TouchableOpacity>
-                    <ScrollView
-                        scrollEnabled={true}
-                        keyboardShouldPersistTaps="always"
-                        nestedScrollEnabled={true}
-                        style={styles.content}    
-                    >
+                        <Header name="Organize" navigation={navigation} hasNotif={unread} notifs/>
+                        <TouchableOpacity onPress={() => handleChoosePhoto()}>
+                            <ImageBackground source={{ uri: photo }} style={styles.image}>
+                                <View style={styles.imageOverlay}>
+                                    <Ionicons name="md-image-outline" color="white" size={30}></Ionicons>
+                                </View>
+                            </ImageBackground>
+                        </TouchableOpacity>
+                        <ScrollView
+                            scrollEnabled={true}
+                            keyboardShouldPersistTaps="always"
+                            nestedScrollEnabled={true}
+                            style={styles.content}    
+                        >
                         <NormalText center color="red" marginTop={5}>* = required</NormalText>
 
                         <TextInput
@@ -308,66 +311,34 @@ export default function ({ navigation }) {
                         />
 
                         <View style={{...styles.multiple, zIndex: 1000}}>
-                            <View style={{...styles.smallInput}}>
-                                <SuggestSelection
-                                    multi={true}
-                                    selectedItems={type ? [type] : []}
-                                    onItemSelect={(item) => {
-                                        setType(item);
+                            <View style={{ width: "48%" }}>
+                                <Picker
+                                    items={types}
+                                    value={pickerValue}
+                                    placeholder="Meal Type"
+                                    onValueChange={(val) => {
+                                        setPickerValue(val);
+                                        setType(val);
                                     }}
-                                    onRemoveItem={() => {
-                                        setType(null);
-                                    }}
-                                    itemStyle={{
-                                        padding: 10,
-                                        borderWidth: 2,
-                                        borderColor: '#5DB075',
-                                        borderRadius: 10,
-                                        marginTop: 2,
-                                        width: "100%",
-                                        height: 40,
-                                        backgroundColor: "white"
-                                    }}
-                                    selectedItemsStyle={{
-                                        margin: 0,
-                                        height: 40,
-                                        width: "100%",
-                                        justifyContent: "space-around",
-                                        backgroundColor: "white",
-                                        borderColor: "lightgrey",
-                                        borderWidth: 1,
-                                        borderRadius: 10
-                                    }}
-                                    height={40}
-                                    textInputProps={{
-                                        placeholder: "Meal type"
-                                    }}
-                                    onSubmitEditing = {(e) => {
-                                        if (e.nativeEvent.text.length !== 0) {
-                                            setType(e.nativeEvent.text);
-                                        }}
-                                    }
-                                    containerStyle = {{
-                                        /* for some reason we can see through start time even when we open the dropdown, so I change the height */
-                                        height: 200,
-                                        // position: 'absolute', width: '100%'
-                                    }}
-                                    selectedItemsWidth={"4%"}
-                                    items={cloneDeep(types)}
-                                    chip={true}
-                                    resetValue={false}
-                                    required
+                                />
+
+                                <FontAwesome
+                                    size={8}
+                                    name={"asterisk"}
+                                    color={"red"}
+                                    style={{ position: "absolute", right: 8, top: 20 }}
                                 />
                             </View>
 
                             <TouchableOpacity onPress={() => {
                                 setShowStartDate(true);
                                 setMode("date");
-                            }} style={styles.smallInput}>
-                                <View pointerEvents="none" style={{flex: 1}}>
+                            }} style={styles.smallInputEnd}>
+                                <View pointerEvents="none" style={{ flex: 1 }}>
                                     <TextInput
                                         value={getDate(startDate, false)}
                                         width="100%"
+                                        height={50}
                                         iconLeft="calendar-outline"
                                         editable={false}
                                         required
@@ -380,7 +351,7 @@ export default function ({ navigation }) {
                             <TouchableOpacity onPress={() => {
                                 setShowStartDate(true);
                                 setMode("time");
-                            }} style={styles.smallInput}>
+                            }} style={styles.smallInputStart}>
                                 <NormalText center>Start time</NormalText>
                                 <View pointerEvents="none">
                                     <TextInput
@@ -396,7 +367,7 @@ export default function ({ navigation }) {
                             <TouchableOpacity onPress={() => {
                                 setShowEndDate(true);
                                 setMode("time");
-                            }} style={styles.smallInput}>
+                            }} style={styles.smallInputEnd}>
                                 <View pointerEvents="none">
                                     <NormalText center>End time</NormalText>
                                     <TextInput
@@ -409,6 +380,7 @@ export default function ({ navigation }) {
                                 </View>
                             </TouchableOpacity>
                         </View>
+
 
                         <TextInput
                             placeholder="Location (e.g. 'Cafe on the Ave')"
@@ -578,7 +550,6 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "10%",
         marginBottom: 10,
-        // flexDirection: "row",
         justifyContent: "space-between",
     },
 
@@ -602,16 +573,29 @@ const styles = StyleSheet.create({
     },
 
     multiple: {
-        wodth: "100%",
-        height: "10%",
+        width: "100%",
         marginTop: 10,
+        marginBottom: 5,
         zIndex: 1,
         flexDirection: "row",
         justifyContent: "space-between",
+        alignItems: "center"
     },
 
     smallInput: {
+        width: "2%"
+    },
+
+    smallInputStart: {
         width: "48%"
+    },
+
+    smallInputEnd: {
+        width: "48%"
+    },
+
+    testInput: {
+        width: "1%"
     },
 
     center: {
