@@ -1,43 +1,27 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from 'react-native';
-import MediumText from "./MediumText";
-import NormalText from './NormalText';
+import { View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image, TextInput } from 'react-native';
 import Button from './Button';
 
-import Tag from "./Tag";
-import LargeText from './LargeText';
-import SmallText from './SmallText';
-
 const RequestBubble = props => {
-    /*// Generates text for school tags in common with the user
-    const getCommonSchoolTags = tags => {
-        return tags.filter(tag => tag.type === "school");
-    }
-
-    // Generates text for hobby and food tags in common with the user
-    const getCommonHobbyFoodTags = tags => {
-        return tags.filter(tag => tag.type === "hobby" || tag.type === "food");
-    }
-
-    console.log(props.person.image);*/
-
-    //const user = auth.currentUser;
-    //const name = user.name;
+    const [text, onChangeText] = React.useState('Hello, my name is Name X. I would love for you to become my buddy!');
 
     return (
         <View style={[styles.card, {}]}>
-            <NormalText style={[styles.message, {}]}>
-              “Hello, my name is Name X. I would love for you to become my buddy!”
-            </NormalText>
+            <TextInput
+                style={styles.input}
+                onChangeText={onChangeText}
+                value={text}
+                multiline={true}
+            />
             <Button
-            marginHorizontal={10}
-            paddingVertical={10}
-            width={Dimensions.get('screen').width - 40}
-            height={55}
-            paddingHorizontal={20}
-            fontSize={14}
+                marginHorizontal={10}
+                paddingVertical={10}
+                width={Dimensions.get('screen').width - 40}
+                height={55}
+                paddingHorizontal={20}
+                fontSize={14}
             //onPress={}
-          >
+            >
             Send message
           </Button>
         </View>
@@ -46,8 +30,6 @@ const RequestBubble = props => {
 
 const styles = StyleSheet.create({
     card: {
-        // display: flex,
-        //paddingVertical: 10,
         paddingHorizontal: 15,
         paddingTop: 10,
         width: Dimensions.get('screen').width - 40,
@@ -62,6 +44,12 @@ const styles = StyleSheet.create({
     message: {
         textColor: "grey"
     },
+
+    input: {
+        height: 40,
+        margin: 12,
+        padding: 10,
+    }
 })
 
 export default RequestBubble;
