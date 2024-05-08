@@ -6,9 +6,11 @@ const ImageContainer = (props) => {
       style={{
         width: props.size ?? Dimensions.get("window").width - 50,
         height: props.size ?? Dimensions.get("window").height / 4,
-        borderRadius: 15
+        borderRadius: 15,
+        marginRight: 8
       }}
-      source={{uri: props.uri}}
+      // Replace link w/ props.uri
+      source={{uri: 'https://img.freepik.com/free-vector/smoke-cloud-png-isolated-transparent-background_107791-16359.jpg'}}
     />
   );
 };
