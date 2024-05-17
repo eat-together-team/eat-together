@@ -6,6 +6,7 @@ import {
     StyleSheet,
     ImageBackground,
     Dimensions,
+    Platform
 } from "react-native";
 
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
