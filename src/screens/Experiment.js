@@ -10,6 +10,7 @@ import { TextInput } from "react-native-gesture-handler";
 import { FlatList } from "react-native-gesture-handler";
 
 // TODO: import your component here
+import Chaitanya from "./Experiment/Chaitanya";
 import Akash from "./Experiment/Akash";
 import Spencer from "./Experiment/Spencer";
 import Helen from "./Experiment/Helen";
@@ -30,6 +31,7 @@ export default function ({ navigation }) {
             <LargeText>Our Cohort Members:</LargeText>
 
             {/* TODO: add a View with your name here, and style it however you want ;) */}
+            <Chaitanya />
             <Akash />
             <Spencer />
             <Helen/>
