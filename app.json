@@ -32,14 +32,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "10",
-      "infoPlist": {
-        "CFBundleURLTypes": {
-          "CFBundleURLSchemes": [
-            "com.googleusercontent.apps.1004653565107-oocja2deroml771ite7grg9gkb31g0ck"
-          ]
-        }
-      }
+      "buildNumber": "10"
     },
     "web": {
       "favicon": "./assets/big_logo.png"
@@ -59,7 +52,7 @@
           "username": "eat-together"
         }
       ],
-      "expo-font"
+      //"expo-font"
     ],
     "extra": {
       "eas": {
