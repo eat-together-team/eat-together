@@ -13,6 +13,7 @@ import HorizontalSwitch from "../../components/HorizontalSwitch";
 import Filter from "../../components/Filter";
 import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
+import MediumText from "../../components/MediumText";
 
 import { generateColor, randomize3, getCommonTags } from "../../methods";
 import { db, auth } from "../../provider/Firebase";
@@ -132,6 +133,7 @@ export default function ({ navigation }) {
 
   // Determines if a person matches the search query or not
   const isMatch = (person, text) => {
+
     // Name
     const fullName = person.firstName + " " + person.lastName;
     if (fullName.toLowerCase().includes(text.toLowerCase())) {
@@ -192,6 +194,8 @@ export default function ({ navigation }) {
           />
         </HorizontalRow>}
       </View>
+      
+      {/* Add the recommendations text over here*/}
 
       <View style={{ flex: 1, alignItems: "center" }}>
         {loading || people.length === 0 ?

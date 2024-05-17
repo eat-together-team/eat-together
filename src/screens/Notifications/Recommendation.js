@@ -217,7 +217,6 @@ const Recommendation = ({ route, navigation }) => {
     }
   ];
 
-
   return (
     <Layout>
       {attendingTutorial && 
