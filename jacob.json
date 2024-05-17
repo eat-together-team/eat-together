@@ -1,0 +1,30 @@
+{
+  "language": "JavaScript",
+  "installCommand": "npm install",
+  "formatCommand": "",
+  "buildCommand": "npm run build --verbose",
+  "style": "CSS",
+  "iconSet": "Iconify",
+  "componentExamples": "/src/components/ExampleComponent.js",
+  "apiEndpointsExamples": "/src/api/exampleEndpoint.js",
+  "pageExamples": "/src/pages/ExamplePage.js",
+  "directories": {
+    "components": "/src/components",
+    "pages": "/src/components/screens",
+    "styles": "/src/styles",
+    "staticAssets": "/public/assets"
+  },
+  "stateManagement": {
+    "tool": "None"
+  },
+  "testing": {
+    "writeTests": false
+  },
+  "storybook": {
+    "writeStories": false
+  },
+  "envVariables": {
+    "exampleFile": "/.env"
+  },
+  "env": ""
+}

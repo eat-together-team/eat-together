@@ -18,6 +18,7 @@ import BuddyPage from "./BuddyPage";
 import BuddyRequest from "./BuddyRequest";
 
 import BuddyNotif from "./BuddyNotif";
+import IncomingRequests from "./IncomingRequests";
 
 import AvailabilitiesHome from "./Availabilities/AvailabilitiesHome";
 import Availabilities from "./Availabilities/Availabilities";
@@ -45,11 +46,11 @@ export default function () {
         {props => <Requests {...props} back="Me" />}
       </Stack.Screen>
       {/* Adding the buddy page to the navigation stack*/}
+      <Stack.Screen name="BuddyPage" component={BuddyPage} />
       <Stack.Screen name="BuddyNotif" component={BuddyNotif} />
-      {/* Adding the buddy request page to the navigation stack*/}
-      <Stack.Screen name="BuddyRequest">
-        {props => <BuddyRequest {...props} blockBack="Me"/>}
-      </Stack.Screen>
+      <Stack.Screen name="IncomingRequests" component={IncomingRequests} />
+
+
 
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="FullCard" component={FullCard} />
