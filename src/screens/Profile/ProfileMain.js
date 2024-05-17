@@ -16,6 +16,7 @@ import ReportPerson from "../Explore/People/ReportPerson";
 // Buddy Page import
 import BuddyPage from "./BuddyPage";
 import BuddyNotif from "./BuddyNotif";
+import IncomingRequests from "./IncomingRequests";
 
 import AvailabilitiesHome from "./Availabilities/AvailabilitiesHome";
 import Availabilities from "./Availabilities/Availabilities";
@@ -44,6 +45,8 @@ export default function () {
       {/* Adding the buddy page to the navigation stack*/}
       <Stack.Screen name="BuddyPage" component={BuddyPage} />
       <Stack.Screen name="BuddyNotif" component={BuddyNotif} />
+      <Stack.Screen name="IncomingRequests" component={IncomingRequests} />
+
 
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="FullCard" component={FullCard} />

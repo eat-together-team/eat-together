@@ -1,205 +1,244 @@
-//Meet other people
-import React, { useEffect, useState } from "react";
-import { FlatList, View, ActivityIndicator, StyleSheet } from "react-native";
+// Display the incoming/outgoing buddy requests when the people icon is pressed
+import React, { useEffect, useState, useRef } from "react";
+import { StyleSheet, FlatList, View } from "react-native";
 import { Layout } from "react-native-rapi-ui";
+import RBSheet from "react-native-raw-bottom-sheet";
 
-import Searchbar from "../../components/Searchbar";
-import ProfileBubble from "../../components/ProfileBubble";
-
+import EventCard from "../../components/EventCard";
 import Header from "../../components/Header";
-import HorizontalRow from "../../components/HorizontalRow";
 import HorizontalSwitch from "../../components/HorizontalSwitch";
+import Searchbar from "../../components/Searchbar";
+import HorizontalRow from "../../components/HorizontalRow";
 import Filter from "../../components/Filter";
 import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
-import MediumText from "../../components/MediumText";
+import Link from "../../components/Link";
+import ProfileBubble from "../../components/ProfileBubble";
 
-import { generateColor, randomize3, getCommonTags } from "../../methods";
-import { db, auth } from "../../provider/Firebase";
-import { sortBySimilarInterests } from "../../methods";
-import { tryoutId } from "../../constants";
+import { getTimeOfDay, isAvailable, compareDates } from "../../methods";
+import { auth, db } from "../../provider/Firebase";
 
-export default function ({ navigation }) {
-  // Fetch current user
-  const user = auth.currentUser;
-  const [userInfo, setUserInfo] = useState({});
-  const [unread, setUnread] = useState(false); // See if we need to display unread notif icon
+export default function({ navigation }) {
+    const tryoutId = 'knVtYe1mtpaZ9D8XLDrS7FCImtm2'; // ID of test user
 
-  const [mutuals, setMutuals] = useState([]); // Mutual friends
+    // Fetch current user
+    const user = auth.currentUser;
+    const [userInfo, setUserInfo] = useState({});
+    const [unread, setUnread] = useState(false); // See if we need to display unread notif icon
 
-  const [people, setPeople] = useState([]); // List of all users
-  const [filteredPeople, setFilteredPeople] = useState([]); // List of filtered users
-  const [filteredSearchedPeople, setFilteredSearchPeople] = useState([]); // List of users with filters and search query on
+    const [events, setEvents] = useState([]); // All public events
+    const [filteredEvents, setFilteredEvents] = useState([]); // Filtered events
+    const [filteredSearchedEvents, setFilteredSearchedEvents] = useState([]); // Events that are filtered and search-queried
 
-  const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
 
-  // Filters
-  const [similarInterests, setSimilarInterests] = useState(false);
-  const [mutualFriends, setMutualFriends] = useState(false);
+    const [people, setPeople] = useState([]); // List of all users
+    const [filteredPeople, setFilteredPeople] = useState([]); // List of filtered users
+    const [filteredSearchedPeople, setFilteredSearchPeople] = useState([]); // List of users with filters and search query on
 
-  const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
+    // Filters
+    const [popularity, setPopularity] = useState(false);
+    const [available, setAvailable] = useState(false);
+    const [fromFriends, setFromFriends] = useState(false);
+    const [friendsAttending, setFriendsAttending] = useState(false);
+    const [morning, setMorning] = useState(false);
+    const [afternoon, setAfternoon] = useState(false);
+    const [evening, setEvening] = useState(false);
 
-  // Fetch all users
-  useEffect(() => {
-    // updates stuff right after React makes changes to the DOM
-    async function fetchData() {
-      const ref = db.collection("Users");
-      let userData;
+    // Display a bottom drawer showing more filters
+    const showTimeFilterRef = useRef();
 
-      // Finds mutual friends
-      await ref
-        .doc(user.uid)
-        .get()
-        .then((doc) => {
-          setUserInfo(doc.data());
-          userData = doc.data();
-          setUnread(doc.data().hasNotif);
+    const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
 
-          doc.data().friendIDs.forEach((id) => {
-            db.collection("Users")
-              .doc(id)
-              .get()
-              .then((doc) => {
-                if (doc && doc.data().friendIDs) { // Necessary check to prevent crash
-                  setMutuals((mutuals) =>
-                    mutuals.concat(doc.data().friendIDs)
-                  );
+    useEffect(() => { // updates stuff right after React makes changes to the DOM
+        async function fetchData() {
+            let userData;
+            await db.collection("Users").doc(user.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                  userData = doc.data();
+                  setUserInfo(doc.data());
+                  setUnread(doc.data().hasNotif);
                 }
-              });
-          });
-        });
-      
-      // Get all users
-      await ref.onSnapshot((query) => {
-        let users = [];
-        query.forEach((doc) => {
-          let data = doc.data();
-          if (data.id !== user.uid && data.verified && !userData.blockedIDs.includes(doc.data().id)
-            && !doc.data().blockedIDs.includes(user.uid) && !userData.friendIDs.includes(doc.data().id)) { // Only show verified + unblocked + non-friend users + non-private accounts
-            data.inCommon = getCommonTags(userData, data);
-            data.color = generateColor();
-            data.selectedTags = randomize3(data.tags);
-            users.push(data);
+            });
+            
+            const ref = db.collection("Public Events");
+            await ref.onSnapshot((query) => {
+                let newEvents = [];
+                query.forEach((doc) => {
+                    if (doc.data().visibleTo != null) { // For events that are visible to friends only
+                        if (!doc.data().visibleTo.includes(user.uid) && !(doc.data().hostID === user.uid)) return;
+                    }
+
+                    if (doc.data().startDate) { // Same logic as else statement, but for different data structure
+                      if (doc.data().startDate.toDate() > new Date() && 
+                        !userData.blockedIDs.includes(doc.data().hostID)) {
+                          newEvents.push(doc.data());
+                      }
+                    } else {
+                      if (doc.data().date.toDate() > new Date() && 
+                        !userData.blockedIDs.includes(doc.data().hostID)) {
+                          newEvents.push(doc.data());
+                      }
+                    }
+                });
+                
+                // Sort events by date
+                newEvents = newEvents.sort((a, b) => {
+                    return compareDates(a, b);
+                });
+                setEvents(newEvents);
+                setFilteredEvents(newEvents);
+                setFilteredSearchedEvents(newEvents);
+                setLoading(false);
+            });
+        }
+
+        fetchData();
+    }, []);
+
+    // For filters
+    useEffect(() => {
+      async function filter() {
+        setLoading(true);
+        let newEvents = [...events];
+
+        if (popularity) {
+          newEvents = sortByPopularity(newEvents);
+        }
+
+        if (available) {
+          newEvents = filterByAvailability(newEvents);
+        }
+
+        if (fromFriends) {
+          newEvents = filterByFriendsHosting(newEvents);
+        }
+
+        if (friendsAttending) {
+          newEvents = filterByFriendsAttending(newEvents);
+        }
+
+        if (morning) {
+          newEvents = filterByTime("morning", newEvents);
+        }
+
+        if (afternoon) {
+          newEvents = filterByTime("afternoon", newEvents);
+        }
+
+        if (evening) {
+          newEvents = filterByTime("evening", newEvents);
+        }
+
+        setFilteredEvents(newEvents);
+
+        const newSearchedEvents = search(newEvents, searchQuery);
+        setFilteredSearchedEvents(newSearchedEvents);
+      }
+
+      if (events.length > 0) {
+        filter().then(() => setLoading(false));
+      }
+    }, [
+      popularity,
+      available,
+      fromFriends,
+      friendsAttending,
+      morning,
+      afternoon,
+      evening,
+    ]);
+
+    // Method to filter out events
+    const search = (newEvents, text) => {
+      return newEvents.filter((e) => isMatch(e, text));
+    };
+
+    // Determines if an event matches search query or not
+    const isMatch = (event, text) => {
+      // Name
+      if (event.name.toLowerCase().includes(text.toLowerCase())) {
+        return true;
+      }
+
+      // Tags
+      if (event.tags.some(tag => tag.toLowerCase().includes(text.toLowerCase()))) {
+        return true;
+      }
+
+      // Host
+      if (event.hostName) {
+        return event.hostName.toLowerCase().includes(text.toLowerCase());
+      }
+
+      const fullName = event.hostFirstName + " " + event.hostLastName;
+      return fullName.toLowerCase().includes(text.toLowerCase());
+    };
+
+    // Method called when a new query is typed in/deleted
+    const onChangeText = (text) => {
+      setSearchQuery(text);
+      const newEvents = search(filteredEvents, text);
+      setFilteredSearchedEvents(newEvents);
+    };
+
+    // Sort events by popularity
+    const sortByPopularity = (newEvents) => {
+      newEvents = newEvents.sort(
+        (a, b) => b.attendees.length - a.attendees.length
+      );
+      return newEvents;
+    };
+
+    // Display events that match the user's availabilities
+    const filterByAvailability = (newEvents) => {
+      return newEvents.filter(e => isAvailable(userInfo, e));
+    }
+
+    // Display events that friends are hosting
+    const filterByFriendsHosting = (newEvents) => {
+      newEvents = newEvents.filter((e) => userInfo.friendIDs.includes(e.hostID));
+      return newEvents;
+    };
+
+    // Display events that friends are attending
+    const filterByFriendsAttending = (newEvents) => {
+      newEvents = newEvents.filter((e) => {
+        let included = false;
+
+        e.attendees.forEach((a) => {
+          if (userInfo.friendIDs.includes(a)) {
+            included = true;
+            return;
           }
         });
 
-        setPeople(users);
-        setFilteredPeople(users);
-        setFilteredSearchPeople(
-          users.filter(
-            (person) =>
-              !person.settings?.privateAccount
-          )
-        );
-        setLoading(false);
+        return included;
       });
+
+      return newEvents;
+    };
+
+    // Filter events by time of day
+    const filterByTime = (time, newEvents) => {
+      newEvents = newEvents.filter(e => getTimeOfDay(e.startDate.toDate()) === time);
+      return newEvents;
     }
 
-    fetchData();
-  }, []);
-
-
-  // Filters
-  useEffect(() => {
-    async function filter() {
-      setLoading(true);
-      let newPeople = [...people];
-  
-      if (similarInterests) {
-        newPeople = await sortBySimilarInterests(userInfo, newPeople);
-      }
-  
-      if (mutualFriends) {
-        newPeople = filterByMutualFriends(newPeople);
-      }
-
-      setFilteredPeople(newPeople);
-      const newSearchedPeople = search(newPeople, searchQuery);
-      setFilteredSearchPeople(newSearchedPeople);
-    }
-
-    if (people.length > 0) {
-      filter().then(() => {
-        setLoading(false);
-      });
-    }
-  }, [similarInterests, mutualFriends]);
-
-  // Method to filter out people based on name, username, or tags
-  const search = (newPeople, text) => {
-    return newPeople.filter((p) => isMatch(p, text));
-  };
-
-  // Determines if a person matches the search query or not
-  const isMatch = (person, text) => {
-
-    // Name
-    const fullName = person.firstName + " " + person.lastName;
-    if (fullName.toLowerCase().includes(text.toLowerCase())) {
-      return true;
-    }
-
-    // Username
-    if (person.username.toLowerCase().includes(text.toLowerCase())) {
-      return true;
-    }
-
-    // Tags
-    return person.tags.some((tag) =>
-      tag.tag.toLowerCase().includes(text.toLowerCase())
-    );
-  };
-
-  // Method called when a new query is typed in/deleted
-  const onChangeText = (text) => {
-    setSearchQuery(text);
-    const searchedPeople = search(filteredPeople, text);
-    const newPeople = searchedPeople.filter(person => (person.settings?.privateAccount == null || text === person.username))
-    setFilteredSearchPeople(newPeople);
-  };
-
-  // Display people who are mutual friends
-  const filterByMutualFriends = (newPeople) => {
-    return newPeople.filter((p) => mutuals.includes(p.id));
-  };
-
-  return (
-    <Layout>
-      <Header name="Explore" navigation={navigation} hasNotif={unread} notifs/>
-      <HorizontalSwitch
-        left="Meals"
-        right="People"
-        current="right"
-        press={() => navigation.navigate("Explore")}
-      />
-
-      <View style={{ paddingHorizontal: 20 }}>
-        <Searchbar
-          placeholder="Search by name, username, or tags"
-          value={searchQuery}
-          onChangeText={onChangeText}
+    return (
+      <Layout>
+        <Header name="Requests" navigation={navigation} hasNotif={unread} notifs/>
+        <HorizontalSwitch
+          left="Incoming Request"
+          right="Outgoing Request"
+          current="left"
+          press={() => navigation.navigate("Incoming Request")}
         />
-
-        {user.uid !== tryoutId && <HorizontalRow>
-          <Filter
-            checked={similarInterests}
-            onPress={() => setSimilarInterests(!similarInterests)}
-            text="Sort by similar interests"
-          />
-          <Filter
-            checked={mutualFriends}
-            onPress={() => setMutualFriends(!mutualFriends)}
-            text="Mutual friends"
-          />
-        </HorizontalRow>}
-      </View>
       
-      {/* Add the recommendations text over here*/}
-
       <View style={{ flex: 1, alignItems: "center" }}>
         {loading || people.length === 0 ?
           <LoadingView/>
-        : filteredSearchedPeople.length > 0 ? 
+        : filteredSearchedPeople.length > 0 ?
           <FlatList
             contentContainerStyle={styles.people}
             keyExtractor={(item) => item.id}
@@ -215,8 +254,25 @@ export default function ({ navigation }) {
               />
             )}
           />
-        : 
+        :
           <EmptyState title="Empty" text="No results :("/>
+        }
+      </View>
+      
+      <View style={{ flex: 1 }}>
+        {loading ?
+          <LoadingView/>
+        : filteredSearchedEvents.length > 0 ? 
+          <FlatList contentContainerStyle={styles.cards} keyExtractor={item => item.id}
+            data={filteredSearchedEvents} renderItem={({item}) =>
+              <EventCard event={item} click={() => {
+                navigation.navigate("FullCard", {
+                  event: item
+                });
+              }}/>
+          }/>
+        :
+          <EmptyState title="No Requests" text="start making new friends!"/>
         }
       </View>
     </Layout>
@@ -224,9 +280,9 @@ export default function ({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  people: {
+  cards: {
     alignItems: "center",
+    paddingTop: 10,
     paddingBottom: 20,
-    paddingHorizontal: 20
-  }
-})
+  },
+});
