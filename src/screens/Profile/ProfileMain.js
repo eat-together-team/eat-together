@@ -15,12 +15,15 @@ import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
 import ReportPerson from "../Explore/People/ReportPerson";
 // Buddy Page import
 import BuddyPage from "./BuddyPage";
+import BuddyRequest from "./BuddyRequest";
+
 import BuddyNotif from "./BuddyNotif";
 import IncomingRequests from "./IncomingRequests";
 
 import AvailabilitiesHome from "./Availabilities/AvailabilitiesHome";
 import Availabilities from "./Availabilities/Availabilities";
 import Colorpicker from "./ColorPicker";
+
 
 
 
@@ -46,6 +49,7 @@ export default function () {
       <Stack.Screen name="BuddyPage" component={BuddyPage} />
       <Stack.Screen name="BuddyNotif" component={BuddyNotif} />
       <Stack.Screen name="IncomingRequests" component={IncomingRequests} />
+
 
 
       <Stack.Screen name="Settings" component={Settings} />
