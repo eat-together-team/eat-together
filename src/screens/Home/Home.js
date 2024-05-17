@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
 import { View, StyleSheet, FlatList } from "react-native";
 import { Layout } from "react-native-rapi-ui";
+import { Ionicons } from "@expo/vector-icons";
 import RBSheet from "react-native-raw-bottom-sheet";
 
 import EventCard from "../../components/EventCard";
@@ -15,6 +16,8 @@ import LoadingView from "../../components/LoadingView";
 import TutorialMessage from "../../components/TutorialMessage";
 import RecTutorialMessage from "../../components/RecTutorialMessage";
 import Link from "../../components/Link";
+import Button from "../../components/Button"
+import Gallery from "./Gallery";
 
 import { db, auth } from "../../provider/Firebase";
 import { AuthContext } from "../../provider/AuthProvider";
@@ -689,6 +692,12 @@ export default function ({ navigation }) {
           Clear
         </Link>
       </RBSheet>
+            {/* Button to redirect to personal Photo Gallery */}
+
+      <View style={styles.button}>
+        <Button onPress={() => navigation.navigate("Gallery")}> <Ionicons name="md-image-outline" color="white" size={20}/> My Photo Gallery </Button>
+      </View>
+
     </Layout>
   );
 }
@@ -698,5 +707,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 20,
     paddingBottom: 40,
-  }
+  },
+  button: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    zIndex: 1,
+
+},
 });

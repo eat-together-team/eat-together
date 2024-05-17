@@ -77,7 +77,7 @@ Cohort members link: [https://drive.google.com/file/d/1nnjE3IeRhIdSdvf0qlhD68gS5
 6. Start the environment using expo:
 
 ```jsx
-expo start
+expo starts
 
 
 ```
@@ -93,6 +93,7 @@ yarn start
 8. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app.
 
 ### Testing
+
 Before you commit your code, you can run all tests / submit new test cases for files you have worked on. To run all tests, use the following command:
 ```sh
 npm tests
@@ -160,7 +161,7 @@ While there are many bugs that can arise while setting up the project, here are 
    No such file or directory`, run the following command in Terminal:
 
 ```sh
-open -a simulator 
+open -a simulator
 
 
 ```
