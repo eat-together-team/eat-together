@@ -24,14 +24,6 @@ export default function App() {
     }
 
     getNetwork();
-
-    Updates.addListener(async (event) => {
-      if (event.type === Updates.UpdateEventType.UPDATE_AVAILABLE) {
-        await Updates.fetchUpdateAsync();
-        alert("An update is available!");
-        await Updates.reloadAsync();
-      }
-    });
   }, []);
 
   const images = [

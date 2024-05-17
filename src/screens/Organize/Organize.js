@@ -8,7 +8,8 @@ import {
     StyleSheet,
     ImageBackground,
     Dimensions,
-    Alert
+    Alert,
+    Platform
 } from "react-native";
 import { Layout, Picker, Text, Section, SectionContent } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
