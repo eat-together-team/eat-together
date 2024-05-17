@@ -2,6 +2,7 @@ import React from "react";
 import {View, StyleSheet, TouchableOpacity, Alert} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { auth} from "../provider/Firebase";
+import { Octicons } from '@expo/vector-icons';
 
 import LargeText from "./LargeText";
 import NotifIcon from "./NotifIcon";
@@ -30,6 +31,12 @@ const Header = (props) => {
           }}
         >
           <NotifIcon hasNotif={props.hasNotif === null ? false : props.hasNotif} />
+        </TouchableOpacity>}
+        {props.buddy && props.navigation && <TouchableOpacity onPress={() => {
+          props.navigation.navigate("Requests");
+        }}>
+          <Octicons name="people" size={30} color="black" />
+
         </TouchableOpacity>}
       </View>
     </View>
