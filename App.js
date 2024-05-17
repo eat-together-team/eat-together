@@ -7,6 +7,8 @@ import { LogBox } from "react-native";
 import * as Updates from 'expo-updates';
 import * as Network from 'expo-network';
 
+import 'react-native-reanimated';
+
 export default function App() {
   LogBox.ignoreAllLogs(); //DISABLE THOSE STUPID WARNINGS SLAYYYYY
 
