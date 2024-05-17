@@ -26,8 +26,8 @@ const MessageList = props => {
                     <View style={styles.headleft}>
                         <Image style={styles.image} source={{uri: props.person.profile}}/>
                         <MediumText>
-                            {props.person.name.length > 20
-                            ? props.person.name.substring(0, 20) + "..."
+                            {props.person.name.length > 10
+                            ? props.person.name.substring(0, 10) + "..."
                             : props.person.name}
                         </MediumText>
                     </View>
