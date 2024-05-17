@@ -26,6 +26,7 @@ import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 import Link from "../../components/Link";
 import Toggle from "../../components/Toggle";
+import Button from "../../components/Button";
 
 import getDate from "../../getDate";
 import getTime from "../../getTime";
@@ -305,7 +306,7 @@ const WhileYouEat = ({ route, navigation }) => {
         if (data.settings?.attendingTutorial !== undefined) {
           setAttendingTutorial(data.settings.attendingTutorial);
         }
-        
+
       } else {
         console.log('No such document!');
       }
@@ -353,7 +354,7 @@ const WhileYouEat = ({ route, navigation }) => {
   return (
     <Layout>
 
-    {attendingTutorial && 
+    {attendingTutorial &&
         <>
           <RecTutorialMessage
             userId={user.uid}
@@ -568,8 +569,17 @@ const WhileYouEat = ({ route, navigation }) => {
             {event.additionalInfo}
           </NormalText>
 
+          <Button onPress={() => {
+            navigation.navigate("StartGame", {
+              event: event,
+              people: people
+            })
+          }}>
+            Play Would You Rather?
+          </Button>
+
           {/* Icebreakers dropdown */}
-          <Toggle 
+          <Toggle
             open={openIcebreakers}
             onPress={() => setOpenIcebreakers(!openIcebreakers)}
             title="Icebreakers"
@@ -584,7 +594,7 @@ const WhileYouEat = ({ route, navigation }) => {
           </View>
 
           {/* Attendance dropdown */}
-          <Toggle 
+          <Toggle
             open={openAttendance}
             onPress={() => setOpenAttendance(!openAttendance)}
             title="Attendance"

@@ -6,6 +6,13 @@ import { MenuProvider } from "react-native-popup-menu";
 import { LogBox } from "react-native";
 import * as Updates from 'expo-updates';
 import * as Network from 'expo-network';
+import { View, Text } from "react-native";
+
+import 'react-native-reanimated';
+import NormalText from "./src/components/NormalText";
+import LargeText from "./src/components/LargeText";
+import MediumText from "./src/components/MediumText";
+import SmallText from "./src/components/SmallText";
 
 export default function App() {
   LogBox.ignoreAllLogs(); //DISABLE THOSE STUPID WARNINGS SLAYYYYY
