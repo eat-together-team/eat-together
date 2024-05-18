@@ -185,7 +185,7 @@ export default function ({ navigation }) {
             quality: 1,
         });
         if (!result.cancelled) {
-            setPhoto(result.uri);
+            setPhoto(result.assets[0].uri);
         }
     };
 
@@ -199,7 +199,7 @@ export default function ({ navigation }) {
                 quality: 1,
             });
             if (!result.cancelled) {
-                setPhoto(result.uri);
+                setPhoto(result.assets[0].uri);
             }
         } catch (error) {
             alert("Error uploading message: " + error.message);
