@@ -5,7 +5,6 @@ import {
   Dimensions
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
 import CustomButton from "./CustomButton";
 import NormalText from "./NormalText";
 import SmallText from "./SmallText";

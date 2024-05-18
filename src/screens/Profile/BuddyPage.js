@@ -13,6 +13,7 @@ import HorizontalSwitch from "../../components/HorizontalSwitch";
 import Filter from "../../components/Filter";
 import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
+import MediumText from "../../components/MediumText";
 
 import { generateColor, randomize3, getCommonTags } from "../../methods";
 import { db, auth } from "../../provider/Firebase";
@@ -164,12 +165,7 @@ export default function ({ navigation }) {
 
   return (
     <Layout>
-      <TopNav
-        leftContent={<Ionicons name="chevron-back" size={20} />}
-        leftAction={() => navigation.goBack()}
-      />
-      <Header name="Choose a Buddy" navigation={navigation} hasNotif={unread} notifs/>
-
+      <Header name="Choose a Buddy" navigation={navigation} hasNotif={unread} buddy/>
 
       <View style={{ paddingHorizontal: 20 }}>
         <Searchbar
@@ -190,6 +186,7 @@ export default function ({ navigation }) {
             text="Mutual friends"
           />
         </HorizontalRow>}
+        <MediumText use700> Recommendations </MediumText>
       </View>
 
       <View style={{ flex: 1, alignItems: "center" }}>
