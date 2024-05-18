@@ -20,6 +20,7 @@ import EventCard from "../../components/EventCard";
 // Add buddy button
 import { AntDesign } from '@expo/vector-icons';
 import BuddyNotif from "./BuddyNotif";
+import BuddyPage from "./BuddyPage";
 
 import { compareDates } from "../../methods";
 
@@ -229,7 +230,7 @@ export default function ({ navigation }) {
         <TouchableOpacity
           style ={styles.link}
           onPress={() => {
-            navigation.navigate("BuddyNotif");
+            navigation.navigate("BuddyPage");
           }}>
           <NormalText>You do not have a buddy</NormalText>
             <AntDesign name="adduser" size={24} color="#4C6FB1" />
