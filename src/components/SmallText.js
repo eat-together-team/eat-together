@@ -1,9 +1,9 @@
 import React from "react";
 import { Platform, Text } from "react-native";
-import { useFonts, Inter_200ExtraLight } from '@expo-google-fonts/inter';
+import { useFonts, Inter_300Light } from '@expo-google-fonts/inter';
 
 const SmallText = props => {
-    let [fontsLoaded] = useFonts({ Inter_200ExtraLight });
+    let [fontsLoaded] = useFonts({ Inter_300Light });
 
     if (!fontsLoaded) {
         return (
@@ -24,7 +24,7 @@ const SmallText = props => {
         <Text style={{
             fontSize: props.size ? props.size : 10,
             fontWeight: props.weight ? props.weight : "normal",
-            fontFamily: 'Inter_200ExtraLight',
+            fontFamily: 'Inter_300Light',
             color: props.color ? props.color : "black",
             textAlign: props.center ? "center" : "auto",
             paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
