@@ -30,13 +30,18 @@ import {
 
 const Discussion = ({ route, navigation }) => {
     const [event, setEvent] = useState(route.params.event);
+    // Get the current user
+    const user = auth.currentUser;
     const green = "#5DB075";
-    const votes_A = 20;
-    const votes_B = 30;
+    // must get the answer options and vote counts from db
+    const option_A = "option A: some really long option that takes up a lot of space";
+    const option_B = "option B";
+    const [votes_A, setA] = useState(0);
+    const [votes_B, setB] = useState(0);
     const chartConfig = {
         color: (opacity = 1) => green
-      };
-      const screenWidth = Dimensions.get("window").width
+    };
+    const screenWidth = Dimensions.get("window").width
       const data = [
         {
           votes: votes_A,
@@ -48,6 +53,48 @@ const Discussion = ({ route, navigation }) => {
           
         }
       ];
+      // Remove player from game when they choose to exit
+  const removePlayer = async () => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    const doc = await currGame.get();
+    if (doc.exists) {
+      currGame.update({players: firebase.firestore.FieldValue.arrayRemove(user.uid)})
+      // delete this document if there are 0 players left
+    } 
+  };
+
+  const exitGame = () => {
+    navigation.navigate("WhileYouEat", {
+      event: event})
+  };
+
+  // Fetch question and response data on page load
+  useEffect(() => {
+    loadData()
+  }, []);
+
+  const loadData = async () => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    const doc = await currGame.get();
+    if (doc.exists) {
+      setA((votes_A) => doc.data().aVotes)
+      setB((votes_B) => doc.data().bVotes)
+    } 
+  }
+
+  const nextQuestion = () => {
+    navigation.push("Question", {
+      event: event})
+  }
+
+  const generateQuestion = async () => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    const doc = await currGame.get();
+    if (doc.exists) {
+      currGame.update({aVotes: 0, bVotes: 0})
+    } 
+  }
+  
   return (
     <Layout>
       <TopNav
@@ -64,8 +111,7 @@ const Discussion = ({ route, navigation }) => {
                 <NormalText color={green}>Exit</NormalText>
           </View>
         }
-        leftAction={() => navigation.navigate("WhileYouEat", {
-            event: event})}
+        leftAction={() => {removePlayer(); exitGame();}}
       />
       <ScrollView>
         <PieChart
@@ -79,39 +125,38 @@ const Discussion = ({ route, navigation }) => {
         center={[85, 3]}
         />
         
-        {/*Should disable buttons after choosing one*/}
         <View>
-            <MediumText paddingHorizontal={15}>option A: some really long option</MediumText>
+            <View alignSelf={"center"}><MediumText paddingHorizontal={15}>{option_A}</MediumText></View>
             <MediumText style={[styles.option, styles.optionA]} color={"white"}>
                 {votes_A}/{votes_A+votes_B}
             </MediumText>
-            <MediumText paddingHorizontal={15}>option B: some really long option</MediumText>
+            <View alignSelf={"center"}><MediumText paddingHorizontal={15}>{option_B}</MediumText></View>
             <MediumText style={[styles.option, styles.optionB]} color={green}>
                 {votes_B}/{votes_A+votes_B}
             </MediumText>
-            {/*Do some logic here that moves everyone onto discussion page */}
+            {/*Do some logic here that moves everyone onto next question page */}
+            {user.uid == event.hostID ? 
             <View style={styles.nextButton}>
-                <Button backgroundColor={"gray"} onPress={() => {
-                    navigation.navigate("Question", {event: event})
-                }}>
+                <Button backgroundColor={"gray"} onPress={
+                  () => {generateQuestion(); nextQuestion();}
+                }>
                     Next Question
                 </Button>
             </View>
+            : null}
         </View>
       </ScrollView>
     </Layout>
   );
 };
 
+// Styling of page elements
 const styles = StyleSheet.create({
-  
   option: {
-    // paddingHorizontal: 80,
     paddingVertical: 8,
     marginVertical: 20, 
     marginHorizontal: 20,
     bottom: 10,
-    // width: "auto",
     elevation: 5,
     width: "60%",
     alignSelf: "center",

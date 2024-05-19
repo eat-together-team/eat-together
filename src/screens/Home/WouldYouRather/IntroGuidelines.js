@@ -1,16 +1,14 @@
-// Introductary Guidelines for playing Would You Rather Game
+// Introductory Guidelines for playing Would You Rather Game
 
 import React, { useState, useEffect } from "react";
 import {
   View,
   ScrollView,
-  StyleSheet,
-  Image
+  StyleSheet
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
-import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
 import NormalText from "../../../components/NormalText";
 import Button from "../../../components/Button";
@@ -20,6 +18,34 @@ import * as firebase from "firebase/compat";
 
 const IntroGuidelines = ({ route, navigation }) => {
   const [event, setEvent] = useState(route.params.event);
+  const user = auth.currentUser;
+
+  // Fetch data from Firestore to see if game is created or not
+  // If yes, just add user to the game
+  // If no, add a new doc to WyrGames collection for this event (ID = eventID)
+  const addGameData = async () => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    const doc = await currGame.get();
+    if (doc.exists) {
+      currGame.update({players: firebase.firestore.FieldValue.arrayUnion(user.uid)});
+    } else {
+      currGame.set({
+        aVotes: 0,
+        bVotes: 0,
+        currentQuestion: "",
+        discussionStage: false, 
+        players: [user.uid],
+        seenQuestions: []
+      });
+      randomQuestion();
+    }    
+  };
+
+  const startGame = () => {
+    navigation.navigate("Question", {
+      event: event})
+  };
+
   return (
     <Layout>
       <TopNav
@@ -49,7 +75,7 @@ const IntroGuidelines = ({ route, navigation }) => {
           <NormalText style={styles.ruleText}>Once everyone has submitted, host may press next to continue onto discussion</NormalText>
         </View>
         <View style={styles.container}>
-          <Ionicons name="bar-chart-outline" size={30} style={styles.ruleImage}/>
+          <Ionicons name="pie-chart-outline" size={30} style={styles.ruleImage}/>
           <NormalText style={styles.ruleText}>Results will display how many people answered what option</NormalText>
         </View>
         <View style={styles.container}>
@@ -60,15 +86,8 @@ const IntroGuidelines = ({ route, navigation }) => {
           <Ionicons name="arrow-forward-circle-outline" size={30} style={styles.ruleImage}/>
           <NormalText style={styles.ruleText}>Tap "Next Question" when done discussing to move on</NormalText>
         </View>
-        {/* <View style={styles.container}>
-          <Ionicons name="close-circle-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>Exit game anytime in the top left corner</NormalText>
-        </View> */}
 
-          <Button onPress={() => {
-            navigation.navigate("Question", {
-              event: event})
-          }}>
+          <Button onPress={() => { addGameData(); startGame(); }}>
             Start
           </Button>
 
@@ -78,6 +97,7 @@ const IntroGuidelines = ({ route, navigation }) => {
   );
 };
 
+// Styling of page elements
 const styles = StyleSheet.create({
   infoContainer: {
     marginHorizontal: 30,

@@ -25,6 +25,56 @@ const Question = ({ route, navigation }) => {
     const [event, setEvent] = useState(route.params.event);
     const [isDisabled, setDisabled] = useState(false);
     const green = "#5DB075";
+    // must get question option to display
+    const option_A = "option A: some really long option that takes up a lot of space";
+    const option_B = "option B";
+
+    const [host, setHost] = useState(null); // Get the host of the event
+    const user = auth.currentUser; // Get the current user
+    const isHost = (host==user);
+
+    // Adds a user's vote for option A
+    const addVoteA = async () => {
+      const currGame = db.collection('WyrGames').doc(event.id);
+      const doc = await currGame.get();
+      if (doc.exists) {
+        votes = doc.data().aVotes
+        currGame.update({aVotes: votes+1})
+        setDisabled((isDisabled) => true)
+      } 
+    }
+
+    // Adds a user's vote for option B
+    const addVoteB = async () => {
+      const currGame = db.collection('WyrGames').doc(event.id);
+      const doc = await currGame.get();
+      if (doc.exists) {
+        votes = doc.data().bVotes
+        currGame.update({bVotes: votes+1})
+        setDisabled((isDisabled) => true)
+      } 
+    }
+
+    // Remove player from game when they choose to exit
+  const removePlayer = async () => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    const doc = await currGame.get();
+    if (doc.exists) {
+      currGame.update({players: firebase.firestore.FieldValue.arrayRemove(user.uid)})
+      // Delete this document if there are 0 players left
+    } 
+  };
+
+  const exitGame = () => {
+    navigation.navigate("WhileYouEat", {
+      event: event})
+  };
+
+  // reset button to be enabled on page load
+  useEffect(() => {
+    setDisabled((isDisabled) => false)
+  }, []);
+
   return (
     <Layout>
       <TopNav
@@ -39,8 +89,8 @@ const Question = ({ route, navigation }) => {
                 <NormalText color={green}>Exit</NormalText>
           </View>
         }
-        leftAction={() => navigation.navigate("WhileYouEat", {
-            event: event})}
+        // Remove player from game when they choose to exit
+        leftAction={() => {removePlayer(); exitGame();}}
       />
       <ScrollView>
         <View style={styles.infoContainer}>
@@ -51,22 +101,18 @@ const Question = ({ route, navigation }) => {
         
         {/*Should disable buttons after choosing one*/}
         <View style={styles.options}>
-            <Button onPress={() => {
-                navigation.navigate("Question", {event: event})
-            }}>
-                option A: some really long option that takes up a lot of space
+            <Button onPress={addVoteA} disabled={isDisabled}>
+                {option_A}
             </Button>
 
             <View marginVertical={15} alignSelf={"center"}><MediumText>OR</MediumText></View>
 
-            <BorderedButton disabled={isDisabled}>
-            {/* onPress={() => {
-                navigation.navigate("Question", {event: event})
-            }}> */}
-                option B: some really long option that takes up a lot space
+            <BorderedButton onPress={addVoteB} disabled={isDisabled}>
+                {option_B}
             </BorderedButton>
         
             {/*Do some logic here that moves everyone onto discussion page */}
+            {user.uid == event.hostID ? 
             <View style={styles.nextButton}>
                 <Button backgroundColor={"grey"} onPress={() => {
                     navigation.navigate("Discussion", {event: event})
@@ -74,12 +120,15 @@ const Question = ({ route, navigation }) => {
                     Next
                 </Button>
             </View>
+            : null}
+
         </View>
       </ScrollView>
     </Layout>
   );
 };
 
+// Styling of page elements
 const styles = StyleSheet.create({
   infoContainer: {
     justifyContent: "center",
