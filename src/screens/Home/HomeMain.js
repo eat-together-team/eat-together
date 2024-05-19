@@ -13,8 +13,10 @@ import ReportPerson from "../Explore/People/ReportPerson";
 import ChatRoom from "../Chat/ChatRoom";
 import Recommendation from "../Notifications/Recommendation";
 import InvitePeople from "../Organize/InvitePeople";
+// Would You Rather imports
 import StartGame from "./StartGame";
-
+import IntroGuidelines from "./WouldYouRather/IntroGuidelines";
+import Question from "./WouldYouRather/Question";
 const Stack = createStackNavigator();
 
 export default function () {
@@ -43,6 +45,8 @@ export default function () {
 
       {/* WYR Game Screens */}
       <Stack.Screen name="StartGame" component={StartGame}/>
+      <Stack.Screen name="IntroGuidelines" component={IntroGuidelines}/>
+      <Stack.Screen name="Question" component={Question}/>
     </Stack.Navigator>
   );
 }
