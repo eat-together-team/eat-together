@@ -17,6 +17,8 @@ import InvitePeople from "../Organize/InvitePeople";
 import StartGame from "./StartGame";
 import IntroGuidelines from "./WouldYouRather/IntroGuidelines";
 import Question from "./WouldYouRather/Question";
+import Discussion from "./WouldYouRather/Discussion";
+
 const Stack = createStackNavigator();
 
 export default function () {
@@ -47,6 +49,7 @@ export default function () {
       <Stack.Screen name="StartGame" component={StartGame}/>
       <Stack.Screen name="IntroGuidelines" component={IntroGuidelines}/>
       <Stack.Screen name="Question" component={Question}/>
+      <Stack.Screen name="Discussion" component={Discussion}/>
     </Stack.Navigator>
   );
 }

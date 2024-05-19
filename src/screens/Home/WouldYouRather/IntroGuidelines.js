@@ -58,8 +58,12 @@ const IntroGuidelines = ({ route, navigation }) => {
         </View>
         <View style={styles.container}>
           <Ionicons name="arrow-forward-circle-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>Tap "Next Question" when you're done discussing to move on</NormalText>
+          <NormalText style={styles.ruleText}>Tap "Next Question" when done discussing to move on</NormalText>
         </View>
+        {/* <View style={styles.container}>
+          <Ionicons name="close-circle-outline" size={30} style={styles.ruleImage}/>
+          <NormalText style={styles.ruleText}>Exit game anytime in the top left corner</NormalText>
+        </View> */}
 
           <Button onPress={() => {
             navigation.navigate("Question", {
@@ -91,7 +95,8 @@ const styles = StyleSheet.create({
   },
 
   ruleImage: {
-    marginRight: 20
+    marginRight: 20,
+    color: "#5DB075"
   },
 
   ruleText: {

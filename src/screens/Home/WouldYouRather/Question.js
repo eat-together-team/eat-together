@@ -1,4 +1,4 @@
-// What the Questions page will look like in WYR game
+// Question screen displays question and answer options for user selection
 
 import React, { useState, useEffect } from "react";
 import {
@@ -19,21 +19,24 @@ import BorderedButton from "../../../components/BorderedButton";
 
 import { db, auth } from "../../../provider/Firebase";
 import * as firebase from "firebase/compat";
+import { Touchable } from "react-native";
 
 const Question = ({ route, navigation }) => {
     const [event, setEvent] = useState(route.params.event);
+    const [isDisabled, setDisabled] = useState(false);
+    const green = "#5DB075";
   return (
     <Layout>
       <TopNav
         middleContent={<MediumText left>Question</MediumText>}
         leftContent={
-            <View flexDirection={"row"} alignItems={"center"}>
+            <View flexDirection={"row"} alignItems={"center"} width={100}>
                 <Ionicons
                     name="chevron-back"
-                    color={"#5DB075"}
+                    color={green}
                     size={20}
                 />
-                <SmallText color={"#5DB075"}>Exit</SmallText>
+                <NormalText color={green}>Exit</NormalText>
           </View>
         }
         leftAction={() => navigation.navigate("WhileYouEat", {
@@ -44,34 +47,33 @@ const Question = ({ route, navigation }) => {
           <LargeText>
             Would You Rather...
           </LargeText>
+        </View>
         
-        <View style={styles.option}>
-          <Button onPress={() => {
-            navigation.navigate("Question", {event: event})
-          }}>
-            Option A
-          </Button>
-        </View>
+        {/*Should disable buttons after choosing one*/}
+        <View style={styles.options}>
+            <Button onPress={() => {
+                navigation.navigate("Question", {event: event})
+            }}>
+                option A: some really long option that takes up a lot of space
+            </Button>
 
-        <MediumText textAlign={"center"}>OR</MediumText>
+            <View marginVertical={15} alignSelf={"center"}><MediumText>OR</MediumText></View>
 
-        <View style={styles.option}>
-          <BorderedButton backgroundColor={"grey"} onPress={() => {
-            navigation.navigate("Question", {event: event})
-          }}>
-            Option B
-          </BorderedButton>
-        </View>
-        {/*Do some logic here that moves onto Discussion Guidelines if first time playing,
-             Otherwise move onto Discussion/Results page */}
-        <View style={styles.nextButton}>
-          <Button backgroundColor={"grey"} onPress={() => {
-            navigation.navigate("Question", {event: event})
-          }}>
-            Next
-          </Button>
-        </View>
-
+            <BorderedButton disabled={isDisabled}>
+            {/* onPress={() => {
+                navigation.navigate("Question", {event: event})
+            }}> */}
+                option B: some really long option that takes up a lot space
+            </BorderedButton>
+        
+            {/*Do some logic here that moves everyone onto discussion page */}
+            <View style={styles.nextButton}>
+                <Button backgroundColor={"grey"} onPress={() => {
+                    navigation.navigate("Discussion", {event: event})
+                }}>
+                    Next
+                </Button>
+            </View>
         </View>
       </ScrollView>
     </Layout>
@@ -80,20 +82,23 @@ const Question = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   infoContainer: {
-    marginHorizontal: 30,
-    marginVertical: 20,
-    marginBottom: 110
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 20
   },
 
-  option: {
+  options: {
     marginVertical: 10,
-    height: "30%",
+    padding: 20
   },
 
   nextButton: {
-    // marginVertical: 10,
-    // width: 30,
-    // height: 5
+    top: 20,
+    marginVertical: 20,
+    width: 130,
+    height: 60,
+    flexDirection: "column",
+    alignSelf: "flex-end",
   }
 });
 
