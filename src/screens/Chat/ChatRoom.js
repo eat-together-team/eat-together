@@ -73,7 +73,7 @@ export default function ({ route, navigation }) {
       });
   
       if (!result.cancelled) {
-        const source = { uri: result.uri };
+        const source = { uri: result.assets[0].uri };
   
         const response = await fetch(source.uri);
         const blob = await response.blob();
