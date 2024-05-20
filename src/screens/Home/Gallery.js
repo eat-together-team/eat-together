@@ -12,6 +12,7 @@ import MediumText from "../../components/MediumText";
 
 import { getTimeOfDay, isAvailable, compareDates } from "../../methods";
 import { auth, db } from "../../provider/Firebase";
+import { Divider } from "react-native-elements";
 
 export default function Gallery({ navigation }) {
     // Filters
@@ -26,9 +27,7 @@ export default function Gallery({ navigation }) {
     const [filteredImages, setFilteredImages] = useState([]); // Filtered Images
     //Rendering filters
     return(
-        <Layout>
-            
-
+        <Layout >
             <View>
             <TopNav
                 middleContent={
@@ -43,18 +42,20 @@ export default function Gallery({ navigation }) {
                 leftAction={() => navigation.goBack()}
             />
                 <Button style={styles.button}> Add Photos </Button>
-                <HorizontalRow> 
-            <Filter checked={event}
-            onPress={() => setEvent(!event)} text="Event"/>
-            <Filter checked={newest}
-            onPress={() => setNewest(!event)} text="Newest"/>
-            <Filter checked={oldest}
-            onPress={() => setOldest(!oldest)} text="Oldest"/>
-            <Filter checked={grid}
-            onPress={() => setGrid(!grid)} text="Grid"/>
-            <Filter checked={column}
-            onPress={() => setGrid(!column)} text="Column"/>
-        </HorizontalRow>
+                <Divider></Divider>
+                <MediumText style={{ paddingVertical: 10, paddingHorizontal: 10 }}>Sort By</MediumText>
+            <HorizontalRow style={{ paddingHorizontal: 20 }}> 
+                <Filter checked={event}
+                onPress={() => setEvent(!event)} text="Event"/>
+                <Filter checked={newest}
+                onPress={() => setNewest(!event)} text="Newest"/>
+                <Filter checked={oldest}
+                onPress={() => setOldest(!oldest)} text="Oldest"/>
+                <Filter checked={grid}
+                onPress={() => setGrid(!grid)} text="Grid"/>
+                <Filter checked={column}
+                onPress={() => setGrid(!column)} text="Column"/>
+            </HorizontalRow>
             </View>
         </Layout>
         );
@@ -88,17 +89,18 @@ export default function Gallery({ navigation }) {
 
   const filterByNewest = (newEvents) => {
     newImages = newImages.sort((a, b) => {
-        return compareDates(a, b);
+        return a.imageUploadedTime - b.imageUploadedTime;
     });
     return newImages;
   };
 
   const filterByOldest = (newEvents) => {
     newImages = newImages.sort((a, b) => {
-        return compareDates(a, b);
+        return b.imageUploadedTime - a.imageUploadedTime;
     });
     return newImages;
   };
+
 
 }
 
