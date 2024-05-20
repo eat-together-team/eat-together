@@ -5,6 +5,8 @@ import { StyleSheet, FlatList, View } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "../../components/Button";
+import HorizontalRow from "../../components/HorizontalRow";
+import Filter from "../../components/Filter";
 import MediumText from "../../components/MediumText";
 
 
@@ -12,11 +14,20 @@ import { getTimeOfDay, isAvailable, compareDates } from "../../methods";
 import { auth, db } from "../../provider/Firebase";
 
 export default function Gallery({ navigation }) {
-    const user = auth.currentUser;
-    const [userInfo, setUserInfo] = useState({});
+    // Filters
+    const [event, setEvent] = useState(false);
+    const [newest, setNewest] = useState(false);
+    const [oldest, setOldest] = useState(false);
+    const [grid, setGrid] = useState(false);
+    const [column, setColumn] = useState(false);
 
+    const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
+
+    const [filteredImages, setFilteredImages] = useState([]); // Filtered Images
+    //Rendering filters
     return(
         <Layout>
+            
 
             <View>
             <TopNav
@@ -32,9 +43,62 @@ export default function Gallery({ navigation }) {
                 leftAction={() => navigation.goBack()}
             />
                 <Button style={styles.button}> Add Photos </Button>
+                <HorizontalRow> 
+            <Filter checked={event}
+            onPress={() => setEvent(!event)} text="Event"/>
+            <Filter checked={newest}
+            onPress={() => setNewest(!event)} text="Newest"/>
+            <Filter checked={oldest}
+            onPress={() => setOldest(!oldest)} text="Oldest"/>
+            <Filter checked={grid}
+            onPress={() => setGrid(!grid)} text="Grid"/>
+            <Filter checked={column}
+            onPress={() => setGrid(!column)} text="Column"/>
+        </HorizontalRow>
             </View>
         </Layout>
-    );
+        );
+
+    // For filters
+    useEffect(() => { async function filter() {
+      setLoading(true);
+      let newImages = [...Images];
+
+      if (newest) {
+        newImages = filterByNewest(newEvents);
+      }
+
+      if (oldest) {
+        newImages = filterByOldest(newEvents);
+      }
+
+      setFilteredImages(newImages);
+    }
+
+    if (images.length > 0) {
+      filter().then(() => setLoading(false));
+    }
+  }, [
+    events,
+    newest, 
+    oldest, 
+    grid, 
+    column
+  ]);
+
+  const filterByNewest = (newEvents) => {
+    newImages = newImages.sort((a, b) => {
+        return compareDates(a, b);
+    });
+    return newImages;
+  };
+
+  const filterByOldest = (newEvents) => {
+    newImages = newImages.sort((a, b) => {
+        return compareDates(a, b);
+    });
+    return newImages;
+  };
 
 }
 
