@@ -14,7 +14,6 @@ import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
 import Link from "../../components/Link";
 import ProfileBubble from "../../components/ProfileBubble";
-import NameBubble from "../../components/NameBubble";
 
 import { getTimeOfDay, isAvailable, compareDates, getCommonTags, generateColor, randomize3 } from "../../methods";
 import { auth, db } from "../../provider/Firebase";
@@ -66,10 +65,9 @@ export default function({ navigation }) {
               users.push(data);
             }
           });
-          
+  
           setPeople(users);
           setLoading(false);
-
         });
       }
   
@@ -82,8 +80,8 @@ export default function({ navigation }) {
         <HorizontalSwitch
           left="Incoming Request"
           right="Outgoing Request"
-          current="left"
-          press={() => navigation.navigate("Incoming Request")}
+          current="right"
+          press={() => navigation.navigate("Outgoing Request")}
         />
 
       <View style={{ flex: 1, alignItems: "center" }}>
