@@ -93,7 +93,7 @@ export default function({ navigation }) {
             keyExtractor={(item) => item.id}
             data={people}
             renderItem={({ item }) => (
-              <ProfileBubble
+              <NameBubble
                 person={item}
                 click={() => {
                   navigation.navigate("FullProfile", {

@@ -14,6 +14,7 @@ import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
 import Link from "../../components/Link";
 import ProfileBubble from "../../components/ProfileBubble";
+import NameBubble from "../../components/NameBubble";
 
 import { getTimeOfDay, isAvailable, compareDates, getCommonTags, generateColor, randomize3 } from "../../methods";
 import { auth, db } from "../../provider/Firebase";
@@ -65,9 +66,10 @@ export default function({ navigation }) {
               users.push(data);
             }
           });
-  
+          
           setPeople(users);
           setLoading(false);
+
         });
       }
   
@@ -93,7 +95,7 @@ export default function({ navigation }) {
             keyExtractor={(item) => item.id}
             data={people}
             renderItem={({ item }) => (
-              <ProfileBubble
+              <NameBubble
                 person={item}
                 click={() => {
                   navigation.navigate("FullProfile", {
