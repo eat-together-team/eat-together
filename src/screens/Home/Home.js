@@ -695,7 +695,7 @@ export default function ({ navigation }) {
             {/* Button to redirect to personal Photo Gallery */}
 
       <View style={styles.button}>
-        <Button onPress={() => navigation.navigate("Gallery")}> <Ionicons name="md-image-outline" color="white" size={20}/> My Photo Gallery </Button>
+        <Button onPress={() => navigation.navigate("Gallery",{user: userInfo})}> <Ionicons name="image-outline" color="white" size={20}/> My Gallery </Button>
       </View>
 
     </Layout>

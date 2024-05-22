@@ -107,7 +107,7 @@ export default class SearchableDropDown extends Component {
             </View>
             <View style={{ flex: 0.1, flexDirection: 'row', alignItems: 'flex-end' }}>
             <TouchableOpacity onPress={() => setTimeout(() => { this.props.onRemoveItem(item, index) }, 0) } style={styles.close}>
-              <Ionicons name="ios-close" size={15}/>
+              <Ionicons name="close" size={15}/>
             </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -268,7 +268,7 @@ export default class SearchableDropDown extends Component {
                              }}>
                              <NormalText>{item.name}</NormalText>
                              <TouchableOpacity onPress={() => setTimeout(() => { this.props.onRemoveItem(item, index) }, 0) } style={styles.close}>
-                                 <Ionicons name="ios-close" size={15}/>
+                                 <Ionicons name="close" size={15}/>
                              </TouchableOpacity>
                          </View>
                  )

@@ -8,6 +8,7 @@ import EditEvent from "./EditEvent";
 import FullProfile from "../Explore/People/FullProfile";
 import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
 import Gallery from "./Gallery";
+import EventGallery from "./EventGallery";
 import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ChatRoom from "../Chat/ChatRoom";
@@ -42,7 +43,7 @@ export default function () {
       <Stack.Screen name="InvitePeople" component={InvitePeople} />
 
       <Stack.Screen name="Gallery" component={Gallery} />
-
+      <Stack.Screen name="EventGallery" component={EventGallery} />
       {/* WYR Game Screens */}
       <Stack.Screen name="StartGame" component={StartGame}/>
     </Stack.Navigator>
