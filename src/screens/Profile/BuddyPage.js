@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { FlatList, View, ActivityIndicator, StyleSheet } from "react-native";
-import { Layout } from "react-native-rapi-ui";
+import { Layout, TopNav } from "react-native-rapi-ui";
+import { Ionicons } from "@expo/vector-icons";
 
 import Searchbar from "../../components/Searchbar";
 import ProfileBubble from "../../components/ProfileBubble";
@@ -200,7 +201,7 @@ export default function ({ navigation }) {
               <ProfileBubble
                 person={item}
                 click={() => {
-                  navigation.navigate("FullProfile", {
+                  navigation.navigate("BuddyRequest", {
                     person: item,
                   });
                 }}
