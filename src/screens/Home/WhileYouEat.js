@@ -564,6 +564,13 @@ const WhileYouEat = ({ route, navigation }) => {
               </NormalText>
             </View>
           </View>
+          <View style={styles.row}>
+            <Ionicons name="image-outline"size={20}/>
+              <NormalText  paddingHorizontal={10} color="black">
+                <Link onPress={() => navigation.navigate("EventGallery",{event:event})}>Access Meetup Photo Gallery</Link>
+              </NormalText>
+          </View>
+
 
           <NormalText marginBottom={20} color="black">
             {event.additionalInfo}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, FlatList, View, Image, Alert, Dimensions } from "react-native";
+import { StyleSheet, FlatList, View, Alert, Dimensions, Image } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "../../components/Button";
@@ -11,29 +11,29 @@ import { auth, db, storage } from "../../provider/Firebase";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
 
-const numColumns = 3;
-const tileSize = (Dimensions.get('window').width - 10) / numColumns - 10;
-
-export default function Gallery({ route, navigation }) {
+export default function EventGallery({ route, navigation }) {
     const user = auth.currentUser;
-    const [images, setImages] = useState([]);
+    const [event, setEvent] = useState(route.params.event);
+    const [imageGallery, setImageGallery] = useState([]);
     const [loading, setLoading] = useState(true);
+    const screenWidth = Dimensions.get("window").width;
+    const numColumns = 3;
+    const tileSize = (screenWidth - 46) / numColumns;
 
     useEffect(() => {
         const fetchImages = async () => {
-            try {
-                const userDoc = await db.collection("Users").doc(user.uid).get();
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    setImages(userData.gallery || []);
+            let db_name = event.type === "public" ? "Public Events" : "Private Events";
+            const eventDoc = await db.collection(db_name).doc(event.id).get();
+            if (eventDoc.exists) {
+                const eventData = eventDoc.data();
+                console.log('Event Data:', eventData);  // Log event data
+                if (eventData && eventData.eventGallery && Array.isArray(eventData.eventGallery)) {
+                    setImageGallery(eventData.eventGallery);
+                    console.log('Image Gallery:', eventData.eventGallery);  // Log image gallery
                 }
-            } catch (error) {
-                console.error("Error fetching images: ", error);
-            } finally {
-                setLoading(false);
             }
+            setLoading(false);
         };
-
         fetchImages();
     }, []);
 
@@ -47,10 +47,7 @@ export default function Gallery({ route, navigation }) {
                         text: "Gallery",
                         onPress: () => galleryImageSelector(imageId).then(resolve).catch(reject),
                     },
-                    {
-                        text: "Take a photo",
-                        onPress: () => cameraImageSelector(imageId).then(resolve).catch(reject),
-                    },
+                    { text: "Take a photo", onPress: () => cameraImageSelector(imageId).then(resolve).catch(reject) },
                 ],
                 { cancelable: false }
             );
@@ -65,7 +62,7 @@ export default function Gallery({ route, navigation }) {
         });
         if (!result.cancelled) {
             const uri = result.assets[0].uri;
-            await uploadImage(uri, imageId);
+            await storeImage(uri, imageId);
         }
     };
 
@@ -79,43 +76,46 @@ export default function Gallery({ route, navigation }) {
             });
             if (!result.cancelled) {
                 const uri = result.assets[0].uri;
-                await uploadImage(uri, imageId);
+                await storeImage(uri, imageId);
             }
         } catch (error) {
             alert("Error uploading message: " + error.message);
         }
     };
 
-    const uploadImage = async (uri, imageId) => {
+    const storeImage = async (uri, imageId) => {
         const response = await fetch(uri);
         const blob = await response.blob();
-        let ref = storage.ref().child("Gallery/" + user.uid + '/' + imageId);
+        let ref = storage.ref().child("eventGallery/" + event.id + '/' + imageId);
         await ref.put(blob);
         const path = await ref.getDownloadURL();
-        const storeId = {
+
+        const newImage = {
             imageUrl: path,
             imageId: imageId,
             imageUploadedTime: Date.now(),
-            imageEventAssigned: '',
+            userUploaded: user.uid,
+            eventId: event.id,
         };
 
-        await db.collection("Users").doc(user.uid).update({
-            gallery: firebase.firestore.FieldValue.arrayUnion(storeId),
+        let db_name = event.type === "public" ? "Public Events" : "Private Events";
+        await db.collection(db_name).doc(event.id).update({
+            eventGallery: firebase.firestore.FieldValue.arrayUnion(newImage),
         });
 
-        setImages((prev) => [...prev, storeId]);
+        setImageGallery((prev) => [...prev, newImage]);
     };
 
-    const addPhoto = async () => {
-        const imageId = Date.now() + "_" + user.uid;
-        await handleChoosePhoto(imageId)
-            .then(() => {
-                alert("Image Uploaded!");
-                console.log("Image Uploaded!");
-            })
-            .catch((error) => {
-                console.error("Image upload failed: ", error);
-            });
+    const addImage = async () => {
+        const imageId = Date.now() + "_" + event.id;
+        await handleChoosePhoto(imageId).then(() => {
+            alert("Image Uploaded!");
+            console.log("Image Uploaded!");
+            navigation.goBack();
+        })
+        .catch((error) => {
+            console.error("Image upload failed: ", error);
+        });
     };
 
     const renderImage = ({ item }) => (
@@ -132,14 +132,14 @@ export default function Gallery({ route, navigation }) {
                 leftAction={() => navigation.goBack()}
             />
             <View style={styles.buttonContainer}>
-                <Button style={styles.button} onPress={addPhoto}> Add Photos </Button>
+                <Button style={styles.button} onPress={addImage}> Add Photos </Button>
             </View>
             <View style={styles.container}>
                 {loading ? (
                     <LoadingView />
-                ) : images.length > 0 ? (
+                ) : imageGallery.length > 0 ? (
                     <FlatList
-                        data={images}
+                        data={imageGallery}
                         renderItem={renderImage}
                         numColumns={numColumns}
                         keyExtractor={(item) => item.imageId}
