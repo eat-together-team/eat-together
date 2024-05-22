@@ -1,35 +1,46 @@
 import { FlatList, Dimensions, View, SafeAreaView, StyleSheet } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ImageContainer from "../components/ImageContainer";
 
 // Replace with storage.ref(...) to access images in firebase
-const imageArr = new Array(9);
 
 const screenWidth = Dimensions.get("window").width;
 const numColumns = 3;
 const tileSize = (screenWidth - 46) /  numColumns;
 
-function renderImage({ image }) {
+const renderImage = async(props) =>{
     return <ImageContainer 
         size={tileSize} 
-        uri={image}
+        uri={props.uri}
     />;
 }
 
-export default function Grid() {
-    const [images, setImages] = useState(imageArr);
+export default function Grid(props) {
+    const { uri } = props;
+    const images = Array.isArray(uri) ? uri.map(url => [url]) : [];
+
+    const renderImage = ({ item }) => (
+        <ImageContainer size={tileSize} uri={item[0]} />
+    );
+
     return (
-        <SafeAreaView style={styles.container}>
-            <View style = {styles.inputContainer}>
-                <FlatList
-                    data={images}
-                    renderItem={renderImage}
-                    ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                    numColumns={3}
-                    key={3}
-                />
-            </View>
-        </SafeAreaView>
+        <ImageContainer 
+        size={tileSize} 
+        uri={props.uri}
+    />
+
+        // <SafeAreaView style={styles.container}>
+        //     <View style={styles.inputContainer}>
+        //         {/* <FlatList
+        //             data={images}
+        //             renderItem={renderImage}
+        //             numColumns={numColumns}
+        //             keyExtractor={(item, index) => index.toString()}
+        //             ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+        //             contentContainerStyle={{ padding: 5 }}
+        //         /> */}
+        //     </View>
+        // </SafeAreaView>
     )
 }
 
@@ -41,6 +52,6 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         width: screenWidth,
-        padding: 15
+        padding: 5,
     }
 })

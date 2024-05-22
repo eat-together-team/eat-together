@@ -10,7 +10,7 @@ const ImageContainer = (props) => {
         marginRight: 8
       }}
       // Replace link w/ props.uri
-      source={{uri: 'https://img.freepik.com/free-vector/smoke-cloud-png-isolated-transparent-background_107791-16359.jpg'}}
+      source={{uri: props.uri}}
     />
   );
 };
