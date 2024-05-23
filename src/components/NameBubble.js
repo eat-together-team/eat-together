@@ -18,8 +18,12 @@ const NameBubble = ({ person, click}) => {
                 source={person.hasImage ? { uri: person.image } : require("../../assets/logo.png")}
             />
             <TouchableOpacity style={styles.contentContainer} onPress={click}>
-                <MediumText size={18} style={styles.nameText}>
-                    {person.firstName + " " + person.lastName.substring(0, 1) + "."}
+                <MediumText size={16}>
+                    {
+                        (person.firstName + " " + person.lastName.substring(0, 1) + ".").length > 10 ?
+                        (person.firstName + " " + person.lastName.substring(0, 1) + ".").substring(0, 10) + "..."
+                        : person.firstName + " " + person.lastName.substring(0, 1) + "."
+                    }
                 </MediumText>
             </TouchableOpacity>
             <View style={styles.buttonRow}>
@@ -86,12 +90,12 @@ const styles = StyleSheet.create({
         shadowColor: "#000",
         shadowOpacity: 0.25,
         shadowOffset: { width: 0, height: 4 },
-        elevation: 10,
+        elevation: 5,
         alignItems: 'center',
     },
     image: {
-        width: 64,
-        height: 64,
+        width: 50,
+        height: 50,
         borderRadius: 35,
         marginRight: 10,
 
@@ -99,9 +103,6 @@ const styles = StyleSheet.create({
     contentContainer: {
         flexGrow: 1,
         paddingVertical: 10,
-    },
-    nameText: {
-        fontWeight: 'bold',
     },
     buttonRow: {
         flexDirection: 'row',

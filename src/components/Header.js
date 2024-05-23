@@ -20,7 +20,7 @@ const Header = (props) => {
       <View style={styles.icons}>
         {props.connections && props.navigation && (
           <TouchableOpacity onPress={() => {
-            props.navigation.navigate("IncomingRequests");
+            props.navigation.navigate("ConnectionRequests");
           }}>
             <Ionicons name="people-circle-outline" size={30} color="black" style={{ marginRight: 5 }}/>
           </TouchableOpacity>
