@@ -1,5 +1,4 @@
 //Meet other people
-
 import React, { useEffect, useState } from "react";
 import { FlatList, View, ActivityIndicator, StyleSheet } from "react-native";
 import { Layout } from "react-native-rapi-ui";
@@ -195,8 +194,6 @@ export default function ({ navigation }) {
         </HorizontalRow>}
       </View>
       
-      {/* Add the recommendations text over here*/}
-
       <View style={{ flex: 1, alignItems: "center" }}>
         {loading || people.length === 0 ?
           <LoadingView/>

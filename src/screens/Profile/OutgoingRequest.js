@@ -38,6 +38,7 @@ export default function({ navigation }) {
     const showTimeFilterRef = useRef();
 
     const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
+    const [tab, setTab] = useState('incoming');  // Initialize with 'incoming'
 
     useEffect(() => {
       // updates stuff right after React makes changes to the DOM
@@ -76,14 +77,15 @@ export default function({ navigation }) {
 
     return (
       <Layout>
+        
         <Header name="Requests" navigation={navigation} hasNotif={unread} notifs/>
         <HorizontalSwitch
-          left="Incoming Request"
-          right="Outgoing Request"
-          current="right"
-          press={() => navigation.navigate("Outgoing Request")}
-        />
-
+        left="Incoming Requests"
+        right="Outgoing Requests"
+        current={tab === 'incoming' ? 'left' : 'right'}
+        press={() => setTab(tab === 'incoming' ? 'outgoing' : 'incoming')}
+      />
+      
       <View style={{ flex: 1, alignItems: "center" }}>
         {loading ?
           <LoadingView/>
