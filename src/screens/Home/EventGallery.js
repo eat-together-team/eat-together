@@ -13,6 +13,12 @@ import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
 import NormalText from "../../components/NormalText";
 
+//Global variables
+const numColumns = 3;
+const screenWidth = Dimensions.get("window").width;
+const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
+
+
 export default function EventGallery({ route, navigation }) {
     const user = auth.currentUser;
     const [event, setEvent] = useState(route.params.event);
@@ -124,77 +130,85 @@ export default function EventGallery({ route, navigation }) {
         });
     };
 
-    const deleteImage = async () => {
-        const image = imageGallery.find(item => item.imageUrl === uri);
-        if (image) {
-            const timeUploaded = new Date(image.imageUploadedTime).toLocaleString('en-US', { timeZoneName: 'short' });
-            console.log(timeUploaded)
-            console.log("Event ID:", image.eventId);
-            console.log("Image Permissions:",image.imagePermissions);
-            const userDoc = await db.collection("Users").doc(image.userUploaded).get();
-            let uploadedBy = "Unknown User";
-            if (userDoc.exists) {
-                const userData = userDoc.data();
-                uploadedBy = `${userData.firstName} ${userData.lastName}`;
+    const deleteImage = async (imageUrl) => {
+        try {
+            const image = imageGallery.find(img => img.imageUrl === imageUrl);
+            if (!image || image.userUploaded !== user.uid) {
+                throw new Error("Unable to delete another attendee's photo.");
             }
-            console.log("Uploaded By:", uploadedBy);
-
-            // Add more metadata fields if needed
+    
+            const toDelete = {
+                imageUrl: image.imageUrl,
+                imageId: image.imageId,
+                imageUploadedTime: image.imageUploadedTime,
+                userUploaded: image.userUploaded,
+                eventId: image.eventId,
+                imagePermissions: image.imagePermissions,
+            };
+            
             let db_name = image.imagePermissions === "public" ? "Public Events" : "Private Events";
-            const eventDoc = await db.collection(db_name).doc(image.eventId).get();
-            if (eventDoc.exists) {
-                const eventData = eventDoc.data();
-                if (eventData && eventData.eventGallery && Array.isArray(eventData.eventGallery)) {
-                    Alert.alert(
-                        " Image Information","Upload date and time"+ "\n\n"+
-                            timeUploaded
-                        + "\n\nUser who uploaded it\n\n" + uploadedBy,
-                        
-                    );
-        
-                }
-            }
-
-        } 
-
-
+            
+            await db.collection(db_name).doc(event.id).update({
+                eventGallery: firebase.firestore.FieldValue.arrayRemove(toDelete),
+            });
+    
+            const storageRef = storage.ref().child(`eventGallery/${event.id}/${image.imageId}`);
+            await storageRef.delete();
+    
+            setImageGallery(prevImages => prevImages.filter(img => img.imageId !== image.imageId));
+            alert("Image Deleted Successfully!")
+    
+            console.log("Image deleted successfully");
+        } catch (error) {
+            alert("Error deleting image: " + error.message);
+            console.error("Error deleting image: ", error);
+        }
     };
+    
+    const handleDeleteImage = (imageUrl) => {
+        return new Promise((resolve, reject) => {
+            Alert.alert(
+                "Are you sure?",
+                "Deleting your image cannot be reversed. Are you sure you want to continue?",
+                [
+                    {
+                        text: "No",
+                        onPress: () => {},
+                        style: "cancel"
+                    },
+                    {
+                        text: "Yes",
+                        onPress: () =>{
+                            deleteImage(imageUrl).then(resolve).catch(reject),
+                            navigation.goBack();
+
+                        } 
+                        
+                    },
+                ],
+                { cancelable: false }
+            );
+        });
+    };
+    
     const getMetadata = async(uri) => {
         const image = imageGallery.find(item => item.imageUrl === uri);
         if (image) {
             const timeUploaded = new Date(image.imageUploadedTime).toLocaleString('en-US', { timeZoneName: 'short' });
-            console.log(timeUploaded)
-            console.log("Event ID:", image.eventId);
-            console.log("Image Permissions:",image.imagePermissions);
+
             const userDoc = await db.collection("Users").doc(image.userUploaded).get();
             let uploadedBy = "Unknown User";
             if (userDoc.exists) {
                 const userData = userDoc.data();
                 uploadedBy = `${userData.firstName} ${userData.lastName}`;
             }
-            console.log("Uploaded By:", uploadedBy);
 
-            // Add more metadata fields if needed
-            let db_name = image.imagePermissions === "public" ? "Public Events" : "Private Events";
-            const eventDoc = await db.collection(db_name).doc(image.eventId).get();
-            if (eventDoc.exists) {
-                const eventData = eventDoc.data();
-                if (eventData && eventData.eventGallery && Array.isArray(eventData.eventGallery)) {
-                    Alert.alert(
-                        " Image Information","Upload date and time"+ "\n\n"+
-                            timeUploaded
-                        + "\n\nUser who uploaded it\n\n" + uploadedBy,
-                        
-                    );
-        
-                }
-            }
-
+            Alert.alert(
+                " Image Information",
+                `Upload date and time: ${timeUploaded}\n\nUser who uploaded it: ${uploadedBy}`
+            );
         } 
-            
-
-    }
-
+    };
 
     const UserName = ({ userId }) => {
         const [userName, setUserName] = useState("");
@@ -216,6 +230,8 @@ export default function EventGallery({ route, navigation }) {
     };
 
     const renderColumn = ({ item }) => {
+        const screenWidth = Dimensions.get("window").width;
+        const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
         return (
             <View style={styles.columnItem}>
                 <UserName userId={item.userUploaded} />
@@ -227,21 +243,25 @@ export default function EventGallery({ route, navigation }) {
             </View>
         );
     };
+    
 
     const renderImage = ({ item }) => {
+        const screenWidth = Dimensions.get("window").width;
+        const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
+    
         if (column) {
             return renderColumn({ item });
         } else {
             return (
                 <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
-                    <View style={styles.imageItem}>
-                        <Image style={{ width: tileSize, height: tileSize, borderRadius: 15 }} source={{ uri: item.imageUrl }} />
+                    <View style={[styles.imageItem, { width: tileSize, height: tileSize }]}>
+                        <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
                     </View>
                 </TouchableOpacity>
             );
         }
     };
-
+    
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
         setIsModalVisible(true);
@@ -275,8 +295,16 @@ export default function EventGallery({ route, navigation }) {
                         renderItem={renderImage}
                         numColumns={column ? 1 : numColumns}
                         keyExtractor={(item) => item.imageId}
-                        contentContainerStyle={styles.flatListContentContainer}
+                        contentContainerStyle={[styles.flatListContentContainer, { alignItems: column ? 'flex-start' : 'flex-start' }]}
                         key={column ? 'column' : 'grid'}
+                        ListFooterComponent={() => {
+                            // Calculate the number of empty placeholder items needed
+                            const emptyItemsCount = numColumns - (imageGallery.length-1 % numColumns);
+                            if (emptyItemsCount === numColumns || column) return null; // If it's the last row or column view, no need for empty items
+                            return Array.from(Array(emptyItemsCount).keys()).map((index) => (
+                                <View key={index} style={[styles.imageItem, { width: tileSize, height: tileSize }]} />
+                            ));
+                        }}
                     />
                 ) : (
                     <EmptyState title="No Images" text="Add some photos to your event gallery!" />
@@ -295,7 +323,7 @@ export default function EventGallery({ route, navigation }) {
                         <Ionicons name="information-circle" style={{ fontSize: 25, textAlign: "right", marginEnd: 10 }} onPress={() => getMetadata(selectedImageUri)} />
                     </TouchableOpacity>
                     <TouchableOpacity>
-                        <Ionicons name="trash" style={{ fontSize: 25, textAlign: "right", marginEnd: 5 }} onPress={deleteImage} />
+                        <Ionicons name="trash" style={{ fontSize: 25, textAlign: "right", marginEnd: 5 }} onPress={() => handleDeleteImage(selectedImageUri)} />
                     </TouchableOpacity>
                 </View>
             </Modal>
@@ -314,9 +342,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start", // Change justifyContent to flex-start
     },
     imageItem: {
+        width: tileSize,
+        height: tileSize,
         margin: 5,
     },
     columnItem: {
@@ -329,9 +359,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         flexWrap: "wrap",
         paddingHorizontal: 5,
-    },
-    imageRow: {
-        marginBottom: 10,
+        alignItems: 'flex-start', // Align items to the flex-start
     },
     modalBackground: {
         flex: 1,
