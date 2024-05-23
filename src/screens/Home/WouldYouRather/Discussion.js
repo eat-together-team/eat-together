@@ -19,7 +19,6 @@ import BorderedButton from "../../../components/BorderedButton";
 
 import { db, auth } from "../../../provider/Firebase";
 import * as firebase from "firebase/compat";
-import { Touchable } from "react-native";
 import {
     LineChart,
     BarChart,
@@ -27,72 +26,116 @@ import {
     ProgressChart,
     StackedBarChart
   } from "react-native-chart-kit";
+import { random } from "lodash";
 
 const Discussion = ({ route, navigation }) => {
     const [event, setEvent] = useState(route.params.event);
     // Get the current user
     const user = auth.currentUser;
     const green = "#5DB075";
-    // must get the answer options and vote counts from db
-    const option_A = "option A: some really long option that takes up a lot of space";
-    const option_B = "option B";
-    const [votes_A, setA] = useState(0);
-    const [votes_B, setB] = useState(0);
+    // get the answer options and vote counts
+    const [optionA, setOptionA] = useState('option A');
+    const [optionB, setOptionB] = useState('option B');
+    const [votesA, setVotesA] = useState(0);
+    const [votesB, setVotesB] = useState(0);
+
     const chartConfig = {
         color: (opacity = 1) => green
     };
     const screenWidth = Dimensions.get("window").width
       const data = [
         {
-          votes: votes_A,
+          votes: votesA,
           color: green
         },
         {
-          votes: votes_B,
+          votes: votesB,
           color: "#CBE6BC"
           
         }
       ];
-      // Remove player from game when they choose to exit
+
+  // Remove player from game when they choose to exit
   const removePlayer = async () => {
     const currGame = db.collection('WyrGames').doc(event.id);
     const doc = await currGame.get();
     if (doc.exists) {
       currGame.update({players: firebase.firestore.FieldValue.arrayRemove(user.uid)})
-      // delete this document if there are 0 players left
+      // Delete this document if there are 0 players left
+      if (doc.data().players.length == 1) {
+        currGame.delete();
+      }
     } 
   };
 
+  // Exit: moves player back to event page
   const exitGame = () => {
     navigation.navigate("WhileYouEat", {
       event: event})
   };
 
-  // Fetch question and response data on page load
-  useEffect(() => {
-    loadData()
-  }, []);
-
   const loadData = async () => {
     const currGame = db.collection('WyrGames').doc(event.id);
     const doc = await currGame.get();
     if (doc.exists) {
-      setA((votes_A) => doc.data().aVotes)
-      setB((votes_B) => doc.data().bVotes)
+      setVotesA((votesA) => doc.data().aVotes)
+      setVotesB((votesB) => doc.data().bVotes)
+      const currQuestion = doc.data().currentQuestion;
+      console.log(currQuestion)
+      const question = await db.collection('WyrQuestions').doc(currQuestion).get()
+      console.log(question.data());
+      setOptionA((optionA) => question.data().optionA);
+      setOptionB((optionB) => question.data().optionB);
     } 
   }
 
-  const nextQuestion = () => {
-    navigation.push("Question", {
-      event: event})
-  }
-
-  const generateQuestion = async () => {
+  // No longer in discussion; set status to false
+  const readyForQuestion = async () => {
     const currGame = db.collection('WyrGames').doc(event.id);
     const doc = await currGame.get();
     if (doc.exists) {
-      currGame.update({aVotes: 0, bVotes: 0})
-    } 
+      currGame.update({discussionStage: false});
+    }
+  }
+
+  // move Player back to question screen 
+  const moveToQuestion = () => {
+    navigation.push("Question", {
+      event: event})
+  };
+
+  useEffect(() => {
+    // retrieve current answer options & votes
+    loadData();
+    const intervalId = setInterval(loadData, 500);
+    return () => {clearInterval(intervalId)};
+    }, []);
+
+  // Randomly pick out a question from the collection 'WyrQuestions'
+  // only occurs if user is host
+  const randomQuestion = () => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    count = 0;
+    db.collection('WyrQuestions')
+      .onSnapshot(snapshot => {
+        snapshot.forEach(doc => {
+          count += 1;
+      });
+      db.collection('WyrQuestions')
+        .where('random', '==', Math.floor(Math.random()*count))
+        .get()
+        .then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+              console.log('enters includes function');
+              currGame.update({
+                currentQuestion: doc.id,
+                seenQuestions: firebase.firestore.FieldValue.arrayUnion(doc.id),
+                aVotes: 0,
+                bVotes: 0
+              });
+          });
+        })
+      });
   }
   
   return (
@@ -126,24 +169,24 @@ const Discussion = ({ route, navigation }) => {
         />
         
         <View>
-            <View alignSelf={"center"}><MediumText paddingHorizontal={15}>{option_A}</MediumText></View>
+            <View alignSelf={"center"}><MediumText paddingHorizontal={15}>{optionA}</MediumText></View>
             <MediumText style={[styles.option, styles.optionA]} color={"white"}>
-                {votes_A}/{votes_A+votes_B}
+                {votesA}/{votesA+votesB}
             </MediumText>
-            <View alignSelf={"center"}><MediumText paddingHorizontal={15}>{option_B}</MediumText></View>
+            <View alignSelf={"center"}><MediumText paddingHorizontal={15}>{optionB}</MediumText></View>
             <MediumText style={[styles.option, styles.optionB]} color={green}>
-                {votes_B}/{votes_A+votes_B}
+                {votesB}/{votesA+votesB}
             </MediumText>
             {/*Do some logic here that moves everyone onto next question page */}
-            {user.uid == event.hostID ? 
+            {/* {user.uid == event.hostID ?  */}
             <View style={styles.nextButton}>
                 <Button backgroundColor={"gray"} onPress={
-                  () => {generateQuestion(); nextQuestion();}
+                  () => {randomQuestion(); readyForQuestion(); moveToQuestion();}
                 }>
                     Next Question
                 </Button>
             </View>
-            : null}
+            {/* : null} */}
         </View>
       </ScrollView>
     </Layout>

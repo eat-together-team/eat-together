@@ -41,10 +41,34 @@ const IntroGuidelines = ({ route, navigation }) => {
     }    
   };
 
+  // move onto Question stage screen
   const startGame = () => {
     navigation.navigate("Question", {
-      event: event})
+      event: event});
   };
+
+  // Randomly pick out a question from the collection 'WyrQuestions'
+  const randomQuestion = () => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    count = 0;
+    db.collection('WyrQuestions')
+      .onSnapshot(snapshot => {
+        snapshot.forEach(doc => {
+          count += 1;
+      });
+      db.collection('WyrQuestions')
+        .where('random', '==', Math.floor(Math.random()*count))
+        .get()
+        .then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            currGame.update({
+              currentQuestion: doc.id,
+              seenQuestions: firebase.firestore.FieldValue.arrayUnion(doc.id)
+            });
+          });
+        })
+      });
+  }
 
   return (
     <Layout>
@@ -68,26 +92,36 @@ const IntroGuidelines = ({ route, navigation }) => {
 
         <View style={styles.container}>
           <Ionicons name="checkmark-circle-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>Each player will select an answer on their screen</NormalText>
+          <NormalText style={styles.ruleText}>
+            Each player will select an answer on their screen
+          </NormalText>
         </View>
         <View style={styles.container}>
           <Ionicons name="checkmark-done-circle-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>Once everyone has submitted, host may press next to continue onto discussion</NormalText>
+          <NormalText style={styles.ruleText}>
+            Once everyone has submitted, press next to continue onto discussion
+          </NormalText>
         </View>
         <View style={styles.container}>
           <Ionicons name="pie-chart-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>Results will display how many people answered what option</NormalText>
+          <NormalText style={styles.ruleText}>
+            Results will display how many people answered what option
+          </NormalText>
         </View>
         <View style={styles.container}>
           <Ionicons name="chatbubbles-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>Share why you chose your answer with the group</NormalText>
+          <NormalText style={styles.ruleText}>
+            Share why you chose your answer with the group
+          </NormalText>
         </View>
         <View style={styles.container}>
           <Ionicons name="arrow-forward-circle-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>Tap "Next Question" when done discussing to move on</NormalText>
+          <NormalText style={styles.ruleText}>
+            Tap "Next Question" when done discussing to move on
+          </NormalText>
         </View>
 
-          <Button onPress={() => { addGameData(); startGame(); }}>
+          <Button onPress={() => {addGameData(); startGame();}}>
             Start
           </Button>
 
