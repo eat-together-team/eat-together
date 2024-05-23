@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { StyleSheet, FlatList, View, Dimensions, TouchableOpacity, ScrollView } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import RBSheet from "react-native-raw-bottom-sheet";
+import { Ionicons } from "@expo/vector-icons";
 
 import EventCard from "../../components/EventCard";
 import Header from "../../components/Header";
@@ -39,6 +40,7 @@ export default function({ navigation }) {
     const showTimeFilterRef = useRef();
 
     const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
+    const [tab, setTab] = useState('incoming');  // Initialize with 'incoming'
 
     useEffect(() => {
       // updates stuff right after React makes changes to the DOM
@@ -80,12 +82,12 @@ export default function({ navigation }) {
       <Layout>
         <Header name="Requests" navigation={navigation} hasNotif={unread} notifs/>
         <HorizontalSwitch
-          left="Incoming Request"
-          right="Outgoing Request"
-          current="left"
-          press={() => navigation.navigate("Incoming Request")}
-        />
-
+        left="Incoming Requests"
+        right="Outgoing Requests"
+        current={tab === 'incoming' ? 'left' : 'right'}
+        press={() => setTab(tab === 'incoming' ? 'outgoing' : 'incoming')}  // Toggle between tabs
+      />
+      
       <View style={{ flex: 1, alignItems: "center" }}>
         {loading ?
           <LoadingView/>
