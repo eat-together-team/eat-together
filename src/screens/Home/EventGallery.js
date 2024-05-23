@@ -119,7 +119,7 @@ export default function EventGallery({ route, navigation }) {
     };
 
     // Deletes gallery image from Firebase Storage
-    const deleteImage = async (imageId) => {
+    const deleteImage = async (image_id) => {
         try {
             const [eventId, setEventId] = useState("");
             const [imageId, setImageId] = useState("");
@@ -129,7 +129,7 @@ export default function EventGallery({ route, navigation }) {
                 db.collection("Users").doc(user.uid).onSnapshot((doc) => {
                     if (doc.exists) {
                         doc.data().gallery.forEach((image) => {
-                            if (image.imageID === imageId) {
+                            if (image.imageID === image_id) {
                                 if (image.userUploaded == user.uid) {
                                     setEventId(image.eventId);
                                     setImageId(image.imageId);
