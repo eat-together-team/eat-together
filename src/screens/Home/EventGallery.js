@@ -118,6 +118,75 @@ export default function EventGallery({ route, navigation }) {
         });
     };
 
+    // Deletes gallery image from Firebase Storage
+    const deleteImage = async (imageId) => {
+        try {
+            const [eventId, setEventId] = useState("");
+            const [imageId, setImageId] = useState("");
+            const [imageUploadedTime, setImageUploadedTime] = useState("");
+            const [imageUrl, setImageUrl] = useState("");
+            useEffect(() => {
+                db.collection("Users").doc(user.uid).onSnapshot((doc) => {
+                    if (doc.exists) {
+                        doc.data().gallery.forEach((image) => {
+                            if (image.imageID === imageId) {
+                                if (image.userUploaded == user.uid) {
+                                    setEventId(image.eventId);
+                                    setImageId(image.imageId);
+                                    setImageUploadedTime(image.imageUploadedTime);
+                                    setImageUrl(image.imageUrl);
+                                    return;
+                                } else {
+                                    throw Error("Unable to delete another attendee's photo.");
+                                }
+                            }
+                        });
+                    }
+                });
+            }, []);
+            
+            const toDelete = {
+                eventId: eventId,
+                imageId: imageId,
+                imageUploadedTime: imageUploadedTime,
+                imageUrl: imageUrl
+            };
+            
+            // Remove image from gallery
+            db.collection("Users").doc(user.uid).update({
+                    gallery: firebase.firestore.FieldValue.arrayRemove(toDelete)
+            });
+            
+            // Delete from storage
+            // TODO: update to take in Gallery or eventGallery
+            await storage.bucket().file(`Gallery/${imageID}`).delete();
+
+        } catch (error) {
+            alert("Error deleting message: " + error.message);
+        }
+    }
+
+    const handleDeleteImage = (imageId) => {
+        return new Promise((resolve, reject) => {
+            Alert.alert(
+                "Are you sure?",
+                "Deleting your image cannot be reversed. Are you sure you want to continue?",
+                [
+                    {
+                        text: "No",
+                        onPress: () => {},
+                        style: "cancel"
+                    },
+                    {
+                        text: "Yes",
+                        onPress: () => deleteImage(imageId).then(resolve).catch(reject),
+                    },
+                ],
+                { cancelable: false }
+            );
+        });
+    };
+
     const renderImage = ({ item }) => (
         <View style={styles.imageItem}>
             <Image style={{ width: tileSize, height: tileSize, borderRadius: 15 }} source={{ uri: item.imageUrl }} />
