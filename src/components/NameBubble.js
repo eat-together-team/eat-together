@@ -7,10 +7,8 @@ import CustomButton from './CustomButton';
 
 // add in the onAccept and onDecline parameters once the backend for accept/decline is being set up
 // like this: const NameBubble = ({ person, click, onAccept, onDecline }) => {
-
 const NameBubble = ({ person, click}) => {
     const [showConfirmation, setShowConfirmation] = useState(false);
-
     const closeConfirmation = () => setShowConfirmation(false);
 
     return (
@@ -76,13 +74,6 @@ const NameBubble = ({ person, click}) => {
     );
 };
 
-// NameBubble.propTypes = {
-//     person: PropTypes.object.isRequired,
-//     click: PropTypes.func,
-//     onAccept: PropTypes.func,
-//     onDecline: PropTypes.func
-// };
-
 const styles = StyleSheet.create({
     profile: {
         flexDirection: 'row',
@@ -101,8 +92,9 @@ const styles = StyleSheet.create({
     image: {
         width: 64,
         height: 64,
-        borderRadius: 20,
+        borderRadius: 35,
         marginRight: 10,
+
     },
     contentContainer: {
         flexGrow: 1,
