@@ -80,8 +80,7 @@ export default function({ navigation }) {
 
     return (
       <Layout>
-        <Header name="" navigation={navigation} hasNotif={unread} notifs back={true} onBackPress={() => navigation.goBack()}
-/>
+        <Header name="" navigation={navigation} hasNotif={unread} back={false} onBackPress={() => navigation.goBack()}/>
         <HorizontalSwitch
         left="Incoming Requests"
         right="Outgoing Requests"
