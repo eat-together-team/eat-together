@@ -5,7 +5,10 @@ import MediumText from "./MediumText";
 import NormalText from './NormalText';
 import CustomButton from './CustomButton';
 
-const NameBubble = ({ person, click, onAccept, onDecline }) => {
+// add in the onAccept and onDecline parameters once the backend for accept/decline is being set up
+// like this: const NameBubble = ({ person, click, onAccept, onDecline }) => {
+
+const NameBubble = ({ person, click}) => {
     const [showConfirmation, setShowConfirmation] = useState(false);
 
     const closeConfirmation = () => setShowConfirmation(false);
@@ -25,7 +28,7 @@ const NameBubble = ({ person, click, onAccept, onDecline }) => {
                 <CustomButton
                     onPress={() => {
                         setShowConfirmation(true);
-                        onAccept(person);
+                        // onAccept(person); // uncomment this once the backend is set up
                     }}
                     backgroundColor="#4CAF50"
                     width={70}
@@ -36,7 +39,10 @@ const NameBubble = ({ person, click, onAccept, onDecline }) => {
                     <NormalText size={12} style={{ color: "#FFFFFF" }}>Accept</NormalText>
                 </CustomButton>
                 <CustomButton
-                    onPress={() => onDecline(person)}
+                    onPress={() => {
+                        // onDecline(person); // uncomment this once the backend is set up
+                        setShowConfirmation(false);
+                    }}
                     backgroundColor="#D0D0D0"
                     width={70}
                     height={30}
@@ -70,12 +76,12 @@ const NameBubble = ({ person, click, onAccept, onDecline }) => {
     );
 };
 
-NameBubble.propTypes = {
-    person: PropTypes.object.isRequired,
-    click: PropTypes.func,
-    onAccept: PropTypes.func,
-    onDecline: PropTypes.func
-};
+// NameBubble.propTypes = {
+//     person: PropTypes.object.isRequired,
+//     click: PropTypes.func,
+//     onAccept: PropTypes.func,
+//     onDecline: PropTypes.func
+// };
 
 const styles = StyleSheet.create({
     profile: {

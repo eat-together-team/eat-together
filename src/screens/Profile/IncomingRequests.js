@@ -80,14 +80,15 @@ export default function({ navigation }) {
 
     return (
       <Layout>
-        <Header name="Requests" navigation={navigation} hasNotif={unread} notifs/>
+        <Header name="" navigation={navigation} hasNotif={unread} notifs back={true} onBackPress={() => navigation.goBack()}
+/>
         <HorizontalSwitch
         left="Incoming Requests"
         right="Outgoing Requests"
         current={tab === 'incoming' ? 'left' : 'right'}
         press={() => setTab(tab === 'incoming' ? 'outgoing' : 'incoming')}  // Toggle between tabs
       />
-      
+
       <View style={{ flex: 1, alignItems: "center" }}>
         {loading ?
           <LoadingView/>
