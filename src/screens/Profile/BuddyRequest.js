@@ -138,6 +138,13 @@ function databaseRemoveFriend(uid, navigation) {
   navigation.goBack();
 }
 
+function sendRequest(navigation) {
+  alert(
+    "Buddy Request Sent!"
+  );
+  navigation.goBack();
+}
+
 const BuddyRequest = ({ blockBack, route, navigation }) => {
   const user = auth.currentUser; // Current user
 
@@ -287,7 +294,8 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
             });
          }}
         />
-        <RequestMessage/>
+        <RequestMessage
+          onPress={()=> sendRequest(navigation)}/>
         <BorderedButton
           marginHorizontal={10}
           paddingVertical={10}
@@ -295,79 +303,11 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
           width={Dimensions.get('screen').width - 40}
           height={38}
           fontSize={14}
+          onPress={()=> sendRequest(navigation)}
         >
           Send without message
         </BorderedButton>
       </View>
-
-
-
-        {/* <Image
-          style={styles.image}
-          source={
-            route.params.person.hasImage
-              ? { uri: route.params.person.image }
-              : require("../../../assets/logo.png")
-          }
-        /> */}
-
-        {/* <View style={styles.name}>
-          <LargeText size={24}>
-            {route.params.person.firstName + " " + route.params.person.lastName + " (" + route.params.person.pronouns + ")"}
-          </LargeText> */}
-          {/* <NormalText marginBottom={5}>🏫 {route.params.person.school ? route.params.person.school : "UW-Seattle"}</NormalText>
-          <NormalText>
-            🍽️ {route.params.person.attendedEventIDs.length +
-              "/" +
-              (route.params.person.archivedEventIDs.length +
-                route.params.person.attendingEventIDs.length) +
-              " meals attended"}
-          </NormalText> */}
-          {/* <MediumText>@{route.params.person.username}</MediumText> */}
-{/*
-          {tryoutId != user.uid && (
-            <View style={{  marginVertical: 10 }}>
-              <Button
-                disabled={disabled}
-                onPress={connect}
-                backgroundColor={color}
-                paddingVertical={5}
-                paddingHorizontal={15}
-                fontSize={14}
-              >
-                {status}
-              </Button>
-
-              <TouchableOpacity
-                style={styles.link}
-                onPress={() => {
-                  navigation.navigate("AvailabilitiesStatic", {
-                    user: route.params.person
-                  });
-                }}
-              >
-                <Ionicons name="time" size={20} color="#4C6FB1" />
-                <NormalText color="#4C6FB1"> Eating Times</NormalText>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View> */}
-
-        {/* <TagsList tags={route.params.person.tags} />
-        <MediumText center>{route.params.person.bio}</MediumText>
-        <View style={styles.cards}>
-          {events.map((event) => (
-            <EventCard
-              event={event}
-              key={event.id}
-              click={() => {
-                navigation.navigate("FullCard", {
-                  event,
-                });
-              }}
-            />
-          ))}
-        </View> */}
       </ScrollView>
     </Layout>
   );

@@ -20,7 +20,7 @@ const RequestBubble = props => {
                 height={55}
                 paddingHorizontal={20}
                 fontSize={14}
-            //onPress={}
+                onPress={props.onPress}
             >
             Send message
           </Button>

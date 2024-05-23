@@ -49,6 +49,9 @@ export default function () {
       <Stack.Screen name="BuddyPage" component={BuddyPage} />
       <Stack.Screen name="BuddyNotif" component={BuddyNotif} />
       <Stack.Screen name="IncomingRequests" component={IncomingRequests} />
+      <Stack.Screen name="BuddyRequest">
+        {props => <BuddyRequest{...props} blockBack="Me"/>}
+      </Stack.Screen>
 
 
 
