@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { StyleSheet, FlatList, View, Image, Alert, Dimensions } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -6,18 +6,33 @@ import Button from "../../components/Button";
 import MediumText from "../../components/MediumText";
 import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
-
+import HorizontalRow from "../../components/HorizontalRow";
+import Filter from "../../components/Filter";
 import { auth, db, storage } from "../../provider/Firebase";
+import { Divider } from "react-native-elements";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
+import NormalText from "../../components/NormalText";
+import ImageContainer from "../../components/ImageContainer";
+import LargeText from "../../components/LargeText";
+import EventDropdown from "../../components/EventDropdown";
 
-const numColumns = 3;
-const tileSize = (Dimensions.get('window').width - 10) / numColumns - 10;
+const gridColumns = 3;
+const columnColumns = 1;
+const tileSize = (Dimensions.get('window').width - 10) / gridColumns - 10;
 
 export default function Gallery({ route, navigation }) {
     const user = auth.currentUser;
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [event, setEvent] = useState(false);
+    const [newest, setNewest] = useState(false);
+    const [oldest, setOldest] = useState(false);
+    const [grid, setGrid] = useState(true);
+    const [column, setColumn] = useState(false);
+    const [filteredImages, setFilteredImages] = useState([]);
+    const showTypeRef = useRef();
+
 
     useEffect(() => {
         const fetchImages = async () => {
@@ -25,7 +40,9 @@ export default function Gallery({ route, navigation }) {
                 const userDoc = await db.collection("Users").doc(user.uid).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
-                    setImages(userData.gallery || []);
+                    const fetchedImages = userData.gallery || [];
+                    setImages(fetchedImages);
+                    setFilteredImages(fetchedImages);
                 }
             } catch (error) {
                 console.error("Error fetching images: ", error);
@@ -104,6 +121,7 @@ export default function Gallery({ route, navigation }) {
         });
 
         setImages((prev) => [...prev, storeId]);
+        setFilteredImages((prev) => [...prev, storeId]);
     };
 
     const addPhoto = async () => {
@@ -118,30 +136,93 @@ export default function Gallery({ route, navigation }) {
             });
     };
 
-    const renderImage = ({ item }) => (
-        <View style={styles.imageItem}>
-            <Image style={{ width: tileSize, height: tileSize, borderRadius: 15 }} source={{ uri: item.imageUrl }} />
-        </View>
-    );
+
+    const renderColumn = ({ item }) => {
+        const uploadedTime = new Date(item.imageUploadedTime);
+        const formattedDate = uploadedTime.toLocaleDateString(); // Display only the date
+    
+        return (
+            <View style={styles.columnItem}>
+                <MediumText>{formattedDate}</MediumText>
+                <View style={{ width: tileSize, aspectRatio: 1 }}>
+                    <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
+                </View>
+            </View>
+        );
+    };
+                    
+    const render1 = ({ item }) => {
+        if (column) {
+            return renderColumn({ item });
+        } else {
+            return (
+                <View style={styles.imageItem}>
+                    <Image style={{ width: tileSize, height: tileSize, borderRadius: 15 }} source={{ uri: item.imageUrl }} />
+                </View>
+            );
+        }
+    };
+    
+    useEffect(() => {
+        const filter = async () => {
+            setLoading(true);
+            let newImages = [...images];
+
+            if (newest) {
+                newImages = filterByNewest(newImages);
+            }
+
+            if (oldest) {
+                newImages = filterByOldest(newImages);
+            }
+
+            setFilteredImages(newImages);
+            setLoading(false);
+        };
+
+        if (images.length > 0) {
+            filter();
+        }
+    }, [event, newest, oldest, grid, column, images]);
+
+    const filterByNewest = (newImages) => {
+        return newImages.sort((a, b) => b.imageUploadedTime - a.imageUploadedTime);
+    };
+
+    const filterByOldest = (newImages) => {
+        return newImages.sort((a, b) => a.imageUploadedTime - b.imageUploadedTime);
+    };
 
     return (
         <Layout>
             <TopNav
-                middleContent={<MediumText>Event Photo Gallery</MediumText>}
+                middleContent={<MediumText>Your Photo Gallery</MediumText>}
                 leftContent={<Ionicons name="chevron-back" size={20} />}
                 leftAction={() => navigation.goBack()}
             />
             <View style={styles.buttonContainer}>
                 <Button style={styles.button} onPress={addPhoto}> Add Photos </Button>
             </View>
+            <View>
+                <Divider />
+                <MediumText style={{ paddingVertical: 10, paddingHorizontal: 10 }}>Sort By</MediumText>
+                <HorizontalRow style={{ paddingHorizontal: 20 }}>
+                    <Filter checked={event} onPress={() => setEvent(!event)} text="Event" />
+                    <Filter checked={newest} onPress={() => { setNewest(true); setOldest(false); }} text="Newest" />
+                    <Filter checked={oldest} onPress={() => { setOldest(true); setNewest(false); }} text="Oldest" />
+                    <Filter checked={grid} onPress={() => { setGrid(true); setColumn(false); }} text="Grid" />
+                    <Filter checked={column} onPress={() => { setColumn(true); setGrid(false); }} text="User" />
+                </HorizontalRow>
+            </View>
             <View style={styles.container}>
                 {loading ? (
                     <LoadingView />
-                ) : images.length > 0 ? (
+                ) : filteredImages.length > 0 ? (
                     <FlatList
-                        data={images}
-                        renderItem={renderImage}
-                        numColumns={numColumns}
+                        data={filteredImages}
+                        renderItem={render1}
+                        numColumns={column ? 1 : gridColumns}
+                        key={column ? 'column' : 'grid'}
                         keyExtractor={(item) => item.imageId}
                         contentContainerStyle={styles.flatListContentContainer}
                     />
@@ -175,4 +256,13 @@ const styles = StyleSheet.create({
     imageItem: {
         margin: 5,
     },
+    columnItem: {
+        marginVertical: 5,
+        paddingRight: 80,
+        width: '100%',
+    },
+    imageRow: {
+        marginBottom: 10, 
+    },
+    
 });
