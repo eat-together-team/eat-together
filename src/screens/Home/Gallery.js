@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { StyleSheet, FlatList, View, Image, Alert, Dimensions } from "react-native";
+import { StyleSheet, FlatList, View, Image, Alert, Dimensions,Modal,TouchableOpacity,TouchableWithoutFeedback } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "../../components/Button";
@@ -17,9 +17,12 @@ import ImageContainer from "../../components/ImageContainer";
 import LargeText from "../../components/LargeText";
 import EventDropdown from "../../components/EventDropdown";
 
+//Global variables
+const numColumns = 3;
+const screenWidth = Dimensions.get("window").width;
+const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
 const gridColumns = 3;
 const columnColumns = 1;
-const tileSize = (Dimensions.get('window').width - 10) / gridColumns - 10;
 
 export default function Gallery({ route, navigation }) {
     const user = auth.currentUser;
@@ -31,6 +34,8 @@ export default function Gallery({ route, navigation }) {
     const [grid, setGrid] = useState(true);
     const [column, setColumn] = useState(false);
     const [filteredImages, setFilteredImages] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedImageUri, setSelectedImageUri] = useState(null);
     const showTypeRef = useRef();
 
 
@@ -130,38 +135,128 @@ export default function Gallery({ route, navigation }) {
             .then(() => {
                 alert("Image Uploaded!");
                 console.log("Image Uploaded!");
+                navigation.goBack();
             })
             .catch((error) => {
                 console.error("Image upload failed: ", error);
             });
     };
+    const deleteImage = async (imageUrl) => {
+        try {
+            const image = images.find(img => img.imageUrl === imageUrl);
+    
+            const toDelete = {
+                imageEventAssigned:image.imageEventAssigned,
+                imageUrl: image.imageUrl,
+                imageId: image.imageId,
+                imageUploadedTime: image.imageUploadedTime,
+            };
+            
+            
+            await db.collection("Users").doc(user.uid).update({
+                gallery: firebase.firestore.FieldValue.arrayRemove(toDelete),
+            });
+    
+            const storageRef = storage.ref().child(`Gallery/${user.uid}/${image.imageId}`);
+            await storageRef.delete();
+    
+            setImages(prevImages => prevImages.filter(img => img.imageId !== image.imageId));
+            alert("Image Deleted Successfully!")
+    
+            console.log("Image deleted successfully");
+        } catch (error) {
+            alert("Error deleting image: " + error.message);
+            console.error("Error deleting image: ", error);
+        }
+    };
+    
+    const handleDeleteImage = (imageUrl) => {
+        return new Promise((resolve, reject) => {
+            Alert.alert(
+                "Are you sure?",
+                "Deleting your image cannot be reversed. Are you sure you want to continue?",
+                [
+                    {
+                        text: "No",
+                        onPress: () => {},
+                        style: "cancel"
+                    },
+                    {
+                        text: "Yes",
+                        onPress: () =>{
+                            deleteImage(imageUrl).then(resolve).catch(reject),
+                            navigation.goBack();
+
+                        } 
+                        
+                    },
+                ],
+                { cancelable: false }
+            );
+        });
+    };
+
 
 
     const renderColumn = ({ item }) => {
         const uploadedTime = new Date(item.imageUploadedTime);
         const formattedDate = uploadedTime.toLocaleDateString(); // Display only the date
+        const screenWidth = Dimensions.get("window").width;
+        const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
+
     
         return (
             <View style={styles.columnItem}>
                 <MediumText>{formattedDate}</MediumText>
-                <View style={{ width: tileSize, aspectRatio: 1 }}>
-                    <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
-                </View>
+                <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
+                    <View style={{ width: tileSize, aspectRatio: 1 }}>
+                        <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
+                    </View>
+                </TouchableOpacity>
             </View>
         );
     };
+    const getMetadata = async(uri) => {
+        const image = images.find(item => item.imageUrl === uri);
+        if (image) {
+            const timeUploaded = new Date(image.imageUploadedTime).toLocaleString('en-US', { timeZoneName: 'short' });
+            console.log(user.uid)
+            console.log('hello',image.imageId)
+            Alert.alert(
+                " Image Information",
+                `Upload date and time: ${timeUploaded}\n\n Event Assigned: ${image.imageEventAssigned}`
+            );
+        } 
+    };
+
+
+
                     
-    const render1 = ({ item }) => {
+    const renderImage = ({ item }) => {
+        const screenWidth = Dimensions.get("window").width;
+        const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
+
         if (column) {
             return renderColumn({ item });
         } else {
             return (
-                <View style={styles.imageItem}>
-                    <Image style={{ width: tileSize, height: tileSize, borderRadius: 15 }} source={{ uri: item.imageUrl }} />
-                </View>
+                <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
+                    <View style={[styles.imageItem, { width: tileSize, height: tileSize }]}>
+                        <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
+                    </View>
+                </TouchableOpacity>
             );
         }
     };
+    const handleImagePress = (uri) => {
+        setSelectedImageUri(uri);
+        setIsModalVisible(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalVisible(false);
+    };
+
     
     useEffect(() => {
         const filter = async () => {
@@ -220,7 +315,7 @@ export default function Gallery({ route, navigation }) {
                 ) : filteredImages.length > 0 ? (
                     <FlatList
                         data={filteredImages}
-                        renderItem={render1}
+                        renderItem={renderImage}
                         numColumns={column ? 1 : gridColumns}
                         key={column ? 'column' : 'grid'}
                         keyExtractor={(item) => item.imageId}
@@ -230,6 +325,29 @@ export default function Gallery({ route, navigation }) {
                     <EmptyState title="No Images" text="Add some photos to your event gallery!" />
                 )}
             </View>
+            <Modal visible={isModalVisible} transparent={true} onRequestClose={handleCloseModal}>
+                <TouchableWithoutFeedback onPress={handleCloseModal}>
+                    <View style={styles.modalBackground}>
+                        <View style={styles.modalContainer}>
+                            <Image style={{ width: '100%', height: '100%', resizeMode: 'contain' }} source={{ uri: selectedImageUri }} />
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+                <View style={styles.modalBottom}>
+                    <TouchableOpacity style={styles.leftIcons}>
+                        <NormalText style={{color:'#5db075',fontSize: 20,fontWeight: 'bold',}}> Assign Images to an Event </NormalText>
+                    </TouchableOpacity>
+                    <View style={styles.rightIcons}>
+                        <TouchableOpacity>
+                            <Ionicons name="information-circle" style={styles.icon} onPress={() => getMetadata(selectedImageUri)} />
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <Ionicons name="trash" style={styles.icon} onPress={() => handleDeleteImage(selectedImageUri)} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
         </Layout>
     );
 }
@@ -245,24 +363,53 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start", // Change justifyContent to flex-start
+    },
+    imageItem: {
+        width: tileSize,
+        height: tileSize,
+        margin: 5,
+    },
+    columnItem: {
+        marginVertical: 5,
+        width: '100%',
+        alignItems: 'flex-start',
     },
     flatListContentContainer: {
         justifyContent: "flex-start",
         flexDirection: "row",
         flexWrap: "wrap",
         paddingHorizontal: 5,
+        alignItems: 'flex-start', // Align items to the flex-start
     },
-    imageItem: {
-        margin: 5,
+    modalBackground: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
     },
-    columnItem: {
-        marginVertical: 5,
-        paddingRight: 80,
-        width: '100%',
+    modalContainer: {
+        width: "50%",
+        height: "50%",
+        aspectRatio: 1,
     },
-    imageRow: {
-        marginBottom: 10, 
+    modalBottom: {
+        height: 49,
+        backgroundColor: "white",
+        paddingHorizontal: 5,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between', // To evenly space the icon and text containers
+    },
+    leftIcons: {
+        flexDirection: 'row',
+    },
+    rightIcons: {
+        flexDirection: 'row',
+    },
+    icon: {
+        fontSize: 25,
+        marginRight: 10,
     },
     
 });
