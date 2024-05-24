@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { StyleSheet, FlatList, View, Image, Alert, Dimensions,Modal,TouchableOpacity,TouchableWithoutFeedback } from "react-native";
+import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "../../components/Button";
@@ -13,7 +13,6 @@ import { Divider } from "react-native-elements";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
 import NormalText from "../../components/NormalText";
-import ImageContainer from "../../components/ImageContainer";
 import LargeText from "../../components/LargeText";
 import EventDropdown from "../../components/EventDropdown";
 
@@ -21,8 +20,6 @@ import EventDropdown from "../../components/EventDropdown";
 const numColumns = 3;
 const screenWidth = Dimensions.get("window").width;
 const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
-const gridColumns = 3;
-const columnColumns = 1;
 
 export default function Gallery({ route, navigation }) {
     const user = auth.currentUser;
@@ -37,7 +34,6 @@ export default function Gallery({ route, navigation }) {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImageUri, setSelectedImageUri] = useState(null);
     const showTypeRef = useRef();
-
 
     useEffect(() => {
         const fetchImages = async () => {
@@ -141,6 +137,7 @@ export default function Gallery({ route, navigation }) {
                 console.error("Image upload failed: ", error);
             });
     };
+
     const deleteImage = async (imageUrl) => {
         try {
             const image = images.find(img => img.imageUrl === imageUrl);
@@ -169,7 +166,7 @@ export default function Gallery({ route, navigation }) {
             console.error("Error deleting image: ", error);
         }
     };
-    
+
     const handleDeleteImage = (imageUrl) => {
         return new Promise((resolve, reject) => {
             Alert.alert(
@@ -186,7 +183,6 @@ export default function Gallery({ route, navigation }) {
                         onPress: () =>{
                             deleteImage(imageUrl).then(resolve).catch(reject),
                             navigation.goBack();
-
                         } 
                         
                     },
@@ -196,32 +192,26 @@ export default function Gallery({ route, navigation }) {
         });
     };
 
-
-
     const renderColumn = ({ item }) => {
         const uploadedTime = new Date(item.imageUploadedTime);
-        const formattedDate = uploadedTime.toLocaleDateString(); // Display only the date
-        const screenWidth = Dimensions.get("window").width;
-        const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
+        const formattedDate = uploadedTime.toLocaleDateString();
 
-    
         return (
             <View style={styles.columnItem}>
                 <MediumText>{formattedDate}</MediumText>
                 <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
-                    <View style={{ width: tileSize, aspectRatio: 1 }}>
-                        <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
+                    <View style={styles.imageContainer}>
+                        <Image style={styles.image} source={{ uri: item.imageUrl }} />
                     </View>
                 </TouchableOpacity>
             </View>
         );
     };
+
     const getMetadata = async(uri) => {
         const image = images.find(item => item.imageUrl === uri);
         if (image) {
             const timeUploaded = new Date(image.imageUploadedTime).toLocaleString('en-US', { timeZoneName: 'short' });
-            console.log(user.uid)
-            console.log('hello',image.imageId)
             Alert.alert(
                 " Image Information",
                 `Upload date and time: ${timeUploaded}\n\n Event Assigned: ${image.imageEventAssigned}`
@@ -229,13 +219,7 @@ export default function Gallery({ route, navigation }) {
         } 
     };
 
-
-
-                    
     const renderImage = ({ item }) => {
-        const screenWidth = Dimensions.get("window").width;
-        const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
-
         if (column) {
             return renderColumn({ item });
         } else {
@@ -248,6 +232,7 @@ export default function Gallery({ route, navigation }) {
             );
         }
     };
+
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
         setIsModalVisible(true);
@@ -257,7 +242,6 @@ export default function Gallery({ route, navigation }) {
         setIsModalVisible(false);
     };
 
-    
     useEffect(() => {
         const filter = async () => {
             setLoading(true);
@@ -316,8 +300,8 @@ export default function Gallery({ route, navigation }) {
                     <FlatList
                         data={filteredImages}
                         renderItem={renderImage}
-                        numColumns={column ? 1 : gridColumns}
-                        key={column ? 'column' : 'grid'}
+                        numColumns={grid ? numColumns : 1}
+                        key={grid ? 'grid' : 'column'}
                         keyExtractor={(item) => item.imageId}
                         contentContainerStyle={styles.flatListContentContainer}
                     />
@@ -347,7 +331,6 @@ export default function Gallery({ route, navigation }) {
                     </View>
                 </View>
             </Modal>
-
         </Layout>
     );
 }
@@ -362,8 +345,8 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        alignItems: "center",
-        justifyContent: "flex-start", // Change justifyContent to flex-start
+        alignItems: "left",
+        justifyContent: "flex-start",
     },
     imageItem: {
         width: tileSize,
@@ -377,10 +360,8 @@ const styles = StyleSheet.create({
     },
     flatListContentContainer: {
         justifyContent: "flex-start",
-        flexDirection: "row",
-        flexWrap: "wrap",
         paddingHorizontal: 5,
-        alignItems: 'flex-start', // Align items to the flex-start
+        alignItems: 'flex-start',
     },
     modalBackground: {
         flex: 1,
@@ -399,7 +380,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between', // To evenly space the icon and text containers
+        justifyContent: 'space-between',
     },
     leftIcons: {
         flexDirection: 'row',
@@ -411,5 +392,14 @@ const styles = StyleSheet.create({
         fontSize: 25,
         marginRight: 10,
     },
-    
+    imageContainer: {
+        width: tileSize,
+        aspectRatio: 1,
+        marginVertical: 10,
+    },
+    image: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 15,
+    },
 });
