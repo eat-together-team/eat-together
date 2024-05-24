@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
+import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback, Text } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "../../components/Button";
@@ -14,7 +14,6 @@ import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
 import NormalText from "../../components/NormalText";
 import LargeText from "../../components/LargeText";
-import EventDropdown from "../../components/EventDropdown";
 
 //Global variables
 const numColumns = 3;
@@ -33,6 +32,8 @@ export default function Gallery({ route, navigation }) {
     const [filteredImages, setFilteredImages] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImageUri, setSelectedImageUri] = useState(null);
+    const [attendedEvents, setAttendedEvents] = useState([]);
+    const [attendedEventNames, setAttendedEventNames] = useState([]);
     const showTypeRef = useRef();
 
     useEffect(() => {
@@ -54,6 +55,55 @@ export default function Gallery({ route, navigation }) {
 
         fetchImages();
     }, []);
+
+    useEffect(() => {
+        const fetchAttendedEvents = async () => {
+            try {
+                const userDoc = await db.collection("Users").doc(user.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    const attendedEventsData = userData.attendedEventIDs || [];
+                    setAttendedEvents(attendedEventsData);
+
+
+                }
+            } catch (error) {
+                console.error("Error fetching attended events: ", error);
+            }
+        };
+
+        fetchAttendedEvents();
+    }, []);
+    useEffect(() => {
+    const fetchEventNames = async () => {
+        const names = await Promise.all(attendedEvents.map(async (event) => {
+            let eventName = 'Unknown Event';
+            let eventId=event.id;
+            console.log(eventId)
+            try {
+                let eventDoc;
+                console.log(event.type)
+                if (event.type === 'public') {
+                    eventDoc = await db.collection("Public Events").doc(event.id).get();
+                } else if (event.type === 'private') {
+                    eventDoc = await db.collection("Private Events").doc(event.id).get();
+                }
+                if (eventDoc.exists) {
+                    eventName = eventDoc.data().name;
+                }
+                console.log(eventName,eventDoc)
+            } catch (error) {
+                console.error("Error fetching event details: ", error);
+            }
+            return eventName;
+        }));
+        setAttendedEventNames(names);
+    };
+
+    fetchEventNames();
+}, [attendedEvents]);
+
+    
 
     const handleChoosePhoto = (imageId) => {
         return new Promise((resolve, reject) => {
@@ -187,7 +237,9 @@ export default function Gallery({ route, navigation }) {
                         
                     },
                 ],
-                { cancelable: false }
+                {                
+                    cancelable: false
+                }
             );
         });
     };
@@ -208,17 +260,6 @@ export default function Gallery({ route, navigation }) {
         );
     };
 
-    const getMetadata = async(uri) => {
-        const image = images.find(item => item.imageUrl === uri);
-        if (image) {
-            const timeUploaded = new Date(image.imageUploadedTime).toLocaleString('en-US', { timeZoneName: 'short' });
-            Alert.alert(
-                " Image Information",
-                `Upload date and time: ${timeUploaded}\n\n Event Assigned: ${image.imageEventAssigned}`
-            );
-        } 
-    };
-
     const renderImage = ({ item }) => {
         if (column) {
             return renderColumn({ item });
@@ -232,6 +273,42 @@ export default function Gallery({ route, navigation }) {
             );
         }
     };
+    const getMetadata = async (uri) => {
+        const image = images.find(item => item.imageUrl === uri);
+        if (image) {
+            const timeUploaded = new Date(image.imageUploadedTime).toLocaleString('en-US', { timeZoneName: 'short' });
+            let eventName = '';
+    
+            try {
+                // Check if the event ID exists in the Public Events collection
+                const publicEventDoc = await db.collection("Public Events").doc(image.imageEventAssigned).get();
+                console.log("Public Events:",publicEventDoc.exists)
+                if (publicEventDoc.exists) {
+                    eventName = publicEventDoc.data().name;
+                    console.log(eventName)
+                } else {
+                    // If not found in Public Events, check Private Events collection
+                    const privateEventDoc = await db.collection("Private Events").doc(image.imageEventAssigned).get();
+                    console.log("Private Events:",privateEventDoc)
+                    if (privateEventDoc.exists) {
+                        eventName = privateEventDoc.data().name;
+                    } else {
+                        // If event ID not found in either collection
+                        eventName = 'Unknown Event';
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching event details: ", error);
+                eventName = 'Unknown Event';
+            }
+    
+            Alert.alert(
+                " Image Information",
+                `Upload date and time: ${timeUploaded}\n\n Event Assigned: ${eventName}`
+            );
+        }
+    };
+        
 
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
@@ -242,6 +319,74 @@ export default function Gallery({ route, navigation }) {
         setIsModalVisible(false);
     };
 
+    const handleAssignEvent = async (uri) => {
+        console.log(images)
+        const image = images.find(item => item.imageUrl === uri);
+        console.log(image.imageEventAssigned);
+        const eventId = image.imageEventAssigned;
+
+        if (image) {
+            try {
+                const eventOptions = attendedEvents.map((event, index) => ({
+                    text: attendedEventNames[index] || 'Unknown Event',
+                    onPress: () => assignImageToEvent(event.id),
+                }));
+                console.log(eventOptions),
+                <View style={{justifyContent:"left"}} >{
+                    
+                    Alert.alert(
+                        "Assign Image to Event",
+                                    `Choose an event to assign the image to:\n\n`,eventOptions,
+
+                        { cancelable: true }
+                    )
+    
+                    }
+
+
+                </View>
+
+            } catch (error) {
+                console.error("Error fetching event details: ", error);
+                return 'Unknown Event';
+            }
+        }
+    };
+        
+                    
+    const assignImageToEvent = async (eventId) => {
+        try {
+            // Find the index of the image in the gallery array
+            console.log("Images", images);
+            const imageIndex = images.findIndex(img => img.imageUrl === selectedImageUri);
+            console.log("Image Index:", imageIndex);
+            if (imageIndex !== -1) {
+                // Update the image's event assignment
+                const updatedImages = [...images];
+                updatedImages[imageIndex] = {
+                    ...updatedImages[imageIndex],
+                    imageEventAssigned: eventId,
+                };
+                console.log("Updated Images", updatedImages);
+                // Update the user document with the modified gallery array
+                await db.collection("Users").doc(user.uid).update({
+                    gallery: updatedImages,
+                });
+    
+                // Update the state or do any necessary actions after assigning the image to the event
+                setIsModalVisible(false);
+                alert("Image assigned to event successfully!");
+                navigation.goBack()
+
+            } else {
+                // Handle the case where the image is not found
+                console.error("Image not found in the gallery.");
+            }
+        } catch (error) {
+            console.error("Error assigning image to event: ", error);
+        }
+    };
+        
     useEffect(() => {
         const filter = async () => {
             setLoading(true);
@@ -290,7 +435,7 @@ export default function Gallery({ route, navigation }) {
                     <Filter checked={newest} onPress={() => { setNewest(true); setOldest(false); }} text="Newest" />
                     <Filter checked={oldest} onPress={() => { setOldest(true); setNewest(false); }} text="Oldest" />
                     <Filter checked={grid} onPress={() => { setGrid(true); setColumn(false); }} text="Grid" />
-                    <Filter checked={column} onPress={() => { setColumn(true); setGrid(false); }} text="User" />
+                    <Filter checked={column} onPress={() => { setColumn(true); setGrid(false); }} text="Date" />
                 </HorizontalRow>
             </View>
             <View style={styles.container}>
@@ -305,8 +450,7 @@ export default function Gallery({ route, navigation }) {
                         keyExtractor={(item) => item.imageId}
                         contentContainerStyle={styles.flatListContentContainer}
                     />
-                ) : (
-                    <EmptyState title="No Images" text="Add some photos to your event gallery!" />
+                ) : (                    <EmptyState title="No Images" text="Add some photos to your event gallery!" />
                 )}
             </View>
             <Modal visible={isModalVisible} transparent={true} onRequestClose={handleCloseModal}>
@@ -318,12 +462,12 @@ export default function Gallery({ route, navigation }) {
                     </View>
                 </TouchableWithoutFeedback>
                 <View style={styles.modalBottom}>
-                    <TouchableOpacity style={styles.leftIcons}>
-                        <NormalText style={{color:'#5db075',fontSize: 20,fontWeight: 'bold',}}> Assign Images to an Event </NormalText>
+                    <TouchableOpacity style={styles.leftIcons} onPress={() => handleAssignEvent(selectedImageUri)}>
+                        <NormalText style={{ color: '#5db075', fontSize: 20, fontWeight: 'bold' }}> Assign Images to an Event </NormalText>
                     </TouchableOpacity>
                     <View style={styles.rightIcons}>
                         <TouchableOpacity>
-                            <Ionicons name="information-circle" style={styles.icon} onPress={() => getMetadata(selectedImageUri)} />
+                            <Ionicons name="information-circle" style={{ fontSize: 25, textAlign: "right", marginEnd: 10 }} onPress={() => getMetadata(selectedImageUri)} />
                         </TouchableOpacity>
                         <TouchableOpacity>
                             <Ionicons name="trash" style={styles.icon} onPress={() => handleDeleteImage(selectedImageUri)} />
@@ -370,14 +514,13 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0, 0, 0, 0.7)",
     },
     modalContainer: {
-        width: "50%",
-        height: "50%",
+        width: "85%",
+        height: "65%",
         aspectRatio: 1,
     },
     modalBottom: {
         height: 49,
         backgroundColor: "white",
-        paddingHorizontal: 5,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -403,3 +546,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
     },
 });
+
+
+                   
+

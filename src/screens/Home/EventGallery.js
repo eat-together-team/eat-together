@@ -147,7 +147,6 @@ export default function EventGallery({ route, navigation }) {
             };
             
             let db_name = image.imagePermissions === "public" ? "Public Events" : "Private Events";
-            
             await db.collection(db_name).doc(event.id).update({
                 eventGallery: firebase.firestore.FieldValue.arrayRemove(toDelete),
             });

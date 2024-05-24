@@ -3,18 +3,13 @@ import { FlatList, Modal, StyleSheet, TouchableOpacity, View } from "react-nativ
 import Ionicons from "react-native-vector-icons/Ionicons";
 import NormalText from "./NormalText";
 
-const EventDropdown = ({ visible, onClose }) => {
+const EventDropdown = ({ visible, onClose },props) => {
   // State for managing dropdown visibility and selected option
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
 
   // List of event options
-  const eventList = [
-    "Meetup at Sunright Tea Studio",
-    "Meetup at Chipotle",
-    "Meetup at Yu Sushi & Katsu",
-    "Meetup at Jewel of India",
-  ];
+  const eventList = props.uri;
 
   // Handler for selecting an option from the dropdown
   const handleOptionSelect = (option) => {
