@@ -75,10 +75,10 @@ export default function({ navigation }) {
       fetchData();
     }, []);
 
+    
     return (
       <Layout>
-        
-        <Header name="Requests" navigation={navigation} hasNotif={unread} notifs/>
+        <Header name="" navigation={navigation} hasNotif={unread} back={false} onBackPress={() => navigation.goBack()}/>
         <HorizontalSwitch
         left="Incoming Requests"
         right="Outgoing Requests"
