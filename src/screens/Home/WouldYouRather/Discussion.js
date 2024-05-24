@@ -10,23 +10,13 @@ import {
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
-import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
 import NormalText from "../../../components/NormalText";
-import SmallText from "../../../components/SmallText";
 import Button from "../../../components/Button";
-import BorderedButton from "../../../components/BorderedButton";
 
 import { db, auth } from "../../../provider/Firebase";
 import * as firebase from "firebase/compat";
-import {
-    LineChart,
-    BarChart,
-    PieChart,
-    ProgressChart,
-    StackedBarChart
-  } from "react-native-chart-kit";
-import { random } from "lodash";
+import {PieChart} from "react-native-chart-kit";
 
 const Discussion = ({ route, navigation }) => {
     const [event, setEvent] = useState(route.params.event);
@@ -34,8 +24,8 @@ const Discussion = ({ route, navigation }) => {
     const user = auth.currentUser;
     const green = "#5DB075";
     // get the answer options and vote counts
-    const [optionA, setOptionA] = useState('option A');
-    const [optionB, setOptionB] = useState('option B');
+    const [optionA, setOptionA] = useState(route.params.optionA);
+    const [optionB, setOptionB] = useState(route.params.optionB);
     const [votesA, setVotesA] = useState(0);
     const [votesB, setVotesB] = useState(0);
 
@@ -81,9 +71,7 @@ const Discussion = ({ route, navigation }) => {
       setVotesA((votesA) => doc.data().aVotes)
       setVotesB((votesB) => doc.data().bVotes)
       const currQuestion = doc.data().currentQuestion;
-      console.log(currQuestion)
       const question = await db.collection('WyrQuestions').doc(currQuestion).get()
-      console.log(question.data());
       setOptionA((optionA) => question.data().optionA);
       setOptionB((optionB) => question.data().optionB);
     } 
@@ -101,7 +89,9 @@ const Discussion = ({ route, navigation }) => {
   // move Player back to question screen 
   const moveToQuestion = () => {
     navigation.push("Question", {
-      event: event})
+      event: event,
+      optionA: optionA,
+      optionB: optionB})
   };
 
   useEffect(() => {
@@ -177,8 +167,6 @@ const Discussion = ({ route, navigation }) => {
             <MediumText style={[styles.option, styles.optionB]} color={green}>
                 {votesB}/{votesA+votesB}
             </MediumText>
-            {/*Do some logic here that moves everyone onto next question page */}
-            {/* {user.uid == event.hostID ?  */}
             <View style={styles.nextButton}>
                 <Button backgroundColor={"gray"} onPress={
                   () => {randomQuestion(); readyForQuestion(); moveToQuestion();}
@@ -186,7 +174,6 @@ const Discussion = ({ route, navigation }) => {
                     Next Question
                 </Button>
             </View>
-            {/* : null} */}
         </View>
       </ScrollView>
     </Layout>

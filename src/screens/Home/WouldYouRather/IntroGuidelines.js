@@ -18,6 +18,8 @@ import * as firebase from "firebase/compat";
 
 const IntroGuidelines = ({ route, navigation }) => {
   const [event, setEvent] = useState(route.params.event);
+  const [optionA, setOptionA] = useState('option A');
+  const [optionB, setOptionB] = useState('option B');
   const user = auth.currentUser;
 
   // Fetch data from Firestore to see if game is created or not
@@ -44,7 +46,9 @@ const IntroGuidelines = ({ route, navigation }) => {
   // move onto Question stage screen
   const startGame = () => {
     navigation.navigate("Question", {
-      event: event});
+      event: event,
+      optionA: optionA,
+      optionB: optionB});
   };
 
   // Randomly pick out a question from the collection 'WyrQuestions'
@@ -65,6 +69,8 @@ const IntroGuidelines = ({ route, navigation }) => {
               currentQuestion: doc.id,
               seenQuestions: firebase.firestore.FieldValue.arrayUnion(doc.id)
             });
+            setOptionA((optionA) => doc.data().optionA);
+            setOptionB((optionB) => doc.data().optionB);
           });
         })
       });

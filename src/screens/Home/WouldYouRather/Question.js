@@ -25,8 +25,8 @@ const Question = ({ route, navigation }) => {
     const green = "#5DB075";
 
     // get question options to display
-    const [optionA, setOptionA] = useState('option A');
-    const [optionB, setOptionB] = useState('option B');
+    const [optionA, setOptionA] = useState(route.params.optionA);
+    const [optionB, setOptionB] = useState(route.params.optionB);
 
     // Get the current user
     const user = auth.currentUser;
@@ -75,7 +75,9 @@ const Question = ({ route, navigation }) => {
     // move Player on to discussion screen 
     const moveToDiscuss = () => {
       navigation.push("Discussion", {
-        event: event})
+        event: event,
+        optionA: optionA,
+        optionB: optionB})
     };
     
     // updates discussionStage value to true; i.e. ready to discuss
@@ -87,13 +89,13 @@ const Question = ({ route, navigation }) => {
       }
     }
 
-    // gets answer options to display
+    // Updates answer options to display (if any changes)
     const retrieveOptions = async () => {
       const currGame = db.collection('WyrGames').doc(event.id);
       const doc = await currGame.get();
         if (doc.exists) {
           const currQuestion = doc.data().currentQuestion;
-          const question = await db.collection('WyrQuestions').doc(currQuestion).get()
+          const question = await db.collection('WyrQuestions').doc(currQuestion).get();
           setOptionA((optionA) => question.data().optionA);
           setOptionB((optionB) => question.data().optionB);
         }
@@ -102,7 +104,7 @@ const Question = ({ route, navigation }) => {
     useEffect(() => {
       // retrieve current answer options
       retrieveOptions();
-      const intervalId = setInterval(retrieveOptions, 500);
+      const intervalId = setInterval(retrieveOptions, 800);
       return () => {clearInterval(intervalId)};
       }, []);
 
