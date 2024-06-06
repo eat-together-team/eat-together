@@ -36,6 +36,7 @@ export default function ({ route }) {
       <Stack.Screen name="Requests" component={Requests} />
       <Stack.Screen name="ChatMain" component={ChatMain} />
       <Stack.Screen name="ChatRoom" component={ChatRoom} />
+      <Stack.Screen name="ConnectionRequests" component={Requests} /> 
     </Stack.Navigator>
   );
 }

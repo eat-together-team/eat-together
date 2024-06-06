@@ -3,7 +3,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { StyleSheet, FlatList, View, Dimensions, TouchableOpacity, ScrollView } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import RBSheet from "react-native-raw-bottom-sheet";
-import { Ionicons } from "@expo/vector-icons";
 
 import EventCard from "../../components/EventCard";
 import Header from "../../components/Header";
@@ -15,7 +14,6 @@ import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
 import Link from "../../components/Link";
 import ProfileBubble from "../../components/ProfileBubble";
-import NameBubble from "../../components/NameBubble";
 
 import { getTimeOfDay, isAvailable, compareDates, getCommonTags, generateColor, randomize3 } from "../../methods";
 import { auth, db } from "../../provider/Firebase";
@@ -68,16 +66,16 @@ export default function({ navigation }) {
               users.push(data);
             }
           });
-          
+  
           setPeople(users);
           setLoading(false);
-
         });
       }
   
       fetchData();
     }, []);
 
+    
     return (
       <Layout>
         <Header name="" navigation={navigation} hasNotif={unread} back={false} onBackPress={() => navigation.goBack()}/>
@@ -85,9 +83,9 @@ export default function({ navigation }) {
         left="Incoming Requests"
         right="Outgoing Requests"
         current={tab === 'incoming' ? 'left' : 'right'}
-        press={() => setTab(tab === 'incoming' ? 'outgoing' : 'incoming')}  // Toggle between tabs
+        press={() => setTab(tab === 'incoming' ? 'outgoing' : 'incoming')}
       />
-
+      
       <View style={{ flex: 1, alignItems: "center" }}>
         {loading ?
           <LoadingView/>
