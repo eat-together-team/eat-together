@@ -569,8 +569,8 @@ const WhileYouEat = ({ route, navigation }) => {
             {event.additionalInfo}
           </NormalText>
 
-          <Button onPress={() => {
-            navigation.navigate("StartGame", {
+          <Button marginVertical={20} onPress={() => {
+            navigation.navigate("IntroGuidelines", {
               event: event,
               people: people
             })
