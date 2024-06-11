@@ -152,7 +152,6 @@ export default function EventGallery({ route, navigation }) {
             setImageGallery(prevImages => prevImages.filter(img => img.imageId !== image.imageId));
             alert("Image Deleted Successfully!")
     
-            console.log("Image deleted successfully");
         } catch (error) {
             alert("Error deleting image: " + error.message);
             console.error("Error deleting image: ", error);

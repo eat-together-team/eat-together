@@ -192,7 +192,6 @@ export default function Gallery({ route, navigation }) {
         await handleChoosePhoto(imageId)
             .then(() => {
                 alert("Image Uploaded!");
-                console.log("Image Uploaded!");
                 navigation.goBack();
             })
             .catch((error) => {
@@ -224,7 +223,6 @@ export default function Gallery({ route, navigation }) {
             setImages(prevImages => prevImages.filter(img => img.imageId !== image.imageId));
             alert("Image Deleted Successfully!")
     
-            console.log("Image deleted successfully");
         } catch (error) {
             alert("Error deleting image: " + error.message);
             console.error("Error deleting image: ", error);
@@ -301,14 +299,11 @@ export default function Gallery({ route, navigation }) {
             try {
                 // Check if the event ID exists in the Public Events collection
                 const publicEventDoc = await db.collection("Public Events").doc(image.imageEventAssigned).get();
-                console.log("Public Events:",publicEventDoc.exists)
                 if (publicEventDoc.exists) {
                     eventName = publicEventDoc.data().name;
-                    console.log(eventName)
                 } else {
                     // If not found in Public Events, check Private Events collection
                     const privateEventDoc = await db.collection("Private Events").doc(image.imageEventAssigned).get();
-                    console.log("Private Events:",privateEventDoc)
                     if (privateEventDoc.exists) {
                         eventName = privateEventDoc.data().name;
                     } else {
@@ -343,7 +338,6 @@ export default function Gallery({ route, navigation }) {
         setIsEventModalVisible(true);
     };
     const handleEventSelect = (eventId) => {
-        console.log("Selected Event ID:", eventId);
         if (selectedImageForEvent) {
             assignImageToEvent(eventId);
             setIsEventModalVisible(false);
@@ -357,9 +351,7 @@ export default function Gallery({ route, navigation }) {
     const assignImageToEvent = async (eventId) => {
         try {
             // Find the index of the image in the gallery array
-            console.log("Images", images);
             const imageIndex = images.findIndex(img => img.imageUrl === selectedImageUri);
-            console.log("Image Index:", imageIndex);
             if (imageIndex !== -1) {
                 // Update the image's event assignment
                 const updatedImages = [...images];
@@ -367,7 +359,6 @@ export default function Gallery({ route, navigation }) {
                     ...updatedImages[imageIndex],
                     imageEventAssigned: eventId,
                 };
-                console.log("Updated Images", updatedImages);
                 // Update the user document with the modified gallery array
                 await db.collection("Users").doc(user.uid).update({
                     gallery: updatedImages,
