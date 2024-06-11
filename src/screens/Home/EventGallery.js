@@ -11,7 +11,6 @@ import HorizontalRow from "../../components/HorizontalRow";
 import { auth, db, storage } from "../../provider/Firebase";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
-import NormalText from "../../components/NormalText";
 
 //Global variables
 const numColumns = 3;
@@ -25,14 +24,10 @@ export default function EventGallery({ route, navigation }) {
     const [grid, setGrid] = useState(true);
     const [column, setColumn] = useState(false);
     const [imageGallery, setImageGallery] = useState([]);
-    const [eventType, seteventType] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImageUri, setSelectedImageUri] = useState(null);
 
-    const screenWidth = Dimensions.get("window").width;
-    const numColumns = 3;
-    const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns; // Adjusted to account for margins
 
     useEffect(() => {
         const fetchImages = async () => {
@@ -179,7 +174,7 @@ export default function EventGallery({ route, navigation }) {
                         text: "Yes",
                         onPress: () =>{
                             deleteImage(imageUrl).then(resolve).catch(reject),
-                            navigation.goBack();
+                            setIsModalVisible(false);
 
                         } 
                         

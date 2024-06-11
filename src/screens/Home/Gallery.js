@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState,} from "react";
 import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback, Text } from "react-native";
-import { Layout, TopNav } from "react-native-rapi-ui";
+import { Layout, TopNav,} from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "../../components/Button";
 import MediumText from "../../components/MediumText";
@@ -21,6 +21,7 @@ const screenWidth = Dimensions.get("window").width;
 const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
 
 export default function Gallery({ route, navigation }) {
+    //State Variables
     const user = auth.currentUser;
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -34,8 +35,10 @@ export default function Gallery({ route, navigation }) {
     const [selectedImageUri, setSelectedImageUri] = useState(null);
     const [attendedEvents, setAttendedEvents] = useState([]);
     const [attendedEventNames, setAttendedEventNames] = useState([]);
-    const showTypeRef = useRef();
+    const [isEventModalVisible, setIsEventModalVisible] = useState(false);
+    const [selectedImageForEvent, setSelectedImageForEvent] = useState(null);
 
+    // Use Effect to fetch image data
     useEffect(() => {
         const fetchImages = async () => {
             try {
@@ -56,6 +59,8 @@ export default function Gallery({ route, navigation }) {
         fetchImages();
     }, []);
 
+    // Use effect to fetch attended events of the user
+
     useEffect(() => {
         const fetchAttendedEvents = async () => {
             try {
@@ -74,36 +79,37 @@ export default function Gallery({ route, navigation }) {
 
         fetchAttendedEvents();
     }, []);
-    useEffect(() => {
-    const fetchEventNames = async () => {
-        const names = await Promise.all(attendedEvents.map(async (event) => {
-            let eventName = 'Unknown Event';
-            let eventId=event.id;
-            console.log(eventId)
-            try {
-                let eventDoc;
-                console.log(event.type)
-                if (event.type === 'public') {
-                    eventDoc = await db.collection("Public Events").doc(event.id).get();
-                } else if (event.type === 'private') {
-                    eventDoc = await db.collection("Private Events").doc(event.id).get();
-                }
-                if (eventDoc.exists) {
-                    eventName = eventDoc.data().name;
-                }
-                console.log(eventName,eventDoc)
-            } catch (error) {
-                console.error("Error fetching event details: ", error);
-            }
-            return eventName;
-        }));
-        setAttendedEventNames(names);
-    };
-
-    fetchEventNames();
-}, [attendedEvents]);
-
     
+    // Use effect to fetch event names
+
+    useEffect(() => {
+        const fetchEventNames = async () => {
+            const names = await Promise.all(attendedEvents.map(async (event) => {
+                let eventName = 'Unknown Event';
+                const eventId = event.id;
+                try {
+                    let eventDoc;
+                    if (event.type === 'public') {
+                        eventDoc = await db.collection("Public Events").doc(eventId).get();
+                    } else if (event.type === 'private') {
+                        eventDoc = await db.collection("Private Events").doc(eventId).get();
+                    }
+                    if (eventDoc.exists) {
+                        eventName = eventDoc.data().name;
+                    }
+                } catch (error) {
+                    console.error("Error fetching event details: ", error);
+                }
+                return eventName;
+            }));
+            setAttendedEventNames(names);
+        };
+
+        fetchEventNames();
+    }, [attendedEvents]);
+
+
+    // Choosing images from gallery or taking a picture
 
     const handleChoosePhoto = (imageId) => {
         return new Promise((resolve, reject) => {
@@ -125,6 +131,8 @@ export default function Gallery({ route, navigation }) {
         });
     };
 
+    // Uses image picker to select images from gallery
+
     const galleryImageSelector = async (imageId) => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -136,6 +144,8 @@ export default function Gallery({ route, navigation }) {
             await uploadImage(uri, imageId);
         }
     };
+
+    // Uses image picker to take an image
 
     const cameraImageSelector = async (imageId) => {
         try {
@@ -153,6 +163,8 @@ export default function Gallery({ route, navigation }) {
             alert("Error uploading message: " + error.message);
         }
     };
+
+    // Stores images in the storage and image reference in firestore
 
     const uploadImage = async (uri, imageId) => {
         const response = await fetch(uri);
@@ -187,6 +199,8 @@ export default function Gallery({ route, navigation }) {
                 console.error("Image upload failed: ", error);
             });
     };
+
+    // Function to delete images from database
 
     const deleteImage = async (imageUrl) => {
         try {
@@ -231,8 +245,8 @@ export default function Gallery({ route, navigation }) {
                     {
                         text: "Yes",
                         onPress: () =>{
-                            deleteImage(imageUrl).then(resolve).catch(reject),
-                            navigation.goBack();
+                            deleteImage(imageUrl).then(resolve).catch(reject)
+                            setIsModalVisible(false);
                         } 
                         
                     },
@@ -243,6 +257,8 @@ export default function Gallery({ route, navigation }) {
             );
         });
     };
+
+    // Renders column view
 
     const renderColumn = ({ item }) => {
         const uploadedTime = new Date(item.imageUploadedTime);
@@ -273,6 +289,9 @@ export default function Gallery({ route, navigation }) {
             );
         }
     };
+
+    // retreives metadata from firestore
+
     const getMetadata = async (uri) => {
         const image = images.find(item => item.imageUrl === uri);
         if (image) {
@@ -319,39 +338,20 @@ export default function Gallery({ route, navigation }) {
         setIsModalVisible(false);
     };
 
-    const handleAssignEvent = async (uri) => {
-        console.log(images)
-        const image = images.find(item => item.imageUrl === uri);
-        console.log(image.imageEventAssigned);
-        const eventId = image.imageEventAssigned;
-
-        if (image) {
-            try {
-                const eventOptions = attendedEvents.map((event, index) => ({
-                    text: attendedEventNames[index] || 'Unknown Event',
-                    onPress: () => assignImageToEvent(event.id),
-                }));
-                console.log(eventOptions),
-                <View style={{justifyContent:"left"}} >{
-                    
-                    Alert.alert(
-                        "Assign Image to Event",
-                                    `Choose an event to assign the image to:\n\n`,eventOptions,
-
-                        { cancelable: true }
-                    )
-    
-                    }
-
-
-                </View>
-
-            } catch (error) {
-                console.error("Error fetching event details: ", error);
-                return 'Unknown Event';
-            }
-        }
+    const handleAssignEvent = (uri) => {
+        setSelectedImageForEvent(uri);
+        setIsEventModalVisible(true);
     };
+    const handleEventSelect = (eventId) => {
+        console.log("Selected Event ID:", eventId);
+        if (selectedImageForEvent) {
+            assignImageToEvent(eventId);
+            setIsEventModalVisible(false);
+
+        } else {
+            console.error("No image selected for event assignment.");
+        }
+        };
         
                     
     const assignImageToEvent = async (eventId) => {
@@ -374,10 +374,9 @@ export default function Gallery({ route, navigation }) {
                 });
     
                 // Update the state or do any necessary actions after assigning the image to the event
+                setImages(updatedImages);
                 setIsModalVisible(false);
                 alert("Image assigned to event successfully!");
-                navigation.goBack()
-
             } else {
                 // Handle the case where the image is not found
                 console.error("Image not found in the gallery.");
@@ -431,7 +430,6 @@ export default function Gallery({ route, navigation }) {
                 <Divider />
                 <MediumText style={{ paddingVertical: 10, paddingHorizontal: 10 }}>Sort By</MediumText>
                 <HorizontalRow style={{ paddingHorizontal: 20 }}>
-                    <Filter checked={event} onPress={() => setEvent(!event)} text="Event" />
                     <Filter checked={newest} onPress={() => { setNewest(true); setOldest(false); }} text="Newest" />
                     <Filter checked={oldest} onPress={() => { setOldest(true); setNewest(false); }} text="Oldest" />
                     <Filter checked={grid} onPress={() => { setGrid(true); setColumn(false); }} text="Grid" />
@@ -453,6 +451,34 @@ export default function Gallery({ route, navigation }) {
                 ) : (                    <EmptyState title="No Images" text="Add some photos to your event gallery!" />
                 )}
             </View>
+            <Modal visible={isEventModalVisible} transparent={true} onRequestClose={() => setIsEventModalVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => setIsEventModalVisible(false)}>
+                    <View style={modalStyles.modalBackground}>
+                        <View style={modalStyles.modalContainer}>
+                            <LargeText style={modalStyles.eventText}>Select an Event</LargeText>
+                            <View style={modalStyles.eventItem}>
+                            <FlatList
+                                data={attendedEvents}
+                                keyExtractor={(item) => item.id}
+                                renderItem={({ item, index }) => (
+                                    <TouchableOpacity onPress={() => handleEventSelect(item.id)}>
+                                        <View style={modalStyles.eventItem}>
+                                            <Text style={modalStyles.eventText}>{attendedEventNames[index] || 'Unknown Event'}</Text>
+                                        </View>
+                                    </TouchableOpacity>
+
+                                )}
+                            />
+
+                            </View>
+
+
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+
+
             <Modal visible={isModalVisible} transparent={true} onRequestClose={handleCloseModal}>
                 <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <View style={styles.modalBackground}>
@@ -478,7 +504,7 @@ export default function Gallery({ route, navigation }) {
         </Layout>
     );
 }
-
+// Styles for the screen
 const styles = StyleSheet.create({
     buttonContainer: {
         alignItems: "center",
@@ -545,8 +571,37 @@ const styles = StyleSheet.create({
         height: '100%',
         borderRadius: 15,
     },
+    eventItem: {
+        padding: 15,
+        borderBottomColor: '#ddd',
+        borderBottomWidth: 1,
+    },
+    
+
 });
 
+// Styles for the Assign image to an event modal
 
-                   
-
+const modalStyles = StyleSheet.create({
+    modalBackground: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+    },
+    modalContainer: {
+        width: "85%",
+        maxHeight: "65%",
+        backgroundColor: "#fff",
+        borderRadius: 15,
+        padding: 20,
+    },
+    eventItem: {
+        padding: 15,
+        borderBottomColor: '#fff',
+        borderBottomWidth: 1,
+    },
+    eventText: {
+        color: "black",
+    },
+});
