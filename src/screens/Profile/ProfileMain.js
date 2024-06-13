@@ -23,7 +23,7 @@ import IncomingRequests from "./IncomingRequests";
 import AvailabilitiesHome from "./Availabilities/AvailabilitiesHome";
 import Availabilities from "./Availabilities/Availabilities";
 import Colorpicker from "./ColorPicker";
-import Gallery from "../Home/Gallery";
+import EventGallery from "../Home/EventGallery";
 
 const Stack = createStackNavigator();
 
@@ -66,7 +66,7 @@ export default function () {
       <Stack.Screen name="ColorPicker" component={Colorpicker} />
 
       {/* Photo Gallery */}
-      <Stack.Screen name="EventGallery" component={Gallery} />
+      <Stack.Screen name="EventGallery" component={EventGallery} />
     </Stack.Navigator>
   );
 }
