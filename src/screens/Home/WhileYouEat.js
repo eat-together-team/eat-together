@@ -563,17 +563,16 @@ const WhileYouEat = ({ route, navigation }) => {
                 {event.endDate && " - ".concat(getTime(event.endDate.toDate()))}
               </NormalText>
             </View>
+
+            <View style={styles.row}>
+              <Ionicons name="image-outline" size={20}/>
+              <NormalText  paddingHorizontal={10} color="black">
+                <Link onPress={() => navigation.navigate("EventGallery",{event:event})}>Access Meetup Photo Gallery</Link>
+              </NormalText>
+            </View>
           </View>
           
-          <View style={styles.row}>
-            <Ionicons name="image-outline"size={20}/>
-            <NormalText  paddingHorizontal={10} color="black">
-              <Link onPress={() => navigation.navigate("EventGallery",{event:event})}>Access Meetup Photo Gallery</Link>
-            </NormalText>
-          </View>
-
-
-          <NormalText marginBottom={20} color="black">
+          <NormalText color="black">
             {event.additionalInfo}
           </NormalText>
 
@@ -582,7 +581,7 @@ const WhileYouEat = ({ route, navigation }) => {
               event: event,
               people: people
             })
-          }}>
+          }} marginVertical={20}>
             Play Would You Rather?
           </Button>
 

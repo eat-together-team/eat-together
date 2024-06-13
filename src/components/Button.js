@@ -1,6 +1,7 @@
 import React from "react";
 import { TouchableOpacity } from "react-native";
 import MediumText from "./MediumText";
+import { Ionicons } from '@expo/vector-icons';
 
 const Button = props => {
     return (
@@ -22,10 +23,15 @@ const Button = props => {
             shadowOpacity: 0.27,
             shadowRadius: 4.65,
             zIndex: props.zIndex ? props.zIndex : 10,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center"
         }} onPress={props.onPress} disabled={props.disabled}>
+            {props.icon && props.icon}
             <MediumText color={props.color ? props.color : "white"} center
                 size={props.fontSize ? props.fontSize : 20}>
-                    {props.children}
+                    {props.icon && " "}{props.children}
             </MediumText>
         </TouchableOpacity>
 

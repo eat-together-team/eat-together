@@ -154,15 +154,14 @@ const FullCard = ({ route, navigation }) => {
                 {route.params.event.endDate && " - ".concat(getTime(route.params.event.endDate.toDate()))}
               </NormalText>
             </View>
-          </View>
 
-          <View style={styles.row}>
-            <Ionicons name="image-outline"size={20}/>
-            <NormalText  paddingHorizontal={10} color="black">
-              <Link onPress={() => navigation.navigate("EventGallery",{event:route.params.event})}>Access Meetup Photo Gallery</Link>
-            </NormalText>
+            <View style={styles.row}>
+              <Ionicons name="image-outline"size={20}/>
+              <NormalText  paddingHorizontal={10} color="black">
+                <Link onPress={() => navigation.navigate("EventGallery",{event:route.params.event})}>Access Meetup Photo Gallery</Link>
+              </NormalText>
+            </View>
           </View>
-
 
           {route.params.event.additionalInfo !== "" && <NormalText marginBottom={20} color="black">
             {route.params.event.additionalInfo}

@@ -60,7 +60,6 @@ export default function Gallery({ route, navigation }) {
     }, []);
 
     // Use effect to fetch attended events of the user
-
     useEffect(() => {
         const fetchAttendedEvents = async () => {
             try {
@@ -69,8 +68,6 @@ export default function Gallery({ route, navigation }) {
                     const userData = userDoc.data();
                     const attendedEventsData = userData.attendedEventIDs || [];
                     setAttendedEvents(attendedEventsData);
-
-
                 }
             } catch (error) {
                 console.error("Error fetching attended events: ", error);
@@ -337,15 +334,15 @@ export default function Gallery({ route, navigation }) {
         setSelectedImageForEvent(uri);
         setIsEventModalVisible(true);
     };
+
     const handleEventSelect = (eventId) => {
         if (selectedImageForEvent) {
             assignImageToEvent(eventId);
             setIsEventModalVisible(false);
-
         } else {
             console.error("No image selected for event assignment.");
         }
-        };
+    };
         
                     
     const assignImageToEvent = async (eventId) => {
@@ -414,9 +411,11 @@ export default function Gallery({ route, navigation }) {
                 leftContent={<Ionicons name="chevron-back" size={20} />}
                 leftAction={() => navigation.goBack()}
             />
+
             <View style={styles.buttonContainer}>
                 <Button style={styles.button} onPress={addPhoto}> Add Photos </Button>
             </View>
+
             <View>
                 <Divider />
                 <MediumText style={{ paddingVertical: 10, paddingHorizontal: 10 }}>Sort By</MediumText>
@@ -427,6 +426,7 @@ export default function Gallery({ route, navigation }) {
                     <Filter checked={column} onPress={() => { setColumn(true); setGrid(false); }} text="Date" />
                 </HorizontalRow>
             </View>
+
             <View style={styles.container}>
                 {loading ? (
                     <LoadingView />
@@ -439,17 +439,20 @@ export default function Gallery({ route, navigation }) {
                         keyExtractor={(item) => item.imageId}
                         contentContainerStyle={styles.flatListContentContainer}
                     />
-                ) : (                    <EmptyState title="No Images" text="Add some photos to your event gallery!" />
+                ) : (
+                    <EmptyState title="No Images" text="Add some photos to your event gallery!" />
                 )}
             </View>
+
             <Modal visible={isEventModalVisible} transparent={true} onRequestClose={() => setIsEventModalVisible(false)}>
                 <TouchableWithoutFeedback onPress={() => setIsEventModalVisible(false)}>
                     <View style={modalStyles.modalBackground}>
                         <View style={modalStyles.modalContainer}>
                             <LargeText style={modalStyles.eventText}>Select an Event</LargeText>
                             <View style={modalStyles.eventItem}>
+
                             <FlatList
-                                data={attendedEvents}
+                                data={attendedEvents.reverse()}
                                 keyExtractor={(item) => item.id}
                                 renderItem={({ item, index }) => (
                                     <TouchableOpacity onPress={() => handleEventSelect(item.id)}>
@@ -457,13 +460,9 @@ export default function Gallery({ route, navigation }) {
                                             <Text style={modalStyles.eventText}>{attendedEventNames[index] || 'Unknown Event'}</Text>
                                         </View>
                                     </TouchableOpacity>
-
                                 )}
                             />
-
                             </View>
-
-
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
