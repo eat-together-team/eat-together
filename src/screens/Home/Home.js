@@ -692,10 +692,14 @@ export default function ({ navigation }) {
           Clear
         </Link>
       </RBSheet>
-            {/* Button to redirect to personal Photo Gallery */}
+      {/* Button to redirect to personal Photo Gallery */}
 
       <View style={styles.button}>
-        <Button onPress={() => navigation.navigate("Gallery")}> <Ionicons name="image-outline" color="white" size={20}/> My Photo Gallery </Button>
+        <Button icon={(
+          <Ionicons name="image-outline" color="white" size={20}/>
+        )} onPress={() => navigation.navigate("Gallery",{user: userInfo})}>
+          My Gallery
+        </Button>
       </View>
 
     </Layout>

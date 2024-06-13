@@ -26,7 +26,8 @@ const MediumText = props => {
             color: props.color ? props.color : "black",
             textAlign: props.center ? "center" : "auto",
             paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
-            marginBottom: props.marginBottom ? props.marginBottom : 0
+            marginBottom: props.marginBottom ? props.marginBottom : 0,
+            lineHeight: 24
         }, props.style]}>
             {props.children}
         </Text>

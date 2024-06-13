@@ -23,9 +23,7 @@ import IncomingRequests from "./IncomingRequests";
 import AvailabilitiesHome from "./Availabilities/AvailabilitiesHome";
 import Availabilities from "./Availabilities/Availabilities";
 import Colorpicker from "./ColorPicker";
-
-
-
+import Gallery from "../Home/Gallery";
 
 const Stack = createStackNavigator();
 
@@ -38,6 +36,7 @@ export default function () {
         animationEnabled: false,
       }}
     >
+      {/* Main pages */}
       <Stack.Screen name="Me" component={Me} />
       <Stack.Screen name="Edit" component={Edit} />
       <Stack.Screen name="EditTags" component={EditTags} />
@@ -45,13 +44,13 @@ export default function () {
       <Stack.Screen name="Requests">
         {props => <Requests {...props} back="Me" />}
       </Stack.Screen>
-      {/* Adding the buddy page to the navigation stack*/}
+
+      {/* Buddy pages */}
       <Stack.Screen name="BuddyPage" component={BuddyPage} />
       <Stack.Screen name="BuddyNotif" component={BuddyNotif} />
       <Stack.Screen name="IncomingRequests" component={IncomingRequests} />
-
-
-
+      
+      {/* For settings */}
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="FullCard" component={FullCard} />
       <Stack.Screen name="Report Bug" component={ReportBug} />
@@ -65,6 +64,9 @@ export default function () {
       <Stack.Screen name="AvailabilitiesHome" component={AvailabilitiesHome} />
       <Stack.Screen name="Availabilities" component={Availabilities} />
       <Stack.Screen name="ColorPicker" component={Colorpicker} />
+
+      {/* Photo Gallery */}
+      <Stack.Screen name="EventGallery" component={Gallery} />
     </Stack.Navigator>
   );
 }
