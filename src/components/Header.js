@@ -2,6 +2,7 @@ import React from "react";
 import {View, StyleSheet, TouchableOpacity, Alert} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { auth} from "../provider/Firebase";
+import { Octicons } from '@expo/vector-icons';
 
 import LargeText from "./LargeText";
 import NotifIcon from "./NotifIcon";
@@ -14,7 +15,7 @@ const Header = (props) => {
       <LargeText>{props.name}</LargeText>
       <View style={styles.icons}>
         {props.connections && props.navigation && <TouchableOpacity onPress={() => {
-          props.navigation.navigate("Requests");
+          props.navigation.navigate("IncomingRequests");
         }}>
           <Ionicons name="people-circle-outline" size={30} color="black" style={{ marginRight: 5 }}/>
         </TouchableOpacity>}
@@ -30,6 +31,12 @@ const Header = (props) => {
           }}
         >
           <NotifIcon hasNotif={props.hasNotif === null ? false : props.hasNotif} />
+        </TouchableOpacity>}
+        {props.buddy && props.navigation && <TouchableOpacity onPress={() => {
+          props.navigation.navigate("IncomingRequests");
+        }}>
+          <Octicons name="people" size={30} color="black" />
+
         </TouchableOpacity>}
       </View>
     </View>

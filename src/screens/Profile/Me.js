@@ -17,6 +17,8 @@ import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 import TagsList from "../../components/TagsList";
 import EventCard from "../../components/EventCard";
+// Add buddy button
+import { AntDesign } from '@expo/vector-icons';
 
 import { compareDates } from "../../methods";
 
@@ -39,7 +41,7 @@ export default function ({ navigation }) {
           if (!doc.exists) {
             return;
           }
-          
+
           setUserInfo(doc.data());
           if (doc.data().settings.banner) {
             setBanner(doc.data().settings.banner);
@@ -143,11 +145,11 @@ export default function ({ navigation }) {
             }}
           ></Ionicons>
         </View>
-        
+
         <View style={styles.badge}>
           <WithBadge mealsAttended={mealsAttended} mealsSignedUp={mealsSignedUp}/>
         </View>
-        
+
         <View style={styles.settings}>
           <Ionicons
             name="settings-sharp"
@@ -162,7 +164,6 @@ export default function ({ navigation }) {
             }}
           ></Ionicons>
         </View>
-
         <Image
           style={styles.image}
           source={
@@ -221,6 +222,18 @@ export default function ({ navigation }) {
             🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
           </NormalText>
           <MediumText>@{userInfo.username}</MediumText>
+        </View>
+
+        <View style = {styles.link}>
+        <TouchableOpacity
+          style ={styles.link}
+          onPress={() => {
+            navigation.navigate("BuddyPage");
+          }}>
+          <NormalText>You do not have a buddy</NormalText>
+            <AntDesign name="adduser" size={24} color="#4C6FB1" />
+            <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
+          </TouchableOpacity>
         </View>
 
         <TagsList tags={userInfo.tags ? userInfo.tags : []} />
@@ -322,5 +335,9 @@ const styles = StyleSheet.create({
   link: {
     flexDirection: "row",
     alignItems: "center",
+  },
+
+  buddy: {
+
   }
 });

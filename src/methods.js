@@ -179,13 +179,13 @@ const isMatch = (startDate, endDate, availabilities) => {
         startTime.setMonth(startDate.getMonth());
         startTime.setDate(startDate.getDate());
         startTime.setSeconds(0);
-        
+
         let endTime = availability.endTime.toDate();
         endTime.setFullYear(endDate.getFullYear());
         endTime.setMonth(endDate.getMonth());
         endTime.setDate(endDate.getDate());
         endTime.setSeconds(59);
-        
+
         if (startTime <= startDate && endDate <= endTime) {
             match = true;
             return;
@@ -251,7 +251,7 @@ export const getFreeTimes = (events) => {
             index = 0;
         }
 
-        const currDayEvents = events.filter((e) => e.dayOfWeek === index).sort((a, b) => a.start - b.start);            
+        const currDayEvents = events.filter((e) => e.dayOfWeek === index).sort((a, b) => a.start - b.start);
 
         // Set the start and end times for the day
         let startTime, endTime;

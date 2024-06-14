@@ -1,9 +1,9 @@
 import React from "react";
 import { Platform, Text } from "react-native";
-import { useFonts, Inter_800ExtraBold } from '@expo-google-fonts/inter';
+import { useFonts, Inter_700Bold } from '@expo-google-fonts/inter';
 
 const LargeText = props => {
-    let [fontsLoaded] = useFonts({ Inter_800ExtraBold });
+    let [fontsLoaded] = useFonts({ Inter_700Bold });
 
     if (!fontsLoaded) {
         return (
@@ -19,10 +19,11 @@ const LargeText = props => {
             </Text>
         );
     }
+
     return (
         <Text style={[{
             fontSize: props.size ? props.size : 30,
-            fontFamily: 'Inter_800ExtraBold',
+            fontFamily: 'Inter_700Bold',
             color: props.color ? props.color : "black",
             textAlign: props.center ? "center" : "auto",
             paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
