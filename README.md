@@ -40,14 +40,12 @@ Other (less but kinda) important files/folders to know:
 4. `package.json` + `yarn.lock`: contains information about libraries/dependencies the app needs to run (`npm install` and `yarn.lock` rely on this file).
 
 ## React Native Expo Installation
-
+0. Clone this repository locally by typing: `git clone https://github.com/eat-together-team/eat-together.git`.
 1. Install [node.js](https://nodejs.org/en/). To ensure that you properly downloaded it, type `npm -v` in the terminal. This will diplsay the currently installed version, if any.
 2. Install Expo:
 
 ```jsx
 npm install --global expo-cli
-
-
 ```
 
 3. Clone this repo.
@@ -55,8 +53,6 @@ npm install --global expo-cli
 
 ```jsx
 npm install
-
-
 ```
 
 for mac users who are unable to use npm, use yarn instead:
@@ -64,8 +60,6 @@ for mac users who are unable to use npm, use yarn instead:
 ```sh
 npm install --global yarn
 yarn install
-
-
 ```
 
 5. To link this project with Firebase, download the `.env` file from our Google Drive. Simply put it in the root directory. Download links are below!
@@ -77,17 +71,13 @@ Cohort members link: [https://drive.google.com/file/d/1nnjE3IeRhIdSdvf0qlhD68gS5
 6. Start the environment using expo:
 
 ```jsx
-expo starts
-
-
+expo start
 ```
 
 For yarn users, use the following command:
 
 ```sh
 yarn start
-
-
 ```
 
 8. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app.
@@ -115,8 +105,6 @@ const firebaseConfig = {
 	messagingSenderId: '',
 	appId: '',
 };
-
-
 ```
 
 and you are good to go!
@@ -146,8 +134,6 @@ export default () => {
 		</NavigationContainer>
 	);
 };
-
-
 ```
 
 ## Common Bugs & Fixes 🐛
@@ -162,16 +148,9 @@ While there are many bugs that can arise while setting up the project, here are 
 
 ```sh
 open -a simulator
-
-
 ```
 
-```ts
-  Once the simulator boots up, immediately quit the simulator app. Run `npm start` or `yarn start` again from the project directory, and open 		simulator. It should then be resolved.
-
-
-```
-
+Once the simulator boots up, immediately quit the simulator app. Run `npm start` or `yarn start` again from the project directory, and open the simulator. It should then be resolved.
 - If you ever get a "giant red screen of death" (you'll know what it looks like when you see it), try running `expo start -c` or `yarn start -c` to clear the cache. This will often fix the problem.
 - If you get an error saying that a certain library is not installed, try running `npm install` or `yarn install` again. If that doesn't work, try deleting the `node_modules` folder and running `npm install` or `yarn install` again.
 - ENSURE THAT THE NETWORK USED BY YOUR LAPTOP AND PHONE IS THE EXACT SAME! Otherwise, the app won't load. If this fails, you can also try the tunnel connection using `expo start --tunnel` or `yarn start --tunnel`.
