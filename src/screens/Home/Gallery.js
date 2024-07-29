@@ -1,7 +1,8 @@
-import React, { useEffect, useState,} from "react";
+import React, { useEffect, useState,useRef} from "react";
 import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback, Text } from "react-native";
 import { Layout, TopNav,} from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
+import RBSheet from "react-native-raw-bottom-sheet";
 import Button from "../../components/Button";
 import MediumText from "../../components/MediumText";
 import EmptyState from "../../components/EmptyState";
@@ -14,6 +15,8 @@ import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
 import NormalText from "../../components/NormalText";
 import LargeText from "../../components/LargeText";
+import Link from "../../components/Link";
+
 
 //Global variables
 const numColumns = 3;
@@ -25,11 +28,7 @@ export default function Gallery({ route, navigation }) {
     const user = auth.currentUser;
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [event, setEvent] = useState(false);
-    const [newest, setNewest] = useState(false);
-    const [oldest, setOldest] = useState(false);
-    const [grid, setGrid] = useState(true);
-    const [column, setColumn] = useState(false);
+    const [event, setEvent] = useState(true);
     const [filteredImages, setFilteredImages] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImageUri, setSelectedImageUri] = useState(null);
@@ -37,6 +36,16 @@ export default function Gallery({ route, navigation }) {
     const [attendedEventNames, setAttendedEventNames] = useState([]);
     const [isEventModalVisible, setIsEventModalVisible] = useState(false);
     const [selectedImageForEvent, setSelectedImageForEvent] = useState(null);
+    // Filters
+    const [newest, setNewest] = useState(true);
+    const [oldest, setOldest] = useState(false);
+    const [grid, setGrid] = useState(true);
+    const [column, setColumn] = useState(false);
+
+    // Reference Variables for the selection component
+    const showViewFilterRef = useRef();
+    const showRecentFilterRef = useRef();
+
 
     // Use Effect to fetch image data
     useEffect(() => {
@@ -83,6 +92,7 @@ export default function Gallery({ route, navigation }) {
         const fetchEventNames = async () => {
             const names = await Promise.all(attendedEvents.map(async (event) => {
                 let eventName = 'Unknown Event';
+                const eventType=event.type;
                 const eventId = event.id;
                 try {
                     let eventDoc;
@@ -97,7 +107,7 @@ export default function Gallery({ route, navigation }) {
                 } catch (error) {
                     console.error("Error fetching event details: ", error);
                 }
-                return eventName;
+                return eventType,eventId,eventName;
             }));
             setAttendedEventNames(names);
         };
@@ -252,7 +262,23 @@ export default function Gallery({ route, navigation }) {
             );
         });
     };
+        // Main rendering function
 
+        const renderImage = ({ item }) => {
+            if (column) {
+                return renderColumn({ item });
+            } 
+            else {
+                return (
+                    <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
+                        <View style={[styles.imageItem, { width: tileSize, height: tileSize }]}>
+                            <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
+                        </View>
+                    </TouchableOpacity>
+                );
+            }
+        };
+    
     // Renders column view
 
     const renderColumn = ({ item }) => {
@@ -271,19 +297,9 @@ export default function Gallery({ route, navigation }) {
         );
     };
 
-    const renderImage = ({ item }) => {
-        if (column) {
-            return renderColumn({ item });
-        } else {
-            return (
-                <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
-                    <View style={[styles.imageItem, { width: tileSize, height: tileSize }]}>
-                        <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
-                    </View>
-                </TouchableOpacity>
-            );
-        }
-    };
+    
+
+
 
     // retreives metadata from firestore
 
@@ -320,6 +336,31 @@ export default function Gallery({ route, navigation }) {
         }
     };
         
+    // const getName = async (eventid)=>{
+    //     let eventName = '';
+    //     try {
+    //         // Check if the event ID exists in the Public Events collection
+    //         const publicEventDoc = await db.collection("Public Events").doc(eventid).get();
+    //         if (publicEventDoc.exists) {
+    //             eventName = publicEventDoc.data().name;
+    //         } else {
+    //             // If not found in Public Events, check Private Events collection
+    //             const privateEventDoc = await db.collection("Private Events").doc(eventid).get();
+    //             if (privateEventDoc.exists) {
+    //                 eventName = privateEventDoc.data().name;
+    //             } else {
+    //                 // If event ID not found in either collection
+    //                 eventName = 'Unknown Event';
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.error("Error fetching event details: ", error);
+    //         eventName = 'Unknown Event';
+    //     }
+    //     console.log("EVENT NAME:",eventName)
+    //     return(eventName);
+
+    // };
 
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
@@ -387,6 +428,8 @@ export default function Gallery({ route, navigation }) {
                 newImages = filterByOldest(newImages);
             }
 
+
+
             setFilteredImages(newImages);
             setLoading(false);
         };
@@ -418,12 +461,96 @@ export default function Gallery({ route, navigation }) {
 
             <View>
                 <Divider />
-                <MediumText style={{ paddingVertical: 10, paddingHorizontal: 10 }}>Sort By</MediumText>
+                <MediumText style={{ paddingVertical: 10, paddingHorizontal: 140 }}>Sort By</MediumText>
                 <HorizontalRow style={{ paddingHorizontal: 20 }}>
-                    <Filter checked={newest} onPress={() => { setNewest(true); setOldest(false); }} text="Newest" />
-                    <Filter checked={oldest} onPress={() => { setOldest(true); setNewest(false); }} text="Oldest" />
-                    <Filter checked={grid} onPress={() => { setGrid(true); setColumn(false); }} text="Grid" />
-                    <Filter checked={column} onPress={() => { setColumn(true); setGrid(false); }} text="Date" />
+                    <Filter checked={column || grid}
+                        onPress={() => showViewFilterRef.current.open()}
+                        text={grid ? "Grid View" : 
+                            column ? "Column View with Date":"   View   "}/>
+                    <RBSheet
+                        height={150}
+                        ref={showViewFilterRef}
+                        closeOnDragDown={true}
+                        closeOnPressMask={false}
+                        customStyles={{
+                            wrapper: {
+                                backgroundColor: "rgba(0,0,0,0.5)",
+                            },
+                            draggableIcon: {
+                                backgroundColor: "black"
+                            },
+                            container: {
+                                borderTopLeftRadius: 20,
+                                borderTopRightRadius: 20,
+                                padding: 10
+                            }
+                        }}>
+                        <Filter checked={grid} text="Grid View" marginBottom={5}
+                            onPress={() => {
+                                setGrid(true); 
+                                setColumn(false);                            
+                                showViewFilterRef.current.close();
+                            }}/>
+                        <Filter checked={column} text="Column View with Dates" marginBottom={5}
+                            onPress={() => {
+                                setColumn(true); 
+                                setGrid(false);
+                                showViewFilterRef.current.close();
+                            }}/>
+
+                        <Link onPress={() => {
+                                showViewFilterRef.current.close();
+                        }}
+                        >
+                        Close
+                        </Link>
+                    </RBSheet> 
+
+
+                    <Filter checked={newest || oldest}
+                        onPress={() => showRecentFilterRef.current.open()}
+                        text={newest ? "Sort By Most Recent" : 
+                            oldest ? "Sort By Least Recent":"   Recency   "}/>
+                    <RBSheet
+                        height={150}
+                        ref={showRecentFilterRef}
+                        closeOnDragDown={true}
+                        closeOnPressMask={false}
+                        customStyles={{
+                            wrapper: {
+                                backgroundColor: "rgba(0,0,0,0.5)",
+                            },
+                            draggableIcon: {
+                                backgroundColor: "black"
+                            },
+                            container: {
+                                borderTopLeftRadius: 20,
+                                borderTopRightRadius: 20,
+                                padding: 5,
+                            }
+                        }}>
+                        <Filter checked={oldest} text="Sort By Least Recent" marginBottom={5}
+                            onPress={() => {
+                                setOldest(true); 
+                                setNewest(false);
+                            showRecentFilterRef.current.close();
+                            }}/>
+                        <Filter checked={newest} text="Sort By Most Recent" marginBottom={5}
+                            onPress={() => {
+                                setNewest(true); 
+                                setOldest(false);
+                            showRecentFilterRef.current.close();
+                            }}/>
+                        <Link onPress={() => {
+                            showRecentFilterRef.current.close();
+                        }}
+                        >
+                        Close
+                        </Link>
+
+
+                    </RBSheet> 
+
                 </HorizontalRow>
             </View>
 
