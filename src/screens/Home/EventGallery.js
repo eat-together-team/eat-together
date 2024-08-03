@@ -304,6 +304,13 @@ export default function EventGallery({ route, navigation }) {
                 )}
             </View>
             <Modal visible={isModalVisible} transparent={true} onRequestClose={handleCloseModal}>
+            <   View style={styles.modalTop}>
+                    <TouchableWithoutFeedback onPress={handleCloseModal}>
+                    <Ionicons name="chevron-back" size={20} />
+                    </TouchableWithoutFeedback>
+                    
+                </View>
+
                 <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContainer}>
@@ -373,4 +380,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
         flexDirection: 'row',
     },
+    modalTop: {
+        height: 75,
+        backgroundColor: "white",
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding:20,
+    },
+
 });
