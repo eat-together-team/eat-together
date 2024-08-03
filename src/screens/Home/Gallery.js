@@ -46,10 +46,7 @@ export default function Gallery({ route, navigation }) {
     const showViewFilterRef = useRef();
     const showRecentFilterRef = useRef();
 
-    const items = attendedEventNames.map(item => ({
-        label: item.eventName,
-        value: item.eventId,
-    }));
+    // Picker State Variables 
     const [pickerValue, setPickerValue] = useState(null);
     const [type, setType] = useState(null);
 
@@ -121,7 +118,6 @@ export default function Gallery({ route, navigation }) {
         };
 
         fetchEventNames();
-        console.log(attendedEventNames)
     }, [attendedEvents]);
 
 
@@ -427,6 +423,13 @@ export default function Gallery({ route, navigation }) {
         return newImages.sort((a, b) => a.imageUploadedTime - b.imageUploadedTime);
     };
 
+    // Assigns the attendedEventNames to items so that the picker can use it for Assigning images to an Event
+    const items = attendedEventNames.map(item => ({
+        label: item.eventName,
+        value: item.eventId,
+    }));
+
+
     return (
         <Layout>
             <TopNav
@@ -555,7 +558,7 @@ export default function Gallery({ route, navigation }) {
                 <TouchableWithoutFeedback onPress={() => setIsEventModalVisible(false)}>
                     <View style={modalStyles.modalBackground}>
                         <View style={modalStyles.modalContainer}>
-                            <LargeText style={modalStyles.eventText}>Select an Event</LargeText>
+                            <LargeText style={modalStyles.eventText}>Assign Images to an Event</LargeText>
                             <View style={modalStyles.eventItem}>
 
                             <Picker
@@ -565,23 +568,13 @@ export default function Gallery({ route, navigation }) {
                                     onValueChange={(val) => {
                                         setPickerValue(val);
                                         setType(val);
+                                        handleEventSelect(val);
                                     }}
                                 >
-                                    
+
                             </Picker>
 
 
-                            {/* <FlatList
-                                data={attendedEvents.reverse()}
-                                keyExtractor={(item) => item.id}
-                                renderItem={({ item, index }) => (
-                                    <TouchableOpacity onPress={() => handleEventSelect(item.id)}>
-                                        <View style={modalStyles.eventItem}>
-                                            <Text style={modalStyles.eventText}>{attendedEventNames.eventName[index] || 'Unknown Event'}</Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                )}
-                            /> */}
                             </View>
                         </View>
                     </View>
@@ -590,6 +583,12 @@ export default function Gallery({ route, navigation }) {
 
 
             <Modal visible={isModalVisible} transparent={true} onRequestClose={handleCloseModal}>
+                <View style={styles.modalTop}>
+                    <TouchableWithoutFeedback onPress={handleCloseModal}>
+                    <Ionicons name="chevron-back" size={20} />
+                    </TouchableWithoutFeedback>
+                    
+                </View>
                 <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContainer}>
@@ -661,6 +660,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
     },
+    modalTop: {
+        height: 75,
+        backgroundColor: "white",
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding:20,
+    },
+
     leftIcons: {
         flexDirection: 'row',
     },
