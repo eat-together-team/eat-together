@@ -1,6 +1,6 @@
 import React, { useEffect, useState,useRef} from "react";
 import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback, Text } from "react-native";
-import { Layout, TopNav,} from "react-native-rapi-ui";
+import { Layout, TopNav,Picker} from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import RBSheet from "react-native-raw-bottom-sheet";
 import Button from "../../components/Button";
@@ -45,6 +45,15 @@ export default function Gallery({ route, navigation }) {
     // Reference Variables for the selection component
     const showViewFilterRef = useRef();
     const showRecentFilterRef = useRef();
+
+    const items = attendedEventNames.map(item => ({
+        label: item.eventName,
+        value: item.eventId,
+    }));
+    const [pickerValue, setPickerValue] = useState(null);
+    const [type, setType] = useState(null);
+
+    
 
 
     // Use Effect to fetch image data
@@ -106,12 +115,13 @@ export default function Gallery({ route, navigation }) {
                 } catch (error) {
                     console.error("Error fetching event details: ", error);
                 }
-                return eventName;
+                return {eventName,eventId};
             }));
             setAttendedEventNames(names);
         };
 
         fetchEventNames();
+        console.log(attendedEventNames)
     }, [attendedEvents]);
 
 
@@ -296,10 +306,6 @@ export default function Gallery({ route, navigation }) {
         );
     };
 
-    
-
-
-
     // retreives metadata from firestore
 
     const getMetadata = async (uri) => {
@@ -335,31 +341,6 @@ export default function Gallery({ route, navigation }) {
         }
     };
         
-    // const getName = async (eventid)=>{
-    //     let eventName = '';
-    //     try {
-    //         // Check if the event ID exists in the Public Events collection
-    //         const publicEventDoc = await db.collection("Public Events").doc(eventid).get();
-    //         if (publicEventDoc.exists) {
-    //             eventName = publicEventDoc.data().name;
-    //         } else {
-    //             // If not found in Public Events, check Private Events collection
-    //             const privateEventDoc = await db.collection("Private Events").doc(eventid).get();
-    //             if (privateEventDoc.exists) {
-    //                 eventName = privateEventDoc.data().name;
-    //             } else {
-    //                 // If event ID not found in either collection
-    //                 eventName = 'Unknown Event';
-    //             }
-    //         }
-    //     } catch (error) {
-    //         console.error("Error fetching event details: ", error);
-    //         eventName = 'Unknown Event';
-    //     }
-    //     console.log("EVENT NAME:",eventName)
-    //     return(eventName);
-
-    // };
 
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
@@ -577,17 +558,30 @@ export default function Gallery({ route, navigation }) {
                             <LargeText style={modalStyles.eventText}>Select an Event</LargeText>
                             <View style={modalStyles.eventItem}>
 
-                            <FlatList
+                            <Picker
+                                    items={items}
+                                    value={pickerValue}
+                                    placeholder="Select an Event"
+                                    onValueChange={(val) => {
+                                        setPickerValue(val);
+                                        setType(val);
+                                    }}
+                                >
+                                    
+                            </Picker>
+
+
+                            {/* <FlatList
                                 data={attendedEvents.reverse()}
                                 keyExtractor={(item) => item.id}
                                 renderItem={({ item, index }) => (
                                     <TouchableOpacity onPress={() => handleEventSelect(item.id)}>
                                         <View style={modalStyles.eventItem}>
-                                            <Text style={modalStyles.eventText}>{attendedEventNames[index] || 'Unknown Event'}</Text>
+                                            <Text style={modalStyles.eventText}>{attendedEventNames.eventName[index] || 'Unknown Event'}</Text>
                                         </View>
                                     </TouchableOpacity>
                                 )}
-                            />
+                            /> */}
                             </View>
                         </View>
                     </View>
