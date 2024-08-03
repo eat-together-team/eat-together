@@ -92,7 +92,6 @@ export default function Gallery({ route, navigation }) {
         const fetchEventNames = async () => {
             const names = await Promise.all(attendedEvents.map(async (event) => {
                 let eventName = 'Unknown Event';
-                const eventType=event.type;
                 const eventId = event.id;
                 try {
                     let eventDoc;
@@ -107,7 +106,7 @@ export default function Gallery({ route, navigation }) {
                 } catch (error) {
                     console.error("Error fetching event details: ", error);
                 }
-                return eventType,eventId,eventName;
+                return eventName;
             }));
             setAttendedEventNames(names);
         };
