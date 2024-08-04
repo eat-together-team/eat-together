@@ -568,9 +568,10 @@ const WhileYouEat = ({ route, navigation }) => {
           <NormalText marginBottom={20} color="black">
             {event.additionalInfo}
           </NormalText>
-
+          
+          {/* wuold you rather start */}
           <Button marginVertical={20} onPress={() => {
-            navigation.navigate("IntroGuidelines", {
+            navigation.navigate("StartGame", {
               event: event,
               people: people
             })
