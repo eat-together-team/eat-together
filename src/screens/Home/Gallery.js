@@ -312,7 +312,6 @@ export default function Gallery({ route, navigation }) {
         const formattedDate = uploadedTime.toLocaleDateString();
         const imageId=item.imageEventAssigned;
         const image = attendedEvents.find(item => item.id === imageId);
-        console.log(image);
         let eventName = '';
         try {
             // Check if the event ID exists in the Public Events collection
@@ -496,7 +495,7 @@ export default function Gallery({ route, navigation }) {
                             column ? "Column View with Dates":
                             event?"Column View with Events":"   View   "}/>
                     <RBSheet
-                        height={150}
+                        height={190}
                         ref={showViewFilterRef}
                         closeOnDragDown={true}
                         closeOnPressMask={false}
