@@ -28,7 +28,6 @@ export default function Gallery({ route, navigation }) {
     const user = auth.currentUser;
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [event, setEvent] = useState(true);
     const [filteredImages, setFilteredImages] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImageUri, setSelectedImageUri] = useState(null);
@@ -41,6 +40,8 @@ export default function Gallery({ route, navigation }) {
     const [oldest, setOldest] = useState(false);
     const [grid, setGrid] = useState(true);
     const [column, setColumn] = useState(false);
+    const [event, setEvent] = useState(false);
+
 
     // Reference Variables for the selection component
     const showViewFilterRef = useRef();
@@ -48,7 +49,6 @@ export default function Gallery({ route, navigation }) {
 
     // Picker State Variables 
     const [pickerValue, setPickerValue] = useState(null);
-    const [type, setType] = useState(null);
 
     
 
@@ -271,8 +271,11 @@ export default function Gallery({ route, navigation }) {
 
         const renderImage = ({ item }) => {
             if (column) {
-                return renderColumn({ item });
-            } 
+                return renderDateView({ item });
+            }
+            else if (event) {
+                return renderEventView({ item });
+            }
             else {
                 return (
                     <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
@@ -284,23 +287,66 @@ export default function Gallery({ route, navigation }) {
             }
         };
     
-    // Renders column view
+    // Renders Date view
 
-    const renderColumn = ({ item }) => {
+    const renderDateView = ({ item }) => {
         const uploadedTime = new Date(item.imageUploadedTime);
         const formattedDate = uploadedTime.toLocaleDateString();
+            return (
+                <View style={styles.columnItem}>
+                    <MediumText>{formattedDate}</MediumText>
+                    <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
+                        <View style={styles.imageContainer}>
+                            <Image style={styles.image} source={{ uri: item.imageUrl }} />
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            );
 
-        return (
-            <View style={styles.columnItem}>
-                <MediumText>{formattedDate}</MediumText>
-                <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
-                    <View style={styles.imageContainer}>
-                        <Image style={styles.image} source={{ uri: item.imageUrl }} />
-                    </View>
-                </TouchableOpacity>
-            </View>
-        );
     };
+
+    // Renders Event View
+
+    const renderEventView = async ({ item }) => {
+        const uploadedTime = new Date(item.imageUploadedTime);
+        const formattedDate = uploadedTime.toLocaleDateString();
+        const imageId=item.imageEventAssigned;
+        const image = attendedEvents.find(item => item.id === imageId);
+        console.log(image);
+        let eventName = '';
+        try {
+            // Check if the event ID exists in the Public Events collection
+            const publicEventDoc = await db.collection("Public Events").doc(image.id).get();
+            if (publicEventDoc.exists) {
+                eventName = publicEventDoc.data().name;
+            } else {
+                // If not found in Public Events, check Private Events collection
+                const privateEventDoc = await db.collection("Private Events").doc(image.id).get();
+                if (privateEventDoc.exists) {
+                    eventName = privateEventDoc.data().name;
+                } else {
+                    // If event ID not found in either collection
+                    eventName = 'Unassigned Event';
+                }
+            }
+        } catch (error) {
+            eventName = 'Unassigned Event';
+        }
+
+
+            return (
+                <View style={styles.columnItem}>
+                    <MediumText>{eventName}</MediumText>
+                    <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
+                        <View style={styles.imageContainer}>
+                            <Image style={styles.image} source={{ uri: item.imageUrl }} />
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            );
+
+    };
+
 
     // retreives metadata from firestore
 
@@ -404,8 +450,6 @@ export default function Gallery({ route, navigation }) {
                 newImages = filterByOldest(newImages);
             }
 
-
-
             setFilteredImages(newImages);
             setLoading(false);
         };
@@ -446,10 +490,11 @@ export default function Gallery({ route, navigation }) {
                 <Divider />
                 <MediumText style={{ paddingVertical: 10, paddingHorizontal: 140 }}>Sort By</MediumText>
                 <HorizontalRow style={{ paddingHorizontal: 20 }}>
-                    <Filter checked={column || grid}
+                    <Filter checked={column || grid || event}
                         onPress={() => showViewFilterRef.current.open()}
                         text={grid ? "Grid View" : 
-                            column ? "Column View with Date":"   View   "}/>
+                            column ? "Column View with Dates":
+                            event?"Column View with Events":"   View   "}/>
                     <RBSheet
                         height={150}
                         ref={showViewFilterRef}
@@ -471,15 +516,25 @@ export default function Gallery({ route, navigation }) {
                         <Filter checked={grid} text="Grid View" marginBottom={5}
                             onPress={() => {
                                 setGrid(true); 
-                                setColumn(false);                            
+                                setColumn(false);   
+                                setEvent(false);                        
                                 showViewFilterRef.current.close();
                             }}/>
                         <Filter checked={column} text="Column View with Dates" marginBottom={5}
                             onPress={() => {
                                 setColumn(true); 
                                 setGrid(false);
+                                setEvent(false);
                                 showViewFilterRef.current.close();
                             }}/>
+                        <Filter checked={event} text="Column View with Events" marginBottom={5}
+                            onPress={() => {
+                                setColumn(false); 
+                                setGrid(false);
+                                setEvent(true);
+                                showViewFilterRef.current.close();
+                            }}/>
+
 
                         <Link onPress={() => {
                                 showViewFilterRef.current.close();
@@ -567,7 +622,6 @@ export default function Gallery({ route, navigation }) {
                                     placeholder="Select an Event"
                                     onValueChange={(val) => {
                                         setPickerValue(val);
-                                        setType(val);
                                         handleEventSelect(val);
                                     }}
                                 >
@@ -583,12 +637,12 @@ export default function Gallery({ route, navigation }) {
 
 
             <Modal visible={isModalVisible} transparent={true} onRequestClose={handleCloseModal}>
-                <View style={styles.modalTop}>
-                    <TouchableWithoutFeedback onPress={handleCloseModal}>
-                    <Ionicons name="chevron-back" size={20} />
-                    </TouchableWithoutFeedback>
-                    
-                </View>
+                                <TopNav
+                middleContent={<MediumText>   </MediumText>}
+                leftContent={<Ionicons name="chevron-back" size={20} />}
+                leftAction={() => handleCloseModal()}
+            />
+
                 <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContainer}>

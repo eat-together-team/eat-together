@@ -304,7 +304,7 @@ export default function EventGallery({ route, navigation }) {
                 )}
             </View>
             <Modal visible={isModalVisible} transparent={true} onRequestClose={handleCloseModal}>
-            <   View style={styles.modalTop}>
+            <View style={styles.modalTop}>
                     <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <Ionicons name="chevron-back" size={20} />
                     </TouchableWithoutFeedback>
