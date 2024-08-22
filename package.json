@@ -47,6 +47,7 @@
     "lodash": "^4.17.21",
     "metro-react-native-babel-preset": "^0.77.0",
     "moment": "^2.29.4",
+    "prop-types": "^15.8.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.5",

@@ -198,7 +198,7 @@ export default function ({ route, navigation }) {
                     <TouchableOpacity onPress={() => handleChoosePhoto()}>
                         <ImageBackground source={{ uri: photo }} style={styles.image}>
                             <View style={styles.imageOverlay}>
-                                <Ionicons name="md-image-outline" color="white" size={30}></Ionicons>
+                                <Ionicons name="image-outline" color="white" size={30}></Ionicons>
                             </View>
                         </ImageBackground>
                     </TouchableOpacity>
