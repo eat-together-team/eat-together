@@ -614,7 +614,6 @@ export default function Gallery({ route, navigation }) {
                         <View style={modalStyles.modalContainer}>
                             <LargeText style={modalStyles.eventText}>Assign Images to an Event</LargeText>
                             <View style={modalStyles.eventItem}>
-
                             <Picker
                                     items={items}
                                     value={pickerValue}
@@ -624,10 +623,7 @@ export default function Gallery({ route, navigation }) {
                                         handleEventSelect(val);
                                     }}
                                 >
-
                             </Picker>
-
-
                             </View>
                         </View>
                     </View>
@@ -636,12 +632,11 @@ export default function Gallery({ route, navigation }) {
 
 
             <Modal visible={isModalVisible} transparent={true} onRequestClose={handleCloseModal}>
-                                <TopNav
-                middleContent={<MediumText>   </MediumText>}
-                leftContent={<Ionicons name="chevron-back" size={20} />}
-                leftAction={() => handleCloseModal()}
-            />
-
+                <TopNav
+                    middleContent={<MediumText>   </MediumText>}
+                    leftContent={<Ionicons name="chevron-back" size={20} />}
+                    leftAction={() => handleCloseModal()}
+                />
                 <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContainer}>
