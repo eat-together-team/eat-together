@@ -21,7 +21,7 @@ import Link from "../../components/Link";
 //Global variables
 const numColumns = 3;
 const screenWidth = Dimensions.get("window").width;
-const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
+const tileSize = (screenWidth - 2.7 * 5 * numColumns) / numColumns;
 
 export default function Gallery({ route, navigation }) {
     //State Variables
@@ -40,7 +40,7 @@ export default function Gallery({ route, navigation }) {
     const [oldest, setOldest] = useState(false);
     const [grid, setGrid] = useState(true);
     const [column, setColumn] = useState(false);
-    const [event, setEvent] = useState(false);
+    const [meetup, setMeetup] = useState(false);
 
 
     // Reference Variables for the selection component
@@ -167,7 +167,7 @@ export default function Gallery({ route, navigation }) {
                 allowsEditing: true,
                 quality: 1,
             });
-            if (!result.cancelled) {
+            if (!result.canceled) {
                 const uri = result.assets[0].uri;
                 await uploadImage(uri, imageId);
             }
@@ -273,7 +273,7 @@ export default function Gallery({ route, navigation }) {
             if (column) {
                 return renderDateView({ item });
             }
-            else if (event) {
+            else if (meetup) {
                 return renderEventView({ item });
             }
             else {
@@ -308,44 +308,54 @@ export default function Gallery({ route, navigation }) {
     // Renders Event View
 
     const renderEventView = async ({ item }) => {
-        const uploadedTime = new Date(item.imageUploadedTime);
-        const formattedDate = uploadedTime.toLocaleDateString();
-        const imageId=item.imageEventAssigned;
-        const image = attendedEvents.find(item => item.id === imageId);
-        let eventName = '';
-        try {
-            // Check if the event ID exists in the Public Events collection
-            const publicEventDoc = await db.collection("Public Events").doc(image.id).get();
-            if (publicEventDoc.exists) {
-                eventName = publicEventDoc.data().name;
-            } else {
-                // If not found in Public Events, check Private Events collection
-                const privateEventDoc = await db.collection("Private Events").doc(image.id).get();
+        console.log("ENTER FUNCTION")
+        const eventId = await item.imageEventAssigned;
+        const event = attendedEvents && attendedEvents.length > 0 
+        ? attendedEvents.filter(event => event.id === eventId)[0] || null 
+        : null;
+        let eventName = 'Unassigned Event';
+        console.log(event,"EVENT LIST")
+        console.log("Pre Event")
+        if (event) {
+            try {
+                console.log(event.id)
+                // Check if the event ID exists in the Public Events collection
+                console.log("pre private")
+                const privateEventDoc = await db.collection("Private Events").doc(event.id).get();
                 if (privateEventDoc.exists) {
-                    eventName = privateEventDoc.data().name;
+                    eventName = await privateEventDoc.data().name;
+                    console.log("Private Event Names",eventName)
+
                 } else {
-                    // If event ID not found in either collection
-                    eventName = 'Unassigned Event';
-                }
+                    console.log("pre public")
+                    console.log(event.id,"pre public event id")
+                    const publicEventDoc = await db.collection("Public Events").doc(event.id).get();
+                    console.log("getting public event name")
+                    eventName = await publicEventDoc.data().name;
+                    console.log("PUblics Event Names",eventName)
+
+                } 
+
+            } catch (error) {
+                console.error("Error fetching event data:", error);
+                eventName = 'Unassigned Event';
             }
-        } catch (error) {
-            eventName = 'Unassigned Event';
-        }
+        } 
+        console.log("exit")
 
-
-            return (
-                <View style={styles.columnItem}>
-                    <MediumText>{eventName}</MediumText>
-                    <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
-                        <View style={styles.imageContainer}>
-                            <Image style={styles.image} source={{ uri: item.imageUrl }} />
-                        </View>
-                    </TouchableOpacity>
-                </View>
-            );
-
+    
+        return (
+            <View style={styles.columnItem}>
+                <MediumText>{eventName}</MediumText>
+                <TouchableOpacity onPress={() =>  handleImagePress(item.imageUrl)}>
+                    <View style={styles.imageContainer}>
+                        <Image style={styles.image} source={{ uri: item.imageUrl }} />
+                    </View>
+                </TouchableOpacity>
+            </View>
+        );
     };
-
+    
 
     // retreives metadata from firestore
 
@@ -456,7 +466,7 @@ export default function Gallery({ route, navigation }) {
         if (images.length > 0) {
             filter();
         }
-    }, [event, newest, oldest, grid, column, images]);
+    }, [meetup, newest, oldest, grid, column, images]);
 
     const filterByNewest = (newImages) => {
         return newImages.sort((a, b) => b.imageUploadedTime - a.imageUploadedTime);
@@ -489,11 +499,11 @@ export default function Gallery({ route, navigation }) {
                 <Divider />
                 <MediumText style={{ paddingVertical: 10, paddingHorizontal: 140 }}>Sort By</MediumText>
                 <HorizontalRow style={{ paddingHorizontal: 20 }}>
-                    <Filter checked={column || grid || event}
+                    <Filter checked={column || grid || meetup}
                         onPress={() => showViewFilterRef.current.open()}
                         text={grid ? "Grid View" : 
                             column ? "Column View with Dates":
-                            event?"Column View with Events":"   View   "}/>
+                            meetup?"Column View with Events":"   View   "}/>
                     <RBSheet
                         height={190}
                         ref={showViewFilterRef}
@@ -516,23 +526,23 @@ export default function Gallery({ route, navigation }) {
                             onPress={() => {
                                 setGrid(true); 
                                 setColumn(false);   
-                                setEvent(false);                        
+                                setMeetup(false);                        
                                 showViewFilterRef.current.close();
                             }}/>
                         <Filter checked={column} text="Column View with Dates" marginBottom={5}
                             onPress={() => {
                                 setColumn(true); 
                                 setGrid(false);
-                                setEvent(false);
+                                setMeetup(false);
                                 showViewFilterRef.current.close();
                             }}/>
-                        <Filter checked={event} text="Column View with Events" marginBottom={5}
+                        {/* <Filter checked={event} text="Column View with Events" marginBottom={5}
                             onPress={() => {
                                 setColumn(false); 
                                 setGrid(false);
-                                setEvent(true);
+                                setMeetup(true);
                                 showViewFilterRef.current.close();
-                            }}/>
+                            }}/> */}
 
 
                         <Link onPress={() => {
