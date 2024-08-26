@@ -1,5 +1,5 @@
 import React, { useEffect, useState,useRef} from "react";
-import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback, Text } from "react-native";
+import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback,} from "react-native";
 import { Layout, TopNav,Picker} from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import RBSheet from "react-native-raw-bottom-sheet";
@@ -653,11 +653,9 @@ export default function Gallery({ route, navigation }) {
 // Styles for the screen
 const styles = StyleSheet.create({
     buttonContainer: {
-        alignItems: "center",
+        alignItems: "flex-start",
         marginVertical: 20,
-    },
-    button: {
-        width: "80%",
+        marginHorizontal:10,
     },
     container: {
         flex: 1,
@@ -672,12 +670,12 @@ const styles = StyleSheet.create({
     columnItem: {
         marginVertical: 5,
         width: '100%',
-        alignItems: 'flex-start',
+        alignItems: 'center',
     },
     flatListContentContainer: {
         justifyContent: "flex-start",
         paddingHorizontal: 5,
-        alignItems: 'flex-start',
+        alignItems: 'center',
     },
     modalBackground: {
         flex: 1,
@@ -697,13 +695,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
     },
-    modalTop: {
-        height: 75,
-        backgroundColor: "white",
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding:20,
-    },
 
     leftIcons: {
         flexDirection: 'row',
@@ -716,8 +707,8 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     imageContainer: {
-        width: tileSize,
-        aspectRatio: 1,
+        width: 320,
+        height:211,
         marginVertical: 10,
     },
     image: {
