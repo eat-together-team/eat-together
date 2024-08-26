@@ -275,6 +275,8 @@ export default function Gallery({ route, navigation }) {
             }
             else if (meetup) {
                 return renderEventView({ item });
+
+                 
             }
             else {
                 return (
@@ -307,47 +309,23 @@ export default function Gallery({ route, navigation }) {
 
     // Renders Event View
 
-    const renderEventView =  ({ item }) => {
-        console.log(item)
-        // console.log("ENTER FUNCTION")
-        // const eventId = await item.imageEventAssigned;
-        // const event = attendedEvents && attendedEvents.length > 0 
-        // ? attendedEvents.filter(event => event.id === eventId)[0] || null 
-        // : null;
-        // let eventName = 'Unassigned Event';
-        // console.log(event,"EVENT LIST")
-        // console.log("Pre Event")
-        // if (event) {
-        //     try {
-        //         console.log(event.id)
-        //         // Check if the event ID exists in the Public Events collection
-        //         console.log("pre private")
-        //         const privateEventDoc = await db.collection("Private Events").doc(event.id).get();
-        //         if (privateEventDoc.exists) {
-        //             eventName = await privateEventDoc.data().name;
-        //             console.log("Private Event Names",eventName)
+    const renderEventView = ({ item }) => {
+        // const [meetupName,setMeetupName] = useState();
+        let meetupName ="";
+        const eventId = item.imageEventAssigned;
+        const event = attendedEvents.find(event => event?.id === eventId);
+        if(event){
+             nom=attendedEventNames.find( name => name?.eventId === event.id);
+             meetupName=nom.eventName;
+        } 
+        else{
+            meetupName="Unassigned Event";
+        }
 
-        //         } else {
-        //             console.log("pre public")
-        //             console.log(event.id,"pre public event id")
-        //             const publicEventDoc = await db.collection("Public Events").doc(event.id).get();
-        //             console.log("getting public event name")
-        //             eventName = await publicEventDoc.data().name;
-        //             console.log("PUblics Event Names",eventName)
 
-        //         } 
-
-        //     } catch (error) {
-        //         console.error("Error fetching event data:", error);
-        //         eventName = 'Unassigned Event';
-        //     }
-        // } 
-        // console.log("exit")
-
-    
         return (
             <View style={styles.columnItem}>
-                <MediumText>{item.imageEventAssigned}</MediumText>
+                <MediumText>{meetupName}</MediumText>
                 <TouchableOpacity onPress={() =>  handleImagePress(item.imageUrl)}>
                     <View style={styles.imageContainer}>
                         <Image style={styles.image} source={{ uri: item.imageUrl }} />
@@ -356,7 +334,7 @@ export default function Gallery({ route, navigation }) {
             </View>
         );
     };
-    
+            
 
     // retreives metadata from firestore
 
