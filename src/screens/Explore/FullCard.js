@@ -45,7 +45,19 @@ const FullCard = ({ route, navigation }) => {
   const [people, setPeople] = useState([]);
   const [openAttendance, setOpenAttendance] = useState(false);
 
+      // Image Carousel
+      const [imageGallery, setImageGallery] = useState(["../../../assets/foodBackground.png"]); 
+      const numColumns = 3;
+      const screenWidth = Dimensions.get("window").width;
+      const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
+  
+
   useEffect(() => {
+    if (route.params.event.eventGallery) {
+      setImageGallery(route.params.event.eventGallery);
+      setLoading(false);
+    }
+
     db.collection("Users").doc(user.uid).get().then(doc => {
       const events = doc.data().attendingEventIDs.map(e => e.id);
 
@@ -269,6 +281,45 @@ const FullCard = ({ route, navigation }) => {
               </NormalText>
             </View>
           </View>
+
+          <View style={styles.row}>
+              <NormalText paddingHorizontal={10}>
+                Photo Gallery Preview:
+              </NormalText>
+            </View>
+
+
+            <View style={styles.row}>
+            <Image
+              source={
+                imageGallery[0]
+                ? { uri: imageGallery[0].imageUrl }
+                : require("../../../assets/food.jpg")
+              }
+              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5, blurRadius:15,}}
+            />
+            <Image
+              source={
+                imageGallery[1]
+                ? { uri: imageGallery[1].imageUrl }
+                : require("../../../assets/foodBackground.png")
+
+              }
+              blurRadius={2}
+              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5,}}
+            />
+
+            <ImageBackground
+              source={
+                 require("../../../assets/food.jpg")
+              }
+              style={{ width: tileSize/2, height: tileSize, margin:5}}
+              borderTopLeftRadius={15}
+              borderBottomLeftRadius={15}
+              blurRadius={10}
+            />
+
+            </View>
 
           <View style={styles.row}>
             <Ionicons name="image-outline"size={20}/>

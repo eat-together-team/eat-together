@@ -65,8 +65,19 @@ const WhileYouEat = ({ route, navigation }) => {
 
   const [recSteps, setRecSteps] =  useState(0); // Tutorial steps for meetup
 
+  // Image Carousel
+  const [imageGallery, setImageGallery] = useState(["../../../assets/foodBackground.png"]); 
+  const numColumns = 3;
+  const screenWidth = Dimensions.get("window").width;
+  const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
+
   // Fetch meetup data on page load
   useEffect(() => {
+    if (event.eventGallery) {
+      setImageGallery(event.eventGallery);
+      setLoading(false);
+    }
+
     getAttendees(); // Fetch attendees
 
     // Fetch host info (not for recommendations)
@@ -92,7 +103,7 @@ const WhileYouEat = ({ route, navigation }) => {
             });
         }
       });
-  }, []);
+  }, [event.eventGallery]);
 
   // Checking group chat updates
   useEffect(() => {
@@ -563,10 +574,47 @@ const WhileYouEat = ({ route, navigation }) => {
                 {event.endDate && " - ".concat(getTime(event.endDate.toDate()))}
               </NormalText>
             </View>
+            <View style={styles.row}>
+              <NormalText paddingHorizontal={10}>
+                Photo Gallery Preview:
+              </NormalText>
+            </View>
+
 
             <View style={styles.row}>
+            <Image
+              source={
+                imageGallery[0]
+                ? { uri: imageGallery[0].imageUrl }
+                : require("../../../assets/food.jpg")
+              }
+              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5, blurRadius:15,}}
+            />
+            <Image
+              source={
+                imageGallery[1]
+                ? { uri: imageGallery[1].imageUrl }
+                : require("../../../assets/foodBackground.png")
+
+              }
+              blurRadius={2}
+              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5,}}
+            />
+
+            <ImageBackground
+              source={
+                 require("../../../assets/food.jpg")
+              }
+              style={{ width: tileSize/2, height: tileSize, margin:5}}
+              borderTopLeftRadius={15}
+              borderBottomLeftRadius={15}
+              blurRadius={10}
+            />
+
+            </View>
+            <View style={styles.row}>
               <Ionicons name="image-outline" size={20}/>
-              <NormalText  paddingHorizontal={10} color="black">
+              <NormalText  paddingHorizontal={10} >
                 <Link onPress={() => navigation.navigate("EventGallery",{event:event})}>Access Meetup Photo Gallery</Link>
               </NormalText>
             </View>

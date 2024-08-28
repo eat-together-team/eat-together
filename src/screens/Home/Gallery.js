@@ -282,7 +282,7 @@ export default function Gallery({ route, navigation }) {
                 return (
                     <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
                         <View style={[styles.imageItem, { width: tileSize, height: tileSize }]}>
-                            <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
+                            <Image style={{ width: '100%', height: '100%', borderRadius: 15, }} source={{ uri: item.imageUrl }} />
                         </View>
                     </TouchableOpacity>
                 );
