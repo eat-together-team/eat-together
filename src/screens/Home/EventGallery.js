@@ -358,7 +358,6 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         width: "100%",
-        aspectRatio: 1,
     },
     modalBottom: {
         height: 55,

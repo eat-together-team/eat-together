@@ -690,9 +690,7 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0, 0, 0, 0.7)",
     },
     modalContainer: {
-        width: "85%",
-        height: "65%",
-        aspectRatio: 1,
+        width: "100%",
     },
     modalBottom: {
         height: 175,
