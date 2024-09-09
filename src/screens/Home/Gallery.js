@@ -1,5 +1,5 @@
 import React, { useEffect, useState,useRef} from "react";
-import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback,} from "react-native";
+import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback, Text} from "react-native";
 import { Layout, TopNav,Picker} from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import RBSheet from "react-native-raw-bottom-sheet";
@@ -16,6 +16,8 @@ import * as firebase from "firebase/compat";
 import NormalText from "../../components/NormalText";
 import LargeText from "../../components/LargeText";
 import Link from "../../components/Link";
+import CustomButton from "../../components/CustomButton";
+
 
 
 //Global variables
@@ -341,7 +343,7 @@ export default function Gallery({ route, navigation }) {
     const getMetadata = async (uri) => {
         const image = images.find(item => item.imageUrl === uri);
         if (image) {
-            const timeUploaded = new Date(image.imageUploadedTime).toLocaleString('en-US', { timeZoneName: 'short' });
+            const timeUploaded = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
             let eventName = '';
     
             try {
@@ -631,21 +633,27 @@ export default function Gallery({ route, navigation }) {
                         <View style={styles.modalContainer}>
                             <Image style={{ width: '100%', height: '100%', resizeMode: 'contain' }} source={{ uri: selectedImageUri }} />
                         </View>
+                        
                     </View>
                 </TouchableWithoutFeedback>
                 <View style={styles.modalBottom}>
-                    <TouchableOpacity style={styles.leftIcons} onPress={() => handleAssignEvent(selectedImageUri)}>
-                        <NormalText style={{ color: '#5db075', fontSize: 20, fontWeight: 'bold' }}> Assign Images to an Event </NormalText>
-                    </TouchableOpacity>
-                    <View style={styles.rightIcons}>
-                        <TouchableOpacity>
-                            <Ionicons name="information-circle" style={{ fontSize: 25, textAlign: "right", marginEnd: 10 }} onPress={() => getMetadata(selectedImageUri)} />
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <Ionicons name="trash" style={styles.icon} onPress={() => handleDeleteImage(selectedImageUri)} />
-                        </TouchableOpacity>
+                    <View style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent: "center",}}>
+
+                        <Filter checked={false} onPress={() => getMetadata(selectedImageUri)} text="  Info  "  />
+                        
+                        <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="  Delete  " />
+
                     </View>
+                    <View style={styles.assignBottom}> 
+                        <TouchableOpacity style={styles.leftIcons} onPress={() => handleAssignEvent(selectedImageUri)}>
+                            <Button backgroundColor="white" color="#5DB075">Assign Image</Button>
+
+                        </TouchableOpacity>
+
                 </View>
+
+                </View>
+
             </Modal>
         </Layout>
     );
@@ -663,8 +671,6 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
     },
     imageItem: {
-        width: tileSize,
-        height: tileSize,
         margin: 5,
     },
     columnItem: {
@@ -675,7 +681,7 @@ const styles = StyleSheet.create({
     flatListContentContainer: {
         justifyContent: "flex-start",
         paddingHorizontal: 5,
-        alignItems: 'center',
+        alignItems: 'left',
     },
     modalBackground: {
         flex: 1,
@@ -689,18 +695,26 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
     },
     modalBottom: {
-        height: 49,
+        height: 175,
         backgroundColor: "white",
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: "flex-end",
+        alignItems: "center",
+    },
+    assignBottom:{
+        height: 120,
+        backgroundColor:'#5DB075',
+        width:'100%',
+        justifyContent: "center",
+        alignItems: "center",
+
     },
 
     leftIcons: {
-        flexDirection: 'row',
+        flexDirection:'row',
     },
     rightIcons: {
         flexDirection: 'row',
+
     },
     icon: {
         fontSize: 25,

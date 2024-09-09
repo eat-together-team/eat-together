@@ -11,11 +11,14 @@ import HorizontalRow from "../../components/HorizontalRow";
 import { auth, db, storage } from "../../provider/Firebase";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
+import HorizontalSwitch from "../../components/HorizontalSwitch";
+import NormalText from "../../components/NormalText";
+import { Divider } from "react-native-elements";
 
 //Global variables
 const numColumns = 3;
 const screenWidth = Dimensions.get("window").width;
-const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
+const tileSize = (screenWidth - 2.7 * 5 * numColumns) / numColumns;
 
 
 export default function EventGallery({ route, navigation }) {
@@ -27,6 +30,7 @@ export default function EventGallery({ route, navigation }) {
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImageUri, setSelectedImageUri] = useState(null);
+    const [userName, setUserName] = useState("");
 
 
     useEffect(() => {
@@ -186,8 +190,8 @@ export default function EventGallery({ route, navigation }) {
     
     const getMetadata = async(uri) => {
         const image = imageGallery.find(item => item.imageUrl === uri);
+        const timeUploaded = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
         if (image) {
-            const timeUploaded = new Date(image.imageUploadedTime).toLocaleString('en-US', { timeZoneName: 'short' });
 
             const userDoc = await db.collection("Users").doc(image.userUploaded).get();
             let uploadedBy = "Unknown User";
@@ -198,14 +202,12 @@ export default function EventGallery({ route, navigation }) {
 
             Alert.alert(
                 " Image Information",
-                `Upload date and time: ${timeUploaded}\n\nUser who uploaded it: ${uploadedBy}`
+                `Upload date and time: ${timeUploaded}\n\Uploaded By: ${uploadedBy}`
             );
         } 
     };
 
     const UserName = ({ userId }) => {
-        const [userName, setUserName] = useState("");
-
         useEffect(() => {
             const fetchUserName = async () => {
                 const userDoc = await db.collection("Users").doc(userId).get();
@@ -223,13 +225,11 @@ export default function EventGallery({ route, navigation }) {
     };
 
     const renderColumn = ({ item }) => {
-        const screenWidth = Dimensions.get("window").width;
-        const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
         return (
             <View style={styles.columnItem}>
                 <UserName userId={item.userUploaded} />
                 <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
-                    <View style={{ width: tileSize, aspectRatio: 1 }}>
+                    <View style={{width: 320,height:211,marginVertical: 10,}}>
                         <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
                     </View>
                 </TouchableOpacity>
@@ -238,10 +238,7 @@ export default function EventGallery({ route, navigation }) {
     };
     
 
-    const renderImage = ({ item }) => {
-        const screenWidth = Dimensions.get("window").width;
-        const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
-    
+    const renderImage = ({ item }) => {    
         if (column) {
             return renderColumn({ item });
         } else {
@@ -288,7 +285,7 @@ export default function EventGallery({ route, navigation }) {
                         renderItem={renderImage}
                         numColumns={column ? 1 : numColumns}
                         keyExtractor={(item) => item.imageId}
-                        contentContainerStyle={[styles.flatListContentContainer, { alignItems: column ? 'flex-start' : 'flex-start' }]}
+                        contentContainerStyle={[styles.flatListContentContainer,]}
                         key={column ? 'column' : 'grid'}
                         ListFooterComponent={() => {
                             // Calculate the number of empty placeholder items needed
@@ -304,13 +301,11 @@ export default function EventGallery({ route, navigation }) {
                 )}
             </View>
             <Modal visible={isModalVisible} transparent={true} onRequestClose={handleCloseModal}>
-            <View style={styles.modalTop}>
-                    <TouchableWithoutFeedback onPress={handleCloseModal}>
-                    <Ionicons name="chevron-back" size={20} />
-                    </TouchableWithoutFeedback>
-                    
-                </View>
-
+                <TopNav
+                    middleContent={<MediumText>   </MediumText>}
+                    leftContent={<Ionicons name="chevron-back" size={20} />}
+                    leftAction={() => handleCloseModal()}
+                />
                 <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContainer}>
@@ -318,13 +313,13 @@ export default function EventGallery({ route, navigation }) {
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
-                <View style={styles.modalBottom}>
-                    <TouchableOpacity>
-                        <Ionicons name="information-circle" style={{ fontSize: 25, textAlign: "right", marginEnd: 10 }} onPress={() => getMetadata(selectedImageUri)} />
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                        <Ionicons name="trash" style={{ fontSize: 25, textAlign: "right", marginEnd: 5 }} onPress={() => handleDeleteImage(selectedImageUri)} />
-                    </TouchableOpacity>
+
+                <View style={styles.modalBottom}> 
+                    {/* Image Information */}
+                    <View style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent: "center",}}>
+                        <Filter checked={false} onPress={() => getMetadata(selectedImageUri)} text="  Info  "  />
+                        <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="  Delete  " />
+                    </View>
                 </View>
             </Modal>
         </Layout>
@@ -333,11 +328,9 @@ export default function EventGallery({ route, navigation }) {
 
 const styles = StyleSheet.create({
     buttonContainer: {
-        alignItems: "center",
+        alignItems: "flex-start",
         marginVertical: 20,
-    },
-    button: {
-        width: "80%",
+        marginHorizontal:10,
     },
     container: {
         flex: 1,
@@ -345,21 +338,17 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start", // Change justifyContent to flex-start
     },
     imageItem: {
-        width: tileSize,
-        height: tileSize,
         margin: 5,
     },
     columnItem: {
         marginVertical: 5,
         width: '100%',
-        alignItems: 'flex-start',
+        alignItems: 'center',
     },
     flatListContentContainer: {
         justifyContent: "flex-start",
-        flexDirection: "row",
-        flexWrap: "wrap",
         paddingHorizontal: 5,
-        alignItems: 'flex-start', // Align items to the flex-start
+        alignItems: 'left', // Align items to the flex-start
     },
     modalBackground: {
         flex: 1,
@@ -368,24 +357,15 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0, 0, 0, 0.7)",
     },
     modalContainer: {
-        width: "50%",
-        height: "50%",
+        width: "100%",
         aspectRatio: 1,
     },
     modalBottom: {
-        height: 49,
+        height: 55,
         backgroundColor: "white",
         justifyContent: "flex-end",
         alignItems: "center",
-        paddingHorizontal: 5,
-        flexDirection: 'row',
-    },
-    modalTop: {
-        height: 75,
-        backgroundColor: "white",
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding:20,
+        // flexDirection: 'row',
     },
 
 });
