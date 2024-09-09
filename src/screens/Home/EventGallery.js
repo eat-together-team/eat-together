@@ -202,7 +202,7 @@ export default function EventGallery({ route, navigation }) {
 
             Alert.alert(
                 " Image Information",
-                `Upload date and time: ${timeUploaded}\n\Uploaded By: ${uploadedBy}`
+                `Upload date and time: ${timeUploaded}\n\nUploaded By: ${uploadedBy}`
             );
         } 
     };
