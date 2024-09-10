@@ -11,9 +11,6 @@ import HorizontalRow from "../../components/HorizontalRow";
 import { auth, db, storage } from "../../provider/Firebase";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
-import HorizontalSwitch from "../../components/HorizontalSwitch";
-import NormalText from "../../components/NormalText";
-import { Divider } from "react-native-elements";
 
 //Global variables
 const numColumns = 3;
@@ -32,7 +29,7 @@ export default function EventGallery({ route, navigation }) {
     const [selectedImageUri, setSelectedImageUri] = useState(null);
     const [userName, setUserName] = useState("");
 
-
+    // Use Effect to get the image gallery Data
     useEffect(() => {
         let db_name = event.type === "public" ? "Public Events" : "Private Events";
         const unsubscribe = db.collection(db_name).doc(event.id).onSnapshot((eventDoc) => {
@@ -194,7 +191,6 @@ export default function EventGallery({ route, navigation }) {
         const image = imageGallery.find(item => item.imageUrl === uri);
         const timeUploaded = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
         if (image) {
-
             const userDoc = await db.collection("Users").doc(image.userUploaded).get();
             let uploadedBy = "Unknown User";
             if (userDoc.exists) {
@@ -350,7 +346,7 @@ const styles = StyleSheet.create({
     flatListContentContainer: {
         justifyContent: "flex-start",
         paddingHorizontal: 5,
-        alignItems: 'left', // Align items to the flex-start
+        alignItems: 'left', 
     },
     modalBackground: {
         flex: 1,
@@ -366,7 +362,6 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         justifyContent: "flex-end",
         alignItems: "center",
-        // flexDirection: 'row',
     },
 
 });

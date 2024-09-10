@@ -1,5 +1,5 @@
 import React, { useEffect, useState,useRef} from "react";
-import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback, Text} from "react-native";
+import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback,} from "react-native";
 import { Layout, TopNav,Picker} from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import RBSheet from "react-native-raw-bottom-sheet";
@@ -49,9 +49,6 @@ export default function Gallery({ route, navigation }) {
 
     // Picker State Variables 
     const [pickerValue, setPickerValue] = useState(null);
-
-    
-
 
     // Use Effect to fetch image data
     useEffect(() => {
@@ -201,6 +198,8 @@ export default function Gallery({ route, navigation }) {
         setFilteredImages((prev) => [...prev, storeId]);
     };
 
+    // Main Add Photo Function
+
     const addPhoto = async () => {
         const imageId = Date.now() + "_" + user.uid;
         await handleChoosePhoto(imageId)
@@ -218,14 +217,12 @@ export default function Gallery({ route, navigation }) {
     const deleteImage = async (imageUrl) => {
         try {
             const image = images.find(img => img.imageUrl === imageUrl);
-    
             const toDelete = {
                 imageEventAssigned:image.imageEventAssigned,
                 imageUrl: image.imageUrl,
                 imageId: image.imageId,
                 imageUploadedTime: image.imageUploadedTime,
             };
-            
             
             await db.collection("Users").doc(user.uid).update({
                 gallery: firebase.firestore.FieldValue.arrayRemove(toDelete),
@@ -242,6 +239,8 @@ export default function Gallery({ route, navigation }) {
             console.error("Error deleting image: ", error);
         }
     };
+
+    // Function to handle image Deletion
 
     const handleDeleteImage = (imageUrl) => {
         return new Promise((resolve, reject) => {
@@ -269,27 +268,28 @@ export default function Gallery({ route, navigation }) {
             );
         });
     };
-        // Main rendering function
 
-        const renderImage = ({ item }) => {
-            if (column) {
-                return renderDateView({ item });
-            }
-            else if (meetup) {
-                return renderEventView({ item });
+    // Main rendering function
 
-                 
-            }
-            else {
-                return (
-                    <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
-                        <View style={[styles.imageItem, { width: tileSize, height: tileSize }]}>
-                            <Image style={{ width: '100%', height: '100%', borderRadius: 15, }} source={{ uri: item.imageUrl }} />
-                        </View>
-                    </TouchableOpacity>
-                );
-            }
-        };
+    const renderImage = ({ item }) => {
+        if (column) {
+            return renderDateView({ item });
+        }
+        else if (meetup) {
+            return renderEventView({ item });
+
+                
+        }
+        else {
+            return (
+                <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
+                    <View style={[styles.imageItem, { width: tileSize, height: tileSize }]}>
+                        <Image style={{ width: '100%', height: '100%', borderRadius: 15, }} source={{ uri: item.imageUrl }} />
+                    </View>
+                </TouchableOpacity>
+            );
+        }
+    };
     
     // Renders Date view
 
@@ -317,8 +317,8 @@ export default function Gallery({ route, navigation }) {
         const eventId = item.imageEventAssigned;
         const event = attendedEvents.find(event => event?.id === eventId);
         if(event){
-             nom=attendedEventNames.find( name => name?.eventId === event.id);
-             meetupName=nom.eventName;
+            eventName=attendedEventNames.find( name => name?.eventId === event.id);
+            meetupName=eventName.eventName;
         } 
         else{
             meetupName="Unassigned Event";
@@ -373,6 +373,7 @@ export default function Gallery({ route, navigation }) {
         }
     };
         
+    // Modal Handlers
 
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
@@ -397,6 +398,7 @@ export default function Gallery({ route, navigation }) {
         }
     };
         
+    // Function to assign image to events
                     
     const assignImageToEvent = async (eventId) => {
         try {
@@ -463,7 +465,6 @@ export default function Gallery({ route, navigation }) {
         value: item.eventId,
     }));
 
-
     return (
         <Layout>
             <TopNav
@@ -502,34 +503,33 @@ export default function Gallery({ route, navigation }) {
                                 borderTopRightRadius: 20,
                                 padding: 10
                             }
-                        }}>
+                    }}>
                         <Filter checked={grid} text="Grid View" marginBottom={5}
                             onPress={() => {
                                 setGrid(true); 
                                 setColumn(false);   
                                 setMeetup(false);                        
                                 showViewFilterRef.current.close();
-                            }}/>
+                        }}/>
                         <Filter checked={column} text="Column View with Dates" marginBottom={5}
                             onPress={() => {
                                 setColumn(true); 
                                 setGrid(false);
                                 setMeetup(false);
                                 showViewFilterRef.current.close();
-                            }}/>
+                        }}/>
                         <Filter checked={meetup} text="Column View with Events" marginBottom={5}
                             onPress={() => {
                                 setColumn(false); 
                                 setGrid(false);
                                 setMeetup(true);
                                 showViewFilterRef.current.close();
-                            }}/>
+                        }}/>
 
 
                         <Link onPress={() => {
-                                showViewFilterRef.current.close();
-                        }}
-                        >
+                            showViewFilterRef.current.close();
+                        }}>
                         Close
                         </Link>
                     </RBSheet> 
@@ -537,8 +537,7 @@ export default function Gallery({ route, navigation }) {
 
                     <Filter checked={newest || oldest}
                         onPress={() => showRecentFilterRef.current.open()}
-                        text={newest ? "Sort By Most Recent" : 
-                            oldest ? "Sort By Least Recent":"   Recency   "}/>
+                        text={newest ? "Sort By Most Recent" : oldest ? "Sort By Least Recent":"   Recency   "}/>
                     <RBSheet
                         height={150}
                         ref={showRecentFilterRef}
@@ -556,29 +555,25 @@ export default function Gallery({ route, navigation }) {
                                 borderTopRightRadius: 20,
                                 padding: 5,
                             }
-                        }}>
+                    }}>
                         <Filter checked={oldest} text="Sort By Least Recent" marginBottom={5}
                             onPress={() => {
                                 setOldest(true); 
                                 setNewest(false);
                             showRecentFilterRef.current.close();
-                            }}/>
+                        }}/>
                         <Filter checked={newest} text="Sort By Most Recent" marginBottom={5}
                             onPress={() => {
                                 setNewest(true); 
                                 setOldest(false);
                             showRecentFilterRef.current.close();
-                            }}/>
+                        }}/>
                         <Link onPress={() => {
                             showRecentFilterRef.current.close();
-                        }}
-                        >
+                        }}>
                         Close
                         </Link>
-
-
                     </RBSheet> 
-
                 </HorizontalRow>
             </View>
 
@@ -605,7 +600,7 @@ export default function Gallery({ route, navigation }) {
                         <View style={modalStyles.modalContainer}>
                             <LargeText style={modalStyles.eventText}>Assign Images to an Event</LargeText>
                             <View style={modalStyles.eventItem}>
-                            <Picker
+                                <Picker
                                     items={items}
                                     value={pickerValue}
                                     placeholder="Select an Event"
@@ -613,8 +608,7 @@ export default function Gallery({ route, navigation }) {
                                         setPickerValue(val);
                                         handleEventSelect(val);
                                     }}
-                                >
-                            </Picker>
+                                />
                             </View>
                         </View>
                     </View>
@@ -633,23 +627,16 @@ export default function Gallery({ route, navigation }) {
                         <View style={styles.modalContainer}>
                             <Image style={{ width: '100%', height: '100%', resizeMode: 'contain' }} source={{ uri: selectedImageUri }} />
                         </View>
-                        
                     </View>
                 </TouchableWithoutFeedback>
                 <View style={styles.modalBottom}>
                     <View style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent: "center",}}>
-
                         <Filter checked={false} onPress={() => getMetadata(selectedImageUri)} text="  Info  "  />
-                        
                         <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="  Delete  " />
-
                     </View>
                     <View style={styles.assignBottom}> 
-                            <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>
-
-
-                </View>
-
+                        <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>
+                    </View>
                 </View>
 
             </Modal>
@@ -704,10 +691,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
 
     },
-
     rightIcons: {
         flexDirection: 'row',
-
     },
     icon: {
         fontSize: 25,
@@ -728,8 +713,6 @@ const styles = StyleSheet.create({
         borderBottomColor: '#ddd',
         borderBottomWidth: 1,
     },
-    
-
 });
 
 // Styles for the Assign image to an event modal
