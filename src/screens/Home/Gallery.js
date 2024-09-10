@@ -55,9 +55,8 @@ export default function Gallery({ route, navigation }) {
 
     // Use Effect to fetch image data
     useEffect(() => {
-        const fetchImages = async () => {
+        const unsubscribe = db.collection("Users").doc(user.uid).onSnapshot((userDoc) => {
             try {
-                const userDoc = await db.collection("Users").doc(user.uid).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     const fetchedImages = userData.gallery || [];
@@ -69,10 +68,13 @@ export default function Gallery({ route, navigation }) {
             } finally {
                 setLoading(false);
             }
-        };
+        });
+    
+        // Clean up the listener on component unmount
+        return () => unsubscribe();
+    
 
-        fetchImages();
-    }, []);
+    }, [user.uid]);
 
     // Use effect to fetch attended events of the user
     useEffect(() => {

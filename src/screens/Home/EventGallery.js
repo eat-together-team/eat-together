@@ -34,9 +34,8 @@ export default function EventGallery({ route, navigation }) {
 
 
     useEffect(() => {
-        const fetchImages = async () => {
-            let db_name = event.type === "public" ? "Public Events" : "Private Events";
-            const eventDoc = await db.collection(db_name).doc(event.id).get();
+        let db_name = event.type === "public" ? "Public Events" : "Private Events";
+        const unsubscribe = db.collection(db_name).doc(event.id).onSnapshot((eventDoc) => {
             if (eventDoc.exists) {
                 const eventData = eventDoc.data();
                 if (eventData && eventData.eventGallery && Array.isArray(eventData.eventGallery)) {
@@ -44,8 +43,11 @@ export default function EventGallery({ route, navigation }) {
                 }
             }
             setLoading(false);
-        };
-        fetchImages();
+        });
+
+        return () => unsubscribe();
+
+
     }, [event.id, event.type]);
 
     const handleChoosePhoto = (imageId) => {
