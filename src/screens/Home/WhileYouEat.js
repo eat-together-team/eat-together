@@ -66,7 +66,7 @@ const WhileYouEat = ({ route, navigation }) => {
   const [recSteps, setRecSteps] =  useState(0); // Tutorial steps for meetup
 
   // Image Carousel
-  const [imageGallery, setImageGallery] = useState(["../../../assets/foodBackground.png"]); 
+  const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]); 
   const numColumns = 3;
   const screenWidth = Dimensions.get("window").width;
   const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
@@ -104,6 +104,27 @@ const WhileYouEat = ({ route, navigation }) => {
         }
       });
   }, [event.eventGallery]);
+
+  // Creates a real time listener for the photo gallery preview
+  useEffect(() => {
+    let db_name = "Private Events";
+    if (event.type === "public") {
+      db_name = "Public Events";
+    }
+    // Remove user from the event
+    const unsubscribe = db.collection(db_name)
+    .doc(event.id)  // Assuming you store the event by its ID
+    .onSnapshot((doc) => {
+      setImageGallery(doc.data().eventGallery);
+    });
+
+  // Clean up the listener when the component unmounts
+  return () => unsubscribe();
+}, [event.id]);
+
+
+
+ 
 
   // Checking group chat updates
   useEffect(() => {

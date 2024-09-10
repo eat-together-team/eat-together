@@ -13,7 +13,6 @@ import { auth, db, storage } from "../../provider/Firebase";
 import { Divider } from "react-native-elements";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
-import NormalText from "../../components/NormalText";
 import LargeText from "../../components/LargeText";
 import Link from "../../components/Link";
 
