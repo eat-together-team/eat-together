@@ -285,14 +285,6 @@ export default function EventGallery({ route, navigation }) {
                         keyExtractor={(item) => item.imageId}
                         contentContainerStyle={[styles.flatListContentContainer,]}
                         key={column ? 'column' : 'grid'}
-                        ListFooterComponent={() => {
-                            // Calculate the number of empty placeholder items needed
-                            const emptyItemsCount = numColumns - (imageGallery.length-1 % numColumns);
-                            if (emptyItemsCount === numColumns || column) return null; // If it's the last row or column view, no need for empty items
-                            return Array.from(Array(emptyItemsCount).keys()).map((index) => (
-                                <View key={index} style={[styles.imageItem, { width: tileSize, height: tileSize }]} />
-                            ));
-                        }}
                     />
                 ) : (
                     <EmptyState title="No Images" text="Add some photos to your event gallery!" />
