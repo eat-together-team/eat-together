@@ -16,7 +16,6 @@ import * as firebase from "firebase/compat";
 import NormalText from "../../components/NormalText";
 import LargeText from "../../components/LargeText";
 import Link from "../../components/Link";
-import CustomButton from "../../components/CustomButton";
 
 
 
@@ -645,10 +644,8 @@ export default function Gallery({ route, navigation }) {
 
                     </View>
                     <View style={styles.assignBottom}> 
-                        <TouchableOpacity style={styles.leftIcons} onPress={() => handleAssignEvent(selectedImageUri)}>
-                            <Button backgroundColor="white" color="#5DB075">Assign Image</Button>
+                            <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>
 
-                        </TouchableOpacity>
 
                 </View>
 
@@ -693,13 +690,13 @@ const styles = StyleSheet.create({
         width: "100%",
     },
     modalBottom: {
-        height: 175,
+        height: 170,
         backgroundColor: "white",
         justifyContent: "flex-end",
         alignItems: "center",
     },
     assignBottom:{
-        height: 120,
+        height: 115,
         backgroundColor:'#5DB075',
         width:'100%',
         justifyContent: "center",
@@ -707,9 +704,6 @@ const styles = StyleSheet.create({
 
     },
 
-    leftIcons: {
-        flexDirection:'row',
-    },
     rightIcons: {
         flexDirection: 'row',
 
