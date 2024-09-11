@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
+import GalleryPreview from "../../components/GalleryPreview";
 
 import Toggle from "../../components/Toggle";
 import Button from "../../components/Button";
@@ -301,40 +302,12 @@ const FullCard = ({ route, navigation }) => {
               <NormalText paddingHorizontal={10}>
                 Photo Gallery Preview:
               </NormalText>
-            </View>
+          </View>
 
 
-            <View style={styles.row}>
-            <Image
-              source={
-                imageGallery[0]
-                ? { uri: imageGallery[0].imageUrl }
-                : require("../../../assets/food.jpg")
-              }
-              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5, blurRadius:15,}}
-            />
-            <Image
-              source={
-                imageGallery[1]
-                ? { uri: imageGallery[1].imageUrl }
-                : require("../../../assets/foodBackground.png")
-
-              }
-              blurRadius={2}
-              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5,}}
-            />
-
-            <ImageBackground
-              source={
-                 require("../../../assets/food.jpg")
-              }
-              style={{ width: tileSize/2, height: tileSize, margin:5}}
-              borderTopLeftRadius={15}
-              borderBottomLeftRadius={15}
-              blurRadius={10}
-            />
-
-            </View>
+          <View style={styles.row}>
+              <GalleryPreview>{imageGallery}</GalleryPreview>
+          </View>
 
           <View style={styles.row}>
             <Ionicons name="image-outline"size={20}/>

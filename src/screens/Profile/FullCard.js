@@ -29,6 +29,7 @@ import openMap from "react-native-open-maps";
 import { useState, useEffect } from "react";
 import PeopleList from "../../components/PeopleList";
 import { db } from "../../provider/Firebase";
+import GalleryPreview from "../../components/GalleryPreview";
 
 
 const FullCard = ({ route, navigation }) => {
@@ -189,37 +190,8 @@ const FullCard = ({ route, navigation }) => {
               </NormalText>
             </View>
 
-
             <View style={styles.row}>
-            <Image
-              source={
-                imageGallery[0]
-                ? { uri: imageGallery[0].imageUrl }
-                : require("../../../assets/food.jpg")
-              }
-              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5, blurRadius:15,}}
-            />
-            <Image
-              source={
-                imageGallery[1]
-                ? { uri: imageGallery[1].imageUrl }
-                : require("../../../assets/foodBackground.png")
-
-              }
-              blurRadius={2}
-              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5,}}
-            />
-
-            <ImageBackground
-              source={
-                 require("../../../assets/food.jpg")
-              }
-              style={{ width: tileSize/2, height: tileSize, margin:5}}
-              borderTopLeftRadius={15}
-              borderBottomLeftRadius={15}
-              blurRadius={10}
-            />
-
+              <GalleryPreview>{imageGallery}</GalleryPreview>
             </View>
 
             <View style={styles.row}>
