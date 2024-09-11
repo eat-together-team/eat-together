@@ -89,10 +89,10 @@ const FullCard = ({ route, navigation }) => {
         db_name = "Public Events";
       }
       const unsubscribe = db.collection(db_name)
-      .doc(route.params.event.id)  
-      .onSnapshot((doc) => {
-        setImageGallery(doc.data().eventGallery);
-      });
+        .doc(route.params.event.id)  
+        .onSnapshot((doc) => {
+          setImageGallery(doc.data().eventGallery);
+        });
   
       return () => unsubscribe();
     }, [route.params.event.id]);

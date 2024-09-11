@@ -39,7 +39,8 @@ const FullCard = ({ route, navigation }) => {
   const [openAttendance, setOpenAttendance] = useState(false);
 
   // Image Carousel
-  const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);     const numColumns = 3;
+  const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);     
+  const numColumns = 3;
   const screenWidth = Dimensions.get("window").width;
   const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
   const [loading, setLoading] = useState(false);
@@ -84,10 +85,10 @@ const FullCard = ({ route, navigation }) => {
       db_name = "Public Events";
     }
     const unsubscribe = db.collection(db_name)
-    .doc(route.params.event.id)  
-    .onSnapshot((doc) => {
-      setImageGallery(doc.data().eventGallery);
-    });
+      .doc(route.params.event.id)  
+      .onSnapshot((doc) => {
+        setImageGallery(doc.data().eventGallery);
+      });
 
     return () => unsubscribe();
   }, [route.params.event.id]);

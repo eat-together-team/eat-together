@@ -312,7 +312,6 @@ export default function Gallery({ route, navigation }) {
     // Renders Event View
 
     const renderEventView = ({ item }) => {
-        // const [meetupName,setMeetupName] = useState();
         let meetupName ="";
         const eventId = item.imageEventAssigned;
         const event = attendedEvents.find(event => event?.id === eventId);
@@ -530,7 +529,7 @@ export default function Gallery({ route, navigation }) {
                         <Link onPress={() => {
                             showViewFilterRef.current.close();
                         }}>
-                        Close
+                            Close
                         </Link>
                     </RBSheet> 
 
@@ -560,7 +559,7 @@ export default function Gallery({ route, navigation }) {
                             onPress={() => {
                                 setOldest(true); 
                                 setNewest(false);
-                            showRecentFilterRef.current.close();
+                                showRecentFilterRef.current.close();
                         }}/>
                         <Filter checked={newest} text="Sort By Most Recent" marginBottom={5}
                             onPress={() => {
@@ -571,7 +570,7 @@ export default function Gallery({ route, navigation }) {
                         <Link onPress={() => {
                             showRecentFilterRef.current.close();
                         }}>
-                        Close
+                            Close
                         </Link>
                     </RBSheet> 
                 </HorizontalRow>

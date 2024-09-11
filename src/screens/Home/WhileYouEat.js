@@ -118,9 +118,8 @@ const WhileYouEat = ({ route, navigation }) => {
       setImageGallery(doc.data().eventGallery);
     });
 
-  // Clean up the listener when the component unmounts
-  return () => unsubscribe();
-}, [event.id]);
+    return () => unsubscribe();
+  }, [event.id]);
 
 
 
