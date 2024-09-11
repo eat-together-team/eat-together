@@ -55,7 +55,7 @@ npm install --global expo-cli
 npm install
 ```
 
-for mac users who are unable to use npm, use yarn instead:
+For mac users who are unable to use npm, use yarn instead:
 
 ```sh
 npm install --global yarn
@@ -80,7 +80,7 @@ For yarn users, use the following command:
 yarn start
 ```
 
-8. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app.
+8. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app. Follow any necessary instructions that come (e.g. you may need to create your own EAS/Expo account).
 
 ### Testing
 
