@@ -194,8 +194,6 @@ export default function Gallery({ route, navigation }) {
             gallery: firebase.firestore.FieldValue.arrayUnion(storeId),
         });
 
-        setImages((prev) => [...prev, storeId]);
-        setFilteredImages((prev) => [...prev, storeId]);
     };
 
     // Main Add Photo Function
@@ -205,7 +203,6 @@ export default function Gallery({ route, navigation }) {
         await handleChoosePhoto(imageId)
             .then(() => {
                 alert("Image Uploaded!");
-                navigation.goBack();
             })
             .catch((error) => {
                 console.error("Image upload failed: ", error);
@@ -478,7 +475,7 @@ export default function Gallery({ route, navigation }) {
 
             <View>
                 <Divider />
-                <MediumText style={{ paddingVertical: 10, paddingHorizontal: 140 }}>Sort By</MediumText>
+                <MediumText style={{ paddingVertical: 10, paddingHorizontal:10, }}>Sort By</MediumText>
                 <HorizontalRow style={{ paddingHorizontal: 20 }}>
                     <Filter checked={column || grid || meetup}
                         onPress={() => showViewFilterRef.current.open()}
@@ -660,7 +657,7 @@ const styles = StyleSheet.create({
     columnItem: {
         marginVertical: 5,
         width: '100%',
-        alignItems: 'center',
+        alignItems: 'left',
     },
     flatListContentContainer: {
         justifyContent: "flex-start",
@@ -698,7 +695,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     imageContainer: {
-        width: 320,
+        width: 350,
         height:211,
         marginVertical: 10,
     },

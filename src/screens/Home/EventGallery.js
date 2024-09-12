@@ -114,14 +114,12 @@ export default function EventGallery({ route, navigation }) {
             eventGallery: firebase.firestore.FieldValue.arrayUnion(newImage),
         });
 
-        setImageGallery((prev) => [...prev, newImage]);
     };
 
     const addImage = async () => {
         const imageId = Date.now() + "_" + event.id;
         await handleChoosePhoto(imageId).then(() => {
             alert("Image Uploaded!");
-            navigation.goBack();
         })
         .catch((error) => {
             console.error("Image upload failed: ", error);
@@ -227,7 +225,7 @@ export default function EventGallery({ route, navigation }) {
             <View style={styles.columnItem}>
                 <UserName userId={item.userUploaded} />
                 <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
-                    <View style={{width: 320,height:211,marginVertical: 10,}}>
+                    <View style={{width: 350,height:211,marginVertical: 10,}}>
                         <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
                     </View>
                 </TouchableOpacity>
@@ -333,7 +331,7 @@ const styles = StyleSheet.create({
     columnItem: {
         marginVertical: 5,
         width: '100%',
-        alignItems: 'center',
+        alignItems: 'left',
     },
     flatListContentContainer: {
         justifyContent: "flex-start",
