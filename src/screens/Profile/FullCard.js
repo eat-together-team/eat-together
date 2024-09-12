@@ -29,6 +29,7 @@ import openMap from "react-native-open-maps";
 import { useState, useEffect } from "react";
 import PeopleList from "../../components/PeopleList";
 import { db } from "../../provider/Firebase";
+import GalleryPreview from "../../components/GalleryPreview";
 
 
 const FullCard = ({ route, navigation }) => {
@@ -38,8 +39,22 @@ const FullCard = ({ route, navigation }) => {
   const [people, setPeople] = useState([]);
   const [openAttendance, setOpenAttendance] = useState(false);
 
+  // Image Carousel
+  const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);     
+  const numColumns = 3;
+  const screenWidth = Dimensions.get("window").width;
+  const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
+  const [loading, setLoading] = useState(false);
+
+
   useEffect(() => {
     const event = route.params.event;  // Get the event from route parameters
+
+    if (event.eventGallery) {
+      setImageGallery(event.eventGallery);
+      setLoading(false);
+    }
+  
     const getAttendees = () => {
       event.attendees.forEach((attendee) => {
         if (attendee !== user.uid) {
@@ -65,6 +80,20 @@ const FullCard = ({ route, navigation }) => {
     getAttendees();
   }, [route.params.event]);  // Re-fetch if the event changes
   
+  useEffect(() => {
+    let db_name = "Private Events";
+    if (route.params.event.type === "public") {
+      db_name = "Public Events";
+    }
+    const unsubscribe = db.collection(db_name)
+      .doc(route.params.event.id)  
+      .onSnapshot((doc) => {
+        setImageGallery(doc.data().eventGallery);
+      });
+
+    return () => unsubscribe();
+  }, [route.params.event.id]);
+
   // Adds event to Google Calendar
   const addToCalendar = async () => {
     const details = {
@@ -153,6 +182,16 @@ const FullCard = ({ route, navigation }) => {
                 {route.params.event.startDate ? getTime(route.params.event.startDate.toDate()) : getTime(route.params.event.date.toDate())}
                 {route.params.event.endDate && " - ".concat(getTime(route.params.event.endDate.toDate()))}
               </NormalText>
+            </View>
+
+            <View style={styles.row}>
+              <NormalText paddingHorizontal={10}>
+                Photo Gallery Preview:
+              </NormalText>
+            </View>
+
+            <View style={styles.row}>
+              <GalleryPreview>{imageGallery}</GalleryPreview>
             </View>
 
             <View style={styles.row}>

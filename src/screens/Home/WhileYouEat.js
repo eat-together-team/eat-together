@@ -27,6 +27,7 @@ import NormalText from "../../components/NormalText";
 import Link from "../../components/Link";
 import Toggle from "../../components/Toggle";
 import Button from "../../components/Button";
+import GalleryPreview from "../../components/GalleryPreview";
 
 import getDate from "../../getDate";
 import getTime from "../../getTime";
@@ -65,8 +66,19 @@ const WhileYouEat = ({ route, navigation }) => {
 
   const [recSteps, setRecSteps] =  useState(0); // Tutorial steps for meetup
 
+  // Image Carousel
+  const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]); 
+  const numColumns = 3;
+  const screenWidth = Dimensions.get("window").width;
+  const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
+
   // Fetch meetup data on page load
   useEffect(() => {
+    if (event.eventGallery) {
+      setImageGallery(event.eventGallery);
+      setLoading(false);
+    }
+
     getAttendees(); // Fetch attendees
 
     // Fetch host info (not for recommendations)
@@ -92,7 +104,27 @@ const WhileYouEat = ({ route, navigation }) => {
             });
         }
       });
-  }, []);
+  }, [event.eventGallery]);
+
+  // Creates a real time listener for the photo gallery preview
+  useEffect(() => {
+    let db_name = "Private Events";
+    if (event.type === "public") {
+      db_name = "Public Events";
+    }
+    // Remove user from the event
+    const unsubscribe = db.collection(db_name)
+    .doc(event.id)  // Assuming you store the event by its ID
+    .onSnapshot((doc) => {
+      setImageGallery(doc.data().eventGallery);
+    });
+
+    return () => unsubscribe();
+  }, [event.id]);
+
+
+
+ 
 
   // Checking group chat updates
   useEffect(() => {
@@ -563,10 +595,18 @@ const WhileYouEat = ({ route, navigation }) => {
                 {event.endDate && " - ".concat(getTime(event.endDate.toDate()))}
               </NormalText>
             </View>
-
+            <View style={styles.row}>
+              <NormalText paddingHorizontal={10}>
+                Photo Gallery Preview:
+              </NormalText>
+            </View>
+            
+            <View style={styles.row}>
+              <GalleryPreview>{imageGallery}</GalleryPreview>
+            </View>
             <View style={styles.row}>
               <Ionicons name="image-outline" size={20}/>
-              <NormalText  paddingHorizontal={10} color="black">
+              <NormalText  paddingHorizontal={10} >
                 <Link onPress={() => navigation.navigate("EventGallery",{event:event})}>Access Meetup Photo Gallery</Link>
               </NormalText>
             </View>

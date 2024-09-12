@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
+import GalleryPreview from "../../components/GalleryPreview";
 
 import Toggle from "../../components/Toggle";
 import Button from "../../components/Button";
@@ -45,7 +46,19 @@ const FullCard = ({ route, navigation }) => {
   const [people, setPeople] = useState([]);
   const [openAttendance, setOpenAttendance] = useState(false);
 
+  // Image Carousel
+  const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);  
+  const numColumns = 3;
+  const screenWidth = Dimensions.get("window").width;
+  const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
+  
+
   useEffect(() => {
+    if (route.params.event.eventGallery) {
+      setImageGallery(route.params.event.eventGallery);
+      setLoading(false);
+    }
+
     db.collection("Users").doc(user.uid).get().then(doc => {
       const events = doc.data().attendingEventIDs.map(e => e.id);
 
@@ -70,6 +83,21 @@ const FullCard = ({ route, navigation }) => {
     });
   }, []);
 
+    // Creates a real time listener for the photo gallery preview
+    useEffect(() => {
+      let db_name = "Private Events";
+      if (route.params.event.type === "public") {
+        db_name = "Public Events";
+      }
+      const unsubscribe = db.collection(db_name)
+        .doc(route.params.event.id)  
+        .onSnapshot((doc) => {
+          setImageGallery(doc.data().eventGallery);
+        });
+  
+      return () => unsubscribe();
+    }, [route.params.event.id]);
+  
   // Fetch all attendees of this event
   const getAttendees = () => {
     route.params.event.attendees.forEach((attendee) => {
@@ -268,6 +296,17 @@ const FullCard = ({ route, navigation }) => {
                 {route.params.event.endDate && " - ".concat(getTime(route.params.event.endDate.toDate()))}
               </NormalText>
             </View>
+          </View>
+
+          <View style={styles.row}>
+              <NormalText paddingHorizontal={10}>
+                Photo Gallery Preview:
+              </NormalText>
+          </View>
+
+
+          <View style={styles.row}>
+              <GalleryPreview>{imageGallery}</GalleryPreview>
           </View>
 
           <View style={styles.row}>

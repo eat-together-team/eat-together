@@ -1,7 +1,8 @@
-import React, { useEffect, useState,} from "react";
-import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback, Text } from "react-native";
-import { Layout, TopNav,} from "react-native-rapi-ui";
+import React, { useEffect, useState,useRef} from "react";
+import { StyleSheet, FlatList, View, Image, Alert, Dimensions, Modal, TouchableOpacity, TouchableWithoutFeedback,} from "react-native";
+import { Layout, TopNav,Picker} from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
+import RBSheet from "react-native-raw-bottom-sheet";
 import Button from "../../components/Button";
 import MediumText from "../../components/MediumText";
 import EmptyState from "../../components/EmptyState";
@@ -12,24 +13,21 @@ import { auth, db, storage } from "../../provider/Firebase";
 import { Divider } from "react-native-elements";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
-import NormalText from "../../components/NormalText";
 import LargeText from "../../components/LargeText";
+import Link from "../../components/Link";
+
+
 
 //Global variables
 const numColumns = 3;
 const screenWidth = Dimensions.get("window").width;
-const tileSize = (screenWidth - 2 * 5 * numColumns) / numColumns;
+const tileSize = (screenWidth - 2.7 * 5 * numColumns) / numColumns;
 
 export default function Gallery({ route, navigation }) {
     //State Variables
     const user = auth.currentUser;
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [event, setEvent] = useState(false);
-    const [newest, setNewest] = useState(false);
-    const [oldest, setOldest] = useState(false);
-    const [grid, setGrid] = useState(true);
-    const [column, setColumn] = useState(false);
     const [filteredImages, setFilteredImages] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImageUri, setSelectedImageUri] = useState(null);
@@ -37,12 +35,25 @@ export default function Gallery({ route, navigation }) {
     const [attendedEventNames, setAttendedEventNames] = useState([]);
     const [isEventModalVisible, setIsEventModalVisible] = useState(false);
     const [selectedImageForEvent, setSelectedImageForEvent] = useState(null);
+    // Filters
+    const [newest, setNewest] = useState(true);
+    const [oldest, setOldest] = useState(false);
+    const [grid, setGrid] = useState(true);
+    const [column, setColumn] = useState(false);
+    const [meetup, setMeetup] = useState(false);
+
+
+    // Reference Variables for the selection component
+    const showViewFilterRef = useRef();
+    const showRecentFilterRef = useRef();
+
+    // Picker State Variables 
+    const [pickerValue, setPickerValue] = useState(null);
 
     // Use Effect to fetch image data
     useEffect(() => {
-        const fetchImages = async () => {
+        const unsubscribe = db.collection("Users").doc(user.uid).onSnapshot((userDoc) => {
             try {
-                const userDoc = await db.collection("Users").doc(user.uid).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     const fetchedImages = userData.gallery || [];
@@ -54,10 +65,13 @@ export default function Gallery({ route, navigation }) {
             } finally {
                 setLoading(false);
             }
-        };
+        });
+    
+        // Clean up the listener on component unmount
+        return () => unsubscribe();
+    
 
-        fetchImages();
-    }, []);
+    }, [user.uid]);
 
     // Use effect to fetch attended events of the user
     useEffect(() => {
@@ -97,7 +111,7 @@ export default function Gallery({ route, navigation }) {
                 } catch (error) {
                     console.error("Error fetching event details: ", error);
                 }
-                return eventName;
+                return {eventName,eventId};
             }));
             setAttendedEventNames(names);
         };
@@ -152,7 +166,7 @@ export default function Gallery({ route, navigation }) {
                 allowsEditing: true,
                 quality: 1,
             });
-            if (!result.cancelled) {
+            if (!result.canceled) {
                 const uri = result.assets[0].uri;
                 await uploadImage(uri, imageId);
             }
@@ -164,6 +178,7 @@ export default function Gallery({ route, navigation }) {
     // Stores images in the storage and image reference in firestore
 
     const uploadImage = async (uri, imageId) => {
+        setLoading(true);
         const response = await fetch(uri);
         const blob = await response.blob();
         let ref = storage.ref().child("Gallery/" + user.uid + '/' + imageId);
@@ -179,21 +194,30 @@ export default function Gallery({ route, navigation }) {
         await db.collection("Users").doc(user.uid).update({
             gallery: firebase.firestore.FieldValue.arrayUnion(storeId),
         });
-
-        setImages((prev) => [...prev, storeId]);
-        setFilteredImages((prev) => [...prev, storeId]);
+        setLoading(false);
     };
+
+    // Main Add Photo Function
 
     const addPhoto = async () => {
         const imageId = Date.now() + "_" + user.uid;
         await handleChoosePhoto(imageId)
             .then(() => {
                 alert("Image Uploaded!");
-                navigation.goBack();
             })
             .catch((error) => {
                 console.error("Image upload failed: ", error);
             });
+        return(
+            <View>
+                {loading ? (
+                    <LoadingView />
+                ) : (
+                    ''
+                )}
+            </View>
+
+        );
     };
 
     // Function to delete images from database
@@ -201,14 +225,12 @@ export default function Gallery({ route, navigation }) {
     const deleteImage = async (imageUrl) => {
         try {
             const image = images.find(img => img.imageUrl === imageUrl);
-    
             const toDelete = {
                 imageEventAssigned:image.imageEventAssigned,
                 imageUrl: image.imageUrl,
                 imageId: image.imageId,
                 imageUploadedTime: image.imageUploadedTime,
             };
-            
             
             await db.collection("Users").doc(user.uid).update({
                 gallery: firebase.firestore.FieldValue.arrayRemove(toDelete),
@@ -225,6 +247,8 @@ export default function Gallery({ route, navigation }) {
             console.error("Error deleting image: ", error);
         }
     };
+
+    // Function to handle image Deletion
 
     const handleDeleteImage = (imageUrl) => {
         return new Promise((resolve, reject) => {
@@ -253,16 +277,65 @@ export default function Gallery({ route, navigation }) {
         });
     };
 
-    // Renders column view
+    // Main rendering function
 
-    const renderColumn = ({ item }) => {
+    const renderImage = ({ item }) => {
+        if (column) {
+            return renderDateView({ item });
+        }
+        else if (meetup) {
+            return renderEventView({ item });
+
+                
+        }
+        else {
+            return (
+                <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
+                    <View style={[styles.imageItem, { width: tileSize, height: tileSize }]}>
+                        <Image style={{ width: '100%', height: '100%', borderRadius: 15, }} source={{ uri: item.imageUrl }} />
+                    </View>
+                </TouchableOpacity>
+            );
+        }
+    };
+    
+    // Renders Date view
+
+    const renderDateView = ({ item }) => {
         const uploadedTime = new Date(item.imageUploadedTime);
         const formattedDate = uploadedTime.toLocaleDateString();
+            return (
+                <View style={styles.columnItem}>
+                    <MediumText>{formattedDate}</MediumText>
+                    <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
+                        <View style={styles.imageContainer}>
+                            <Image style={styles.image} source={{ uri: item.imageUrl }} />
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            );
+
+    };
+
+    // Renders Event View
+
+    const renderEventView = ({ item }) => {
+        let meetupName ="";
+        const eventId = item.imageEventAssigned;
+        const event = attendedEvents.find(event => event?.id === eventId);
+        if(event){
+            eventName=attendedEventNames.find( name => name?.eventId === event.id);
+            meetupName=eventName.eventName;
+        } 
+        else{
+            meetupName="Unassigned Event";
+        }
+
 
         return (
             <View style={styles.columnItem}>
-                <MediumText>{formattedDate}</MediumText>
-                <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
+                <MediumText>{meetupName}</MediumText>
+                <TouchableOpacity onPress={() =>  handleImagePress(item.imageUrl)}>
                     <View style={styles.imageContainer}>
                         <Image style={styles.image} source={{ uri: item.imageUrl }} />
                     </View>
@@ -270,27 +343,14 @@ export default function Gallery({ route, navigation }) {
             </View>
         );
     };
-
-    const renderImage = ({ item }) => {
-        if (column) {
-            return renderColumn({ item });
-        } else {
-            return (
-                <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
-                    <View style={[styles.imageItem, { width: tileSize, height: tileSize }]}>
-                        <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
-                    </View>
-                </TouchableOpacity>
-            );
-        }
-    };
+            
 
     // retreives metadata from firestore
 
     const getMetadata = async (uri) => {
         const image = images.find(item => item.imageUrl === uri);
         if (image) {
-            const timeUploaded = new Date(image.imageUploadedTime).toLocaleString('en-US', { timeZoneName: 'short' });
+            const timeUploaded = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
             let eventName = '';
     
             try {
@@ -320,6 +380,7 @@ export default function Gallery({ route, navigation }) {
         }
     };
         
+    // Modal Handlers
 
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
@@ -344,6 +405,7 @@ export default function Gallery({ route, navigation }) {
         }
     };
         
+    // Function to assign image to events
                     
     const assignImageToEvent = async (eventId) => {
         try {
@@ -394,7 +456,7 @@ export default function Gallery({ route, navigation }) {
         if (images.length > 0) {
             filter();
         }
-    }, [event, newest, oldest, grid, column, images]);
+    }, [meetup, newest, oldest, grid, column, images]);
 
     const filterByNewest = (newImages) => {
         return newImages.sort((a, b) => b.imageUploadedTime - a.imageUploadedTime);
@@ -403,6 +465,12 @@ export default function Gallery({ route, navigation }) {
     const filterByOldest = (newImages) => {
         return newImages.sort((a, b) => a.imageUploadedTime - b.imageUploadedTime);
     };
+
+    // Assigns the attendedEventNames to items so that the picker can use it for Assigning images to an Event
+    const items = attendedEventNames.map(item => ({
+        label: item.eventName,
+        value: item.eventId,
+    }));
 
     return (
         <Layout>
@@ -418,12 +486,101 @@ export default function Gallery({ route, navigation }) {
 
             <View>
                 <Divider />
-                <MediumText style={{ paddingVertical: 10, paddingHorizontal: 10 }}>Sort By</MediumText>
+                <MediumText style={{ paddingVertical: 10, paddingHorizontal:10, }}>Sort By</MediumText>
                 <HorizontalRow style={{ paddingHorizontal: 20 }}>
-                    <Filter checked={newest} onPress={() => { setNewest(true); setOldest(false); }} text="Newest" />
-                    <Filter checked={oldest} onPress={() => { setOldest(true); setNewest(false); }} text="Oldest" />
-                    <Filter checked={grid} onPress={() => { setGrid(true); setColumn(false); }} text="Grid" />
-                    <Filter checked={column} onPress={() => { setColumn(true); setGrid(false); }} text="Date" />
+                    <Filter checked={column || grid || meetup}
+                        onPress={() => showViewFilterRef.current.open()}
+                        text={grid ? "Grid View" : 
+                            column ? "Column View with Dates":
+                            meetup ?"Column View with Events":"   View   "}/>
+                    <RBSheet
+                        height={190}
+                        ref={showViewFilterRef}
+                        closeOnDragDown={true}
+                        closeOnPressMask={false}
+                        customStyles={{
+                            wrapper: {
+                                backgroundColor: "rgba(0,0,0,0.5)",
+                            },
+                            draggableIcon: {
+                                backgroundColor: "black"
+                            },
+                            container: {
+                                borderTopLeftRadius: 20,
+                                borderTopRightRadius: 20,
+                                padding: 10
+                            }
+                    }}>
+                        <Filter checked={grid} text="Grid View" marginBottom={5}
+                            onPress={() => {
+                                setGrid(true); 
+                                setColumn(false);   
+                                setMeetup(false);                        
+                                showViewFilterRef.current.close();
+                        }}/>
+                        <Filter checked={column} text="Column View with Dates" marginBottom={5}
+                            onPress={() => {
+                                setColumn(true); 
+                                setGrid(false);
+                                setMeetup(false);
+                                showViewFilterRef.current.close();
+                        }}/>
+                        <Filter checked={meetup} text="Column View with Events" marginBottom={5}
+                            onPress={() => {
+                                setColumn(false); 
+                                setGrid(false);
+                                setMeetup(true);
+                                showViewFilterRef.current.close();
+                        }}/>
+
+
+                        <Link onPress={() => {
+                            showViewFilterRef.current.close();
+                        }}>
+                            Close
+                        </Link>
+                    </RBSheet> 
+
+
+                    <Filter checked={newest || oldest}
+                        onPress={() => showRecentFilterRef.current.open()}
+                        text={newest ? "Sort By Most Recent" : oldest ? "Sort By Least Recent":"   Recency   "}/>
+                    <RBSheet
+                        height={150}
+                        ref={showRecentFilterRef}
+                        closeOnDragDown={true}
+                        closeOnPressMask={false}
+                        customStyles={{
+                            wrapper: {
+                                backgroundColor: "rgba(0,0,0,0.5)",
+                            },
+                            draggableIcon: {
+                                backgroundColor: "black"
+                            },
+                            container: {
+                                borderTopLeftRadius: 20,
+                                borderTopRightRadius: 20,
+                                padding: 5,
+                            }
+                    }}>
+                        <Filter checked={oldest} text="Sort By Least Recent" marginBottom={5}
+                            onPress={() => {
+                                setOldest(true); 
+                                setNewest(false);
+                                showRecentFilterRef.current.close();
+                        }}/>
+                        <Filter checked={newest} text="Sort By Most Recent" marginBottom={5}
+                            onPress={() => {
+                                setNewest(true); 
+                                setOldest(false);
+                            showRecentFilterRef.current.close();
+                        }}/>
+                        <Link onPress={() => {
+                            showRecentFilterRef.current.close();
+                        }}>
+                            Close
+                        </Link>
+                    </RBSheet> 
                 </HorizontalRow>
             </View>
 
@@ -448,20 +605,17 @@ export default function Gallery({ route, navigation }) {
                 <TouchableWithoutFeedback onPress={() => setIsEventModalVisible(false)}>
                     <View style={modalStyles.modalBackground}>
                         <View style={modalStyles.modalContainer}>
-                            <LargeText style={modalStyles.eventText}>Select an Event</LargeText>
+                            <LargeText style={modalStyles.eventText}>Assign Images to an Event</LargeText>
                             <View style={modalStyles.eventItem}>
-
-                            <FlatList
-                                data={attendedEvents.reverse()}
-                                keyExtractor={(item) => item.id}
-                                renderItem={({ item, index }) => (
-                                    <TouchableOpacity onPress={() => handleEventSelect(item.id)}>
-                                        <View style={modalStyles.eventItem}>
-                                            <Text style={modalStyles.eventText}>{attendedEventNames[index] || 'Unknown Event'}</Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                )}
-                            />
+                                <Picker
+                                    items={items}
+                                    value={pickerValue}
+                                    placeholder="Select an Event"
+                                    onValueChange={(val) => {
+                                        setPickerValue(val);
+                                        handleEventSelect(val);
+                                    }}
+                                />
                             </View>
                         </View>
                     </View>
@@ -470,6 +624,11 @@ export default function Gallery({ route, navigation }) {
 
 
             <Modal visible={isModalVisible} transparent={true} onRequestClose={handleCloseModal}>
+                <TopNav
+                    middleContent={<MediumText>   </MediumText>}
+                    leftContent={<Ionicons name="chevron-back" size={20} />}
+                    leftAction={() => handleCloseModal()}
+                />
                 <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContainer}>
@@ -478,18 +637,15 @@ export default function Gallery({ route, navigation }) {
                     </View>
                 </TouchableWithoutFeedback>
                 <View style={styles.modalBottom}>
-                    <TouchableOpacity style={styles.leftIcons} onPress={() => handleAssignEvent(selectedImageUri)}>
-                        <NormalText style={{ color: '#5db075', fontSize: 20, fontWeight: 'bold' }}> Assign Images to an Event </NormalText>
-                    </TouchableOpacity>
-                    <View style={styles.rightIcons}>
-                        <TouchableOpacity>
-                            <Ionicons name="information-circle" style={{ fontSize: 25, textAlign: "right", marginEnd: 10 }} onPress={() => getMetadata(selectedImageUri)} />
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <Ionicons name="trash" style={styles.icon} onPress={() => handleDeleteImage(selectedImageUri)} />
-                        </TouchableOpacity>
+                    <View style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent: "center",}}>
+                        <Filter checked={false} onPress={() => getMetadata(selectedImageUri)} text="  Info  "  />
+                        <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="  Delete  " />
+                    </View>
+                    <View style={styles.assignBottom}> 
+                        <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>
                     </View>
                 </View>
+
             </Modal>
         </Layout>
     );
@@ -497,11 +653,9 @@ export default function Gallery({ route, navigation }) {
 // Styles for the screen
 const styles = StyleSheet.create({
     buttonContainer: {
-        alignItems: "center",
+        alignItems: "flex-start",
         marginVertical: 20,
-    },
-    button: {
-        width: "80%",
+        marginHorizontal:10,
     },
     container: {
         flex: 1,
@@ -509,19 +663,17 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
     },
     imageItem: {
-        width: tileSize,
-        height: tileSize,
         margin: 5,
     },
     columnItem: {
         marginVertical: 5,
         width: '100%',
-        alignItems: 'flex-start',
+        alignItems: 'left',
     },
     flatListContentContainer: {
         justifyContent: "flex-start",
         paddingHorizontal: 5,
-        alignItems: 'flex-start',
+        alignItems: 'left',
     },
     modalBackground: {
         flex: 1,
@@ -530,19 +682,21 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0, 0, 0, 0.7)",
     },
     modalContainer: {
-        width: "85%",
-        height: "65%",
-        aspectRatio: 1,
+        width: "100%",
     },
     modalBottom: {
-        height: 49,
+        height: 170,
         backgroundColor: "white",
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: "flex-end",
+        alignItems: "center",
     },
-    leftIcons: {
-        flexDirection: 'row',
+    assignBottom:{
+        height: 115,
+        backgroundColor:'#5DB075',
+        width:'100%',
+        justifyContent: "center",
+        alignItems: "center",
+
     },
     rightIcons: {
         flexDirection: 'row',
@@ -552,8 +706,8 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     imageContainer: {
-        width: tileSize,
-        aspectRatio: 1,
+        width: 350,
+        height:211,
         marginVertical: 10,
     },
     image: {
@@ -566,8 +720,6 @@ const styles = StyleSheet.create({
         borderBottomColor: '#ddd',
         borderBottomWidth: 1,
     },
-    
-
 });
 
 // Styles for the Assign image to an event modal
