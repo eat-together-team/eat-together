@@ -94,6 +94,7 @@ export default function EventGallery({ route, navigation }) {
     };
 
     const storeImage = async (uri, imageId) => {
+        setLoading(true);
         const response = await fetch(uri);
         const blob = await response.blob();
         let ref = storage.ref().child("eventGallery/" + event.id + '/' + imageId);
@@ -113,6 +114,7 @@ export default function EventGallery({ route, navigation }) {
         await db.collection(db_name).doc(event.id).update({
             eventGallery: firebase.firestore.FieldValue.arrayUnion(newImage),
         });
+        setLoading(false);
 
     };
 
@@ -124,6 +126,17 @@ export default function EventGallery({ route, navigation }) {
         .catch((error) => {
             console.error("Image upload failed: ", error);
         });
+
+        return(
+            <View>
+                {loading ? (
+                    <LoadingView />
+                ) : (
+                    ''
+                )}
+            </View>
+
+        );
     };
 
     const deleteImage = async (imageUrl) => {

@@ -178,6 +178,7 @@ export default function Gallery({ route, navigation }) {
     // Stores images in the storage and image reference in firestore
 
     const uploadImage = async (uri, imageId) => {
+        setLoading(true);
         const response = await fetch(uri);
         const blob = await response.blob();
         let ref = storage.ref().child("Gallery/" + user.uid + '/' + imageId);
@@ -193,7 +194,7 @@ export default function Gallery({ route, navigation }) {
         await db.collection("Users").doc(user.uid).update({
             gallery: firebase.firestore.FieldValue.arrayUnion(storeId),
         });
-
+        setLoading(false);
     };
 
     // Main Add Photo Function
@@ -207,6 +208,16 @@ export default function Gallery({ route, navigation }) {
             .catch((error) => {
                 console.error("Image upload failed: ", error);
             });
+        return(
+            <View>
+                {loading ? (
+                    <LoadingView />
+                ) : (
+                    ''
+                )}
+            </View>
+
+        );
     };
 
     // Function to delete images from database
