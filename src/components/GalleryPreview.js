@@ -5,21 +5,21 @@ const GalleryPreview = props =>{
     const numColumns = 3;
     const screenWidth = Dimensions.get("window").width;
     const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
-  
+    const children = props.children || [];
     return(
         <View style ={styles.row}>
             <Image
               source={
-                props.children[0]
-                ? { uri: props.children[0].imageUrl }
+                children[0]
+                ? { uri: children[0].imageUrl }
                 : require("../../assets/food.jpg")
               }
               style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5,}}
             />
             <Image
               source={
-                props.children[1]
-                ? { uri: props.children[1].imageUrl }
+                children[1]
+                ? { uri: children[1].imageUrl }
                 : require("../../assets/foodBackground.png")
 
               }
@@ -44,12 +44,12 @@ const GalleryPreview = props =>{
 }
 
 const styles = StyleSheet.create({ 
-    row: {
-      flexDirection: "row",
-      alignItems: "center",
-      marginVertical: 4,
-      flexWrap: "wrap"
-    },
-  });
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 4,
+    flexWrap: "wrap"
+  },
+});
   
 export default GalleryPreview;
