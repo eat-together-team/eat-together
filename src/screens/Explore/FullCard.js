@@ -17,7 +17,6 @@ import { Ionicons } from "@expo/vector-icons";
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
-import GalleryPreview from "../../components/GalleryPreview";
 
 import Toggle from "../../components/Toggle";
 import Button from "../../components/Button";
@@ -296,24 +295,6 @@ const FullCard = ({ route, navigation }) => {
                 {route.params.event.endDate && " - ".concat(getTime(route.params.event.endDate.toDate()))}
               </NormalText>
             </View>
-          </View>
-
-          <View style={styles.row}>
-              <NormalText paddingHorizontal={10}>
-                Photo Gallery Preview:
-              </NormalText>
-          </View>
-
-
-          <View style={styles.row}>
-              <GalleryPreview>{imageGallery}</GalleryPreview>
-          </View>
-
-          <View style={styles.row}>
-            <Ionicons name="image-outline"size={20}/>
-            <NormalText  paddingHorizontal={10} color="black">
-              <Link onPress={() => navigation.navigate("EventGallery",{event:route.params.event})}>Access Meetup Photo Gallery</Link>
-            </NormalText>
           </View>
 
           <NormalText marginBottom={20} color="black">

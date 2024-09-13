@@ -208,7 +208,8 @@ export default function Gallery({ route, navigation }) {
             .catch((error) => {
                 console.error("Image upload failed: ", error);
             });
-        return(
+
+        return (
             <View>
                 {loading ? (
                     <LoadingView />
@@ -216,7 +217,6 @@ export default function Gallery({ route, navigation }) {
                     ''
                 )}
             </View>
-
         );
     };
 
@@ -374,8 +374,8 @@ export default function Gallery({ route, navigation }) {
             }
     
             Alert.alert(
-                " Image Information",
-                `Upload date and time: ${timeUploaded}\n\n Event Assigned: ${eventName}`
+                "Image Information",
+                `Upload date and time: ${timeUploaded}\n\nEvent Assigned: ${eventName}`
             );
         }
     };
@@ -485,8 +485,6 @@ export default function Gallery({ route, navigation }) {
             </View>
 
             <View>
-                <Divider />
-                <MediumText style={{ paddingVertical: 10, paddingHorizontal:10, }}>Sort By</MediumText>
                 <HorizontalRow style={{ paddingHorizontal: 20 }}>
                     <Filter checked={column || grid || meetup}
                         onPress={() => showViewFilterRef.current.open()}
@@ -605,14 +603,12 @@ export default function Gallery({ route, navigation }) {
                 <TouchableWithoutFeedback onPress={() => setIsEventModalVisible(false)}>
                     <View style={modalStyles.modalBackground}>
                         <View style={modalStyles.modalContainer}>
-                            <LargeText style={modalStyles.eventText}>Assign Images to an Event</LargeText>
+                            <LargeText style={modalStyles.eventText}>Assign to an Event</LargeText>
                             <View style={modalStyles.eventItem}>
                                 <Picker
-                                    items={items}
-                                    value={pickerValue}
+                                    items={items.reverse()}
                                     placeholder="Select an Event"
                                     onValueChange={(val) => {
-                                        setPickerValue(val);
                                         handleEventSelect(val);
                                     }}
                                 />

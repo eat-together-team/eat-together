@@ -3556,18 +3556,18 @@
   dependencies:
     invariant "^2.2.4"
 
-"@react-native-firebase/app@^20.0.0", "@react-native-firebase/app@20.4.0":
-  version "20.4.0"
-  resolved "https://registry.npmjs.org/@react-native-firebase/app/-/app-20.4.0.tgz"
-  integrity sha512-I3YswH5tq0kSezyFwyV0d3J+lnH+N/SdznFZ70Lr671X0YlrbEBb6BK7FzEiwq8rKeIPh+pbgnbYwzj/k9uEnQ==
+"@react-native-firebase/app@^20.0.0", "@react-native-firebase/app@20.5.0":
+  version "20.5.0"
+  resolved "https://registry.npmjs.org/@react-native-firebase/app/-/app-20.5.0.tgz"
+  integrity sha512-zW6jc9R8Ikxxo5qXv25No6QxdWOx37D4U0ppKZQoY6CzwGUzqc4oQUU9MclbUcx+H5p+GEzvT1EIGV6JG7/FAg==
   dependencies:
     firebase "10.12.2"
     superstruct "^0.6.2"
 
 "@react-native-firebase/database@^20.0.0":
-  version "20.4.0"
-  resolved "https://registry.npmjs.org/@react-native-firebase/database/-/database-20.4.0.tgz"
-  integrity sha512-owleZymOsq+Y1ed6nFduUo8GThCKpcXUC2J6OojYHjI+puM6VgBg8X8hrbIlh+btH6f76D6RUyqP39XV3jCRnQ==
+  version "20.5.0"
+  resolved "https://registry.npmjs.org/@react-native-firebase/database/-/database-20.5.0.tgz"
+  integrity sha512-ZG/LCYmqdmzJsbqk3VndfNrXoqUJBt4AkA5WmxwOSy99rvdyecXqTFXkOko7cPSqVtKdJoHAtO4iIbOCf77yDw==
 
 "@react-native-masked-view/masked-view@0.3.1":
   version "0.3.1"

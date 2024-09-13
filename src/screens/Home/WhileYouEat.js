@@ -40,6 +40,7 @@ import {
   MenuTrigger,
 } from "react-native-popup-menu";
 import openMap from "react-native-open-maps";
+import { Divider } from "react-native-elements";
 
 const WhileYouEat = ({ route, navigation }) => {
   // Event details
@@ -112,12 +113,12 @@ const WhileYouEat = ({ route, navigation }) => {
     if (event.type === "public") {
       db_name = "Public Events";
     }
-    // Remove user from the event
+    
     const unsubscribe = db.collection(db_name)
-    .doc(event.id)  // Assuming you store the event by its ID
-    .onSnapshot((doc) => {
-      setImageGallery(doc.data().eventGallery);
-    });
+      .doc(event.id)  // Assuming you store the event by its ID
+      .onSnapshot((doc) => {
+        setImageGallery(doc.data().eventGallery);
+      });
 
     return () => unsubscribe();
   }, [event.id]);
@@ -595,33 +596,25 @@ const WhileYouEat = ({ route, navigation }) => {
                 {event.endDate && " - ".concat(getTime(event.endDate.toDate()))}
               </NormalText>
             </View>
-            <View style={styles.row}>
-              <NormalText paddingHorizontal={10}>
-                Photo Gallery Preview:
-              </NormalText>
-            </View>
-            
-            <View style={styles.row}>
-              <GalleryPreview>{imageGallery}</GalleryPreview>
-            </View>
-            <View style={styles.row}>
-              <Ionicons name="image-outline" size={20}/>
-              <NormalText  paddingHorizontal={10} >
-                <Link onPress={() => navigation.navigate("EventGallery",{event:event})}>Access Meetup Photo Gallery</Link>
-              </NormalText>
-            </View>
           </View>
           
           <NormalText color="black">
             {event.additionalInfo}
           </NormalText>
 
+          <Divider style={{marginVertical: 10}}/>
+
+          <MediumText>Photos (click to view more)</MediumText>
+          <TouchableOpacity onPress={() => navigation.navigate("EventGallery",{event:event})}>
+            <GalleryPreview>{imageGallery}</GalleryPreview>
+          </TouchableOpacity>
+
           <Button marginVertical={20} onPress={() => {
             navigation.navigate("IntroGuidelines", {
               event: event,
               people: people
             })
-          }} marginVertical={20}>
+          }}>
             Play Would You Rather?
           </Button>
 
