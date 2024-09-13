@@ -71,6 +71,7 @@ export default function ({ navigation }) {
               .get()
               .then((event) => {
                 let data = event.data();
+                data.type = e.type;
                 newEvents.push(data);
                 eventsLength--;
 

@@ -126,20 +126,11 @@ export default function EventGallery({ route, navigation }) {
         .catch((error) => {
             console.error("Image upload failed: ", error);
         });
-
-        return(
-            <View>
-                {loading ? (
-                    <LoadingView />
-                ) : (
-                    ''
-                )}
-            </View>
-
-        );
     };
 
     const deleteImage = async (imageUrl) => {
+        setLoading(true);
+        
         try {
             const image = imageGallery.find(img => img.imageUrl === imageUrl);
             if (!image || image.userUploaded !== user.uid) {
@@ -154,21 +145,22 @@ export default function EventGallery({ route, navigation }) {
                 eventId: image.eventId,
                 imagePermissions: image.imagePermissions,
             };
+
+            const storageRef = storage.ref().child(`eventGallery/${event.id}/${image.imageId}`);
+            await storageRef.delete();
             
             let db_name = image.imagePermissions === "public" ? "Public Events" : "Private Events";
             await db.collection(db_name).doc(event.id).update({
                 eventGallery: firebase.firestore.FieldValue.arrayRemove(toDelete),
             });
     
-            const storageRef = storage.ref().child(`eventGallery/${event.id}/${image.imageId}`);
-            await storageRef.delete();
-    
             setImageGallery(prevImages => prevImages.filter(img => img.imageId !== image.imageId));
-            alert("Image Deleted Successfully!")
+            alert("Image Deleted Successfully!");
     
         } catch (error) {
             alert("Error deleting image: " + error.message);
             console.error("Error deleting image: ", error);
+            setLoading(false);
         }
     };
     

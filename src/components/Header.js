@@ -1,26 +1,32 @@
 import React from "react";
 import {View, StyleSheet, TouchableOpacity, Alert} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Octicons, AntDesign } from "@expo/vector-icons";
 import { auth} from "../provider/Firebase";
-import { Octicons } from '@expo/vector-icons';
-
 import LargeText from "./LargeText";
 import NotifIcon from "./NotifIcon";
 import {tryoutId} from "../constants";
 
 const Header = (props) => {
   const user = auth.currentUser;
+  
   return (
     <View style={styles.header}>
+      {props.back && (
+        <TouchableOpacity onPress={props.onBackPress} style={styles.backButton}>
+          <AntDesign name="arrowleft" size={24} color="black" />
+        </TouchableOpacity>
+      )}
       <LargeText>{props.name}</LargeText>
       <View style={styles.icons}>
-        {props.connections && props.navigation && <TouchableOpacity onPress={() => {
-          props.navigation.navigate("IncomingRequests");
-        }}>
-          <Ionicons name="people-circle-outline" size={30} color="black" style={{ marginRight: 5 }}/>
-        </TouchableOpacity>}
-        {props.notifs && props.navigation && <TouchableOpacity
-          onPress={() => {
+        {props.connections && props.navigation && (
+          <TouchableOpacity onPress={() => {
+            props.navigation.navigate("ConnectionRequests");
+          }}>
+            <Ionicons name="people-circle-outline" size={30} color="black" style={{ marginRight: 5 }}/>
+          </TouchableOpacity>
+        )}
+        {props.notifs && props.navigation && (
+          <TouchableOpacity onPress={() => {
             if (user.uid === tryoutId) {
               alert('Please log in to view notifications!');
             } else {
@@ -28,16 +34,17 @@ const Header = (props) => {
                 fromNav: false
               });
             }
-          }}
-        >
-          <NotifIcon hasNotif={props.hasNotif === null ? false : props.hasNotif} />
-        </TouchableOpacity>}
-        {props.buddy && props.navigation && <TouchableOpacity onPress={() => {
-          props.navigation.navigate("IncomingRequests");
-        }}>
-          <Octicons name="people" size={30} color="black" />
-
-        </TouchableOpacity>}
+          }}>
+            <NotifIcon hasNotif={props.hasNotif === null ? false : props.hasNotif} />
+          </TouchableOpacity>
+        )}
+        {props.buddy && props.navigation && (
+          <TouchableOpacity onPress={() => {
+            props.navigation.navigate("IncomingRequests");
+          }}>
+            <Octicons name="people" size={30} color="black" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

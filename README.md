@@ -8,9 +8,9 @@ Connecting students through shared meals. Our app allows you to create and join 
 
 We don't have any strict guidelines for your development conventions, but here are some general rules to follow:
 
-1. **Always work in a separate Git branch!** Never push to `master` directly. Instead, create a new branch and push to that. Then, create a pull request to merge your branch with `master`, and add some helpful comments to describe the changes you made. Once that's done, request Eric or Arya to review your pull request!
-2. **Use the components!** We have a lot of self-made components (e.g. buttons, text, etc.) that you can use in the `components` folder. If you need a component that doesn't exist, feel free to make one! Just make sure to put it in the `components` folder.
-3. FOR CORE TEAM (NOT COHORT) MEMBERS ONLY: **If you spot a bug in the app, create a task in ClickUp for it and report it to Eric/Arya.** We'll report it by the next standup and try to fix it as soon as possible!
+1. **Always work in a separate Git branch!** Never push to `master` directly. Instead, create a new branch and push to that. Then, create a pull request to merge your branch with `master`, and add some helpful comments to describe the changes you made. Once that's done, request Eric or Carl to review your pull request!
+2. **Use the components!** We have a lot of self-made components (e.g. buttons, text, etc.) that you can use in the `components` folder. If you want to make your own component that you think might benefit others in the future, propose your idea to Eric or Carl!
+3. FOR CORE TEAM (NOT COHORT) MEMBERS ONLY: **If you spot a bug in the app, create a task in ClickUp for it and report it to Eric/Carl.** We'll report it by the next standup and try to fix it as soon as possible!
 4. **Follow the clean code guidelines covered in your CSE classes.** We're not nitpicky about code quality but we do want to be able to understand what it does, especially if we read it months later.
 5. **If you have any questions, ask another member of the Eat Together development team!** We're here to help you out and make sure you have a good experience developing with Eat Together. If you're stuck on something, don't hesitate to reach out, and we'll try our best to respond!
 
@@ -21,7 +21,7 @@ The majority of development will be happening in the `src` folder. Inside the `s
 1. `components`: contains files for our app's self-made components (e.g. buttons, icons, text containers, etc.). Make sure you use them as much as possible! And feel free to create your own :)
 2. `navigation`: contains files related to how you navigate around the app as well as authenticating users.
 3. `provider`: contains Firebase-related files.
-4. `screens`: all of the app's pages are located here! Most of your work will be done here. Any questions about this subdirectory can be directed to Rachel, Eric, or Arya!
+4. `screens`: all of the app's pages are located here! Most of your work will be done here. Any questions about this subdirectory can be directed to Eric or Carl!
 5. `tests`: all components' and functions' unit tests will be in here.
 
 There are also some miscellaneous JS scripts (e.g. `allTags.js`) in `src`:
@@ -40,14 +40,12 @@ Other (less but kinda) important files/folders to know:
 4. `package.json` + `yarn.lock`: contains information about libraries/dependencies the app needs to run (`npm install` and `yarn.lock` rely on this file).
 
 ## React Native Expo Installation
-
+0. Clone this repository locally by typing: `git clone https://github.com/eat-together-team/eat-together.git`.
 1. Install [node.js](https://nodejs.org/en/). To ensure that you properly downloaded it, type `npm -v` in the terminal. This will diplsay the currently installed version, if any.
 2. Install Expo:
 
 ```jsx
 npm install --global expo-cli
-
-
 ```
 
 3. Clone this repo.
@@ -55,17 +53,13 @@ npm install --global expo-cli
 
 ```jsx
 npm install
-
-
 ```
 
-for mac users who are unable to use npm, use yarn instead:
+For mac users who are unable to use npm, use yarn instead:
 
 ```sh
 npm install --global yarn
 yarn install
-
-
 ```
 
 5. To link this project with Firebase, download the `.env` file from our Google Drive. Simply put it in the root directory. Download links are below!
@@ -77,20 +71,16 @@ Cohort members link: [https://drive.google.com/file/d/1nnjE3IeRhIdSdvf0qlhD68gS5
 6. Start the environment using expo:
 
 ```jsx
-expo starts
-
-
+expo start
 ```
 
 For yarn users, use the following command:
 
 ```sh
 yarn start
-
-
 ```
 
-8. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app.
+8. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app. Follow any necessary instructions that come (e.g. you may need to create your own EAS/Expo account).
 
 ### Testing
 
@@ -115,8 +105,6 @@ const firebaseConfig = {
 	messagingSenderId: '',
 	appId: '',
 };
-
-
 ```
 
 and you are good to go!
@@ -146,8 +134,6 @@ export default () => {
 		</NavigationContainer>
 	);
 };
-
-
 ```
 
 ## Common Bugs & Fixes 🐛
@@ -162,16 +148,9 @@ While there are many bugs that can arise while setting up the project, here are 
 
 ```sh
 open -a simulator
-
-
 ```
 
-```ts
-  Once the simulator boots up, immediately quit the simulator app. Run `npm start` or `yarn start` again from the project directory, and open 		simulator. It should then be resolved.
-
-
-```
-
+Once the simulator boots up, immediately quit the simulator app. Run `npm start` or `yarn start` again from the project directory, and open the simulator. It should then be resolved.
 - If you ever get a "giant red screen of death" (you'll know what it looks like when you see it), try running `expo start -c` or `yarn start -c` to clear the cache. This will often fix the problem.
 - If you get an error saying that a certain library is not installed, try running `npm install` or `yarn install` again. If that doesn't work, try deleting the `node_modules` folder and running `npm install` or `yarn install` again.
 - ENSURE THAT THE NETWORK USED BY YOUR LAPTOP AND PHONE IS THE EXACT SAME! Otherwise, the app won't load. If this fails, you can also try the tunnel connection using `expo start --tunnel` or `yarn start --tunnel`.

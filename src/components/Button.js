@@ -3,6 +3,7 @@ import { TouchableOpacity } from "react-native";
 import MediumText from "./MediumText";
 import { Ionicons } from '@expo/vector-icons';
 
+
 const Button = props => {
     return (
         <TouchableOpacity style={{

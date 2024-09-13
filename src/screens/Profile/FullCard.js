@@ -8,7 +8,8 @@ import {
   ImageBackground,
   Dimensions,
   Image,
-  Linking
+  Linking,
+  TouchableOpacity
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -30,6 +31,7 @@ import { useState, useEffect } from "react";
 import PeopleList from "../../components/PeopleList";
 import { db } from "../../provider/Firebase";
 import GalleryPreview from "../../components/GalleryPreview";
+import { Divider } from "react-native-elements";
 
 
 const FullCard = ({ route, navigation }) => {
@@ -80,11 +82,13 @@ const FullCard = ({ route, navigation }) => {
     getAttendees();
   }, [route.params.event]);  // Re-fetch if the event changes
   
+  // Creates a real time listener for the photo gallery preview
   useEffect(() => {
     let db_name = "Private Events";
     if (route.params.event.type === "public") {
       db_name = "Public Events";
     }
+    
     const unsubscribe = db.collection(db_name)
       .doc(route.params.event.id)  
       .onSnapshot((doc) => {
@@ -183,28 +187,19 @@ const FullCard = ({ route, navigation }) => {
                 {route.params.event.endDate && " - ".concat(getTime(route.params.event.endDate.toDate()))}
               </NormalText>
             </View>
-
-            <View style={styles.row}>
-              <NormalText paddingHorizontal={10}>
-                Photo Gallery Preview:
-              </NormalText>
-            </View>
-
-            <View style={styles.row}>
-              <GalleryPreview>{imageGallery}</GalleryPreview>
-            </View>
-
-            <View style={styles.row}>
-              <Ionicons name="image-outline"size={20}/>
-              <NormalText  paddingHorizontal={10} color="black">
-                <Link onPress={() => navigation.navigate("EventGallery",{event:route.params.event})}>Access Meetup Photo Gallery</Link>
-              </NormalText>
-            </View>
           </View>
 
-          {route.params.event.additionalInfo !== "" && <NormalText marginBottom={20} color="black">
+          {route.params.event.additionalInfo !== "" && <NormalText color="black">
             {route.params.event.additionalInfo}
           </NormalText>}
+
+          <Divider style={{marginVertical: 10}}/>
+
+          <MediumText>Photos (click to view more)</MediumText>
+          <TouchableOpacity style={{marginBottom: 10}}
+            onPress={() => navigation.navigate("EventGallery",{event:route.params.event})}>
+            <GalleryPreview>{imageGallery}</GalleryPreview>
+          </TouchableOpacity>
 
           {/* Attendance dropdown */}
           <Toggle 

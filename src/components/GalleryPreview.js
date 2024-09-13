@@ -7,15 +7,16 @@ const GalleryPreview = props =>{
     const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
     const children = props.children || [];
     return(
-        <View style ={styles.row}>
+        <View style={styles.row}>
             <Image
               source={
                 children[0]
                 ? { uri: children[0].imageUrl }
                 : require("../../assets/food.jpg")
               }
-              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5,}}
+              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5 }}
             />
+
             <Image
               source={
                 children[1]
@@ -24,20 +25,20 @@ const GalleryPreview = props =>{
 
               }
               blurRadius={2}
-              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5,}}
+              style={{ width: tileSize, height: tileSize, borderRadius: 15, margin:5 }}
             />
 
             <ImageBackground
               source={
-                 require("../../assets/food.jpg")
+                children[2]
+                ? { uri: children[2].imageUrl }
+                : require("../../assets/food.jpg")
               }
-              style={{ width: tileSize/2, height: tileSize, margin:5}}
+              style={{ width: tileSize/2, height: tileSize, margin:5 }}
               borderTopLeftRadius={15}
               borderBottomLeftRadius={15}
               blurRadius={10}
             />
-
-            
         </View>        
     );
 

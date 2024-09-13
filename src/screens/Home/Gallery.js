@@ -10,13 +10,10 @@ import LoadingView from "../../components/LoadingView";
 import HorizontalRow from "../../components/HorizontalRow";
 import Filter from "../../components/Filter";
 import { auth, db, storage } from "../../provider/Firebase";
-import { Divider } from "react-native-elements";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
 import LargeText from "../../components/LargeText";
 import Link from "../../components/Link";
-
-
 
 //Global variables
 const numColumns = 3;
@@ -208,21 +205,13 @@ export default function Gallery({ route, navigation }) {
             .catch((error) => {
                 console.error("Image upload failed: ", error);
             });
-        return(
-            <View>
-                {loading ? (
-                    <LoadingView />
-                ) : (
-                    ''
-                )}
-            </View>
-
-        );
     };
 
     // Function to delete images from database
 
     const deleteImage = async (imageUrl) => {
+        setLoading(true);
+        
         try {
             const image = images.find(img => img.imageUrl === imageUrl);
             const toDelete = {
@@ -231,21 +220,22 @@ export default function Gallery({ route, navigation }) {
                 imageId: image.imageId,
                 imageUploadedTime: image.imageUploadedTime,
             };
+
+            const storageRef = storage.ref().child(`Gallery/${user.uid}/${image.imageId}`);
+            await storageRef.delete();
             
             await db.collection("Users").doc(user.uid).update({
                 gallery: firebase.firestore.FieldValue.arrayRemove(toDelete),
             });
-    
-            const storageRef = storage.ref().child(`Gallery/${user.uid}/${image.imageId}`);
-            await storageRef.delete();
-    
+
+            alert("Image Deleted Successfully!");
             setImages(prevImages => prevImages.filter(img => img.imageId !== image.imageId));
-            alert("Image Deleted Successfully!")
-    
         } catch (error) {
             alert("Error deleting image: " + error.message);
             console.error("Error deleting image: ", error);
         }
+
+        setLoading(false);
     };
 
     // Function to handle image Deletion
@@ -374,8 +364,8 @@ export default function Gallery({ route, navigation }) {
             }
     
             Alert.alert(
-                " Image Information",
-                `Upload date and time: ${timeUploaded}\n\n Event Assigned: ${eventName}`
+                "Image Information",
+                `Upload date and time: ${timeUploaded}\n\nEvent Assigned: ${eventName}`
             );
         }
     };
@@ -485,8 +475,6 @@ export default function Gallery({ route, navigation }) {
             </View>
 
             <View>
-                <Divider />
-                <MediumText style={{ paddingVertical: 10, paddingHorizontal:10, }}>Sort By</MediumText>
                 <HorizontalRow style={{ paddingHorizontal: 20 }}>
                     <Filter checked={column || grid || meetup}
                         onPress={() => showViewFilterRef.current.open()}
@@ -605,14 +593,12 @@ export default function Gallery({ route, navigation }) {
                 <TouchableWithoutFeedback onPress={() => setIsEventModalVisible(false)}>
                     <View style={modalStyles.modalBackground}>
                         <View style={modalStyles.modalContainer}>
-                            <LargeText style={modalStyles.eventText}>Assign Images to an Event</LargeText>
+                            <LargeText style={modalStyles.eventText}>Assign to an Event</LargeText>
                             <View style={modalStyles.eventItem}>
                                 <Picker
-                                    items={items}
-                                    value={pickerValue}
+                                    items={items.reverse()}
                                     placeholder="Select an Event"
                                     onValueChange={(val) => {
-                                        setPickerValue(val);
                                         handleEventSelect(val);
                                     }}
                                 />
