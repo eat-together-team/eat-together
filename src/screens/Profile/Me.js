@@ -225,17 +225,17 @@ export default function ({ navigation }) {
           <MediumText>@{userInfo.username}</MediumText>
         </View>
 
-        <View style = {styles.link}>
-        <TouchableOpacity
-          style ={styles.link}
-          onPress={() => {
-            navigation.navigate("BuddyPage");
-          }}>
-          <NormalText>You do not have a buddy</NormalText>
-            <AntDesign name="adduser" size={24} color="#4C6FB1" />
+        {/*<View style = {styles.link}>
+          <TouchableOpacity
+            style ={styles.link}
+            onPress={() => {
+              navigation.navigate("BuddyPage");
+            }}>
+            <NormalText>You do not have a buddy</NormalText>
+              <AntDesign name="adduser" size={24} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
           </TouchableOpacity>
-        </View>
+        </View>*/}
 
         <TagsList tags={userInfo.tags ? userInfo.tags : []} />
         <MediumText center>{userInfo.bio}</MediumText>
