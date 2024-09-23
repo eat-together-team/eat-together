@@ -382,6 +382,7 @@ export default function Gallery({ route, navigation }) {
     };
 
     const handleAssignEvent = (uri) => {
+        setIsModalVisible(false);
         setSelectedImageForEvent(uri);
         setIsEventModalVisible(true);
     };
@@ -624,8 +625,8 @@ export default function Gallery({ route, navigation }) {
                 </TouchableWithoutFeedback>
                 <View style={styles.modalBottom}>
                     <View style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent: "center",}}>
-                        <Filter checked={false} onPress={() => getMetadata(selectedImageUri)} text="  Info  "  />
-                        <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="  Delete  " />
+                        <Filter checked={false} onPress={() => getMetadata(selectedImageUri)} text="Info"  />
+                        <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
                     <View style={styles.assignBottom}> 
                         <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>

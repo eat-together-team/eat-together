@@ -310,8 +310,8 @@ export default function EventGallery({ route, navigation }) {
                 <View style={styles.modalBottom}> 
                     {/* Image Information */}
                     <View style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent: "center",}}>
-                        <Filter checked={false} onPress={() => getMetadata(selectedImageUri)} text="  Info  "  />
-                        <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="  Delete  " />
+                        <Filter checked={false} onPress={() => getMetadata(selectedImageUri)} text="Info"  />
+                        <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
                 </View>
             </Modal>
