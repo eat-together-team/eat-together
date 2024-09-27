@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   ScrollView,
-  StyleSheet
+  StyleSheet,
+  Image,
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -29,57 +30,58 @@ const IntroGuidelines = ({ route, navigation }) => {
     const currGame = db.collection('WyrGames').doc(event.id);
     const doc = await currGame.get();
     if (doc.exists) {
-      currGame.update({players: firebase.firestore.FieldValue.arrayUnion(user.uid)});
+      currGame.update({ players: firebase.firestore.FieldValue.arrayUnion(user.uid) });
     } else {
       currGame.set({
         aVotes: 0,
         bVotes: 0,
         currentQuestion: "",
-        discussionStage: false, 
+        discussionStage: false,
         players: [user.uid],
         seenQuestions: []
       });
       randomQuestion();
-    }    
+    }
   };
 
-  // move onto Question stage screen
+  // Move onto Question stage screen
   const startGame = () => {
     navigation.navigate("Question", {
       event: event,
       optionA: optionA,
-      optionB: optionB});
+      optionB: optionB
+    });
   };
 
   // Randomly pick out a question from the collection 'WyrQuestions'
   const randomQuestion = () => {
     const currGame = db.collection('WyrGames').doc(event.id);
-    count = 0;
+    let count = 0;
     db.collection('WyrQuestions')
       .onSnapshot(snapshot => {
         snapshot.forEach(doc => {
           count += 1;
-      });
-      db.collection('WyrQuestions')
-        .where('random', '==', Math.floor(Math.random()*count))
-        .get()
-        .then(function(querySnapshot) {
-          querySnapshot.forEach(function(doc) {
-            currGame.update({
-              currentQuestion: doc.id,
-              seenQuestions: firebase.firestore.FieldValue.arrayUnion(doc.id)
+        });
+        db.collection('WyrQuestions')
+          .where('random', '==', Math.floor(Math.random() * count))
+          .get()
+          .then(function (querySnapshot) {
+            querySnapshot.forEach(function (doc) {
+              currGame.update({
+                currentQuestion: doc.id,
+                seenQuestions: firebase.firestore.FieldValue.arrayUnion(doc.id)
+              });
+              setOptionA(doc.data().optionA);
+              setOptionB(doc.data().optionB);
             });
-            setOptionA((optionA) => doc.data().optionA);
-            setOptionB((optionB) => doc.data().optionB);
-          });
-        })
+          })
       });
   }
 
   return (
     <Layout>
       <TopNav
-        middleContent={<MediumText center>Would You Rather?</MediumText>}
+        middleContent={<MediumText center>Guidelines</MediumText>}
         leftContent={
           <Ionicons
             name="chevron-back"
@@ -89,79 +91,122 @@ const IntroGuidelines = ({ route, navigation }) => {
         }
         leftAction={() => navigation.goBack()}
       />
-      <ScrollView>
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.infoContainer}>
+            <MediumText size={20} style={styles.heading}>
+              Would You Rather
+            </MediumText>
 
-        <View style={styles.infoContainer}>
-          <MediumText>
-            Would You Rather Guidelines
-          </MediumText>
+            <View style={styles.ruleContainer}>
+              <Image
+                source={require('../../../../assets/guideline1.png')}
+                style={styles.ruleImage}
+                resizeMode="contain"
+              />
+              <NormalText style={styles.ruleText} size={18}>
+                Each player will have time to answer as long as the host wishes
+              </NormalText>
+            </View>
+            <View style={styles.ruleContainer}>
+              <Image
+                source={require('../../../../assets/guideline2.png')}
+                style={styles.ruleImage}
+                resizeMode="contain"
+              />
+              <NormalText style={styles.ruleText} size={18}>
+                This shows how many people have answered the question
+              </NormalText>
+            </View>
 
-        <View style={styles.container}>
-          <Ionicons name="checkmark-circle-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>
-            Each player will select an answer on their screen
-          </NormalText>
-        </View>
-        <View style={styles.container}>
-          <Ionicons name="checkmark-done-circle-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>
-            Once everyone has submitted, press next to continue onto discussion
-          </NormalText>
-        </View>
-        <View style={styles.container}>
-          <Ionicons name="pie-chart-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>
-            Results will display how many people answered what option
-          </NormalText>
-        </View>
-        <View style={styles.container}>
-          <Ionicons name="chatbubbles-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>
-            Share why you chose your answer with the group
-          </NormalText>
-        </View>
-        <View style={styles.container}>
-          <Ionicons name="arrow-forward-circle-outline" size={30} style={styles.ruleImage}/>
-          <NormalText style={styles.ruleText}>
-            Tap "Next Question" when done discussing to move on
-          </NormalText>
-        </View>
+            <MediumText size={20} style={styles.heading}>
+              Discussion
+            </MediumText>
 
-          <Button onPress={() => {addGameData(); startGame();}}>
-            Start
-          </Button>
+            <View style={styles.ruleContainer}>
+              <Image
+                source={require('../../../../assets/guideline3.png')}
+                style={styles.ruleImage3}
+                resizeMode="contain"
+              />
+              <NormalText style={styles.ruleText} size={18}>
+                Share why you chose your answer with the group
+              </NormalText>
+            </View>
+            <View style={styles.ruleContainer}>
+              <Image
+                source={require('../../../../assets/guideline4.png')}
+                style={styles.ruleImage}
+                resizeMode="contain"
+              />
+              <NormalText style={styles.ruleText} size={18}>
+                Give everyone a chance to speak
+              </NormalText>
+            </View>
+            <View style={styles.ruleContainer}>
+              <Image
+                source={require('../../../../assets/guideline5.png')}
+                style={styles.ruleImage}
+                resizeMode="contain"
+              />
+              <NormalText style={styles.ruleText} size={18}>
+                Tap "Next Question" when you're done discussing
+              </NormalText>
+            </View>
+          </View>
+        </ScrollView>
 
-        </View>
-      </ScrollView>
+        <Button style={styles.startButton} onPress={() => { addGameData(); startGame(); }}>
+          Start Game
+        </Button>
+      </View>
     </Layout>
   );
 };
 
 // Styling of page elements
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+    backgroundColor: 'white',
+  },
+  scrollContent: {
+    paddingVertical: 5,
+  },
   infoContainer: {
     marginHorizontal: 30,
-    marginVertical: 5,
-    marginBottom: 100,
   },
-
-  container: {
+  heading: {
+    textAlign: 'center',
     marginVertical: 10,
-    marginRight: 5,
+  },
+  ruleContainer: {
+    marginVertical: 0,
     flexDirection: "row",
-    justifyContent: 'space-between',
+    alignItems: "center",
     padding: 5,
-    alignItems: "center"
   },
-
   ruleImage: {
+    width: 100, 
+    height: 100, 
     marginRight: 20,
-    color: "#5DB075"
+    borderRadius: 41,
   },
-
+  ruleImage3:{
+    width: 100, 
+    height: 100, 
+    marginRight:20,
+    borderRadius: 30,
+  },
   ruleText: {
-    marginRight: 35
-  }
+    flex: 1,
+    fontSize: 18,
+  },
+  startButton: {
+    marginHorizontal: 30,
+    marginBottom: 20,
+  },
 });
 
 export default IntroGuidelines;
