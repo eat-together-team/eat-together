@@ -5,7 +5,7 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  Image
+  ActivityIndicator,
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,140 +20,173 @@ import { db, auth } from "../../../provider/Firebase";
 import * as firebase from "firebase/compat";
 
 const Question = ({ route, navigation }) => {
-    const [event, setEvent] = useState(route.params.event);
-    const [isDisabled, setDisabled] = useState(false);
-    const green = "#5DB075";
+  const [event, setEvent] = useState(route.params.event);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [responsesCount, setResponsesCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const green = "#5DB075";
 
-    // get question options to display
-    const [optionA, setOptionA] = useState(route.params.optionA);
-    const [optionB, setOptionB] = useState(route.params.optionB);
+  // Get question options to display
+  const [optionA, setOptionA] = useState('');
+  const [optionB, setOptionB] = useState('');
 
-    // Get the current user
-    const user = auth.currentUser;
+  // Get the current user
+  const user = auth.currentUser;
+  const isHost = user.uid === event.hostID;
 
-    // Adds a user's vote for option A
-    const addVoteA = async () => {
-      const currGame = db.collection('WyrGames').doc(event.id);
-      const doc = await currGame.get();
-      if (doc.exists) {
-        votes = doc.data().aVotes
-        currGame.update({aVotes: votes+1})
-        setDisabled((isDisabled) => true)
-      } 
+  // Function to handle voting
+  const addVote = async (option) => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    const doc = await currGame.get();
+    if (doc.exists) {
+      if (option === 'A') {
+        await currGame.update({ aVotes: firebase.firestore.FieldValue.increment(1) });
+      } else if (option === 'B') {
+        await currGame.update({ bVotes: firebase.firestore.FieldValue.increment(1) });
+      }
+      setIsDisabled(true);
+      setSelectedOption(option);
     }
+  };
 
-    // Adds a user's vote for option B
-    const addVoteB = async () => {
-      const currGame = db.collection('WyrGames').doc(event.id);
-      const doc = await currGame.get();
-      if (doc.exists) {
-        votes = doc.data().bVotes
-        currGame.update({bVotes: votes+1})
-        setDisabled((isDisabled) => true)
-      } 
-    }
-
-    // Remove player from game when they choose to exit
-    const removePlayer = async () => {
-      const currGame = db.collection('WyrGames').doc(event.id);
-      const doc = await currGame.get();
-      if (doc.exists) {
-        currGame.update({players: firebase.firestore.FieldValue.arrayRemove(user.uid)})
-        // Delete this document if there are 0 players left
-        if (doc.data().players.length == 1) {
-          currGame.delete();
-        }
-      } 
-    };
-
-    // move Player back to event screen 
-    const exitGame = () => {
-      navigation.navigate("WhileYouEat", {
-        event: event})
-    };
-
-    // move Player on to discussion screen 
-    const moveToDiscuss = () => {
-      navigation.push("Discussion", {
-        event: event,
-        optionA: optionA,
-        optionB: optionB})
-    };
-    
-    // updates discussionStage value to true; i.e. ready to discuss
-    const readyToDiscuss = async () => {
-      const currGame = db.collection('WyrGames').doc(event.id);
-      const doc = await currGame.get();
-      if (doc.exists) {
-        currGame.update({discussionStage: true});
+  // Remove player from game when they choose to exit
+  const removePlayer = async () => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    const doc = await currGame.get();
+    if (doc.exists) {
+      await currGame.update({ players: firebase.firestore.FieldValue.arrayRemove(user.uid) });
+      // Delete this document if there are 0 players left
+      if (doc.data().players.length === 1) {
+        await currGame.delete();
       }
     }
+  };
 
-    // Updates answer options to display (if any changes)
-    const retrieveOptions = async () => {
-      const currGame = db.collection('WyrGames').doc(event.id);
-      const doc = await currGame.get();
-        if (doc.exists) {
-          const currQuestion = doc.data().currentQuestion;
-          const question = await db.collection('WyrQuestions').doc(currQuestion).get();
-          setOptionA((optionA) => question.data().optionA);
-          setOptionB((optionB) => question.data().optionB);
+  // Move Player back to event screen
+  const exitGame = () => {
+    navigation.navigate("WhileYouEat", {
+      event: event,
+    });
+  };
+
+  // Function to navigate to the discussion page
+  const moveToDiscuss = async () => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    await currGame.update({ discussionStage: true });
+
+    navigation.navigate("Discussion", {
+      event: event,
+      optionA: optionA,
+      optionB: optionB,
+    });
+  };
+
+  // Updates answer options to display (if any changes)
+  const retrieveOptions = async () => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    const doc = await currGame.get();
+    if (doc.exists) {
+      const currQuestionId = doc.data().currentQuestion;
+      if (currQuestionId) {
+        const questionDoc = await db.collection('WyrQuestions').doc(currQuestionId).get();
+        if (questionDoc.exists) {
+          setOptionA(questionDoc.data().optionA);
+          setOptionB(questionDoc.data().optionB);
+          setIsLoading(false);
         }
-    }
+      }
 
-    useEffect(() => {
-      // retrieve current answer options
-      retrieveOptions();
-      const intervalId = setInterval(retrieveOptions, 800);
-      return () => {clearInterval(intervalId)};
-      }, []);
+      // Update responses count
+      const totalVotes = doc.data().aVotes + doc.data().bVotes;
+      setResponsesCount(totalVotes);
+
+      // If new question, reset local states
+      if (isDisabled && selectedOption === null) {
+        setIsDisabled(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Retrieve current answer options and responses count
+    retrieveOptions();
+    const intervalId = setInterval(retrieveOptions, 800);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
   return (
     <Layout>
       <TopNav
         middleContent={<MediumText left>Question</MediumText>}
         leftContent={
-            <View flexDirection={"row"} alignItems={"center"} width={100}>
-                <Ionicons
-                    name="chevron-back"
-                    color={green}
-                    size={20}
-                />
-                <NormalText color={green}>Exit</NormalText>
+          <View style={{ flexDirection: "row", alignItems: "center", width: 100 }}>
+            <Ionicons name="chevron-back" color={green} size={20} />
+            <NormalText color={green}>Exit</NormalText>
           </View>
         }
         // Remove player from game when they choose to exit
-        leftAction={() => {removePlayer(); exitGame();}}
+        leftAction={() => {
+          removePlayer();
+          exitGame();
+        }}
       />
       <ScrollView>
         <View style={styles.infoContainer}>
-          <LargeText>
-            Would You Rather...
-          </LargeText>
+          <LargeText>Would You Rather...</LargeText>
         </View>
-        
-        {/* Disable buttons after choosing one to only allow 1 vote*/}
-        <View style={styles.options}>
-            <Button onPress={addVoteA} disabled={isDisabled}>
-                {optionA}
+
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <MediumText>Loading...</MediumText>
+          </View>
+        ) : (
+          <View style={styles.options}>
+            <Button
+              onPress={() => addVote('A')}
+              disabled={isDisabled}
+              style={[
+                styles.optionButton,
+                selectedOption === 'A' && styles.selectedOption,
+              ]}
+            >
+              {optionA}
             </Button>
 
-            <View marginVertical={15} alignSelf={"center"}><MediumText>OR</MediumText></View>
-
-            <BorderedButton onPress={addVoteB} disabled={isDisabled}>
-                {optionB}
-            </BorderedButton>
-        
-            {/*Moves onto discussion page*/}
-            <View style={styles.nextButton}>
-                <Button backgroundColor={"grey"} onPress={() => {
-                    readyToDiscuss(); moveToDiscuss();
-                }}>
-                    Next
-                </Button>
+            <View marginVertical={15} alignSelf={"center"}>
+              <MediumText>OR</MediumText>
             </View>
 
+            <BorderedButton
+              onPress={() => addVote('B')}
+              disabled={isDisabled}
+              style={[
+                styles.optionButton,
+                selectedOption === 'B' && styles.selectedOption,
+              ]}
+            >
+              {optionB}
+            </BorderedButton>
+          </View>
+        )}
+
+        {/* Display the number of responses */}
+        <View style={styles.responsesContainer}>
+          <MediumText>
+            Number of responses: {responsesCount} / {event.attendees.length}
+          </MediumText>
         </View>
+
+        {/* Display "Next" button for the host */}
+        {isHost && (
+          <View style={styles.nextButtonContainer}>
+            <Button onPress={moveToDiscuss}>
+              Discuss
+            </Button>
+          </View>
+        )}
       </ScrollView>
     </Layout>
   );
@@ -164,22 +197,30 @@ const styles = StyleSheet.create({
   infoContainer: {
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: 20
+    marginVertical: 20,
   },
-
   options: {
     marginVertical: 10,
-    padding: 20
+    padding: 20,
   },
-
-  nextButton: {
-    top: 20,
+  optionButton: {
+    marginVertical: 10,
+  },
+  selectedOption: {
+    backgroundColor: "gray",
+  },
+  responsesContainer: {
+    alignItems: "center",
+    marginTop: 20,
+  },
+  loadingContainer: {
+    alignItems: "center",
     marginVertical: 20,
-    width: 130,
-    height: 60,
-    flexDirection: "column",
-    alignSelf: "flex-end",
-  }
+  },
+  nextButtonContainer: {
+    alignItems: "center",
+    marginTop: 20,
+  },
 });
 
 export default Question;

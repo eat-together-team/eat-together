@@ -156,7 +156,7 @@ const IntroGuidelines = ({ route, navigation }) => {
           </View>
         </ScrollView>
 
-        <Button style={styles.startButton} onPress={() => { addGameData(); startGame(); }}>
+        <Button marginHorizontal ={20} style={styles.startButton} onPress={() => { addGameData(); startGame(); }}>
           Start Game
         </Button>
       </View>

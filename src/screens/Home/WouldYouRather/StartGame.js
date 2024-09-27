@@ -120,7 +120,7 @@ const StartGame = ({ route, navigation }) => {
           </View>
         </ScrollView>
 
-        <Button marginVertical={35}
+        <Button marginVertical={35} marginHorizontal={20}
           style={styles.startButton}
           onPress={() => {
             navigation.navigate("IntroGuidelines", {
