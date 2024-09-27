@@ -24,7 +24,6 @@ const StartGame = ({ route, navigation }) => {
   const [host, setHost] = useState(null); // Get the host of the event
 
   // Data for the attendees
-  const [attendees, setAttendees] = useState([]);
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -47,26 +46,17 @@ const StartGame = ({ route, navigation }) => {
   }, []);
 
   // Fetch all attendees of this event
-  const getAttendees = () => {
-    event.attendees.forEach((attendee) => {
-      if (attendee !== user.uid) {
-        db.collection("Users")
-          .doc(attendee)
-          .get()
-          .then((doc) => {
-            const data = doc.data();
-            let attended = false;
-            const ids = data.attendedEventIDs.map((e) => e.id);
-
-            if (ids.includes(event.id)) {
-              attended = true;
-            }
-
-            setPeople((people) => [...people, data]);
-            setAttendees((attendees) => [...attendees, attended]);
-          });
-      }
-    });
+  const getAttendees = async () => {
+    try {
+      const attendeePromises = event.attendees.map((attendee) =>
+        db.collection("Users").doc(attendee).get()
+      );
+      const attendeeDocs = await Promise.all(attendeePromises);
+      const attendeesData = attendeeDocs.map((doc) => doc.data());
+      setPeople(attendeesData);
+    } catch (error) {
+      console.error("Error fetching attendees:", error);
+    }
   };
 
   return (
@@ -82,73 +72,79 @@ const StartGame = ({ route, navigation }) => {
         }
         leftAction={() => navigation.goBack()}
       />
-      <ScrollView>
-      <ImageBackground
-        source={
-          event.hasImage
-            ? { uri: event.image }
-            : require("../../../../assets/wyr.png")
-        }
-        style={styles.imageBackground}
-        resizeMode="cover">
-        </ImageBackground>
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <ImageBackground
+            source={require("../../../../assets/wyr.png")} // Always use the wyr.png image
+            style={styles.imageBackground}
+            resizeMode="cover"
+          />
 
+          <View style={styles.infoContainer}>
+            <LargeText size={30} marginBottom={10}>
+              Would You Rather?
+            </LargeText>
 
-        <View style={styles.infoContainer}>
-          <LargeText size={24} marginBottom={10}>
-            Would You Rather?
-          </LargeText>
+            <View style={styles.row}>
+              <MediumText>Players:</MediumText>
+            </View>
+            <View style={styles.row}>
+              {people.length === 0 ? (
+                <NormalText paddingHorizontal={25} size={17} color="black">
+                  {"No players have joined yet"}
+                </NormalText>
+              ) : (
+                people.map((person, index) => (
+                  <PlayerList
+                    person={person}
+                    key={person.id}
+                    color="white"
+                    width="50%"
+                    height="10%"
+                    click={() => {
+                      navigation.navigate("FullProfile", {
+                        person: person,
+                      });
+                    }}
+                  />
+                ))
+              )}
+            </View>
 
-          <View style={styles.row}>
-            <MediumText>Players</MediumText>
+            <View style={styles.infoSection}>
+              <MediumText>Event:</MediumText>
+              <NormalText>{event.title}</NormalText>
+              <MediumText size={17}>{event.name}</MediumText>
+              {/* <NormalText>Location: {event.location}</NormalText> */}
+            </View>
           </View>
-          <View style={styles.row}>
-            {people.length === 0 ? (
-              <NormalText paddingHorizontal={25} size={17} color="black">
-                {"Just yourself"}
-              </NormalText>
-            ) : (
-              people.map((person, index) => {
-                if (person.id !== user.uid) {
-                  return (
-                    <PlayerList
-                      person={person}
-                      key={person.id}
-                      color="white"
-                      width="50%"
-                      height="10%"
-                      click={() => {
-                        navigation.navigate("FullProfile", {
-                          person: person,
-                        });
-                      }}
-                    />
-                  );
-                }
-              })
-            )}
-          </View>
+        </ScrollView>
 
-          <Button
-            onPress={() => {
-              navigation.navigate("IntroGuidelines", {
-                event: event,
-                people: people,
-              });
-            }}
-          >
-            Start Game
-          </Button>
-        </View>
-      </ScrollView>
+        <Button marginVertical={35}
+          style={styles.startButton}
+          onPress={() => {
+            navigation.navigate("IntroGuidelines", {
+              event: event,
+              people: people,
+            });
+          }}
+        >
+          Guidelines
+        </Button>
+      </View>
     </Layout>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
   infoContainer: {
     marginHorizontal: 30,
-    marginBottom: 100,
   },
   row: {
     flexDirection: "row",
@@ -186,6 +182,7 @@ const styles = StyleSheet.create({
     top: 5,
     right: 5,
   },
+  
 });
 
 export default StartGame;
