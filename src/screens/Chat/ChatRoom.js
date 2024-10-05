@@ -110,12 +110,24 @@ export default function ({ route, navigation }) {
           [
               {
                   text: "Gallery",
-                  onPress: () => pickImage(),
+                  onPress: () => galleryImageSelector(),
               },
               { text: "Take a photo", onPress: () => cameraImageSelector() },
           ],
           { cancelable: false}
       );
+  };
+
+  // For selecting a photo from gallery
+  const galleryImageSelector = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        quality: 1,
+    });
+    if (!result.cancelled) {
+        setPhoto(result.assets[0].uri);
+    }
   };
 
   // For selecting a photo by capturing an image with camera
