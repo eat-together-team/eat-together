@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
-  Platform
+  Platform,
+  Alert
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import * as ImagePicker from 'expo-image-picker';
@@ -71,19 +72,19 @@ export default function ({ route, navigation }) {
         allowsEditing: true,
         quality: 1,
       });
-  
+
       if (!result.cancelled) {
         const source = { uri: result.assets[0].uri };
-  
+
         const response = await fetch(source.uri);
         const blob = await response.blob();
         const filename = source.uri.substring(source.uri.lastIndexOf('/') + 1);
-  
+
         // Upload to this group's folder
         var ref = storage.ref().child('groups/' + group.groupID + "/" + filename).put(blob, {
           contentType: 'image/jpeg'
         });
-  
+
         try {
           await ref;
           const downloadURL = await ref.snapshot.ref.getDownloadURL();
@@ -100,7 +101,39 @@ export default function ({ route, navigation }) {
       // Alert.alert("Error picking image.");
     }
   };
-  
+
+  // For selecting a photo
+  const handleChoosePhoto = async () => {
+      Alert.alert (
+          "Pick Image",
+          "Choose an image for your event",
+          [
+              {
+                  text: "Gallery",
+                  onPress: () => pickImage(),
+              },
+              { text: "Take a photo", onPress: () => cameraImageSelector() },
+          ],
+          { cancelable: false}
+      );
+  };
+
+  // For selecting a photo by capturing an image with camera
+  const cameraImageSelector = async () => {
+      try {
+          await ImagePicker.requestCameraPermissionsAsync({});
+          let result = await ImagePicker.launchCameraAsync({
+              cameraType: ImagePicker.CameraType.back,
+              allowsEditing: true,
+              quality: 1,
+          });
+          if (!result.cancelled) {
+              setPhoto(result.assets[0].uri);
+          }
+      } catch (error) {
+          alert("Error uploading message: " + error.message);
+      }
+  };
 
   // Set all messages to read
   const setRead = (messages) => {
@@ -114,7 +147,7 @@ export default function ({ route, navigation }) {
         if (unread.length > 0) {
           unread[0].unread = false;
         }
-        
+
         temp.unshift(newMessage);
       } else {
         temp.unshift(message);
@@ -153,7 +186,7 @@ export default function ({ route, navigation }) {
       .then(() => {
         setMessage("");
       });
-    
+
     users.forEach((uid) => {
       if (uid != user.uid) {
         db.collection("Users").doc(uid).update({
@@ -177,7 +210,7 @@ export default function ({ route, navigation }) {
         if (data.settings?.attendingTutorial !== undefined) {
           setAttendingTutorial(data.settings.attendingTutorial);
         }
-        
+
       } else {
         console.log('No such document!');
       }
@@ -200,7 +233,7 @@ export default function ({ route, navigation }) {
   return (
     <Layout style={{flex: 1}}>
 
-    {attendingTutorial && 
+    {attendingTutorial &&
         <>
           <RecTutorialMessage
             userId={user.uid}
@@ -227,17 +260,26 @@ export default function ({ route, navigation }) {
           navigation.goBack();
         }}
       />
-      {loading ? 
+      {loading ?
         <View style={styles.noMsgsView}>
           <ActivityIndicator size={100} color="#5DB075" />
           <MediumText center>Hang tight ...</MediumText>
         </View>
       :
-        
-        <KeyboardAvoidingView 
+
+        <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : ""}
         >
+
+        <TouchableOpacity onPress={() => handleChoosePhoto()}>
+            <ImageBackground source={{ uri: photo }} style={styles.image}>
+                <View style={styles.imageOverlay}>
+                    <Ionicons name="image-outline" color="white" size={30}></Ionicons>
+                </View>
+            </ImageBackground>
+        </TouchableOpacity>
+
           <FlatList
             data={messages}
             renderItem={({ item }) => (
