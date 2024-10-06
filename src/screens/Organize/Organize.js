@@ -40,6 +40,8 @@ import TextInput from "../../components/TextInput";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import icebreakerList from "../../icebreakerList";
 import { FontAwesome } from "@expo/vector-icons";
+import TypeAheadTextInput from "../../components/TypeAheadTextInput";
+import { yelpSearch } from "../../provider/Search";
 
 export default function ({ navigation }) {
     // Current user
@@ -79,6 +81,7 @@ export default function ({ navigation }) {
     const [semiPrivate, setSemiPrivate] = useState(false); //Checkbox state to see if public event should be semiprivate
 
     const refRBSheet = useRef(); // To toggle the bottom drawer on/off
+    const refLocation = useRef(); // To toggle the locationm bottom drawer onn/off
 
     // Loading notifications
     useEffect(() => {
@@ -427,6 +430,7 @@ export default function ({ navigation }) {
                             iconLeft="location-outline"
                             mainContainerStyle={styles.input}
                             required
+                            onFocus={() => refLocation.current.open()}
                         />
 
                         <DateTimePickerModal isVisible={showStartDate} date={startDate}
@@ -570,6 +574,40 @@ export default function ({ navigation }) {
                             resetValue={false}
                         />
                     </RBSheet>
+
+                    <RBSheet
+                        height={400}
+                        ref={refLocation}
+                        closeOnDragDown={true}
+                        closeOnPressMask={false}
+                        customStyles={{
+                            wrapper: {
+                                backgroundColor: "rgba(0,0,0,0.5)",
+                            },
+                            draggableIcon: {
+                                backgroundColor: "#5DB075"
+                            },
+                            container: {
+                                borderTopLeftRadius: 20,
+                                borderTopRightRadius: 20,
+                                padding: 10
+                            }
+
+                        }}>
+                        <NormalText center marginBottom={10}>Start typing to search for a location!</NormalText>
+                        <TypeAheadTextInput
+                            placeholder="Location (e.g. 'Cafe on the Ave')"
+                            value={location}
+                            onChangeText={(val) => {
+                                setLocation(val);
+                            }}
+                            width="100%"
+                            iconLeft="location-outline"
+                            mainContainerStyle={styles.input}
+                            searchFn={yelpSearch}
+                            onSelect={() => refLocation.current.close()}
+                        />
+                    </RBSheet>                    
                 </View>
             </KeyboardAvoidingWrapper>
         </Layout>
