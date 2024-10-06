@@ -26,12 +26,13 @@ export const yelpSearch = async (term, options) => {
         latitude: options?.lat ?? U_DISTRICT_STATION_POSITION.lat,
         longitude: options?.long ?? U_DISTRICT_STATION_POSITION.long,
         limit: options.maxSearchResultsSize,
-        // categories: "food"
+        // [!] https://docs.developer.yelp.com/docs/resources-categories
+        categories: "food"
       }
     });
     return response.data.businesses.map(business => ({id: business.id, name: business.name }));
-  } catch(err) {
-    return [{id: "xxx", name: err.toString()}];
+  } catch {
+    return [];
   }
 
 }

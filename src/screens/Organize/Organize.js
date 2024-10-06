@@ -81,7 +81,7 @@ export default function ({ navigation }) {
     const [semiPrivate, setSemiPrivate] = useState(false); //Checkbox state to see if public event should be semiprivate
 
     const refRBSheet = useRef(); // To toggle the bottom drawer on/off
-    const refLocation = useRef(); // To toggle the locationm bottom drawer onn/off
+    const refLocation = useRef(); // To toggle the location bottom drawer on/off
 
     // Loading notifications
     useEffect(() => {
