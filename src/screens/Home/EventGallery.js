@@ -59,7 +59,7 @@ export default function EventGallery({ route, navigation }) {
                     },
                     { text: "Take a photo", onPress: () => cameraImageSelector(imageId).then(resolve).catch(reject) },
                 ],
-                { cancelable: false }
+                { cancelable: true }
             );
         });
     };

@@ -56,6 +56,7 @@ export default function Gallery({ route, navigation }) {
                     const fetchedImages = userData.gallery || [];
                     setImages(fetchedImages);
                     setFilteredImages(fetchedImages);
+                    console.log(fetchedImages);
                 }
             } catch (error) {
                 console.error("Error fetching images: ", error);
@@ -121,21 +122,21 @@ export default function Gallery({ route, navigation }) {
 
     const handleChoosePhoto = (imageId) => {
         return new Promise((resolve, reject) => {
-            Alert.alert(
-                "Pick Image",
-                "Choose an image for your event",
-                [
-                    {
-                        text: "Gallery",
-                        onPress: () => galleryImageSelector(imageId).then(resolve).catch(reject),
-                    },
-                    {
-                        text: "Take a photo",
-                        onPress: () => cameraImageSelector(imageId).then(resolve).catch(reject),
-                    },
-                ],
-                { cancelable: false }
-            );
+                Alert.alert(
+                    "Pick Image",
+                    "Choose an image for your event",
+                    [
+                        {
+                            text: "Gallery",
+                            onPress: () => galleryImageSelector(imageId).then(resolve).catch(reject),
+                        },
+                        {
+                            text: "Take a photo",
+                            onPress: () => cameraImageSelector(imageId).then(resolve).catch(reject),
+                        },
+                    ],
+                    { cancelable: true }
+                );
         });
     };
 
@@ -186,6 +187,7 @@ export default function Gallery({ route, navigation }) {
             imageId: imageId,
             imageUploadedTime: Date.now(),
             imageEventAssigned: '',
+            imageCaption:'',
         };
 
         await db.collection("Users").doc(user.uid).update({
@@ -219,6 +221,7 @@ export default function Gallery({ route, navigation }) {
                 imageUrl: image.imageUrl,
                 imageId: image.imageId,
                 imageUploadedTime: image.imageUploadedTime,
+                imageCaption: image.imageCaption,
             };
 
             const storageRef = storage.ref().child(`Gallery/${user.uid}/${image.imageId}`);
@@ -626,6 +629,7 @@ export default function Gallery({ route, navigation }) {
                 <View style={styles.modalBottom}>
                     <View style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent: "center",}}>
                         <Filter checked={false} onPress={() => getMetadata(selectedImageUri)} text="Info"  />
+                        <Filter checked={false} text="Edit"  />
                         <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
                     <View style={styles.assignBottom}> 
