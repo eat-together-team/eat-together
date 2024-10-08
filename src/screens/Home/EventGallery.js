@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        alignItems: "left",
+        alignItems: "center",
         justifyContent: "flex-start", // Change justifyContent to flex-start
     },
     imageItem: {

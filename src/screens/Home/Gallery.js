@@ -56,7 +56,6 @@ export default function Gallery({ route, navigation }) {
                     const fetchedImages = userData.gallery || [];
                     setImages(fetchedImages);
                     setFilteredImages(fetchedImages);
-                    console.log(fetchedImages);
                 }
             } catch (error) {
                 console.error("Error fetching images: ", error);
@@ -650,7 +649,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        alignItems: "left",
+        alignItems: "center",
         justifyContent: "flex-start",
     },
     imageItem: {
