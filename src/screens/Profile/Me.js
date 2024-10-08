@@ -106,7 +106,7 @@ export default function ({ navigation }) {
   const handleChoosePhoto = async () => {
       Alert.alert (
           "Pick Image",
-          "Choose an image for your event",
+          "Choose an image for your profile",
           [
               {
                   text: "Gallery",

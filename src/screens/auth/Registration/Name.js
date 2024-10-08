@@ -58,7 +58,7 @@ const Name = props => {
   const handleChoosePhoto = async () => {
       Alert.alert (
           "Pick Image",
-          "Choose an image for your event",
+          "Choose an image",
           [
               {
                   text: "Gallery",
@@ -135,16 +135,8 @@ const Name = props => {
                   </View>
                 </ImageBackground>
               )}
-              <TouchableOpacity style={styles.editImage} onPress={pickImage}>
+              <TouchableOpacity style={styles.editImage} onPress={handleChoosePhoto()}>
                 <Feather name="edit-2" size={24} color="black" />
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => handleChoosePhoto()}>
-                  <ImageBackground source={{ uri: photo }} style={styles.image}>
-                      <View style={styles.imageOverlay}>
-                          <Ionicons name="image-outline" color="white" size={30}></Ionicons>
-                      </View>
-                  </ImageBackground>
               </TouchableOpacity>
 
             </View>

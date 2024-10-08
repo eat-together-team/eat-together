@@ -106,7 +106,7 @@ export default function ({ route, navigation }) {
   const handleChoosePhoto = async () => {
       Alert.alert (
           "Pick Image",
-          "Choose an image for your event",
+          "Choose an image to send to chat",
           [
               {
                   text: "Gallery",
@@ -279,18 +279,15 @@ export default function ({ route, navigation }) {
         </View>
       :
 
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : ""}
-        >
+        <KeyboardAvoidingView>
 
-        <TouchableOpacity onPress={() => handleChoosePhoto()}>
-            <ImageBackground source={{ uri: photo }} style={styles.image}>
-                <View style={styles.imageOverlay}>
-                    <Ionicons name="image-outline" color="white" size={30}></Ionicons>
-                </View>
-            </ImageBackground>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleChoosePhoto()}>
+              <ImageBackground source={{ uri: photo }} style={styles.image}>
+                  <View style={styles.imageOverlay}>
+                      <Ionicons name="image-outline" color="white" size={30}></Ionicons>
+                  </View>
+              </ImageBackground>
+          </TouchableOpacity>
 
           <FlatList
             data={messages}
