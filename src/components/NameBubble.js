@@ -4,12 +4,23 @@ import PropTypes from 'prop-types';
 import MediumText from "./MediumText";
 import NormalText from './NormalText';
 import CustomButton from './CustomButton';
+import { db, auth } from "../provider/Firebase";
 
 // add in the onAccept and onDecline parameters once the backend for accept/decline is being set up
+async function acceptBuddy (user, person) {
+    console.log("hello")
+    await db.collection("Users").doc(user.uid).update({
+        "buddy": person.id,
+    });
+    navigation.goBack();
+
+}
 // like this: const NameBubble = ({ person, click, onAccept, onDecline }) => {
 const NameBubble = ({ person, click}) => {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const closeConfirmation = () => setShowConfirmation(false);
+    const user = auth.currentUser;
+    // const [userInfo, setUserInfo] = useState({});
 
     return (
         <View style={styles.profile}>
@@ -26,6 +37,7 @@ const NameBubble = ({ person, click}) => {
                 <CustomButton
                     onPress={() => {
                         setShowConfirmation(true);
+                        acceptBuddy(user, person);
                         // onAccept(person); // uncomment this once the backend is set up
                     }}
                     backgroundColor="#4CAF50"
@@ -70,7 +82,7 @@ const NameBubble = ({ person, click}) => {
                     </View>
                 </View>
             </Modal>
-        </View>     
+        </View>
     );
 };
 

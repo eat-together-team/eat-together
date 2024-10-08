@@ -2,15 +2,26 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import CustomButton from './CustomButton'; // Ensure this is imported correctly
+import { auth } from '../provider/Firebase';
+
+async function acceptBuddy (user) {
+    console.log("hello")
+    await db.collection("Users").doc(user.uid).update({
+        "buddy": true,
+    });
+    navigation.goBack();
+
+}
 
 const ConfirmationButton = ({ route, navigation }) => {
     const { personName } = route.params;
+    const user = auth.currentUser;
 
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Yay! {personName} is now your buddy!</Text>
             <CustomButton
-                onPress={() => navigation.goBack()}
+                onPress={() => {console.log(user); acceptBuddy(user);}}
                 backgroundColor="#2196F3"
                 paddingHorizontal={20}
                 paddingVertical={10}

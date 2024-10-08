@@ -176,7 +176,7 @@ export default function ({ navigation }) {
         {user.uid !== tryoutId && <HorizontalRow>
           <Filter
             checked={similarInterests}
-            onPress={() => setSimilarInterests(!similarInterests)}
+            onPress={() =>  setSimilarInterests(!similarInterests)}
             text="Sort by similar interests"
           />
           <Filter

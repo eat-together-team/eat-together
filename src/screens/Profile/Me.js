@@ -5,7 +5,8 @@ import {
   Image,
   Dimensions,
   ScrollView,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert
 } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import { Ionicons, Feather } from "@expo/vector-icons";
@@ -21,8 +22,11 @@ import EventCard from "../../components/EventCard";
 import { AntDesign } from '@expo/vector-icons';
 import BuddyNotif from "./BuddyNotif";
 import BuddyPage from "./BuddyPage";
+// import BuddyView from "./BuddyView";
 
 import { compareDates } from "../../methods";
+
+
 
 export default function ({ navigation }) {
   const user = auth.currentUser;
@@ -33,6 +37,7 @@ export default function ({ navigation }) {
   const [mealsSignedUp, setMealsSignedUp] = useState(0);
 
   const [events, setEvents] = useState([]);
+  const [buddyInfo, setBuddyInfo] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -42,6 +47,19 @@ export default function ({ navigation }) {
         .onSnapshot(async (doc) => {
           if (!doc.exists) {
             return;
+          }
+
+          // Fetch buddy
+          if (doc.data().buddy) {
+            db
+            .collection("Users")
+            .doc(doc.data().buddy)
+            .onSnapshot((buddyDoc) => {
+              console.log(buddyDoc.data());
+              setBuddyInfo(buddyDoc.data());
+            })
+          } else {
+            setBuddyInfo(null);
           }
 
           setUserInfo(doc.data());
@@ -129,6 +147,30 @@ export default function ({ navigation }) {
       banner: newBanner
     }));
   }
+
+  const removeBuddy = (user, buddyInfo) => {
+    Alert.alert(
+      "Edit Buddy",
+      buddyInfo.firstName + " is your buddy",
+      [
+        {
+          text: "Back",
+          onPress: () => {return;}
+        },
+        {
+          text: "Remove",
+          onPress: async () => {
+            console.log("User:" + user.uid)
+            await db.collection("Users").doc(user.uid).update({
+              buddy: null
+            });
+            alert("Updated!");
+          }
+        }
+      ]
+    )
+  }
+
 
   return (
     <Layout>
@@ -226,16 +268,43 @@ export default function ({ navigation }) {
           <MediumText>@{userInfo.username}</MediumText>
         </View>
 
+
         <View style = {styles.link}>
-        <TouchableOpacity
-          style ={styles.link}
-          onPress={() => {
-            navigation.navigate("BuddyPage");
-          }}>
-          <NormalText>You do not have a buddy</NormalText>
-            <AntDesign name="adduser" size={24} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
-          </TouchableOpacity>
+          {/* {console.log("hello " + userInfo.buddy)} */}
+          {!buddyInfo ?
+            // If the user does not have a buddy
+            // Display the add buddy button
+            <TouchableOpacity
+              style ={styles.link}
+              onPress={() => {
+                navigation.navigate("BuddyPage");
+                console.log("hello");
+              }}>
+                <NormalText> You do not have a buddy : </NormalText>
+                <AntDesign name="adduser" size={24} color="#4C6FB1" />
+                <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
+            </TouchableOpacity>
+          :
+              // If the user has a buddy
+              // Display the buddy's information
+              // and the remove buddy button
+            <TouchableOpacity
+              style={styles.link}
+              onPress={() => { removeBuddy(user, buddyInfo)}}
+            >
+              {/* Display the buddy's profile picture if they have one.
+                  If they don't use the default image. */}
+              <Image
+                  style={styles.buddy_image}
+                  source={buddyInfo.hasImage
+                    ? { uri: buddyInfo.image } :
+                    require("../../../assets/logo.png")}
+                  size={10}
+                  />
+                  <NormalText>{buddyInfo.firstName} is your Buddy</NormalText>
+              <AntDesign name="edit" size={24} color="#4C6FB1"/>
+            </TouchableOpacity>
+          }
         </View>
 
         <TagsList tags={userInfo.tags ? userInfo.tags : []} />
@@ -294,6 +363,16 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderRadius: 100,
     backgroundColor: "white",
+  },
+
+  buddy_image: {
+    width: 40,
+    height: 40,
+    borderColor: "white",
+    borderWidth: 3,
+    borderRadius: 100,
+    backgroundColor: "white",
+    padding:5
   },
 
   name: {

@@ -37,16 +37,6 @@ import { db, auth } from "../../provider/Firebase";
 import firebase from "firebase/compat";
 import { tryoutId } from "../../constants";
 
-// const blockPerson = (uid, navigation, back) => {
-//   Alert.alert("Block", "Are you sure you want to block this user? This can't be undone.", [
-//     {
-//       text: "Cancel",
-//       style: "cancel",
-//     },
-//     { text: "Yes", style: "destructive", onPress: () => databaseStoreBlockAction(uid, navigation, back) },
-//   ]);
-// };
-
 const databaseStoreBlockAction = (uid, navigation, back) => {
   alert("This user has been blocked.");
   const user = auth.currentUser;
@@ -138,12 +128,7 @@ function databaseRemoveFriend(uid, navigation) {
   navigation.goBack();
 }
 
-function sendRequest(navigation) {
-  alert(
-    "Buddy Request Sent!"
-  );
-  navigation.goBack();
-}
+
 
 const BuddyRequest = ({ blockBack, route, navigation }) => {
   const user = auth.currentUser; // Current user
@@ -156,11 +141,26 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
     "https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png"
   );
 
-  // const reportPerson = () => {
-  //   navigation.navigate("ReportPerson", {
-  //     user: route.params.person,
-  //   });
-  // };
+  // Send Buddy Request
+  function sendRequest() {
+    alert(
+      "Buddy Request Sent!"
+    );
+    // Create the Buddy Request subtable
+    // Create's or updates the buddy request table for the recipient
+    db.collection("User Invites")
+      .doc(route.params.person.id)
+      .collection("Buddy Requests")
+      .doc(user.uid)
+      .set({
+        name: route.params.person.firstName + " " + route.params.person.lastName,
+        uid: route.params.person.id,
+        profile: route.params.person.image,
+       })
+       .catch((error) => {console.log("Error sending buddy request: " + error)});
+
+    navigation.goBack();
+  }
 
   useEffect(() => {
     // updates stuff right after React makes changes to the DOM
@@ -295,7 +295,7 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
          }}
         />
         <RequestMessage
-          onPress={()=> sendRequest(navigation)}/>
+          onPress={()=> sendRequest()}/>
         <BorderedButton
           marginHorizontal={10}
           paddingVertical={10}
@@ -303,7 +303,7 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
           width={Dimensions.get('screen').width - 40}
           height={38}
           fontSize={14}
-          onPress={()=> sendRequest(navigation)}
+          onPress={()=> sendRequest()}
         >
           Send without message
         </BorderedButton>
