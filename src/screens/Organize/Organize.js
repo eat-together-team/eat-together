@@ -419,18 +419,20 @@ export default function ({ navigation }) {
                             </TouchableOpacity>
                         </View>
 
-
-                        <TextInput
-                            placeholder="Location (e.g. 'Cafe on the Ave')"
-                            value={location}
-                            onChangeText={() => refLocation.current.open()}
-                            width="100%"
-                            iconLeft="location-outline"
-                            mainContainerStyle={styles.input}
-                            required
-                            onFocus={() => refLocation.current.open()}
-                        />
-
+                        <TouchableOpacity onPress={() => refLocation.current.open()}>
+                            <View pointerEvents="none">
+                                <TextInput
+                                    placeholder="Location (e.g. 'Cafe on the Ave')"
+                                    value={location}
+                                    width="100%"
+                                    iconLeft="location-outline"
+                                    mainContainerStyle={styles.input}
+                                    editable={false}
+                                    required
+                                />
+                            </View>
+                        </TouchableOpacity>
+                        
                         <DateTimePickerModal isVisible={showStartDate} date={startDate}
                             mode={mode} onConfirm={changeStartDate} onCancel={() => setShowStartDate(false)}
                             minimumDate={new Date()} maximumDate={moment().add(1, "months").toDate()}/>
