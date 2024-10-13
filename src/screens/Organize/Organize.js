@@ -423,9 +423,7 @@ export default function ({ navigation }) {
                         <TextInput
                             placeholder="Location (e.g. 'Cafe on the Ave')"
                             value={location}
-                            onChangeText={(val) => {
-                                setLocation(val);
-                            }}
+                            onChangeText={() => refLocation.current.open()}
                             width="100%"
                             iconLeft="location-outline"
                             mainContainerStyle={styles.input}
@@ -598,14 +596,14 @@ export default function ({ navigation }) {
                         <TypeAheadTextInput
                             placeholder="Location (e.g. 'Cafe on the Ave')"
                             value={location}
-                            onChangeText={(val) => {
-                                setLocation(val);
-                            }}
                             width="100%"
                             iconLeft="location-outline"
                             mainContainerStyle={styles.input}
                             searchFn={yelpSearch}
-                            onSelect={() => refLocation.current.close()}
+                            onSelect={(val) => {
+                                refLocation.current.close();
+                                setLocation(val);
+                            }}
                         />
                     </RBSheet>                    
                 </View>

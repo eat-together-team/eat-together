@@ -25,9 +25,10 @@ export const yelpSearch = async (term, options) => {
         radius: options?.radius ?? DEFAULT_SEARCH_RADIUS,
         latitude: options?.lat ?? U_DISTRICT_STATION_POSITION.lat,
         longitude: options?.long ?? U_DISTRICT_STATION_POSITION.long,
-        limit: options.maxSearchResultsSize,
+        limit: options.maxSearchResultsSize
         // [!] https://docs.developer.yelp.com/docs/resources-categories
-        categories: "food"
+        // the category "food" doesn't include many restaurants for some reason
+        // categories: "food"
       }
     });
     return response.data.businesses.map(business => ({id: business.id, name: business.name }));
