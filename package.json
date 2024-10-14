@@ -24,6 +24,7 @@
     "axios": "^1.6.8",
     "dotenv": "^16.0.3",
     "eas-cli": "^9.0.3",
+    "eat-together": "file:",
     "eslint": "^8.22.0",
     "eslint-config-rallycoding": "^3.2.0",
     "expo": "^51.0.8",
