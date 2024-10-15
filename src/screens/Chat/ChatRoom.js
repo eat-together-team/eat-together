@@ -280,15 +280,6 @@ export default function ({ route, navigation }) {
       :
 
         <KeyboardAvoidingView>
-
-          <TouchableOpacity onPress={() => handleChoosePhoto()}>
-              <ImageBackground source={{ uri: photo }} style={styles.image}>
-                  <View style={styles.imageOverlay}>
-                      <Ionicons name="image-outline" color="white" size={30}></Ionicons>
-                  </View>
-              </ImageBackground>
-          </TouchableOpacity>
-
           <FlatList
             data={messages}
             renderItem={({ item }) => (

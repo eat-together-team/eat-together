@@ -135,7 +135,7 @@ const Name = props => {
                   </View>
                 </ImageBackground>
               )}
-              <TouchableOpacity style={styles.editImage} onPress={handleChoosePhoto()}>
+              <TouchableOpacity style={styles.editImage} onPress={() => handleChoosePhoto()}>
                 <Feather name="edit-2" size={24} color="black" />
               </TouchableOpacity>
 

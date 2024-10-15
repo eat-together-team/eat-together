@@ -220,14 +220,6 @@ export default function ({ navigation }) {
           }
         />
 
-        <TouchableOpacity onPress={() => handleChoosePhoto()}>
-            <ImageBackground source={{ uri: photo }} style={styles.image}>
-                <View style={styles.imageOverlay}>
-                    <Ionicons name="image-outline" color="white" size={30}></Ionicons>
-                </View>
-            </ImageBackground>
-        </TouchableOpacity>
-
         <View style={styles.links}>
           <TouchableOpacity
             style={styles.link}
