@@ -300,8 +300,6 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
         </BorderedButton>
       </View>
 
-
-
         {/* <Image
           style={styles.image}
           source={
