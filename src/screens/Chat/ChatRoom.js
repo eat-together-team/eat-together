@@ -278,8 +278,10 @@ export default function ({ route, navigation }) {
           <MediumText center>Hang tight ...</MediumText>
         </View>
       :
-
-        <KeyboardAvoidingView>
+        <KeyboardAvoidingView 
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : ""}
+        >
           <FlatList
             data={messages}
             renderItem={({ item }) => (
