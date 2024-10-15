@@ -68,7 +68,6 @@ const ProfileBubble = props => {
 
 const styles = StyleSheet.create({
     card: {
-        // display: flex,
         paddingVertical: 10,
         paddingHorizontal: 15,
         width: Dimensions.get('screen').width - 40,
