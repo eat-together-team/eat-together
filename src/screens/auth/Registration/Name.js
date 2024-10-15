@@ -80,7 +80,7 @@ const Name = props => {
               quality: 1,
           });
           if (!result.cancelled) {
-              setPhoto(result.assets[0].uri);
+              setImage(result.assets[0].uri);
           }
       } catch (error) {
           alert("Error uploading message: " + error.message);
@@ -96,7 +96,7 @@ const Name = props => {
     });
 
     if (!result.cancelled) {
-      setImage(result.uri);
+      setImage(result.assets[0].uri);
     }
   }
 

@@ -126,7 +126,7 @@ export default function ({ route, navigation }) {
         quality: 1,
     });
     if (!result.cancelled) {
-        setPhoto(result.assets[0].uri);
+        onSend(result.assets[0].uri);
     }
   };
 
@@ -140,7 +140,7 @@ export default function ({ route, navigation }) {
               quality: 1,
           });
           if (!result.cancelled) {
-              setPhoto(result.assets[0].uri);
+              onSend(result.assets[0].uri);
           }
       } catch (error) {
           alert("Error uploading message: " + error.message);
@@ -299,7 +299,7 @@ export default function ({ route, navigation }) {
             iconRightColor="#D3D3D3"
             iconRightFontSize={20}
             iconRightDisabled={message.length === 0}
-            iconLeftOnPress={handleUploadImage}
+            iconLeftOnPress={handleChoosePhoto}
             iconRightOnPress={() => onSend(null)}
           />
         </KeyboardAvoidingView>
