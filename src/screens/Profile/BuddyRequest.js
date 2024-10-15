@@ -1,5 +1,4 @@
 //Functionality TDB, most likely to be used to implement ice-breaker games
-
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -25,6 +24,7 @@ import Header from "../../components/Header";
 import RequestBubble from "../../components/RequestBubble";
 import RequestMessage from "../../components/RequestMessage";
 import BorderedButton from "../../components/BorderedButton";
+
 
 import {
   Menu,
@@ -274,7 +274,7 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
         leftContent={<Ionicons name="chevron-back" size={20} />}
         leftAction={() => navigation.goBack()}
       />
-      <Header name="Send Buddy Request"/>
+      <Header name="Send Buddy Request" />
       <ScrollView contentContainerStyle={styles.page}>
 
         {/* <View style={styles.badge}>
@@ -296,17 +296,6 @@ const BuddyRequest = ({ blockBack, route, navigation }) => {
         />
         <RequestMessage
           onPress={()=> sendRequest()}/>
-        <BorderedButton
-          marginHorizontal={10}
-          paddingVertical={10}
-          paddingHorizontal={20}
-          width={Dimensions.get('screen').width - 40}
-          height={38}
-          fontSize={14}
-          onPress={()=> sendRequest()}
-        >
-          Send without message
-        </BorderedButton>
       </View>
       </ScrollView>
     </Layout>
