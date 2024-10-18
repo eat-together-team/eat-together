@@ -56,7 +56,7 @@
     "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-gradle-plugin": "^0.71.19",
-    "react-native-image-crop-picker": "0.38.1",
+    "react-native-image-crop-picker": "^0.41.4",
     "react-native-image-picker": "^4.10.0",
     "react-native-modal-datetime-picker": "^14.0.0",
     "react-native-open-maps": "^0.4.0",
