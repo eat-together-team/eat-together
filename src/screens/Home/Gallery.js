@@ -14,6 +14,8 @@ import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
 import LargeText from "../../components/LargeText";
 import Link from "../../components/Link";
+import TextInput from "../../components/TextInput";
+import NormalText from "../../components/NormalText";
 
 //Global variables
 const numColumns = 3;
@@ -31,7 +33,18 @@ export default function Gallery({ route, navigation }) {
     const [attendedEvents, setAttendedEvents] = useState([]);
     const [attendedEventNames, setAttendedEventNames] = useState([]);
     const [isEventModalVisible, setIsEventModalVisible] = useState(false);
+    const [isCaptionModalVisible, setIsCaptionModalVisible] = useState(false);
     const [selectedImageForEvent, setSelectedImageForEvent] = useState(null);
+    // Picker Function
+    const [caption,setCaption] = useState('');
+
+    // Image Details
+    const [firstName,setFirstName] = useState('');
+    const [lastName,setLastName] = useState('');
+    const [imageCaption,setImageCaption] = useState('');
+    const [assignedEventName,setAssignedEventName] = useState('Unknown Event');
+    const [timeUploaded,setTimeUploaded] = useState()
+
     // Filters
     const [newest, setNewest] = useState(true);
     const [oldest, setOldest] = useState(false);
@@ -42,10 +55,7 @@ export default function Gallery({ route, navigation }) {
 
     // Reference Variables for the selection component
     const showViewFilterRef = useRef();
-    const showRecentFilterRef = useRef();
-
-    // Picker State Variables 
-    const [pickerValue, setPickerValue] = useState(null);
+    const showRecentFilterRef = useRef();    
 
     // Use Effect to fetch image data
     useEffect(() => {
@@ -56,6 +66,8 @@ export default function Gallery({ route, navigation }) {
                     const fetchedImages = userData.gallery || [];
                     setImages(fetchedImages);
                     setFilteredImages(fetchedImages);
+                    setFirstName(userData.firstName);
+                    setLastName(userData.lastName);
                 }
             } catch (error) {
                 console.error("Error fetching images: ", error);
@@ -116,6 +128,52 @@ export default function Gallery({ route, navigation }) {
         fetchEventNames();
     }, [attendedEvents]);
 
+        const getMetadata = async (uri) => {
+            // console.log('get Metadata')
+            console.log(uri)
+            const image = images.find(item => item.imageUrl === uri);
+            console.log('image:',image)        
+
+            if (image) {
+                const uploadedTime = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
+                let eventName = '';
+                const caption = image.imageCaption;
+                setImageCaption(caption);
+                setTimeUploaded(uploadedTime);
+                try {
+                    // Check if the event ID exists in the Public Events collection
+                    const publicEventDoc = await db.collection("Public Events").doc(image.imageEventAssigned).get();
+                    if (publicEventDoc.exists) {
+                        eventName = publicEventDoc.data().name;
+                        setAssignedEventName(eventName);
+                    } else {
+                        // If not found in Public Events, check Private Events collection
+                        const privateEventDoc = await db.collection("Private Events").doc(image.imageEventAssigned).get();
+                        if (privateEventDoc.exists) {
+                            eventName = privateEventDoc.data().name;
+                            setAssignedEventName(eventName);
+                        } else {
+                            // If event ID not found in either collection
+                            eventName = 'Unknown Event';
+                            setAssignedEventName(eventName);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching event details: ", error);
+                    eventName = 'Unknown Event';
+                    setAssignedEventName(eventName);
+                }
+        
+                // Alert.alert(
+                //     "Image Information",
+                //     `Upload date and time: ${timeUploaded}\nEvent Assigned: ${eventName}\n\nCaption:${caption}`
+                // );
+                console.log(assignedEventName,timeUploaded,imageCaption)
+            }
+        };
+    
+
+
 
     // Choosing images from gallery or taking a picture
 
@@ -150,6 +208,7 @@ export default function Gallery({ route, navigation }) {
         if (!result.cancelled) {
             const uri = result.assets[0].uri;
             await uploadImage(uri, imageId);
+            await handleCaptionSelect(true);
         }
     };
 
@@ -337,45 +396,12 @@ export default function Gallery({ route, navigation }) {
     };
             
 
-    // retreives metadata from firestore
-
-    const getMetadata = async (uri) => {
-        const image = images.find(item => item.imageUrl === uri);
-        if (image) {
-            const timeUploaded = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
-            let eventName = '';
-    
-            try {
-                // Check if the event ID exists in the Public Events collection
-                const publicEventDoc = await db.collection("Public Events").doc(image.imageEventAssigned).get();
-                if (publicEventDoc.exists) {
-                    eventName = publicEventDoc.data().name;
-                } else {
-                    // If not found in Public Events, check Private Events collection
-                    const privateEventDoc = await db.collection("Private Events").doc(image.imageEventAssigned).get();
-                    if (privateEventDoc.exists) {
-                        eventName = privateEventDoc.data().name;
-                    } else {
-                        // If event ID not found in either collection
-                        eventName = 'Unknown Event';
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching event details: ", error);
-                eventName = 'Unknown Event';
-            }
-    
-            Alert.alert(
-                "Image Information",
-                `Upload date and time: ${timeUploaded}\n\nEvent Assigned: ${eventName}`
-            );
-        }
-    };
         
     // Modal Handlers
 
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
+        getMetadata(selectedImageUri);
         setIsModalVisible(true);
     };
 
@@ -397,6 +423,11 @@ export default function Gallery({ route, navigation }) {
             console.error("No image selected for event assignment.");
         }
     };
+
+    const handleCaptionSelect = (uri) => {
+        setIsCaptionModalVisible(true);
+        return uri;
+    }
         
     // Function to assign image to events
                     
@@ -591,7 +622,7 @@ export default function Gallery({ route, navigation }) {
                     <EmptyState title="No Images" text="Add some photos to your event gallery!" />
                 )}
             </View>
-
+            {/*  Assign  Images to a event*/}
             <Modal visible={isEventModalVisible} transparent={true} onRequestClose={() => setIsEventModalVisible(false)}>
                 <TouchableWithoutFeedback onPress={() => setIsEventModalVisible(false)}>
                     <View style={modalStyles.modalBackground}>
@@ -610,7 +641,31 @@ export default function Gallery({ route, navigation }) {
                     </View>
                 </TouchableWithoutFeedback>
             </Modal>
-
+            <Modal visible={isCaptionModalVisible} transparent={true} onRequestClose={() => setIsCaptionModalVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => setIsCaptionModalVisible(false)}>
+                    <View style={modalStyles.modalBackground}>
+                        <View style={modalStyles.modalContainer}>
+                            <View style={modalStyles.captionItem}>
+                                <LargeText style={modalStyles.eventText}>Insert Caption</LargeText>
+                                <TextInput
+                                    placeholder="Insert Caption"
+                                    value={caption}
+                                    width="100%"
+                                    onChangeText={(val) => {
+                                        setCaption(val);
+                                    }}
+                                    iconLeft="information-circle-outline"
+                                    required
+                                    mainContainerStyle={{
+                                        marginBottom: 10, minHeight:65, height:"auto", 
+                                    }}
+                                />
+                                {/* <Button onPress={() => }>Add Caption</Button> */}
+                            </View>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
 
             <Modal visible={isModalVisible} transparent={true} onRequestClose={handleCloseModal}>
                 <TopNav
@@ -620,17 +675,24 @@ export default function Gallery({ route, navigation }) {
                 />
                 <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <View style={styles.modalBackground}>
-                        <View style={styles.modalContainer}>
-                            <Image style={{ width: '100%', height: '100%', resizeMode: 'contain' }} source={{ uri: selectedImageUri }} />
-                        </View>
+                        <Image style={{ width: screenWidth, height:screenWidth, resizeMode: 'cover' }} source={{ uri: selectedImageUri }} />
                     </View>
                 </TouchableWithoutFeedback>
                 <View style={styles.modalBottom}>
-                    <View style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent: "center",}}>
-                        <Filter checked={false} onPress={() => getMetadata(selectedImageUri)} text="Info"  />
-                        <Filter checked={false} text="Edit"  />
+                <View style={{ flexDirection: "row", padding: 10, alignItems: "center", justifyContent: 'space-between' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <NormalText>{firstName} </NormalText>
+                        <NormalText>{lastName}</NormalText>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Filter checked={false} text="Edit" />
                         <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
+                </View>
+                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>{imageCaption}</NormalText>
+                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>{timeUploaded}</NormalText>
+                    {/* <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent:"flex-end"}}>Event Assigned: {assignedEventName}</NormalText> */}
+
                     <View style={styles.assignBottom}> 
                         <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>
                     </View>
@@ -671,24 +733,21 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "rgba(0, 0, 0, 0.7)",
     },
-    modalContainer: {
-        width: "100%",
-    },
     modalBottom: {
-        height: 170,
+        height: screenWidth-64,
         backgroundColor: "white",
-        justifyContent: "flex-end",
-        alignItems: "center",
     },
-    assignBottom:{
+    assignBottom: {
         height: 115,
-        backgroundColor:'#5DB075',
-        width:'100%',
+        backgroundColor: '#5DB075',
+        width: '100%',
         justifyContent: "center",
         alignItems: "center",
-
+        position: 'absolute',   
+        bottom: 0,           
+        left: 0,             
     },
-    rightIcons: {
+        rightIcons: {
         flexDirection: 'row',
     },
     icon: {
@@ -708,7 +767,6 @@ const styles = StyleSheet.create({
     eventItem: {
         padding: 15,
         borderBottomColor: '#ddd',
-        borderBottomWidth: 1,
     },
 });
 
@@ -737,3 +795,4 @@ const modalStyles = StyleSheet.create({
         color: "black",
     },
 });
+
