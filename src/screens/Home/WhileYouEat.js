@@ -420,7 +420,7 @@ const WhileYouEat = ({ route, navigation }) => {
                 <Ionicons
                   name="ellipsis-horizontal"
                   color={loading ? "grey" : "black"}
-                  size={25}
+                  size={22}
                 />
               </MenuTrigger>
               <MenuOptions>
