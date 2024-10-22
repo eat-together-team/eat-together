@@ -11,6 +11,7 @@ import HorizontalRow from "../../components/HorizontalRow";
 import { auth, db, storage } from "../../provider/Firebase";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
+import NormalText from "../../components/NormalText";
 
 //Global variables
 const numColumns = 3;
@@ -28,6 +29,12 @@ export default function EventGallery({ route, navigation }) {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImageUri, setSelectedImageUri] = useState(null);
     const [userName, setUserName] = useState("");
+    //Caption Vairables
+    const [firstName,setFirstName] = useState('');
+    const [lastName,setLastName] = useState('');
+    const [imageCaption,setImageCaption] = useState('');
+    const [timeUploaded,setTimeUploaded] = useState()
+
 
     // Use Effect to get the image gallery Data
     useEffect(() => {
@@ -108,6 +115,7 @@ export default function EventGallery({ route, navigation }) {
             userUploaded: user.uid,
             eventId: event.id,
             imagePermissions:event.type,
+            imageCaption:'',
         };
 
         let db_name = event.type === "public" ? "Public Events" : "Private Events";
@@ -144,6 +152,7 @@ export default function EventGallery({ route, navigation }) {
                 userUploaded: image.userUploaded,
                 eventId: image.eventId,
                 imagePermissions: image.imagePermissions,
+                imageCaption:image.imageCaption,
             };
 
             const storageRef = storage.ref().child(`eventGallery/${event.id}/${image.imageId}`);
@@ -192,18 +201,23 @@ export default function EventGallery({ route, navigation }) {
     
     const getMetadata = async(uri) => {
         const image = imageGallery.find(item => item.imageUrl === uri);
-        const timeUploaded = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
+        const uploadedTime = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
+        setTimeUploaded(uploadedTime)
         if (image) {
             const userDoc = await db.collection("Users").doc(image.userUploaded).get();
             let uploadedBy = "Unknown User";
             if (userDoc.exists) {
                 const userData = userDoc.data();
+                setFirstName(userData.firstName)
+                setLastName(userData.lastName);
                 uploadedBy = `${userData.firstName} ${userData.lastName}`;
             }
+            console.log(firstName,lastName,uploadedTime)
+
 
             Alert.alert(
                 " Image Information",
-                `Upload date and time: ${timeUploaded}\n\nUploaded By: ${uploadedBy}`
+                `Upload date and time: ${uploadedTime}\n\nUploaded By: ${uploadedBy}`
             );
         } 
     };
@@ -255,6 +269,7 @@ export default function EventGallery({ route, navigation }) {
     
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
+        getMetadata(selectedImageUri);
         setIsModalVisible(true);
     };
 
@@ -301,18 +316,23 @@ export default function EventGallery({ route, navigation }) {
                 />
                 <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <View style={styles.modalBackground}>
-                        <View style={styles.modalContainer}>
-                            <Image style={{ width: '100%', height: '100%', resizeMode: 'contain' }} source={{ uri: selectedImageUri }} />
-                        </View>
+                            <Image style={{ width: screenWidth, height: screenWidth, resizeMode: 'cover' }} source={{ uri: selectedImageUri }} />
                     </View>
                 </TouchableWithoutFeedback>
 
                 <View style={styles.modalBottom}> 
                     {/* Image Information */}
-                    <View style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent: "center",}}>
-                        <Filter checked={false} onPress={() => getMetadata(selectedImageUri)} text="Info"  />
+                    <View style={{ flexDirection: "row", padding: 10, alignItems: "center", justifyContent: 'space-between' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <NormalText weight='bold'>{firstName} </NormalText>
+                        <NormalText weight='bold'>{lastName}</NormalText>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Filter checked={false} text="Edit" />
                         <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
+                </View>
+
                 </View>
             </Modal>
         </Layout>
@@ -327,8 +347,8 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        alignItems: "center",
-        justifyContent: "flex-start", // Change justifyContent to flex-start
+        alignItems: "left",
+        justifyContent: "center", // Change justifyContent to flex-start
     },
     imageItem: {
         margin: 5,
@@ -345,18 +365,15 @@ const styles = StyleSheet.create({
     },
     modalBackground: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: "flex-start",
         backgroundColor: "rgba(0, 0, 0, 0.7)",
     },
     modalContainer: {
         width: "100%",
     },
     modalBottom: {
-        height: 55,
+        height: screenWidth-64,
         backgroundColor: "white",
-        justifyContent: "flex-end",
-        alignItems: "center",
     },
 
 });

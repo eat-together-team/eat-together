@@ -681,17 +681,17 @@ export default function Gallery({ route, navigation }) {
                 <View style={styles.modalBottom}>
                 <View style={{ flexDirection: "row", padding: 10, alignItems: "center", justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <NormalText>{firstName} </NormalText>
-                        <NormalText>{lastName}</NormalText>
+                        <NormalText weight='bold'>{firstName} </NormalText>
+                        <NormalText weight='bold'>{lastName}</NormalText>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Filter checked={false} text="Edit" />
                         <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
                 </View>
-                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>{imageCaption}</NormalText>
+                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,opacity:0.6}}>{imageCaption}</NormalText>
                     <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>{timeUploaded}</NormalText>
-                    {/* <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent:"flex-end"}}>Event Assigned: {assignedEventName}</NormalText> */}
+                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>Event Assigned: {assignedEventName}</NormalText>
 
                     <View style={styles.assignBottom}> 
                         <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>
@@ -711,8 +711,8 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        alignItems: "center",
-        justifyContent: "flex-start",
+        alignItems: "left",
+        justifyContent: "center",
     },
     imageItem: {
         margin: 5,
