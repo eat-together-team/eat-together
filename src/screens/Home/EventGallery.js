@@ -59,7 +59,7 @@ export default function EventGallery({ route, navigation }) {
                     },
                     { text: "Take a photo", onPress: () => cameraImageSelector(imageId).then(resolve).catch(reject) },
                 ],
-                { cancelable: false }
+                { cancelable: true }
             );
         });
     };
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        alignItems: "left",
+        alignItems: "center",
         justifyContent: "flex-start", // Change justifyContent to flex-start
     },
     imageItem: {

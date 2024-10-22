@@ -404,7 +404,7 @@ const WhileYouEat = ({ route, navigation }) => {
       }
 
       <TopNav
-        middleContent={<MediumText center>{event.name}</MediumText>}
+        middleContent={<MediumText center>Your Meal</MediumText>}
         leftContent={
           <Ionicons
             name="chevron-back"
@@ -420,7 +420,7 @@ const WhileYouEat = ({ route, navigation }) => {
                 <Ionicons
                   name="ellipsis-horizontal"
                   color={loading ? "grey" : "black"}
-                  size={25}
+                  size={22}
                 />
               </MenuTrigger>
               <MenuOptions>

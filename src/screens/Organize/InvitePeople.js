@@ -179,7 +179,7 @@ export default function ({ route, navigation }) {
   const [loadingScreen, setLoadingScreen] = useState(true); // Loading screen for filter calculations
 
   // Fetch users
-  useEffect(async () => {
+  useEffect(() => {
     async function fetchData() {
       // Fetch users
       const ref = db.collection("Users");
