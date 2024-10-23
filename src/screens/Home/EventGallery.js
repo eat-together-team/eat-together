@@ -203,6 +203,7 @@ export default function EventGallery({ route, navigation }) {
         const image = imageGallery.find(item => item.imageUrl === uri);
         const uploadedTime = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
         setTimeUploaded(uploadedTime)
+        setImageCaption(image.imageCaption);
         if (image) {
             const userDoc = await db.collection("Users").doc(image.userUploaded).get();
             let uploadedBy = "Unknown User";
@@ -212,13 +213,6 @@ export default function EventGallery({ route, navigation }) {
                 setLastName(userData.lastName);
                 uploadedBy = `${userData.firstName} ${userData.lastName}`;
             }
-            console.log(firstName,lastName,uploadedTime)
-
-
-            Alert.alert(
-                " Image Information",
-                `Upload date and time: ${uploadedTime}\n\nUploaded By: ${uploadedBy}`
-            );
         } 
     };
 
@@ -323,15 +317,18 @@ export default function EventGallery({ route, navigation }) {
                 <View style={styles.modalBottom}> 
                     {/* Image Information */}
                     <View style={{ flexDirection: "row", padding: 10, alignItems: "center", justifyContent: 'space-between' }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <NormalText weight='bold'>{firstName} </NormalText>
-                        <NormalText weight='bold'>{lastName}</NormalText>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <NormalText weight='bold'>{firstName} </NormalText>
+                            <NormalText weight='bold'>{lastName}</NormalText>
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Filter checked={false} text="Edit" />
+                            <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
+                        </View>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Filter checked={false} text="Edit" />
-                        <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
-                    </View>
-                </View>
+                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,opacity:0.6}}>{imageCaption}</NormalText>
+                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>{timeUploaded}</NormalText>
+
 
                 </View>
             </Modal>
