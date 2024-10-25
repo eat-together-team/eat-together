@@ -209,21 +209,27 @@ export default function EventGallery({ route, navigation }) {
 
     const fetchUserNames = async (images) => {
         const userIds = [...new Set(images.map(img => img.userUploaded))];
-        const fetchedUserNames = {};
-
+        const newUserNames = { ...userNames };
+    
         await Promise.all(userIds.map(async (userId) => {
-            const userDoc = await db.collection("Users").doc(userId).get();
-            if (userDoc.exists) {
-                const userData = userDoc.data();
-                fetchedUserNames[userId] = `${userData.firstName} ${userData.lastName}`;
-            } else {
-                fetchedUserNames[userId] = "Unknown User";
+            if (!newUserNames[userId]) {
+                const userDoc = await db.collection("Users").doc(userId).get();
+                newUserNames[userId] = userDoc.exists
+                    ? `${userDoc.data().firstName} ${userDoc.data().lastName}`
+                    : "Unknown User";
             }
         }));
-
-        setUserNames(fetchedUserNames);
+    
+        setUserNames(newUserNames);
+            const sortedImages = images.slice().sort((a, b) => {
+            const nameA = newUserNames[a.userUploaded] || "Unknown User";
+            const nameB = newUserNames[b.userUploaded] || "Unknown User";
+            return nameA.localeCompare(nameB);
+        });
+    
+        setImageGallery(sortedImages);
     };
-
+    
     const renderColumn = ({ item }) => {
         const uploadedBy = userNames[item.userUploaded] || "Loading...";
         return (
