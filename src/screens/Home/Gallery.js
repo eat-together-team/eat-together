@@ -684,8 +684,8 @@ export default function Gallery({ route, navigation }) {
                         <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
                 </View>
-                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>{imageCaption}</NormalText>
-                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>{timeUploaded}</NormalText>
+                    <NormalText style ={captionStyles.rowText}>{imageCaption}</NormalText>
+                    <NormalText style ={captionStyles.rowText}>{timeUploaded}</NormalText>
 
                     <View style={styles.assignBottom}> 
                         <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>
@@ -790,3 +790,11 @@ const modalStyles = StyleSheet.create({
     },
 });
 
+const captionStyles = StyleSheet.create({
+    rowText:{
+        flexDirection: "row",
+        padding:10, 
+        alignItems:"center",
+        paddingHorizontal:10,
+    }
+});
