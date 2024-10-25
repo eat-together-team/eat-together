@@ -27,7 +27,7 @@ export default function EventGallery({ route, navigation }) {
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImageUri, setSelectedImageUri] = useState(null);
-    const [userName, setUserName] = useState("");
+    const [userNames, setUserNames] = useState({}); // Store usernames by user ID
 
     // Use Effect to get the image gallery Data
     useEffect(() => {
@@ -37,14 +37,13 @@ export default function EventGallery({ route, navigation }) {
                 const eventData = eventDoc.data();
                 if (eventData && eventData.eventGallery && Array.isArray(eventData.eventGallery)) {
                     setImageGallery(eventData.eventGallery);
+                    fetchUserNames(eventData.eventGallery);
                 }
             }
             setLoading(false);
         });
 
         return () => unsubscribe();
-
-
     }, [event.id, event.type]);
 
     const handleChoosePhoto = (imageId) => {
@@ -208,29 +207,30 @@ export default function EventGallery({ route, navigation }) {
         } 
     };
 
-    const UserName = ({ userId }) => {
-        useEffect(() => {
-            const fetchUserName = async () => {
-                const userDoc = await db.collection("Users").doc(userId).get();
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    setUserName(`${userData.firstName} ${userData.lastName}`);
-                } else {
-                    setUserName("Unknown User");
-                }
-            };
-            fetchUserName();
-        }, [userId]);
+    const fetchUserNames = async (images) => {
+        const userIds = [...new Set(images.map(img => img.userUploaded))];
+        const fetchedUserNames = {};
 
-        return <MediumText>{userName}</MediumText>;
+        await Promise.all(userIds.map(async (userId) => {
+            const userDoc = await db.collection("Users").doc(userId).get();
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                fetchedUserNames[userId] = `${userData.firstName} ${userData.lastName}`;
+            } else {
+                fetchedUserNames[userId] = "Unknown User";
+            }
+        }));
+
+        setUserNames(fetchedUserNames);
     };
 
     const renderColumn = ({ item }) => {
+        const uploadedBy = userNames[item.userUploaded] || "Loading...";
         return (
             <View style={styles.columnItem}>
-                <UserName userId={item.userUploaded} />
+                <MediumText>{uploadedBy}</MediumText>
                 <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
-                    <View style={{width: 350,height:211,marginVertical: 10,}}>
+                    <View style={{ width: 350, height: 211, marginVertical: 10 }}>
                         <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
                     </View>
                 </TouchableOpacity>
