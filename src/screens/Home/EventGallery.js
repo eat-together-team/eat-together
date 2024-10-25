@@ -221,7 +221,7 @@ export default function EventGallery({ route, navigation }) {
         }));
     
         setUserNames(newUserNames);
-            const sortedImages = images.slice().sort((a, b) => {
+        const sortedImages = images.slice().sort((a, b) => {
             const nameA = newUserNames[a.userUploaded] || "Unknown User";
             const nameB = newUserNames[b.userUploaded] || "Unknown User";
             return nameA.localeCompare(nameB);
