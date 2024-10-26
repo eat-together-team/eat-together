@@ -129,7 +129,6 @@ export default function Gallery({ route, navigation }) {
     }, [attendedEvents]);
 
         const getMetadata = async (uri) => {
-            // console.log('get Metadata')
             console.log(uri)
             const image = images.find(item => item.imageUrl === uri);
             console.log('image:',image)        
@@ -164,10 +163,6 @@ export default function Gallery({ route, navigation }) {
                     setAssignedEventName(eventName);
                 }
         
-                // Alert.alert(
-                //     "Image Information",
-                //     `Upload date and time: ${timeUploaded}\nEvent Assigned: ${eventName}\n\nCaption:${caption}`
-                // );
                 console.log(assignedEventName,timeUploaded,imageCaption)
             }
         };
@@ -660,7 +655,7 @@ export default function Gallery({ route, navigation }) {
                                         marginBottom: 10, minHeight:65, height:"auto", 
                                     }}
                                 />
-                                {/* <Button onPress={() => }>Add Caption</Button> */}
+                                <Button>Add Caption</Button>
                             </View>
                         </View>
                     </View>
@@ -689,9 +684,8 @@ export default function Gallery({ route, navigation }) {
                         <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
                 </View>
-                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>{imageCaption}</NormalText>
-                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>{timeUploaded}</NormalText>
-                    {/* <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",justifyContent:"flex-end"}}>Event Assigned: {assignedEventName}</NormalText> */}
+                    <NormalText style ={captionStyles.rowText}>{imageCaption}</NormalText>
+                    <NormalText style ={captionStyles.rowText}>{timeUploaded}</NormalText>
 
                     <View style={styles.assignBottom}> 
                         <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>
@@ -796,3 +790,11 @@ const modalStyles = StyleSheet.create({
     },
 });
 
+const captionStyles = StyleSheet.create({
+    rowText:{
+        flexDirection: "row",
+        padding:10, 
+        alignItems:"center",
+        paddingHorizontal:10,
+    }
+});
