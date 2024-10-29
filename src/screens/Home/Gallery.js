@@ -41,7 +41,7 @@ export default function Gallery({ route, navigation }) {
     // Image Details
     const [firstName,setFirstName] = useState('');
     const [lastName,setLastName] = useState('');
-    const [imageCaption,setImageCaption] = useState('');
+    const [imageCaption,setImageCaption] = useState();
     const [assignedEventName,setAssignedEventName] = useState('Unknown Event');
     const [timeUploaded,setTimeUploaded] = useState()
 
@@ -68,6 +68,7 @@ export default function Gallery({ route, navigation }) {
                     setFilteredImages(fetchedImages);
                     setFirstName(userData.firstName);
                     setLastName(userData.lastName);
+                    console.log(userData.gallery);
                 }
             } catch (error) {
                 console.error("Error fetching images: ", error);
@@ -127,12 +128,21 @@ export default function Gallery({ route, navigation }) {
 
         fetchEventNames();
     }, [attendedEvents]);
+    useEffect((uri) => {
+        console.log('in useEffect');
+        const getCaptionData = (uri) => {
+            console.log(uri)
+        };
+        getCaptionData(uri);
+    }, []);
+
+    
 
     const getMetadata = async (uri) => {
         // console.log('get Metadata')
         console.log(uri)
         const image = images.find(item => item.imageUrl === uri);
-        console.log('image:',image)        
+        // console.log('image:',image)        
 
         if (image) {
             const uploadedTime = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
@@ -163,7 +173,6 @@ export default function Gallery({ route, navigation }) {
                 eventName = 'Unknown Event';
                 setAssignedEventName(eventName);
             }
-            console.log(assignedEventName,timeUploaded,imageCaption)
         }
     };
     
@@ -393,7 +402,7 @@ export default function Gallery({ route, navigation }) {
 
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
-        getMetadata(selectedImageUri);
+        getMetadata(uri);
         setIsModalVisible(true);
     };
 
@@ -419,7 +428,7 @@ export default function Gallery({ route, navigation }) {
     const handleCaptionSelect = (uri) => {
         setIsCaptionModalVisible(true);
         return uri;
-    }
+    };
         
     // Function to assign image to events
                     
