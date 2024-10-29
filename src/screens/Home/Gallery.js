@@ -128,53 +128,45 @@ export default function Gallery({ route, navigation }) {
         fetchEventNames();
     }, [attendedEvents]);
 
-        const getMetadata = async (uri) => {
-            // console.log('get Metadata')
-            console.log(uri)
-            const image = images.find(item => item.imageUrl === uri);
-            console.log('image:',image)        
+    const getMetadata = async (uri) => {
+        // console.log('get Metadata')
+        console.log(uri)
+        const image = images.find(item => item.imageUrl === uri);
+        console.log('image:',image)        
 
-            if (image) {
-                const uploadedTime = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
-                let eventName = '';
-                const caption = image.imageCaption;
-                setImageCaption(caption);
-                setTimeUploaded(uploadedTime);
-                try {
-                    // Check if the event ID exists in the Public Events collection
-                    const publicEventDoc = await db.collection("Public Events").doc(image.imageEventAssigned).get();
-                    if (publicEventDoc.exists) {
-                        eventName = publicEventDoc.data().name;
+        if (image) {
+            const uploadedTime = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
+            let eventName = '';
+            const caption = image.imageCaption;
+            setImageCaption(caption);
+            setTimeUploaded(uploadedTime);
+            try {
+                // Check if the event ID exists in the Public Events collection
+                const publicEventDoc = await db.collection("Public Events").doc(image.imageEventAssigned).get();
+                if (publicEventDoc.exists) {
+                    eventName = publicEventDoc.data().name;
+                    setAssignedEventName(eventName);
+                } else {
+                    // If not found in Public Events, check Private Events collection
+                    const privateEventDoc = await db.collection("Private Events").doc(image.imageEventAssigned).get();
+                    if (privateEventDoc.exists) {
+                        eventName = privateEventDoc.data().name;
                         setAssignedEventName(eventName);
                     } else {
-                        // If not found in Public Events, check Private Events collection
-                        const privateEventDoc = await db.collection("Private Events").doc(image.imageEventAssigned).get();
-                        if (privateEventDoc.exists) {
-                            eventName = privateEventDoc.data().name;
-                            setAssignedEventName(eventName);
-                        } else {
-                            // If event ID not found in either collection
-                            eventName = 'Unknown Event';
-                            setAssignedEventName(eventName);
-                        }
+                        // If event ID not found in either collection
+                        eventName = 'Unknown Event';
+                        setAssignedEventName(eventName);
                     }
-                } catch (error) {
-                    console.error("Error fetching event details: ", error);
-                    eventName = 'Unknown Event';
-                    setAssignedEventName(eventName);
                 }
-        
-                // Alert.alert(
-                //     "Image Information",
-                //     `Upload date and time: ${timeUploaded}\nEvent Assigned: ${eventName}\n\nCaption:${caption}`
-                // );
-                console.log(assignedEventName,timeUploaded,imageCaption)
+            } catch (error) {
+                console.error("Error fetching event details: ", error);
+                eventName = 'Unknown Event';
+                setAssignedEventName(eventName);
             }
-        };
+            console.log(assignedEventName,timeUploaded,imageCaption)
+        }
+    };
     
-
-
-
     // Choosing images from gallery or taking a picture
 
     const handleChoosePhoto = (imageId) => {
