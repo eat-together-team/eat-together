@@ -59,6 +59,9 @@ const Discussion = ({ route, navigation }) => {
     if (totalVotes === 0) return "0%";
     return `${(votes / totalVotes) * 100}%`;
   };
+  const moveToEndGame = () => {
+    navigation.navigate("EndGame");
+  };
 
   return (
     <Layout>
@@ -111,6 +114,12 @@ const Discussion = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
         )}
+        {/* temporary button to end the game without having to go thorugh 20 questions */}
+        <View>
+          <TouchableOpacity onPress={() => navigation.navigate("EndGame")}>
+            <Text>End Game</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </Layout>
   );
