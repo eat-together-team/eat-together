@@ -1,192 +1,134 @@
-// The discussion screen displays vote results for WYR question
-
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
-
 import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
 import NormalText from "../../../components/NormalText";
-import Button from "../../../components/Button";
-
 import { db, auth } from "../../../provider/Firebase";
 import * as firebase from "firebase/compat";
 
 const Discussion = ({ route, navigation }) => {
-  const [event, setEvent] = useState(route.params.event);
-  // Get the current user
-  const user = auth.currentUser;
-  const green = "#5DB075";
-  // Get the answer options and vote counts
-  const [optionA, setOptionA] = useState(route.params.optionA);
-  const [optionB, setOptionB] = useState(route.params.optionB);
-  const [votesA, setVotesA] = useState(0);
-  const [votesB, setVotesB] = useState(0);
-  const [questionNumber, setQuestionNumber] = useState(1); // Initialize question number
-
-  // Remove player from game when they choose to exit
-  const removePlayer = async () => {
-    const currGame = db.collection("WyrGames").doc(event.id);
-    const doc = await currGame.get();
-    if (doc.exists) {
-      currGame.update({
-        players: firebase.firestore.FieldValue.arrayRemove(user.uid),
-      });
-      // Delete this document if there are 0 players left
-      if (doc.data().players.length === 1) {
-        currGame.delete();
-      }
-    }
-  };
-
-  // Exit: moves player back to event page
-  const exitGame = () => {
-    navigation.navigate("WhileYouEat", {
-      event: event,
-    });
-  };
-
-  const loadData = async () => {
-    const currGame = db.collection("WyrGames").doc(event.id);
-    const doc = await currGame.get();
-    if (doc.exists) {
-      setVotesA(doc.data().aVotes);
-      setVotesB(doc.data().bVotes);
-      const currQuestion = doc.data().currentQuestion;
-      const questionDoc = await db
-        .collection("WyrQuestions")
-        .doc(currQuestion)
-        .get();
-      setOptionA(questionDoc.data().optionA);
-      setOptionB(questionDoc.data().optionB);
-      // Update question number based on seenQuestions length
-      setQuestionNumber(doc.data().seenQuestions.length);
-    }
-  };
-
-  // No longer in discussion; set status to false
-  const readyForQuestion = async () => {
-    const currGame = db.collection("WyrGames").doc(event.id);
-    const doc = await currGame.get();
-    if (doc.exists) {
-      currGame.update({ discussionStage: false });
-    }
-  };
-
-  // Move Player back to question screen
-  const moveToQuestion = () => {
-    navigation.push("Question", {
-      event: event,
-      optionA: optionA,
-      optionB: optionB,
-    });
-  };
+  const { event, optionA, optionB } = route.params;
+  const [responsesCount, setResponsesCount] = useState(0);
+  const [aVotes, setAVotes] = useState(0);
+  const [bVotes, setBVotes] = useState(0);
+  const [isHost, setIsHost] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(0);
 
   useEffect(() => {
-    // Retrieve current answer options & votes
-    loadData();
-    const intervalId = setInterval(loadData, 500);
-    return () => {
-      clearInterval(intervalId);
+    const fetchVotes = async () => {
+      const currGame = db.collection('WyrGames').doc(event.id);
+      const doc = await currGame.get();
+      if (doc.exists) {
+        setAVotes(doc.data().aVotes);
+        setBVotes(doc.data().bVotes);
+        setResponsesCount(doc.data().aVotes + doc.data().bVotes);
+        setCurrentQuestionIndex(doc.data().questions.indexOf(doc.data().currentQuestion) + 1);
+        setTotalQuestions(doc.data().questions.length);
+      }
     };
-  }, []);
 
-  // Randomly pick out a question from the collection 'WyrQuestions'
-  // Only occurs if user is host
-  const randomQuestion = () => {
-    const currGame = db.collection("WyrGames").doc(event.id);
-    let count = 0;
-    db.collection("WyrQuestions").onSnapshot((snapshot) => {
-      snapshot.forEach((doc) => {
-        count += 1;
+    fetchVotes();
+  }, [event.id]);
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    setIsHost(user.uid === event.hostID);
+  }, [event.hostID]);
+
+  const moveToNextQuestion = async () => {
+    const currGame = db.collection('WyrGames').doc(event.id);
+    const doc = await currGame.get();
+    if (doc.exists) {
+      const questions = doc.data().questions;
+      const currentQuestionIndex = questions.indexOf(doc.data().currentQuestion);
+      const nextQuestionIndex = (currentQuestionIndex + 1) % questions.length;
+      const nextQuestionId = questions[nextQuestionIndex];
+
+      await currGame.update({ currentQuestion: nextQuestionId });
+
+      navigation.navigate("Question", {
+        event: { ...event, currentQuestion: nextQuestionId },
       });
-      db.collection("WyrQuestions")
-        .where("random", "==", Math.floor(Math.random() * count))
-        .get()
-        .then(function (querySnapshot) {
-          querySnapshot.forEach(function (doc) {
-            currGame.update({
-              currentQuestion: doc.id,
-              seenQuestions: firebase.firestore.FieldValue.arrayUnion(doc.id),
-              aVotes: 0,
-              bVotes: 0,
-            });
-          });
-        });
-    });
+    }
   };
 
-  // Calculate total votes
-  const totalVotes = votesA + votesB;
-
+  const getBarWidth = (votes, totalVotes) => {
+    if (totalVotes === 0) return "0%";
+    return `${(votes / totalVotes) * 100}%`;
+  };
 
   return (
     <Layout>
       <TopNav
-        middleContent={
-          <MediumText>Question {questionNumber} / 20</MediumText>
-        }
+      
         leftContent={
           <View style={{ flexDirection: "row", alignItems: "center", width: 100 }}>
-            <Ionicons name="chevron-back" color={green} size={20} />
-            <NormalText color={green}>Exit</NormalText>
+            <Ionicons name="chevron-back" color="black" size={20} />
+            <NormalText color="black">Exit Game</NormalText>
           </View>
         }
-        leftAction={() => {
-          removePlayer();
-          exitGame();
-        }}
+        // need to update this later by adding coutner for hte current queston index
+        rightContent={
+          <View style={{ flexDirection: "row", alignItems: "center", width: 100}}>
+            <Text>Question: </Text>
+            <Text style={styles.questionNumber}>{currentQuestionIndex}</Text>
+            <Text style={styles.questionText}>/20</Text>
+          </View>
+        }
+        leftAction={() => navigation.goBack()}
       />
-      <ScrollView>
-        <View style={styles.headerContainer}>
-          <LargeText size={25}style={styles.headerText}>Discuss Your Answers!</LargeText>
-          <NormalText style={styles.subHeaderText}>
-            Why did you pick your answer?
-          </NormalText>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.infoContainer}>
+          <LargeText>Discuss Your Answers!</LargeText>
+          <MediumText style={styles.subHeaderText}>Let's see what everyone chose!</MediumText>
         </View>
 
         <View style={styles.optionsContainer}>
-          <MediumText style={styles.optionText}>{optionA}</MediumText>
-          <NormalText style={styles.voteCount}>
-            {votesA} / {totalVotes}
-          </NormalText>
+          <View style={styles.option}>
+            <MediumText style={styles.optionText}>{optionA}</MediumText>
+            <View style={styles.barContainer}>
+              <View style={[styles.bar, { width: getBarWidth(aVotes, responsesCount) }]} />
+            </View>
+            <NormalText style={styles.voteCount}>{aVotes} votes</NormalText>
+          </View>
+
+          <View style={styles.option}>
+            <MediumText style={styles.optionText}>{optionB}</MediumText>
+            <View style={styles.barContainer}>
+              <View style={[styles.bar, { width: getBarWidth(bVotes, responsesCount) }]} />
+            </View>
+            <NormalText style={styles.voteCount}>{bVotes} votes</NormalText>
+          </View>
         </View>
 
-        <View style={styles.optionsContainer}>
-          <MediumText style={styles.optionText}>{optionB}</MediumText>
-          <NormalText style={styles.voteCount}>
-            {votesB} / {totalVotes}
-          </NormalText>
-        </View>
-
-        <View style={styles.nextButton}>
-          <Button
-            onPress={() => {
-              randomQuestion();
-              readyForQuestion();
-              moveToQuestion();
-            }}
-          >
-            Next Question
-          </Button>
-        </View>
+        {isHost && (
+          <View style={styles.nextButtonContainer}>
+            <TouchableOpacity onPress={moveToNextQuestion} style={[styles.nextButton, styles.optionButton]}>
+              <Text style={styles.nextButtonText}>Next Question</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </Layout>
   );
 };
 
 const styles = StyleSheet.create({
-  headerContainer: {
+  container: {
+    flexGrow: 1,
+    paddingBottom: 20,
+  },
+  infoContainer: {
     alignItems: "center",
     marginVertical: 20,
   },
   headerText: {
     textAlign: "center",
+    fontSize: 18,
+    marginBottom: 20,
   },
   subHeaderText: {
     textAlign: "center",
@@ -198,9 +140,22 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     paddingHorizontal: 20,
   },
+  option: {
+    marginBottom: 20,
+  },
   optionText: {
     fontSize: 18,
     marginBottom: 5,
+  },
+  barContainer: {
+    height: 20,
+    backgroundColor: "#e0e0e0",
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  bar: {
+    height: "100%",
+    backgroundColor: "#5DB075",
   },
   voteCount: {
     textAlign: "left",
@@ -208,9 +163,38 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "gray",
   },
-  nextButton: {
+  questionNumber: {
+    fontSize: 14,
+    color: "#5DB075",
+    marginRight: 2,
+  },
+  questionText: {
+    fontSize: 14,
+    color: "black",
+    marginRight: 10,
+  },
+  nextButtonContainer: {
     marginVertical: 30,
     alignSelf: "center",
+    width: "100%",
+    paddingHorizontal: 20,
+  },
+  nextButton: {
+    backgroundColor: "#5DB075",
+    borderRadius: 10,
+    paddingVertical: 15,
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+    zIndex: 10,
+  },
+  nextButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 20,
+    textAlign: "center",
   },
 });
 
