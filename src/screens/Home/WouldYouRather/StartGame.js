@@ -60,7 +60,7 @@ const StartGame = ({ route, navigation }) => {
   };
 
   return (
-    <Layout>
+    <Layout style={styles.layout}>
       <TopNav
         middleContent={<MediumText center>Would You Rather?</MediumText>}
         leftContent={
@@ -75,7 +75,7 @@ const StartGame = ({ route, navigation }) => {
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <ImageBackground
-            source={require("../../../../assets/wyr.png")} // Always use the wyr.png image
+            source={require("../../../../assets/wyr.png")} 
             style={styles.imageBackground}
             resizeMode="cover"
           />
@@ -137,14 +137,24 @@ const StartGame = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
+   layout: {
+    backgroundColor: "#FFF",
+  },
   container: {
-    flex: 1,
+    flex: 3,
+    backgroundColor: "#FFF",
   },
   scrollContent: {
     paddingBottom: 20,
   },
   infoContainer: {
     marginHorizontal: 30,
+    // margin not there
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    backgroundColor: "#FFF",
   },
   row: {
     flexDirection: "row",
@@ -179,10 +189,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "red",
     position: "absolute",
-    top: 5,
-    right: 5,
   },
-  
+  infoSection: {
+    marginVertical: 20,
+  },
+  startButton: {
+    // Add styles for the start button if needed
+  },
 });
 
 export default StartGame;

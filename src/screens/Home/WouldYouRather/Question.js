@@ -1,21 +1,10 @@
-// Question screen displays question and answer options for user selection
-
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
-
 import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
 import NormalText from "../../../components/NormalText";
-import Button from "../../../components/Button";
-import BorderedButton from "../../../components/BorderedButton";
-
 import { db, auth } from "../../../provider/Firebase";
 import * as firebase from "firebase/compat";
 
@@ -25,6 +14,7 @@ const Question = ({ route, navigation }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [responsesCount, setResponsesCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [colors, setColors] = useState([]);
   const green = "#5DB075";
 
   // Get question options to display
@@ -117,14 +107,28 @@ const Question = ({ route, navigation }) => {
     };
   }, []);
 
+  useEffect(() => {
+    // Shuffle colors
+    const shuffleColors = () => {
+      let colorsArray = ["#7A9CAE", "#AE7A7A", "#9B715A", "#E9B94C", "#E72525", "#38A2FF", "#83C18B"];
+      for (let i = colorsArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [colorsArray[i], colorsArray[j]] = [colorsArray[j], colorsArray[i]];
+      }
+      setColors(colorsArray);
+    };
+
+    shuffleColors();
+  }, []);
+
   return (
     <Layout>
       <TopNav
         middleContent={<MediumText left>Question</MediumText>}
         leftContent={
           <View style={{ flexDirection: "row", alignItems: "center", width: 100 }}>
-            <Ionicons name="chevron-back" color={green} size={20} />
-            <NormalText color={green}>Exit</NormalText>
+            <Ionicons name="chevron-back" color="black" size={20} />
+            <NormalText color="black">Exit</NormalText>
           </View>
         }
         // Remove player from game when they choose to exit
@@ -138,53 +142,80 @@ const Question = ({ route, navigation }) => {
           <LargeText>Would You Rather...</LargeText>
         </View>
 
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <MediumText>Loading...</MediumText>
-          </View>
-        ) : (
-          <View style={styles.options}>
-            <Button
-              onPress={() => addVote('A')}
-              disabled={isDisabled}
-              style={[
-                styles.optionButton,
-                selectedOption === 'A' && styles.selectedOption,
-              ]}
-            >
-              {optionA}
-            </Button>
-
-            <View marginVertical={15} alignSelf={"center"}>
-              <MediumText>OR</MediumText>
-            </View>
-
-            <BorderedButton
-              onPress={() => addVote('B')}
-              disabled={isDisabled}
-              style={[
-                styles.optionButton,
-                selectedOption === 'B' && styles.selectedOption,
-              ]}
-            >
-              {optionB}
-            </BorderedButton>
-          </View>
-        )}
-
-        {/* Display the number of responses */}
-        <View style={styles.responsesContainer}>
-          <MediumText>
-            Number of responses: {responsesCount} / {event.attendees.length}
-          </MediumText>
+        <View style={styles.options}>
+          {isLoading ? (
+            <>
+              <TouchableOpacity
+                disabled={true}
+                style={[
+                  styles.optionButton,
+                  { backgroundColor: colors[0] },
+                ]}
+              >
+                <MediumText style={styles.optionText}>Loading...</MediumText>
+              </TouchableOpacity>
+              <View style={styles.orContainer}>
+                <MediumText style={styles.orText}>OR</MediumText>
+              </View>
+              <TouchableOpacity
+                disabled={true}
+                style={[
+                  styles.optionButton,
+                  { backgroundColor: colors[1] },
+                ]}
+              >
+                <MediumText style={styles.optionText}>Loading...</MediumText>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                onPress={() => addVote('A')}
+                disabled={isDisabled}
+                style={[
+                  styles.optionButton,
+                  selectedOption === 'A' && styles.selectedOption,
+                  { backgroundColor: colors[0] },
+                ]}
+              >
+                <MediumText style={styles.optionText}>{optionA}</MediumText>
+              </TouchableOpacity>
+              <View style={styles.orContainer}>
+                <MediumText style={styles.orText}>OR</MediumText>
+              </View>
+              <TouchableOpacity
+                onPress={() => addVote('B')}
+                disabled={isDisabled}
+                style={[
+                  styles.optionButton,
+                  selectedOption === 'B' && styles.selectedOption,
+                  { backgroundColor: colors[1] },
+                ]}
+              >
+                <MediumText style={styles.optionText}>{optionB}</MediumText>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
 
-        {/* Display "Next" button for the host */}
+        <View style={styles.separator} />
+
+        <View style={styles.responsesLabelContainer}>
+          <MediumText># of Responses</MediumText>
+        </View>
+
+        <View style={styles.responsesContainer}>
+          {/* <Image source={require("../../../../assets/reponseswyr.png")} style={styles.responseImage} /> */}
+          <View style={styles.responseTextContainer}>
+            <MediumText>{responsesCount} / {event.attendees.length}</MediumText>
+          </View>
+        </View>
+
         {isHost && (
           <View style={styles.nextButtonContainer}>
-            <Button onPress={moveToDiscuss}>
-              Discuss
-            </Button>
+            <TouchableOpacity onPress={moveToDiscuss} style={[styles.nextButton, styles.optionButton]}>
+              <Text style={styles.nextButtonText}>Next Question</Text>
+            </TouchableOpacity>
           </View>
         )}
       </ScrollView>
@@ -192,34 +223,100 @@ const Question = ({ route, navigation }) => {
   );
 };
 
-// Styling of page elements
 const styles = StyleSheet.create({
   infoContainer: {
-    justifyContent: "center",
     alignItems: "center",
     marginVertical: 20,
-  },
-  options: {
-    marginVertical: 10,
-    padding: 20,
-  },
-  optionButton: {
-    marginVertical: 10,
-  },
-  selectedOption: {
-    backgroundColor: "gray",
-  },
-  responsesContainer: {
-    alignItems: "center",
-    marginTop: 20,
   },
   loadingContainer: {
     alignItems: "center",
     marginVertical: 20,
   },
-  nextButtonContainer: {
+  options: {
+    marginVertical: 15,
+    paddingHorizontal: 20,
+  },
+  optionButton: {
+    marginVertical: 10,
+    width: "100%",
+    height: 60,
+    justifyContent: "center",
     alignItems: "center",
-    marginTop: 20,
+    borderRadius: 10,
+    elevation: 5,
+  },
+  optionText: {
+    color: "white",
+    fontSize: 18,
+    textAlign: "center",
+  },
+  selectedOption: {
+    borderWidth: 2,
+    borderColor: "black",
+  },
+  orContainer: {
+    marginVertical: 15,
+    alignSelf: "center",
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  orText: {
+    textAlign: "center",
+  },
+  separator: {
+    borderBottomColor: "#ccc",
+    borderBottomWidth: 1,
+    marginVertical: 20,
+  },
+  responsesContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 5,
+    borderRadius: 10,
+  },
+  responseImage: {
+    width: 40,
+    height: 40,
+    marginRight: 15,
+  },
+  responseTextContainer: {
+    alignItems: "center",
+  },
+  responsesLabelContainer: {
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  nextButtonContainer: {
+    marginVertical: 30,
+    alignSelf: "center",
+    width: "100%",
+    paddingHorizontal: 20,
+  },
+  nextButton: {
+    backgroundColor: "#5DB075",
+    borderRadius: 10,
+    paddingVertical: 15,
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+    zIndex: 10,
+  },
+  nextButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 20,
+    textAlign: "center",
   },
 });
 
