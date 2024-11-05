@@ -35,6 +35,7 @@ export default function Gallery({ route, navigation }) {
     const [isEventModalVisible, setIsEventModalVisible] = useState(false);
     const [isCaptionModalVisible, setIsCaptionModalVisible] = useState(false);
     const [selectedImageForEvent, setSelectedImageForEvent] = useState(null);
+    
     // Picker Function
     const [caption,setCaption] = useState('');
 

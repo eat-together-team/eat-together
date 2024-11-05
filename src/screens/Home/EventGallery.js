@@ -35,6 +35,9 @@ export default function EventGallery({ route, navigation }) {
     const [imageCaption,setImageCaption] = useState('');
     const [timeUploaded,setTimeUploaded] = useState()
 
+    // Picker Variables
+    const [caption,setCaption] = useState('');
+
 
     // Use Effect to get the image gallery Data
     useEffect(() => {
@@ -263,7 +266,7 @@ export default function EventGallery({ route, navigation }) {
     
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
-        getMetadata(selectedImageUri);
+        getMetadata(uri);
         setIsModalVisible(true);
     };
 
