@@ -68,7 +68,6 @@ export default function Gallery({ route, navigation }) {
                     setFilteredImages(fetchedImages);
                     setFirstName(userData.firstName);
                     setLastName(userData.lastName);
-                    console.log(userData.gallery);
                 }
             } catch (error) {
                 console.error("Error fetching images: ", error);
@@ -128,21 +127,11 @@ export default function Gallery({ route, navigation }) {
 
         fetchEventNames();
     }, [attendedEvents]);
-    useEffect((uri) => {
-        console.log('in useEffect');
-        const getCaptionData = (uri) => {
-            console.log(uri)
-        };
-        getCaptionData(uri);
-    }, []);
 
     
 
     const getMetadata = async (uri) => {
-        // console.log('get Metadata')
-        console.log(uri)
         const image = images.find(item => item.imageUrl === uri);
-        // console.log('image:',image)        
 
         if (image) {
             const uploadedTime = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
@@ -209,7 +198,7 @@ export default function Gallery({ route, navigation }) {
         if (!result.cancelled) {
             const uri = result.assets[0].uri;
             await uploadImage(uri, imageId);
-            await handleCaptionSelect(true);
+            // await handleCaptionSelect(true);
         }
     };
 
@@ -460,6 +449,49 @@ export default function Gallery({ route, navigation }) {
             console.error("Error assigning image to event: ", error);
         }
     };
+
+        // Add image caption
+
+        const addCaption = async(imageUrl,imageCaption) => {
+            setLoading(true);
+            const image = images.findIndex(img => img.imageUrl === imageUrl);
+            
+            if (image !== -1) {
+                // Update the image's event assignment
+                const updatedImages = [...images];
+                updatedImages[image] = {
+                    ...updatedImages[image],
+                    imageCaption: imageCaption,
+                };
+                // Update the user document with the modified gallery array
+                await db.collection("Users").doc(user.uid).update({
+                    gallery: updatedImages,
+                });
+    
+                // Update the state or do any necessary actions after assigning the image to the event
+                setImages(updatedImages);
+                setCaption('');
+                alert("Caption Added!");
+                setIsCaptionModalVisible(false);
+                setIsModalVisible(false);
+                console.log(images)
+
+            } else {
+                // Handle the case where the image is not found
+                alert("Caption could not be added.");
+            }
+    
+    
+            setLoading(false);
+        };
+
+        const editCaption = async (imageUrl) =>{
+            setIsCaptionModalVisible(true);
+            await addCaption(imageUrl);
+
+        };
+    
+    
         
     useEffect(() => {
         const filter = async () => {
@@ -661,7 +693,7 @@ export default function Gallery({ route, navigation }) {
                                         marginBottom: 10, minHeight:65, height:"auto", 
                                     }}
                                 />
-                                {/* <Button onPress={() => }>Add Caption</Button> */}
+                                <Button onPress={() => addCaption(selectedImageUri,caption)}>Add Caption</Button>
                             </View>
                         </View>
                     </View>
@@ -686,13 +718,13 @@ export default function Gallery({ route, navigation }) {
                         <NormalText weight='bold'>{lastName}</NormalText>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Filter checked={false} text="Edit" />
+                        <Filter checked={false} onPress={() => editCaption(selectedImageUri)} text="Edit" />
                         <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
                 </View>
-                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,opacity:0.6}}>{imageCaption}</NormalText>
-                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>{timeUploaded}</NormalText>
-                    <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>Event Assigned: {assignedEventName}</NormalText>
+                    <NormalText style ={{flexDirection: "row", padding:5, alignItems:"center",paddingHorizontal:10,opacity:0.6}}>{imageCaption}</NormalText>
+                    <NormalText style ={{flexDirection: "row", padding:5, alignItems:"center",paddingHorizontal:10,}}>{timeUploaded}</NormalText>
+                    <NormalText style ={{flexDirection: "row", padding:5, alignItems:"center",paddingHorizontal:10,}}>Event Assigned: {assignedEventName}</NormalText>
 
                     <View style={styles.assignBottom}> 
                         <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>
