@@ -474,7 +474,6 @@ export default function Gallery({ route, navigation }) {
                 alert("Caption Added!");
                 setIsCaptionModalVisible(false);
                 setIsModalVisible(false);
-                console.log(images)
 
             } else {
                 // Handle the case where the image is not found
