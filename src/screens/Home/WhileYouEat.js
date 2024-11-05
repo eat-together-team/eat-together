@@ -68,7 +68,7 @@ const WhileYouEat = ({ route, navigation }) => {
   const [recSteps, setRecSteps] =  useState(0); // Tutorial steps for meetup
 
   // Image Carousel
-  const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]); 
+  const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);
   const numColumns = 3;
   const screenWidth = Dimensions.get("window").width;
   const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
@@ -113,7 +113,7 @@ const WhileYouEat = ({ route, navigation }) => {
     if (event.type === "public") {
       db_name = "Public Events";
     }
-    
+
     const unsubscribe = db.collection(db_name)
       .doc(event.id)  // Assuming you store the event by its ID
       .onSnapshot((doc) => {
@@ -125,7 +125,7 @@ const WhileYouEat = ({ route, navigation }) => {
 
 
 
- 
+
 
   // Checking group chat updates
   useEffect(() => {
@@ -277,6 +277,34 @@ const WhileYouEat = ({ route, navigation }) => {
     }
   }
 
+  // Cancel an vent, if a host
+  function cancelEvent() {
+    // makes sure user is signed in
+    let currentUser = auth.currentUser;
+    if(!currentUser) {
+      Alert.alert("Login", "You must be signed in to cancel an event.");
+      return;
+    };
+    // makes sure user is the host of event
+    let currentUserID = currentUser.uid;
+    if(event.hostID !== currentUserID) {
+      Alert.alert("Host", "You are not authorized to cancel this event..");
+      return;
+    }
+    // determines type of event to know which collection to look in
+    let db_name = event.type === "public" ? "Public Events" : "Private Events";
+    db.collection(db_name).doc(event.id).update({
+      cancelled: true
+    })
+    .then(() => {
+      Alert.alert("Success", "Event has been cancelled successfully.");
+    })
+    .catch((error) => {
+      console.error("Error cancelling event:", error);
+      Alert.alert("Error", "An error occurred while cancelling the event. Please try again.");
+    });
+  }
+
   //Reporting event function
   function reportEvent() {
     navigation.navigate("ReportEvent", {
@@ -303,7 +331,24 @@ const WhileYouEat = ({ route, navigation }) => {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "OK", onPress: () => withdraw() },
+        { text: "OK", onPress: () => withdraw(event) },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  // Alert the user if they want to cancel this event or not
+  const cancelEventAlert = () => {
+    Alert.alert(
+      "Cancel",
+      "Are you sure you want to cancel this event?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "Ok", onPress: () => cancelEvent() },
       ],
       { cancelable: false }
     );
@@ -477,6 +522,15 @@ const WhileYouEat = ({ route, navigation }) => {
                     Withdraw
                   </NormalText>
                 </MenuOption>
+
+                <MenuOption
+                  onSelect={() => cancelEventAlert()}
+                  style={styles.option}
+                >
+                  <NormalText size={18} color="red">
+                    Cancel Event
+                  </NormalText>
+                </MenuOption>
               </MenuOptions>
             </Menu>
           </View>
@@ -597,7 +651,7 @@ const WhileYouEat = ({ route, navigation }) => {
               </NormalText>
             </View>
           </View>
-          
+
           <NormalText color="black">
             {event.additionalInfo}
           </NormalText>

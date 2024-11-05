@@ -15,6 +15,8 @@ import getTime from "../getTime";
 import NormalText from "./NormalText";
 
 const EventCard = (props) => {
+  console.log('Event object:', props.event); // Log the entire event object
+  console.log('Cancelled status:', props.event.cancelled);
   return (
     <Section style={styles.card} borderRadius={30}>
       <TouchableOpacity onPress={props.click} disabled={props.disabled}>
@@ -27,6 +29,12 @@ const EventCard = (props) => {
                 }
           }
         />
+
+        {props.event.cancelled && (
+          <View style={styles.cancelledTag} borderRadius={30}>
+            <MediumText center color="white" size={14}>Cancelled</MediumText>
+          </View>
+        )}
 
         <SectionContent>
           <MediumText center>{props.event.name}</MediumText>
@@ -72,6 +80,15 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
   },
+
+  cancelledTag: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    padding: 10,
+    backgroundColor: "red"
+  }
+
 });
 
 export default EventCard;
