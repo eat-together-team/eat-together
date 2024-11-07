@@ -106,6 +106,8 @@ export default function ({ route, navigation }) {
             start.setHours(startDate.getHours());
             start.setMinutes(startDate.getMinutes());
             start.setSeconds(0);
+        } else {
+            setEndDate(moment(start).add(1, 'hours').toDate()); // Set end date to 1 hour after start
         }
 
         setStartDate(start); // Set the date
