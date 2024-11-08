@@ -6,6 +6,8 @@ import {
   ScrollView,
   StyleSheet,
   Image,
+  ActivityIndicator,
+  Text,
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,65 +20,66 @@ import { db, auth } from "../../../provider/Firebase";
 import * as firebase from "firebase/compat";
 
 const IntroGuidelines = ({ route, navigation }) => {
-  const [event, setEvent] = useState(route.params.event);
-  const [optionA, setOptionA] = useState('option A');
-  const [optionB, setOptionB] = useState('option B');
+  const { event } = route.params;
   const user = auth.currentUser;
+  const [loading, setLoading] = useState(true);
 
-  // Fetch data from Firestore to see if game is created or not
-  // If yes, just add user to the game
-  // If no, add a new doc to WyrGames collection for this event (ID = eventID)
-  const addGameData = async () => {
-    const currGame = db.collection('WyrGames').doc(event.id);
-    const doc = await currGame.get();
-    if (doc.exists) {
-      currGame.update({ players: firebase.firestore.FieldValue.arrayUnion(user.uid) });
-    } else {
-      currGame.set({
-        aVotes: 0,
-        bVotes: 0,
-        currentQuestion: "",
-        discussionStage: false,
-        players: [user.uid],
-        seenQuestions: []
-      });
-      randomQuestion();
+  // Load questions when the component mounts
+  useEffect(() => {
+    const loadQuestions = async () => {
+      const currGame = db.collection('WyrGames').doc(event.id);
+
+      // Check if game data already exists
+      const doc = await currGame.get();
+      if (!doc.exists) {
+        // Fetch all questions from 'WyrQuestions' collection
+        const questionsSnapshot = await db.collection('WyrQuestions').get();
+        let questions = [];
+        questionsSnapshot.forEach((doc) => {
+          questions.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Shuffle and select the first 20 questions
+        shuffleArray(questions);
+        const selectedQuestions = questions.slice(0, 20).map((q) => q.id);
+
+        // Initialize the game data in Firestore
+        await currGame.set({
+          aVotes: 0,
+          bVotes: 0,
+          currentQuestionIndex: 0,
+          discussionStage: false,
+          players: [user.uid],
+          questions: selectedQuestions,
+          totalQuestions: 20,
+          responsesCount: 0,
+          userResponses: {},
+        });
+      } else {
+        // If game data exists, update the players list
+        await currGame.update({
+          players: firebase.firestore.FieldValue.arrayUnion(user.uid),
+        });
+      }
+
+      setLoading(false);
+    };
+
+    loadQuestions();
+  }, []);
+
+  // Shuffle utility function
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
     }
   };
 
-  // Move onto Question stage screen
+  // Navigate to the first question
   const startGame = () => {
-    navigation.navigate("Question", {
-      event: event,
-      optionA: optionA,
-      optionB: optionB
-    });
+    navigation.navigate("Question", { event: event });
   };
-
-  // Randomly pick out a question from the collection 'WyrQuestions'
-  const randomQuestion = () => {
-    const currGame = db.collection('WyrGames').doc(event.id);
-    let count = 0;
-    db.collection('WyrQuestions')
-      .onSnapshot(snapshot => {
-        snapshot.forEach(doc => {
-          count += 1;
-        });
-        db.collection('WyrQuestions')
-          .where('random', '==', Math.floor(Math.random() * count))
-          .get()
-          .then(function (querySnapshot) {
-            querySnapshot.forEach(function (doc) {
-              currGame.update({
-                currentQuestion: doc.id,
-                seenQuestions: firebase.firestore.FieldValue.arrayUnion(doc.id)
-              });
-              setOptionA(doc.data().optionA);
-              setOptionB(doc.data().optionB);
-            });
-          })
-      });
-  }
 
   return (
     <Layout>
@@ -156,9 +159,19 @@ const IntroGuidelines = ({ route, navigation }) => {
           </View>
         </ScrollView>
 
-        <Button marginHorizontal ={20} style={styles.startButton} onPress={() => { addGameData(); startGame(); }}>
-          Start Game
-        </Button>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#5DB075" />
+            <Text>Loading questions...</Text>
+          </View>
+        ) : (
+          <Button
+            style={styles.startButton}
+            onPress={startGame}
+          >
+            Start Game
+          </Button>
+        )}
       </View>
     </Layout>
   );
@@ -206,6 +219,11 @@ const styles = StyleSheet.create({
   startButton: {
     marginHorizontal: 30,
     marginBottom: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

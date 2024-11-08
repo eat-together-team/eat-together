@@ -18,8 +18,9 @@ import { db, auth } from "../../../provider/Firebase";
 import * as firebase from "firebase/compat";
 
 const StartGame = ({ route, navigation }) => {
+  const { event } = route.params;
+
   // Event details
-  const [event, setEvent] = useState(route.params.event);
   const [friend, setFriend] = useState(null); // Display a friend who is also attending the event
   const [host, setHost] = useState(null); // Get the host of the event
 
@@ -57,6 +58,51 @@ const StartGame = ({ route, navigation }) => {
     } catch (error) {
       console.error("Error fetching attendees:", error);
     }
+  };
+
+  const addGameData = async () => {
+    const user = auth.currentUser;
+    const currGame = db.collection('WyrGames').doc();
+
+    // Fetch all questions from 'WyrQuestions' collection
+    const questionsSnapshot = await db.collection('WyrQuestions').get();
+    let questions = [];
+    questionsSnapshot.forEach((doc) => {
+      questions.push({ id: doc.id, ...doc.data() });
+    });
+
+    // Shuffle and select the first 20 questions
+    shuffleArray(questions);
+    const selectedQuestions = questions.slice(0, 20).map((q) => q.id);
+
+    // Initialize the game data in Firestore
+    await currGame.set({
+      aVotes: 0,
+      bVotes: 0,
+      currentQuestionIndex: 0,
+      discussionStage: false,
+      players: [user.uid],
+      questions: selectedQuestions,
+      totalQuestions: 20,
+      responsesCount: 0,
+      id: currGame.id, 
+    });
+
+    navigation.navigate("IntroGuidelines", {
+      event: { id: currGame.id },
+    });
+  };
+
+  // Shuffle utility function
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  };
+
+  const startGuidelines = () => {
+    navigation.navigate("IntroGuidelines", { event: event });
   };
 
   return (
@@ -120,14 +166,11 @@ const StartGame = ({ route, navigation }) => {
           </View>
         </ScrollView>
 
-        <Button marginVertical={35} marginHorizontal={20}
+        <Button
+          marginVertical={35}
+          marginHorizontal={20}
           style={styles.startButton}
-          onPress={() => {
-            navigation.navigate("IntroGuidelines", {
-              event: event,
-              people: people,
-            });
-          }}
+          onPress={startGuidelines}
         >
           Guidelines
         </Button>
