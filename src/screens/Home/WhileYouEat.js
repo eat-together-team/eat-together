@@ -277,7 +277,7 @@ const WhileYouEat = ({ route, navigation }) => {
     }
   }
 
-  // Cancel an vent, if a host
+  // Cancel an event, if a host
   function cancelEvent() {
     // makes sure user is signed in
     let currentUser = auth.currentUser;
@@ -285,18 +285,13 @@ const WhileYouEat = ({ route, navigation }) => {
       Alert.alert("Login", "You must be signed in to cancel an event.");
       return;
     };
-    // makes sure user is the host of event
-    let currentUserID = currentUser.uid;
-    if(event.hostID !== currentUserID) {
-      Alert.alert("Host", "You are not authorized to cancel this event..");
-      return;
-    }
     // determines type of event to know which collection to look in
     let db_name = event.type === "public" ? "Public Events" : "Private Events";
     db.collection(db_name).doc(event.id).update({
       cancelled: true
     })
     .then(() => {
+      setEvent((prevEvent) => ({ ...prevEvent, cancelled: true }));
       Alert.alert("Success", "Event has been cancelled successfully.");
     })
     .catch((error) => {
@@ -304,6 +299,29 @@ const WhileYouEat = ({ route, navigation }) => {
       Alert.alert("Error", "An error occurred while cancelling the event. Please try again.");
     });
   }
+
+    // Uncancel an event, if a host
+    function unCancelEvent() {
+      // makes sure user is signed in
+      let currentUser = auth.currentUser;
+      if(!currentUser) {
+        Alert.alert("Login", "You must be signed in to uncancel an event.");
+        return;
+      };
+      // determines type of event to know which collection to look in
+      let db_name = event.type === "public" ? "Public Events" : "Private Events";
+      db.collection(db_name).doc(event.id).update({
+        cancelled: false
+      })
+      .then(() => {
+        setEvent(prevEvent => ({ ...prevEvent, cancelled: false }));
+        Alert.alert("Success", "Event has been uncancelled successfully.");
+      })
+      .catch((error) => {
+        console.error("Error cancelling event:", error);
+        Alert.alert("Error", "An error occurred while cancelling the event. Please try again.");
+      });
+    }
 
   //Reporting event function
   function reportEvent() {
@@ -353,6 +371,23 @@ const WhileYouEat = ({ route, navigation }) => {
       { cancelable: false }
     );
   };
+
+    // Alert the user if they want to uncancel this event or not
+    const uncancelEventAlert = () => {
+      Alert.alert(
+        "Uncancel",
+        "Are you sure you want to uncancel this event?",
+        [
+          {
+            text: "Uncancel",
+            onPress: () => console.log("Uncancel Pressed"),
+            style: "cancel",
+          },
+          { text: "Ok", onPress: () => unCancelEvent() },
+        ],
+        { cancelable: false }
+      );
+    };
 
   // Determine if a friend is attending the event or not, and return them
   const friendAttending = (userInfo) => {
@@ -523,14 +558,30 @@ const WhileYouEat = ({ route, navigation }) => {
                   </NormalText>
                 </MenuOption>
 
-                <MenuOption
-                  onSelect={() => cancelEventAlert()}
-                  style={styles.option}
-                >
-                  <NormalText size={18} color="red">
-                    Cancel Event
-                  </NormalText>
-                </MenuOption>
+                {event.hostID === user.uid && (
+                  <>
+                    {!event.cancelled && (
+                      <MenuOption
+                        onSelect={() => cancelEventAlert()}
+                        style={styles.option}
+                      >
+                        <NormalText size={18} color="red">
+                          Cancel Event
+                        </NormalText>
+                      </MenuOption>
+                    )}
+                    {event.cancelled && (
+                      <MenuOption
+                        onSelect={() => uncancelEventAlert()}
+                        style={styles.option}
+                      >
+                        <NormalText size={18} color="red">
+                          Uncancel Event
+                        </NormalText>
+                      </MenuOption>
+                    )}
+                  </>
+                )}
               </MenuOptions>
             </Menu>
           </View>
