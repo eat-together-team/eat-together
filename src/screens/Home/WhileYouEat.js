@@ -285,14 +285,16 @@ const WhileYouEat = ({ route, navigation }) => {
       Alert.alert("Login", "You must be signed in to cancel an event.");
       return;
     };
+
     // determines type of event to know which collection to look in
     let db_name = event.type === "public" ? "Public Events" : "Private Events";
     db.collection(db_name).doc(event.id).update({
       cancelled: true
     })
     .then(() => {
-      setEvent((prevEvent) => ({ ...prevEvent, cancelled: true }));
+      route.params.editEvent({ ...event, cancelled: true });
       Alert.alert("Success", "Event has been cancelled successfully.");
+      navigation.goBack();
     })
     .catch((error) => {
       console.error("Error cancelling event:", error);
@@ -308,18 +310,20 @@ const WhileYouEat = ({ route, navigation }) => {
         Alert.alert("Login", "You must be signed in to uncancel an event.");
         return;
       };
+
       // determines type of event to know which collection to look in
       let db_name = event.type === "public" ? "Public Events" : "Private Events";
       db.collection(db_name).doc(event.id).update({
         cancelled: false
       })
       .then(() => {
-        setEvent(prevEvent => ({ ...prevEvent, cancelled: false }));
+        route.params.editEvent({ ...event, cancelled: false });
         Alert.alert("Success", "Event has been uncancelled successfully.");
+        navigation.goBack();
       })
       .catch((error) => {
         console.error("Error cancelling event:", error);
-        Alert.alert("Error", "An error occurred while cancelling the event. Please try again.");
+        Alert.alert("Error", "An error occurred while uncancelling the event. Please try again.");
       });
     }
 
@@ -541,7 +545,7 @@ const WhileYouEat = ({ route, navigation }) => {
                       navigation.navigate("EditEvent", {
                         event,
                         editEvent,
-                        editEvent2: route.params.editEvent,
+                        editEventHome: route.params.editEvent,
                       })
                     }
                     style={styles.option}

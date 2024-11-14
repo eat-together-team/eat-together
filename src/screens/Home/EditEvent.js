@@ -203,7 +203,7 @@ export default function ({ route, navigation }) {
             newEvent.startDate = moment(startDate);
             newEvent.endDate = moment(endDate);
             route.params.editEvent({...newEvent, type: route.params.event.type});
-            route.params.editEvent2({...newEvent, type: route.params.event.type});
+            route.params.editEventHome({...newEvent, type: route.params.event.type});
             navigation.goBack();
             alert("Meal updated!");
         });

@@ -15,8 +15,6 @@ import getTime from "../getTime";
 import NormalText from "./NormalText";
 
 const EventCard = (props) => {
-  console.log('Event object:', props.event); // Log the entire event object
-  console.log('Cancelled status:', props.event.cancelled);
   return (
     <Section style={styles.card} borderRadius={30}>
       <TouchableOpacity onPress={props.click} disabled={props.disabled}>
