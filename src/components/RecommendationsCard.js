@@ -27,7 +27,7 @@ const RecommendationsCard = (props) => {
                             }
                     }
                 />
-                
+
                 <View style={styles.moreInfo} borderRadius={30}>
                     <MediumText center color="white" size={14}>Recommended!</MediumText>
                 </View>
