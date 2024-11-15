@@ -16,7 +16,7 @@ export default function App() {
   // console.warn = function () {};
   // console.error = function () {};
 
-  // Check for app updates
+  // Check for internet connection status
   useEffect(() => {
     async function getNetwork() {
       const hasNetwork = await Network.getNetworkStateAsync();

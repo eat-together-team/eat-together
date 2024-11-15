@@ -21,6 +21,9 @@
       "channel": "production",
       "ios": {
         "image": "latest"
+      },
+      "android": {
+        "image": "latest"
       }
     }
   },
