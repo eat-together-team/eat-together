@@ -4,7 +4,6 @@ import { AuthProvider } from "./src/provider/AuthProvider";
 import { ThemeProvider } from "react-native-rapi-ui";
 import { MenuProvider } from "react-native-popup-menu";
 import { LogBox } from "react-native";
-import * as Updates from 'expo-updates';
 import * as Network from 'expo-network';
 
 import 'react-native-reanimated';

@@ -23,7 +23,8 @@
       "versionCode": 31,
       "permissions": [
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "runtimeVersion": "1.0.0"
     },
     "ios": {
       "supportsTablet": false,
