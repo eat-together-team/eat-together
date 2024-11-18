@@ -6,7 +6,8 @@ import {
     StyleSheet,
     ImageBackground,
     Dimensions,
-    Platform
+    Platform,
+    Alert
 } from "react-native";
 
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
@@ -105,6 +106,8 @@ export default function ({ route, navigation }) {
             start.setHours(startDate.getHours());
             start.setMinutes(startDate.getMinutes());
             start.setSeconds(0);
+        } else {
+            setEndDate(moment(start).add(1, 'hours').toDate()); // Set end date to 1 hour after start
         }
 
         setStartDate(start); // Set the date
@@ -120,13 +123,46 @@ export default function ({ route, navigation }) {
 
     // For selecting a photo
     const handleChoosePhoto = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            quality: 1,
-        });
-        if (!result.cancelled) {
-            setPhoto(result.uri);
+        Alert.alert (
+            "Pick Image",
+            "Choose an image for your event",
+            [
+                {
+                    text: "Gallery",
+                    onPress: () => galleryImageSelector(),
+                },
+                { text: "Take a photo", onPress: () => cameraImageSelector() },
+            ],
+            { cancelable: false}
+        );
+    };
+
+    // For selecting a photo from gallery
+    const galleryImageSelector = async () => {
+      let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: true,
+          quality: 1,
+      });
+      if (!result.cancelled) {
+          setPhoto(result.assets[0].uri);
+      }
+    };
+
+    // For selecting a photo by capturing an image with camera
+    const cameraImageSelector = async () => {
+        try {
+            await ImagePicker.requestCameraPermissionsAsync({});
+            let result = await ImagePicker.launchCameraAsync({
+                cameraType: ImagePicker.CameraType.back,
+                allowsEditing: true,
+                quality: 1,
+            });
+            if (!result.cancelled) {
+                setPhoto(result.assets[0].uri);
+            }
+        } catch (error) {
+            alert("Error uploading message: " + error.message);
         }
     };
 
@@ -169,7 +205,7 @@ export default function ({ route, navigation }) {
             newEvent.startDate = moment(startDate);
             newEvent.endDate = moment(endDate);
             route.params.editEvent({...newEvent, type: route.params.event.type});
-            route.params.editEvent2({...newEvent, type: route.params.event.type});
+            route.params.editEventHome({...newEvent, type: route.params.event.type});
             navigation.goBack();
             alert("Meal updated!");
         });
@@ -202,7 +238,7 @@ export default function ({ route, navigation }) {
                             </View>
                         </ImageBackground>
                     </TouchableOpacity>
-                    
+
                     <View style={{ flex: 1 }}>
                         <ScrollView style={styles.content}>
                             <TextInput
@@ -263,7 +299,7 @@ export default function ({ route, navigation }) {
                                         />
                                     </View>
                                 </TouchableOpacity>
-                            </View>                        
+                            </View>
 
                             <DateTimePickerModal isVisible={showStartDate} date={startDate}
                                 mode={mode} onConfirm={changeStartDate} onCancel={() => setShowStartDate(false)}
@@ -282,7 +318,7 @@ export default function ({ route, navigation }) {
                                 mainContainerStyle={styles.input}
                                 required
                             />
-                            
+
                             <TextInput
                                 placeholder="Additional Info"
                                 value={additionalInfo}
@@ -323,7 +359,7 @@ export default function ({ route, navigation }) {
                                     let hasImage = false;
                                     if (photo !== "https://images.unsplash.com/photo-1504674900247-0877df9cc836?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=60&raw_url=true&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8Zm9vZHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=1400") {
                                         hasImage = true;
-                                        
+
                                         if (photo !== route.params.event.image) {
                                             storeImage(photo, route.params.event.id).then(() => {
                                                 fetchImage(route.params.event.id).then(uri => {

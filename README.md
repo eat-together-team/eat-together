@@ -71,7 +71,7 @@ Cohort members link: [https://drive.google.com/file/d/1nnjE3IeRhIdSdvf0qlhD68gS5
 6. Start the environment using expo:
 
 ```jsx
-expo start
+npx expo start
 ```
 
 For yarn users, use the following command:
