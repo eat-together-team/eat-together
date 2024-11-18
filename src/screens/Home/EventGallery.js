@@ -380,7 +380,7 @@ export default function EventGallery({ route, navigation }) {
                             <NormalText weight='bold'>{lastName}</NormalText>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Filter checked={false} onPress={() => editCaption(selectedImageUri)} text="Edit" />
+                            <Filter checked={false} onPress={() => editCaption(selectedImageUri)} text="Add | Edit" />
                             <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                         </View>
                     </View>
@@ -389,7 +389,7 @@ export default function EventGallery({ route, navigation }) {
                 </View>
             </Modal>
             <Modal visible={isCaptionModalVisible} transparent={true} onRequestClose={() => setIsCaptionModalVisible(false)}>
-                <TouchableWithoutFeedback onPress={() => setIsCaptionModalVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => {setIsCaptionModalVisible(false),setLoading(false)}}>
                     <View style={modalStyles.modalBackground}>
                         <View style={modalStyles.modalContainer}>
                             <View style={modalStyles.captionItem}>
