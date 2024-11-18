@@ -31,7 +31,7 @@ export default function EventGallery({ route, navigation }) {
     const [loading, setLoading] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImageUri, setSelectedImageUri] = useState(null);
-    const [userName, setUserName] = useState("");
+    const [userNames, setUserNames] = useState("");
     //Caption Vairables
     const [firstName,setFirstName] = useState('');
     const [lastName,setLastName] = useState('');
@@ -121,7 +121,7 @@ export default function EventGallery({ route, navigation }) {
             userUploaded: user.uid,
             eventId: event.id,
             imagePermissions:event.type,
-            imageCaption:'',
+            imageCaption:'Click the Add/Edit Button to insert a caption!',
         };
 
         let db_name = event.type === "public" ? "Public Events" : "Private Events";
@@ -278,9 +278,7 @@ export default function EventGallery({ route, navigation }) {
 
         const addCaption = async(imageUrl,imageCaption) => {
             setLoading(true);
-            console.log('hello')
             const image = imageGallery.findIndex(img => img.imageUrl === imageUrl);
-            console.log(image)
             if (image !== -1) {
                 // Update the image's event assignment
                 const updatedImages = [...imageGallery];
@@ -289,9 +287,7 @@ export default function EventGallery({ route, navigation }) {
                     imageCaption: imageCaption,
                 };
                 // Update the user document with the modified gallery array
-                console.log('pre db')
                 let db_name = image.imagePermissions === "public" ? "Public Events" : "Private Events";
-                console.log();
                 await db.collection(db_name).doc(event.id).update({
                     eventGallery: updatedImages,
                 });
@@ -300,7 +296,6 @@ export default function EventGallery({ route, navigation }) {
                 // });
     
     
-                console.log('test')
                 // Update the state or do any necessary actions after assigning the image to the event
                 setImageGallery(updatedImages);
                 setCaption('');
@@ -318,7 +313,6 @@ export default function EventGallery({ route, navigation }) {
         };
     
         const editCaption = async (imageUrl) =>{
-            console.log(user.uid);
             setIsCaptionModalVisible(true);
             await addCaption(imageUrl);
     
