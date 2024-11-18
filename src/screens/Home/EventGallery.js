@@ -12,6 +12,9 @@ import { auth, db, storage } from "../../provider/Firebase";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
 import NormalText from "../../components/NormalText";
+import LargeText from "../../components/LargeText";
+import TextInput from "../../components/TextInput";
+
 
 //Global variables
 const numColumns = 3;
@@ -35,8 +38,9 @@ export default function EventGallery({ route, navigation }) {
     const [imageCaption,setImageCaption] = useState('');
     const [timeUploaded,setTimeUploaded] = useState()
 
-    // Picker Variables
+    // Image Caption upload
     const [caption,setCaption] = useState('');
+    const [isCaptionModalVisible, setIsCaptionModalVisible] = useState(false);
 
 
     // Use Effect to get the image gallery Data
@@ -263,6 +267,57 @@ export default function EventGallery({ route, navigation }) {
             );
         }
     };
+
+        // Add image caption
+
+        const addCaption = async(imageUrl,imageCaption) => {
+            setLoading(true);
+            console.log('hello')
+            const image = imageGallery.findIndex(img => img.imageUrl === imageUrl);
+            console.log(image)
+            if (image !== -1) {
+                // Update the image's event assignment
+                const updatedImages = [...imageGallery];
+                updatedImages[image] = {
+                    ...updatedImages[image],
+                    imageCaption: imageCaption,
+                };
+                // Update the user document with the modified gallery array
+                console.log('pre db')
+                let db_name = image.imagePermissions === "public" ? "Public Events" : "Private Events";
+                console.log();
+                await db.collection(db_name).doc(event.id).update({
+                    eventGallery: updatedImages,
+                });
+                // await db.collection("Users").doc(user.uid).update({
+                //     gallery: updatedImages,
+                // });
+    
+    
+                console.log('test')
+                // Update the state or do any necessary actions after assigning the image to the event
+                setImageGallery(updatedImages);
+                setCaption('');
+                alert("Caption Added!");
+                setIsCaptionModalVisible(false);
+                setIsModalVisible(false);
+    
+            } else if(image == 0){
+                // Handle the case where the image is not found
+                alert("Only the User that uploaded the image can edit it! ");
+            }
+    
+    
+            setLoading(false);
+        };
+    
+        const editCaption = async (imageUrl) =>{
+            console.log(user.uid);
+            setIsCaptionModalVisible(true);
+            await addCaption(imageUrl);
+    
+        };
+    
     
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
@@ -325,16 +380,40 @@ export default function EventGallery({ route, navigation }) {
                             <NormalText weight='bold'>{lastName}</NormalText>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Filter checked={false} text="Edit" />
+                            <Filter checked={false} onPress={() => editCaption(selectedImageUri)} text="Edit" />
                             <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                         </View>
                     </View>
                     <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,opacity:0.6}}>{imageCaption}</NormalText>
                     <NormalText style ={{flexDirection: "row", padding:10, alignItems:"center",paddingHorizontal:10,}}>{timeUploaded}</NormalText>
-
-
                 </View>
             </Modal>
+            <Modal visible={isCaptionModalVisible} transparent={true} onRequestClose={() => setIsCaptionModalVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => setIsCaptionModalVisible(false)}>
+                    <View style={modalStyles.modalBackground}>
+                        <View style={modalStyles.modalContainer}>
+                            <View style={modalStyles.captionItem}>
+                                <LargeText style={modalStyles.eventText}>Insert Caption</LargeText>
+                                <TextInput
+                                    placeholder="Insert Caption"
+                                    value={caption}
+                                    width="100%"
+                                    onChangeText={(val) => {
+                                        setCaption(val);
+                                    }}
+                                    iconLeft="information-circle-outline"
+                                    required
+                                    mainContainerStyle={{
+                                        marginBottom: 10, minHeight:65, height:"auto", 
+                                    }}
+                                />
+                                <Button onPress={() => addCaption(selectedImageUri,caption)}>Add Caption</Button>
+                            </View>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+
         </Layout>
     );
 }
@@ -377,3 +456,27 @@ const styles = StyleSheet.create({
     },
 
 });
+const modalStyles = StyleSheet.create({
+    modalBackground: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+    },
+    modalContainer: {
+        width: "85%",
+        maxHeight: "65%",
+        backgroundColor: "#fff",
+        borderRadius: 15,
+        padding: 20,
+    },
+    eventItem: {
+        padding: 15,
+        borderBottomColor: '#fff',
+        borderBottomWidth: 1,
+    },
+    eventText: {
+        color: "black",
+    },
+});
+

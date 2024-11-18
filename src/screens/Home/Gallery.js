@@ -199,7 +199,6 @@ export default function Gallery({ route, navigation }) {
         if (!result.cancelled) {
             const uri = result.assets[0].uri;
             await uploadImage(uri, imageId);
-            // await handleCaptionSelect(true);
         }
     };
 
@@ -236,7 +235,7 @@ export default function Gallery({ route, navigation }) {
             imageId: imageId,
             imageUploadedTime: Date.now(),
             imageEventAssigned: '',
-            imageCaption:'',
+            imageCaption:'Click the Add/Edit Button to insert a caption!',
         };
 
         await db.collection("Users").doc(user.uid).update({
@@ -251,6 +250,7 @@ export default function Gallery({ route, navigation }) {
         const imageId = Date.now() + "_" + user.uid;
         await handleChoosePhoto(imageId)
             .then(() => {
+                setIsModalVisible(true);
                 alert("Image Uploaded!");
             })
             .catch((error) => {
@@ -415,9 +415,8 @@ export default function Gallery({ route, navigation }) {
         }
     };
 
-    const handleCaptionSelect = (uri) => {
+    const handleCaptionSelect = () => {
         setIsCaptionModalVisible(true);
-        return uri;
     };
         
     // Function to assign image to events
@@ -451,45 +450,45 @@ export default function Gallery({ route, navigation }) {
         }
     };
 
-        // Add image caption
+    // Add image caption
 
-        const addCaption = async(imageUrl,imageCaption) => {
-            setLoading(true);
-            const image = images.findIndex(img => img.imageUrl === imageUrl);
-            
-            if (image !== -1) {
-                // Update the image's event assignment
-                const updatedImages = [...images];
-                updatedImages[image] = {
-                    ...updatedImages[image],
-                    imageCaption: imageCaption,
-                };
-                // Update the user document with the modified gallery array
-                await db.collection("Users").doc(user.uid).update({
-                    gallery: updatedImages,
-                });
-    
-                // Update the state or do any necessary actions after assigning the image to the event
-                setImages(updatedImages);
-                setCaption('');
-                alert("Caption Added!");
-                setIsCaptionModalVisible(false);
-                setIsModalVisible(false);
+    const addCaption = async(imageUrl,imageCaption) => {
+        setLoading(true);
+        const image = images.findIndex(img => img.imageUrl === imageUrl);
+        
+        if (image !== -1) {
+            // Update the image's event assignment
+            const updatedImages = [...images];
+            updatedImages[image] = {
+                ...updatedImages[image],
+                imageCaption: imageCaption,
+            };
+            // Update the user document with the modified gallery array
+            await db.collection("Users").doc(user.uid).update({
+                gallery: updatedImages,
+            });
 
-            } else {
-                // Handle the case where the image is not found
-                alert("Caption could not be added.");
-            }
-    
-    
-            setLoading(false);
-        };
+            // Update the state or do any necessary actions after assigning the image to the event
+            setImages(updatedImages);
+            setCaption('');
+            alert("Caption Added!");
+            setIsCaptionModalVisible(false);
+            setIsModalVisible(false);
 
-        const editCaption = async (imageUrl) =>{
-            setIsCaptionModalVisible(true);
-            await addCaption(imageUrl);
+        } else {
+            // Handle the case where the image is not found
+            alert("Caption could not be added.");
+        }
 
-        };
+
+        setLoading(false);
+    };
+
+    const editCaption = async (imageUrl) =>{
+        setIsCaptionModalVisible(true);
+        await addCaption(imageUrl);
+
+    };
     
     
         
@@ -678,7 +677,7 @@ export default function Gallery({ route, navigation }) {
                 <TouchableWithoutFeedback onPress={() => setIsCaptionModalVisible(false)}>
                     <View style={modalStyles.modalBackground}>
                         <View style={modalStyles.modalContainer}>
-                            <View style={modalStyles.captionItem}>
+                            <View>
                                 <LargeText style={modalStyles.eventText}>Insert Caption</LargeText>
                                 <TextInput
                                     placeholder="Insert Caption"
@@ -718,7 +717,7 @@ export default function Gallery({ route, navigation }) {
                         <NormalText weight='bold'>{lastName}</NormalText>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Filter checked={false} onPress={() => editCaption(selectedImageUri)} text="Edit" />
+                        <Filter checked={false} onPress={() => editCaption(selectedImageUri)} text="Add/Edit" />
                         <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
                 </View>
