@@ -35,13 +35,14 @@ export default function Gallery({ route, navigation }) {
     const [isEventModalVisible, setIsEventModalVisible] = useState(false);
     const [isCaptionModalVisible, setIsCaptionModalVisible] = useState(false);
     const [selectedImageForEvent, setSelectedImageForEvent] = useState(null);
+    
     // Picker Function
     const [caption,setCaption] = useState('');
 
     // Image Details
     const [firstName,setFirstName] = useState('');
     const [lastName,setLastName] = useState('');
-    const [imageCaption,setImageCaption] = useState('');
+    const [imageCaption,setImageCaption] = useState();
     const [assignedEventName,setAssignedEventName] = useState('Unknown Event');
     const [timeUploaded,setTimeUploaded] = useState()
 
@@ -128,48 +129,43 @@ export default function Gallery({ route, navigation }) {
         fetchEventNames();
     }, [attendedEvents]);
 
-        const getMetadata = async (uri) => {
-            console.log(uri)
-            const image = images.find(item => item.imageUrl === uri);
-            console.log('image:',image)        
-
-            if (image) {
-                const uploadedTime = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
-                let eventName = '';
-                const caption = image.imageCaption;
-                setImageCaption(caption);
-                setTimeUploaded(uploadedTime);
-                try {
-                    // Check if the event ID exists in the Public Events collection
-                    const publicEventDoc = await db.collection("Public Events").doc(image.imageEventAssigned).get();
-                    if (publicEventDoc.exists) {
-                        eventName = publicEventDoc.data().name;
-                        setAssignedEventName(eventName);
-                    } else {
-                        // If not found in Public Events, check Private Events collection
-                        const privateEventDoc = await db.collection("Private Events").doc(image.imageEventAssigned).get();
-                        if (privateEventDoc.exists) {
-                            eventName = privateEventDoc.data().name;
-                            setAssignedEventName(eventName);
-                        } else {
-                            // If event ID not found in either collection
-                            eventName = 'Unknown Event';
-                            setAssignedEventName(eventName);
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error fetching event details: ", error);
-                    eventName = 'Unknown Event';
-                    setAssignedEventName(eventName);
-                }
-        
-                console.log(assignedEventName,timeUploaded,imageCaption)
-            }
-        };
     
 
+    const getMetadata = async (uri) => {
+        const image = images.find(item => item.imageUrl === uri);
 
-
+        if (image) {
+            const uploadedTime = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
+            let eventName = '';
+            const caption = image.imageCaption;
+            setImageCaption(caption);
+            setTimeUploaded(uploadedTime);
+            try {
+                // Check if the event ID exists in the Public Events collection
+                const publicEventDoc = await db.collection("Public Events").doc(image.imageEventAssigned).get();
+                if (publicEventDoc.exists) {
+                    eventName = publicEventDoc.data().name;
+                    setAssignedEventName(eventName);
+                } else {
+                    // If not found in Public Events, check Private Events collection
+                    const privateEventDoc = await db.collection("Private Events").doc(image.imageEventAssigned).get();
+                    if (privateEventDoc.exists) {
+                        eventName = privateEventDoc.data().name;
+                        setAssignedEventName(eventName);
+                    } else {
+                        // If event ID not found in either collection
+                        eventName = 'Unknown Event';
+                        setAssignedEventName(eventName);
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching event details: ", error);
+                eventName = 'Unknown Event';
+                setAssignedEventName(eventName);
+            }
+        }
+    };
+    
     // Choosing images from gallery or taking a picture
 
     const handleChoosePhoto = (imageId) => {
@@ -203,7 +199,6 @@ export default function Gallery({ route, navigation }) {
         if (!result.cancelled) {
             const uri = result.assets[0].uri;
             await uploadImage(uri, imageId);
-            await handleCaptionSelect(true);
         }
     };
 
@@ -240,7 +235,7 @@ export default function Gallery({ route, navigation }) {
             imageId: imageId,
             imageUploadedTime: Date.now(),
             imageEventAssigned: '',
-            imageCaption:'',
+            imageCaption:'Click the Add/Edit Button to insert a caption!',
         };
 
         await db.collection("Users").doc(user.uid).update({
@@ -255,6 +250,7 @@ export default function Gallery({ route, navigation }) {
         const imageId = Date.now() + "_" + user.uid;
         await handleChoosePhoto(imageId)
             .then(() => {
+                setIsModalVisible(true);
                 alert("Image Uploaded!");
             })
             .catch((error) => {
@@ -396,7 +392,7 @@ export default function Gallery({ route, navigation }) {
 
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
-        getMetadata(selectedImageUri);
+        getMetadata(uri);
         setIsModalVisible(true);
     };
 
@@ -419,10 +415,9 @@ export default function Gallery({ route, navigation }) {
         }
     };
 
-    const handleCaptionSelect = (uri) => {
+    const handleCaptionSelect = () => {
         setIsCaptionModalVisible(true);
-        return uri;
-    }
+    };
         
     // Function to assign image to events
                     
@@ -454,6 +449,48 @@ export default function Gallery({ route, navigation }) {
             console.error("Error assigning image to event: ", error);
         }
     };
+
+    // Add image caption
+
+    const addCaption = async(imageUrl,imageCaption) => {
+        setLoading(true);
+        const image = images.findIndex(img => img.imageUrl === imageUrl);
+        
+        if (image !== -1) {
+            // Update the image's event assignment
+            const updatedImages = [...images];
+            updatedImages[image] = {
+                ...updatedImages[image],
+                imageCaption: imageCaption,
+            };
+            // Update the user document with the modified gallery array
+            await db.collection("Users").doc(user.uid).update({
+                gallery: updatedImages,
+            });
+
+            // Update the state or do any necessary actions after assigning the image to the event
+            setImages(updatedImages);
+            setCaption('');
+            alert("Caption Added!");
+            setIsCaptionModalVisible(false);
+            setIsModalVisible(false);
+
+        } else {
+            // Handle the case where the image is not found
+            alert("Caption could not be added.");
+        }
+
+
+        setLoading(false);
+    };
+
+    const editCaption = async (imageUrl) =>{
+        setIsCaptionModalVisible(true);
+        await addCaption(imageUrl);
+
+    };
+    
+    
         
     useEffect(() => {
         const filter = async () => {
@@ -640,7 +677,7 @@ export default function Gallery({ route, navigation }) {
                 <TouchableWithoutFeedback onPress={() => setIsCaptionModalVisible(false)}>
                     <View style={modalStyles.modalBackground}>
                         <View style={modalStyles.modalContainer}>
-                            <View style={modalStyles.captionItem}>
+                            <View>
                                 <LargeText style={modalStyles.eventText}>Insert Caption</LargeText>
                                 <TextInput
                                     placeholder="Insert Caption"
@@ -655,7 +692,7 @@ export default function Gallery({ route, navigation }) {
                                         marginBottom: 10, minHeight:65, height:"auto", 
                                     }}
                                 />
-                                <Button>Add Caption</Button>
+                                <Button onPress={() => addCaption(selectedImageUri,caption)}>Add Caption</Button>
                             </View>
                         </View>
                     </View>
@@ -676,16 +713,17 @@ export default function Gallery({ route, navigation }) {
                 <View style={styles.modalBottom}>
                 <View style={{ flexDirection: "row", padding: 10, alignItems: "center", justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <NormalText>{firstName} </NormalText>
-                        <NormalText>{lastName}</NormalText>
+                        <NormalText weight='bold'>{firstName} </NormalText>
+                        <NormalText weight='bold'>{lastName}</NormalText>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Filter checked={false} text="Edit" />
+                        <Filter checked={false} onPress={() => editCaption(selectedImageUri)} text="Add/Edit" />
                         <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
                 </View>
-                    <NormalText style ={captionStyles.rowText}>{imageCaption}</NormalText>
-                    <NormalText style ={captionStyles.rowText}>{timeUploaded}</NormalText>
+                    <NormalText style ={{flexDirection: "row", padding:5, alignItems:"center",paddingHorizontal:10,opacity:0.6}}>{imageCaption}</NormalText>
+                    <NormalText style ={{flexDirection: "row", padding:5, alignItems:"center",paddingHorizontal:10,}}>{timeUploaded}</NormalText>
+                    <NormalText style ={{flexDirection: "row", padding:5, alignItems:"center",paddingHorizontal:10,}}>Event Assigned: {assignedEventName}</NormalText>
 
                     <View style={styles.assignBottom}> 
                         <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>
@@ -705,8 +743,8 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        alignItems: "center",
-        justifyContent: "flex-start",
+        alignItems: "left",
+        justifyContent: "center",
     },
     imageItem: {
         margin: 5,
