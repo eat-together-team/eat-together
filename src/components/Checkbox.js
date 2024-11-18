@@ -8,13 +8,13 @@ const Checkbox = props => {
             width: 35,
             height: 35,
             borderRadius: 10,
-            borderColor: '#5DB075',
+            borderColor: props.color ? props.color : '#5DB075',
             borderWidth: 4,
             alignItems: 'center',
             justifyContent: 'center',
             marginRight: 15
         }} onPress={props.onPress}>
-            {props.checked && <Foundation name="check" size={25} color="#5DB075" />}
+            {props.checked && <Foundation name="check" size={props.size ? props.size : 25} color={props.color ? props.color : "#5DB075"} />}
         </TouchableOpacity>
     );
 }

@@ -45,19 +45,7 @@ const FullCard = ({ route, navigation }) => {
   const [people, setPeople] = useState([]);
   const [openAttendance, setOpenAttendance] = useState(false);
 
-  // Image Carousel
-  const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);  
-  const numColumns = 3;
-  const screenWidth = Dimensions.get("window").width;
-  const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
-  
-
   useEffect(() => {
-    if (route.params.event.eventGallery) {
-      setImageGallery(route.params.event.eventGallery);
-      setLoading(false);
-    }
-
     db.collection("Users").doc(user.uid).get().then(doc => {
       const events = doc.data().attendingEventIDs.map(e => e.id);
 
@@ -81,21 +69,6 @@ const FullCard = ({ route, navigation }) => {
       setLoading(false);
     });
   }, []);
-
-    // Creates a real time listener for the photo gallery preview
-    useEffect(() => {
-      let db_name = "Private Events";
-      if (route.params.event.type === "public") {
-        db_name = "Public Events";
-      }
-      const unsubscribe = db.collection(db_name)
-        .doc(route.params.event.id)  
-        .onSnapshot((doc) => {
-          setImageGallery(doc.data().eventGallery);
-        });
-  
-      return () => unsubscribe();
-    }, [route.params.event.id]);
   
   // Fetch all attendees of this event
   const getAttendees = () => {
