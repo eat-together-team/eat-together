@@ -38,13 +38,14 @@ export default function Gallery({ route, navigation }) {
     
     // Picker Function
     const [caption,setCaption] = useState('');
+    const [captionLoading, setCaptionLoading] = useState(false);
 
     // Image Details
-    const [firstName,setFirstName] = useState('');
-    const [lastName,setLastName] = useState('');
-    const [imageCaption,setImageCaption] = useState();
-    const [assignedEventName,setAssignedEventName] = useState('Unknown Event');
-    const [timeUploaded,setTimeUploaded] = useState()
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [imageCaption, setImageCaption] = useState();
+    const [assignedEventName, setAssignedEventName] = useState('Unknown Event');
+    const [timeUploaded, setTimeUploaded] = useState();
 
     // Filters
     const [newest, setNewest] = useState(true);
@@ -135,11 +136,13 @@ export default function Gallery({ route, navigation }) {
         const image = images.find(item => item.imageUrl === uri);
 
         if (image) {
-            const uploadedTime = new Date(image.imageUploadedTime).toLocaleDateString('en-US', {   year: 'numeric', month: 'long', day: 'numeric',});
+            const uploadedTime = new Date(image.imageUploadedTime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             let eventName = '';
             const caption = image.imageCaption;
             setImageCaption(caption);
+            setCaption(caption);
             setTimeUploaded(uploadedTime);
+
             try {
                 // Check if the event ID exists in the Public Events collection
                 const publicEventDoc = await db.collection("Public Events").doc(image.imageEventAssigned).get();
@@ -167,24 +170,23 @@ export default function Gallery({ route, navigation }) {
     };
     
     // Choosing images from gallery or taking a picture
-
     const handleChoosePhoto = (imageId) => {
         return new Promise((resolve, reject) => {
-                Alert.alert(
-                    "Pick Image",
-                    "Choose an image for your event",
-                    [
-                        {
-                            text: "Gallery",
-                            onPress: () => galleryImageSelector(imageId).then(resolve).catch(reject),
-                        },
-                        {
-                            text: "Take a photo",
-                            onPress: () => cameraImageSelector(imageId).then(resolve).catch(reject),
-                        },
-                    ],
-                    { cancelable: true }
-                );
+            Alert.alert(
+                "Pick Image",
+                "Choose an image for your event",
+                [
+                    {
+                        text: "Gallery",
+                        onPress: () => galleryImageSelector(imageId).then(resolve).catch(reject),
+                    },
+                    {
+                        text: "Take a photo",
+                        onPress: () => cameraImageSelector(imageId).then(resolve).catch(reject),
+                    },
+                ],
+                { cancelable: true }
+            );
         });
     };
 
@@ -466,7 +468,6 @@ export default function Gallery({ route, navigation }) {
 
             // Update the state or do any necessary actions after assigning the image to the event
             setImages(updatedImages);
-            setCaption('');
             alert("Caption Added!");
             setIsCaptionModalVisible(false);
             setIsModalVisible(false);
@@ -476,17 +477,13 @@ export default function Gallery({ route, navigation }) {
             alert("Caption could not be added.");
         }
 
-
         setLoading(false);
     };
 
     const editCaption = async (imageUrl) =>{
         setIsCaptionModalVisible(true);
         await addCaption(imageUrl);
-
     };
-    
-    
         
     useEffect(() => {
         const filter = async () => {
