@@ -389,7 +389,7 @@ export default function EventGallery({ route, navigation }) {
                 </View>
             </Modal>
             <Modal visible={isCaptionModalVisible} transparent={true} onRequestClose={() => setIsCaptionModalVisible(false)}>
-                <TouchableWithoutFeedback onPress={() => {setIsCaptionModalVisible(false),setLoading(false);}}>
+                <TouchableWithoutFeedback onPress={() => {setIsCaptionModalVisible(false),setLoading(false)}}>
                     <View style={modalStyles.modalBackground}>
                         <View style={modalStyles.modalContainer}>
                             <View style={modalStyles.captionItem}>
