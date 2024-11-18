@@ -250,7 +250,6 @@ export default function Gallery({ route, navigation }) {
         const imageId = Date.now() + "_" + user.uid;
         await handleChoosePhoto(imageId)
             .then(() => {
-                setIsModalVisible(true);
                 alert("Image Uploaded!");
             })
             .catch((error) => {
@@ -415,9 +414,6 @@ export default function Gallery({ route, navigation }) {
         }
     };
 
-    const handleCaptionSelect = () => {
-        setIsCaptionModalVisible(true);
-    };
         
     // Function to assign image to events
                     
