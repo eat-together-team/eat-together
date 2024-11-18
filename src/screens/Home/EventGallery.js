@@ -51,13 +51,14 @@ export default function EventGallery({ route, navigation }) {
                 const eventData = eventDoc.data();
                 if (eventData && eventData.eventGallery && Array.isArray(eventData.eventGallery)) {
                     setImageGallery(eventData.eventGallery);
-                    fetchUserNames(eventData.eventGallery);
                 }
             }
             setLoading(false);
         });
 
         return () => unsubscribe();
+
+
     }, [event.id, event.type]);
 
     const handleChoosePhoto = (imageId) => {
@@ -222,36 +223,29 @@ export default function EventGallery({ route, navigation }) {
         } 
     };
 
-    const fetchUserNames = async (images) => {
-        const userIds = [...new Set(images.map(img => img.userUploaded))];
-        const newUserNames = { ...userNames };
-    
-        await Promise.all(userIds.map(async (userId) => {
-            if (!newUserNames[userId]) {
+    const UserName = ({ userId }) => {
+        useEffect(() => {
+            const fetchUserName = async () => {
                 const userDoc = await db.collection("Users").doc(userId).get();
-                newUserNames[userId] = userDoc.exists
-                    ? `${userDoc.data().firstName} ${userDoc.data().lastName}`
-                    : "Unknown User";
-            }
-        }));
-    
-        setUserNames(newUserNames);
-        const sortedImages = images.slice().sort((a, b) => {
-            const nameA = newUserNames[a.userUploaded] || "Unknown User";
-            const nameB = newUserNames[b.userUploaded] || "Unknown User";
-            return nameA.localeCompare(nameB);
-        });
-    
-        setImageGallery(sortedImages);
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    setUserName(`${userData.firstName} ${userData.lastName}`);
+                } else {
+                    setUserName("Unknown User");
+                }
+            };
+            fetchUserName();
+        }, [userId]);
+
+        return <MediumText>{userName}</MediumText>;
     };
-    
+
     const renderColumn = ({ item }) => {
-        const uploadedBy = userNames[item.userUploaded] || "Loading...";
         return (
             <View style={styles.columnItem}>
-                <MediumText>{uploadedBy}</MediumText>
+                <UserName userId={item.userUploaded} />
                 <TouchableOpacity onPress={() => handleImagePress(item.imageUrl)}>
-                    <View style={{ width: 350, height: 211, marginVertical: 10 }}>
+                    <View style={{width: 350,height:211,marginVertical: 10,}}>
                         <Image style={{ width: '100%', height: '100%', borderRadius: 15 }} source={{ uri: item.imageUrl }} />
                     </View>
                 </TouchableOpacity>

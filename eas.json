@@ -20,10 +20,8 @@
     "production": {
       "channel": "production",
       "ios": {
-        "image": "latest"
-      },
-      "android": {
-        "image": "latest"
+        "image": "latest",
+        "simulator": true
       }
     }
   },

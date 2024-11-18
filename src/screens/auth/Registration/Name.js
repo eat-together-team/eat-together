@@ -1,7 +1,7 @@
 // First page of registration
 
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Dimensions, Image, ImageBackground, TouchableOpacity, SafeAreaView, ScrollView, Platform, Alert } from "react-native";
+import { View, StyleSheet, Dimensions, Image, ImageBackground, TouchableOpacity, SafeAreaView, ScrollView, Platform } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import * as Progress from 'react-native-progress';
 
@@ -54,39 +54,6 @@ const Name = props => {
     }
   }
 
-  // For selecting a photo
-  const handleChoosePhoto = async () => {
-      Alert.alert (
-          "Pick Image",
-          "Choose an image",
-          [
-              {
-                  text: "Gallery",
-                  onPress: () => pickImage(),
-              },
-              { text: "Take a photo", onPress: () => cameraImageSelector() },
-          ],
-          { cancelable: false}
-      );
-  };
-
-  // For selecting a photo by capturing an image with camera
-  const cameraImageSelector = async () => {
-      try {
-          await ImagePicker.requestCameraPermissionsAsync({});
-          let result = await ImagePicker.launchCameraAsync({
-              cameraType: ImagePicker.CameraType.back,
-              allowsEditing: true,
-              quality: 1,
-          });
-          if (!result.cancelled) {
-              setImage(result.assets[0].uri);
-          }
-      } catch (error) {
-          alert("Error uploading message: " + error.message);
-      }
-  };
-
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -96,7 +63,7 @@ const Name = props => {
     });
 
     if (!result.cancelled) {
-      setImage(result.assets[0].uri);
+      setImage(result.uri);
     }
   }
 
@@ -111,9 +78,9 @@ const Name = props => {
           Let's set up your profile!
         </LargeText>
       </View>
-      <ScrollView
-        scrollEnabled={true}
-        keyboardShouldPersistTaps="always"
+      <ScrollView 
+        scrollEnabled={true} 
+        keyboardShouldPersistTaps="always" 
         nestedScrollEnabled={true}
         contentContainerStyle={{flexGrow: 1}}
       >
@@ -135,10 +102,9 @@ const Name = props => {
                   </View>
                 </ImageBackground>
               )}
-              <TouchableOpacity style={styles.editImage} onPress={() => handleChoosePhoto()}>
+              <TouchableOpacity style={styles.editImage} onPress={pickImage}>
                 <Feather name="edit-2" size={24} color="black" />
               </TouchableOpacity>
-
             </View>
 
             <View style={styles.content}>
@@ -178,7 +144,7 @@ const Name = props => {
                   keyboardType="numeric"
                   required
                 />
-
+                
                 <View style={{width: "47%"}}>
                   <SuggestSelection
                     multi={true}
@@ -320,7 +286,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center"
   },
-
+  
   overImage: {
     width: "90%",
     backgroundColor: "#AAAAAA",

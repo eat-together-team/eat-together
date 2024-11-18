@@ -47,57 +47,49 @@ export default function({ navigation }) {
     const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
 
     useEffect(() => { // updates stuff right after React makes changes to the DOM
-      async function fetchData() {
-        let userData;
-        await db.collection("Users").doc(user.uid).get().then(doc => {
-          if (doc.exists) {
-            userData = doc.data();
-            setUserInfo(doc.data());
-            setUnread(doc.data().hasNotif);
-          }
-        });
-        
-        const ref = db.collection("Public Events");
-        await ref.onSnapshot((query) => {
-          let newEvents = [];
-          query.forEach((doc) => {
-            if (doc.data().visibleTo != null) { // For events that are visible to friends only
-              if (!doc.data().visibleTo.includes(user.uid) && !(doc.data().hostID === user.uid)) return;
-            }
+        async function fetchData() {
+            let userData;
+            await db.collection("Users").doc(user.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                  userData = doc.data();
+                  setUserInfo(doc.data());
+                  setUnread(doc.data().hasNotif);
+                }
+            });
 
-            if (doc.data().startDate) { // Same logic as else statement, but for different data structure
-              if (doc.data().startDate.toDate() > new Date() &&
-                !userData.blockedIDs.includes(doc.data().hostID)) {
-                  newEvents.push(doc.data());
-              }
-            } else {
-              if (doc.data().date.toDate() > new Date() &&
-                !userData.blockedIDs.includes(doc.data().hostID)) {
-                  newEvents.push(doc.data());
-              }
-            }
-          });
-          
-          // Sort events by date
-          newEvents = newEvents.sort((a, b) => {
-            return compareDates(a, b);
-          });
-          setEvents(newEvents);
-          setFilteredEvents(newEvents);
-          setFilteredSearchedEvents(newEvents);
-          setLoading(false);
-        });
-      }
+            const ref = db.collection("Public Events");
+            await ref.onSnapshot((query) => {
+                let newEvents = [];
+                query.forEach((doc) => {
+                    if (doc.data().visibleTo != null) { // For events that are visible to friends only
+                        if (!doc.data().visibleTo.includes(user.uid) && !(doc.data().hostID === user.uid)) return;
+                    }
 
-      fetchData();
-    }, []);
-
-    useEffect(() => { // Looks for changes to notifications in real-time
-      db.collection("Users").doc(user.uid).onSnapshot(doc => {
-        if (doc.exists) {
-          setUnread(doc.data().hasNotif);
+                    if (doc.data().startDate) { // Same logic as else statement, but for different data structure
+                      if (doc.data().startDate.toDate() > new Date() && 
+                        !userData.blockedIDs.includes(doc.data().hostID)) {
+                          newEvents.push(doc.data());
+                      }
+                    } else {
+                      if (doc.data().date.toDate() > new Date() && 
+                        !userData.blockedIDs.includes(doc.data().hostID)) {
+                          newEvents.push(doc.data());
+                      }
+                    }
+                });
+                
+                // Sort events by date
+                newEvents = newEvents.sort((a, b) => {
+                    return compareDates(a, b);
+                });
+                setEvents(newEvents);
+                setFilteredEvents(newEvents);
+                setFilteredSearchedEvents(newEvents);
+                setLoading(false);
+            });
         }
-      });
+
+        fetchData();
     }, []);
 
     // For filters

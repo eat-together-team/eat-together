@@ -828,11 +828,3 @@ const modalStyles = StyleSheet.create({
     },
 });
 
-const captionStyles = StyleSheet.create({
-    rowText:{
-        flexDirection: "row",
-        padding:10, 
-        alignItems:"center",
-        paddingHorizontal:10,
-    }
-});

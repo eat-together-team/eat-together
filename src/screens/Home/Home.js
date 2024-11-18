@@ -65,6 +65,10 @@ export default function ({ navigation }) {
   const showFromRef = useRef();
 
   useEffect(() => {
+    console.log(step);
+  }, [step]);
+
+  useEffect(() => {
     // updates stuff right after React makes changes to the DOM
     async function fetchEvents() {
       await db
@@ -503,6 +507,7 @@ export default function ({ navigation }) {
         if (attendingEvent) {
           setRecStep((prevRecStep) => {
             const newRecStep = Math.min(prevRecStep + 1, recTutorialSteps.length - 1);
+            console.log(`Prev step: ${prevRecStep}, New step: ${newRecStep}`);  // Debugging
             return newRecStep;
           });
         } else if (completedTutorial) {
