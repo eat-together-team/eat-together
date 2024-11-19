@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import { View, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
-import {CheckBox} from 'react-native-rapi-ui';
+import Checkbox from './Checkbox';
 
 import TagsList from './TagsList';
 import MediumText from "./MediumText";
@@ -34,7 +34,11 @@ const InvitePerson = props => {
                     </View>
                 </TouchableOpacity>
                 <View style={styles.checkbox}>
-                    <CheckBox value={props.person.invited} onValueChange={() => props.toggleInvite(props.person.id)} />
+                    <Checkbox
+                        checked={props.person.invited}
+                        onPress = {() => props.toggleInvite(props.person.id)}
+                        color="white"
+                    />
                 </View>
             </View>
             <View style={[styles.body, {backgroundColor: props.person.color}]}>

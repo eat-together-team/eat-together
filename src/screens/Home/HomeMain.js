@@ -8,11 +8,17 @@ import EditEvent from "./EditEvent";
 import FullProfile from "../Explore/People/FullProfile";
 import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
 import Gallery from "./Gallery";
+import EventGallery from "./EventGallery";
 import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ChatRoom from "../Chat/ChatRoom";
 import Recommendation from "../Notifications/Recommendation";
 import InvitePeople from "../Organize/InvitePeople";
+// Would You Rather imports
+import StartGame from "./StartGame";
+import IntroGuidelines from "./WouldYouRather/IntroGuidelines";
+import Question from "./WouldYouRather/Question";
+import Discussion from "./WouldYouRather/Discussion";
 
 const Stack = createStackNavigator();
 
@@ -33,13 +39,20 @@ export default function () {
         {props => <FullProfile {...props} blockBack="Home" />}
       </Stack.Screen>
       <Stack.Screen name="AvailabilitiesStatic" component={AvailabilitiesStatic} />
-      
+
       <Stack.Screen name="FullCard" component={FullCard} />
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
       <Stack.Screen name="ChatRoom" component={ChatRoom} />
       <Stack.Screen name="Recommendation" component={Recommendation} />
       <Stack.Screen name="InvitePeople" component={InvitePeople} />
+
       <Stack.Screen name="Gallery" component={Gallery} />
+      <Stack.Screen name="EventGallery" component={EventGallery} />
+      {/* WYR Game Screens */}
+      <Stack.Screen name="StartGame" component={StartGame}/>
+      <Stack.Screen name="IntroGuidelines" component={IntroGuidelines}/>
+      <Stack.Screen name="Question" component={Question}/>
+      <Stack.Screen name="Discussion" component={Discussion}/>
     </Stack.Navigator>
   );
 }

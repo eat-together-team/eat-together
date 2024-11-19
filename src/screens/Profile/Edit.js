@@ -77,7 +77,7 @@ export default function edit({ route, navigation }) {
         });
 
         if (!result.cancelled) {
-            setImage(result.uri);
+            setImage(result.assets[0].uri);
         }
     };
 
@@ -248,7 +248,7 @@ export default function edit({ route, navigation }) {
                                 onChangeText={(val) => setAge(val)}
                                 width={"47%"}
                                 iconLeftType="Ionicons"
-                                iconLeft="md-pencil"
+                                iconLeft="pencil"
                                 value={age}
                                 required
                             />

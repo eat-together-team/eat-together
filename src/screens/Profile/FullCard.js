@@ -8,7 +8,8 @@ import {
   ImageBackground,
   Dimensions,
   Image,
-  Linking
+  Linking,
+  TouchableOpacity
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -29,6 +30,8 @@ import openMap from "react-native-open-maps";
 import { useState, useEffect } from "react";
 import PeopleList from "../../components/PeopleList";
 import { db } from "../../provider/Firebase";
+import GalleryPreview from "../../components/GalleryPreview";
+import { Divider } from "react-native-elements";
 
 
 const FullCard = ({ route, navigation }) => {
@@ -38,8 +41,22 @@ const FullCard = ({ route, navigation }) => {
   const [people, setPeople] = useState([]);
   const [openAttendance, setOpenAttendance] = useState(false);
 
+  // Image Carousel
+  const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);     
+  const numColumns = 3;
+  const screenWidth = Dimensions.get("window").width;
+  const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
+  const [loading, setLoading] = useState(false);
+
+
   useEffect(() => {
     const event = route.params.event;  // Get the event from route parameters
+
+    if (event.eventGallery) {
+      setImageGallery(event.eventGallery);
+      setLoading(false);
+    }
+  
     const getAttendees = () => {
       event.attendees.forEach((attendee) => {
         if (attendee !== user.uid) {
@@ -65,6 +82,22 @@ const FullCard = ({ route, navigation }) => {
     getAttendees();
   }, [route.params.event]);  // Re-fetch if the event changes
   
+  // Creates a real time listener for the photo gallery preview
+  useEffect(() => {
+    let db_name = "Private Events";
+    if (route.params.event.type === "public") {
+      db_name = "Public Events";
+    }
+    
+    const unsubscribe = db.collection(db_name)
+      .doc(route.params.event.id)  
+      .onSnapshot((doc) => {
+        setImageGallery(doc.data().eventGallery);
+      });
+
+    return () => unsubscribe();
+  }, [route.params.event.id]);
+
   // Adds event to Google Calendar
   const addToCalendar = async () => {
     const details = {
@@ -156,9 +189,17 @@ const FullCard = ({ route, navigation }) => {
             </View>
           </View>
 
-          {route.params.event.additionalInfo !== "" && <NormalText marginBottom={20} color="black">
+          {route.params.event.additionalInfo !== "" && <NormalText color="black">
             {route.params.event.additionalInfo}
           </NormalText>}
+
+          <Divider style={{marginVertical: 10}}/>
+
+          <MediumText>Photos (click to view more)</MediumText>
+          <TouchableOpacity style={{marginBottom: 10}}
+            onPress={() => navigation.navigate("EventGallery",{event:route.params.event})}>
+            <GalleryPreview>{imageGallery}</GalleryPreview>
+          </TouchableOpacity>
 
           {/* Attendance dropdown */}
           <Toggle 

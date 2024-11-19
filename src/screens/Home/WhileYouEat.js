@@ -26,6 +26,8 @@ import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 import Link from "../../components/Link";
 import Toggle from "../../components/Toggle";
+import Button from "../../components/Button";
+import GalleryPreview from "../../components/GalleryPreview";
 
 import getDate from "../../getDate";
 import getTime from "../../getTime";
@@ -38,6 +40,7 @@ import {
   MenuTrigger,
 } from "react-native-popup-menu";
 import openMap from "react-native-open-maps";
+import { Divider } from "react-native-elements";
 
 const WhileYouEat = ({ route, navigation }) => {
   // Event details
@@ -64,8 +67,19 @@ const WhileYouEat = ({ route, navigation }) => {
 
   const [recSteps, setRecSteps] =  useState(0); // Tutorial steps for meetup
 
+  // Image Carousel
+  const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);
+  const numColumns = 3;
+  const screenWidth = Dimensions.get("window").width;
+  const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
+
   // Fetch meetup data on page load
   useEffect(() => {
+    if (event.eventGallery) {
+      setImageGallery(event.eventGallery);
+      setLoading(false);
+    }
+
     getAttendees(); // Fetch attendees
 
     // Fetch host info (not for recommendations)
@@ -91,7 +105,27 @@ const WhileYouEat = ({ route, navigation }) => {
             });
         }
       });
-  }, []);
+  }, [event.eventGallery]);
+
+  // Creates a real time listener for the photo gallery preview
+  useEffect(() => {
+    let db_name = "Private Events";
+    if (event.type === "public") {
+      db_name = "Public Events";
+    }
+
+    const unsubscribe = db.collection(db_name)
+      .doc(event.id)  // Assuming you store the event by its ID
+      .onSnapshot((doc) => {
+        setImageGallery(doc.data().eventGallery);
+      });
+
+    return () => unsubscribe();
+  }, [event.id]);
+
+
+
+
 
   // Checking group chat updates
   useEffect(() => {
@@ -243,6 +277,56 @@ const WhileYouEat = ({ route, navigation }) => {
     }
   }
 
+  // Cancel an event, if a host
+  function cancelEvent() {
+    // makes sure user is signed in
+    let currentUser = auth.currentUser;
+    if(!currentUser) {
+      Alert.alert("Login", "You must be signed in to cancel an event.");
+      return;
+    };
+
+    // determines type of event to know which collection to look in
+    let db_name = event.type === "public" ? "Public Events" : "Private Events";
+    db.collection(db_name).doc(event.id).update({
+      cancelled: true
+    })
+    .then(() => {
+      route.params.editEvent({ ...event, cancelled: true });
+      Alert.alert("Success", "Event has been cancelled successfully.");
+      navigation.goBack();
+    })
+    .catch((error) => {
+      console.error("Error cancelling event:", error);
+      Alert.alert("Error", "An error occurred while cancelling the event. Please try again.");
+    });
+  }
+
+    // Uncancel an event, if a host
+    function unCancelEvent() {
+      // makes sure user is signed in
+      let currentUser = auth.currentUser;
+      if(!currentUser) {
+        Alert.alert("Login", "You must be signed in to uncancel an event.");
+        return;
+      };
+
+      // determines type of event to know which collection to look in
+      let db_name = event.type === "public" ? "Public Events" : "Private Events";
+      db.collection(db_name).doc(event.id).update({
+        cancelled: false
+      })
+      .then(() => {
+        route.params.editEvent({ ...event, cancelled: false });
+        Alert.alert("Success", "Event has been uncancelled successfully.");
+        navigation.goBack();
+      })
+      .catch((error) => {
+        console.error("Error cancelling event:", error);
+        Alert.alert("Error", "An error occurred while uncancelling the event. Please try again.");
+      });
+    }
+
   //Reporting event function
   function reportEvent() {
     navigation.navigate("ReportEvent", {
@@ -269,11 +353,45 @@ const WhileYouEat = ({ route, navigation }) => {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "OK", onPress: () => withdraw() },
+        { text: "OK", onPress: () => withdraw(event) },
       ],
       { cancelable: false }
     );
   };
+
+  // Alert the user if they want to cancel this event or not
+  const cancelEventAlert = () => {
+    Alert.alert(
+      "Cancel",
+      "Are you sure you want to cancel this event?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "Ok", onPress: () => cancelEvent() },
+      ],
+      { cancelable: false }
+    );
+  };
+
+    // Alert the user if they want to uncancel this event or not
+    const uncancelEventAlert = () => {
+      Alert.alert(
+        "Uncancel",
+        "Are you sure you want to uncancel this event?",
+        [
+          {
+            text: "Uncancel",
+            onPress: () => console.log("Uncancel Pressed"),
+            style: "cancel",
+          },
+          { text: "Ok", onPress: () => unCancelEvent() },
+        ],
+        { cancelable: false }
+      );
+    };
 
   // Determine if a friend is attending the event or not, and return them
   const friendAttending = (userInfo) => {
@@ -305,7 +423,7 @@ const WhileYouEat = ({ route, navigation }) => {
         if (data.settings?.attendingTutorial !== undefined) {
           setAttendingTutorial(data.settings.attendingTutorial);
         }
-        
+
       } else {
         console.log('No such document!');
       }
@@ -353,7 +471,7 @@ const WhileYouEat = ({ route, navigation }) => {
   return (
     <Layout>
 
-    {attendingTutorial && 
+    {attendingTutorial &&
         <>
           <RecTutorialMessage
             userId={user.uid}
@@ -370,7 +488,7 @@ const WhileYouEat = ({ route, navigation }) => {
       }
 
       <TopNav
-        middleContent={<MediumText center>{event.name}</MediumText>}
+        middleContent={<MediumText center>Your Meal</MediumText>}
         leftContent={
           <Ionicons
             name="chevron-back"
@@ -386,7 +504,7 @@ const WhileYouEat = ({ route, navigation }) => {
                 <Ionicons
                   name="ellipsis-horizontal"
                   color={loading ? "grey" : "black"}
-                  size={25}
+                  size={22}
                 />
               </MenuTrigger>
               <MenuOptions>
@@ -427,7 +545,7 @@ const WhileYouEat = ({ route, navigation }) => {
                       navigation.navigate("EditEvent", {
                         event,
                         editEvent,
-                        editEvent2: route.params.editEvent,
+                        editEventHome: route.params.editEvent,
                       })
                     }
                     style={styles.option}
@@ -443,6 +561,31 @@ const WhileYouEat = ({ route, navigation }) => {
                     Withdraw
                   </NormalText>
                 </MenuOption>
+
+                {event.hostID === user.uid && (
+                  <>
+                    {!event.cancelled && (
+                      <MenuOption
+                        onSelect={() => cancelEventAlert()}
+                        style={styles.option}
+                      >
+                        <NormalText size={18} color="red">
+                          Cancel Event
+                        </NormalText>
+                      </MenuOption>
+                    )}
+                    {event.cancelled && (
+                      <MenuOption
+                        onSelect={() => uncancelEventAlert()}
+                        style={styles.option}
+                      >
+                        <NormalText size={18} color="red">
+                          Uncancel Event
+                        </NormalText>
+                      </MenuOption>
+                    )}
+                  </>
+                )}
               </MenuOptions>
             </Menu>
           </View>
@@ -564,12 +707,29 @@ const WhileYouEat = ({ route, navigation }) => {
             </View>
           </View>
 
-          <NormalText marginBottom={20} color="black">
+          <NormalText color="black">
             {event.additionalInfo}
           </NormalText>
 
+          <Divider style={{marginVertical: 10}}/>
+
+          <MediumText>Photos (click to view more)</MediumText>
+          <TouchableOpacity onPress={() => navigation.navigate("EventGallery",{event:event})}>
+            <GalleryPreview>{imageGallery}</GalleryPreview>
+          </TouchableOpacity>
+
+          {/* <Button marginVertical={20} onPress={() => {
+            navigation.navigate("IntroGuidelines", {
+              event: event,
+              people: people
+            })
+          }}>
+            Play Would You Rather?
+          </Button> */}
+          <View style={{ marginVertical: 20 }}/>
+
           {/* Icebreakers dropdown */}
-          <Toggle 
+          <Toggle
             open={openIcebreakers}
             onPress={() => setOpenIcebreakers(!openIcebreakers)}
             title="Icebreakers"
@@ -584,7 +744,7 @@ const WhileYouEat = ({ route, navigation }) => {
           </View>
 
           {/* Attendance dropdown */}
-          <Toggle 
+          <Toggle
             open={openAttendance}
             onPress={() => setOpenAttendance(!openAttendance)}
             title="Attendance"

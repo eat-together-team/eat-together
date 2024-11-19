@@ -195,9 +195,11 @@ export default function ({ navigation }) {
               }
             });
         });
+        
+        setLoading(false);
+
         // prepare the list of all connections for searchbar
         let list = [];
-        let numFriends = friends.length;
         friends.forEach((uid) => {
           db.collection("Users")
             .doc(uid)
@@ -214,20 +216,11 @@ export default function ({ navigation }) {
             })
             .then(() => {
               setUsers(list);
-              numFriends--;
-
-              if (numFriends === 0) {
-                setLoading(false);
-              }
             });
         });
-
-        if (numFriends === 0) {
-          setLoading(false);
-        }
       }
     });
-  }, [isFocused]);
+  }, []);
 
   // Check if creating a new chat will override an existing one or not
   const checkChatExists = () => {

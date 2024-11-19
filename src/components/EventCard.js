@@ -28,6 +28,12 @@ const EventCard = (props) => {
           }
         />
 
+        {props.event.cancelled && (
+          <View style={styles.cancelledTag} borderRadius={30}>
+            <MediumText center color="white" size={14}>Cancelled</MediumText>
+          </View>
+        )}
+
         <SectionContent>
           <MediumText center>{props.event.name}</MediumText>
           {props.event.type !== "recommendation" && <NormalText center>
@@ -72,6 +78,15 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
   },
+
+  cancelledTag: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    padding: 10,
+    backgroundColor: "red"
+  }
+
 });
 
 export default EventCard;
