@@ -131,7 +131,7 @@ function TextInput(props) {
                 onChangeText={onChangeText}
                 placeholder={placeholder}
                 placeholderTextColor={"darkgrey"}
-                autoCapitalize={false}
+                autoCapitalize="none"
                 autoComplete={autoComplete}
                 autoCorrect={autoCorrect}
                 value={value}
@@ -162,3 +162,4 @@ function TextInput(props) {
   }
 
   export default TextInput;
+  
