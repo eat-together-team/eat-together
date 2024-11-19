@@ -129,7 +129,6 @@ function databaseRemoveFriend(uid, navigation) {
 }
 
 
-
 const BuddyRequest = ({ blockBack, route, navigation }) => {
   const user = auth.currentUser; // Current user
 
