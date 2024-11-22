@@ -65,10 +65,6 @@ export default function ({ navigation }) {
   const showFromRef = useRef();
 
   useEffect(() => {
-    console.log(step);
-  }, [step]);
-
-  useEffect(() => {
     // updates stuff right after React makes changes to the DOM
     async function fetchEvents() {
       await db
@@ -507,7 +503,6 @@ export default function ({ navigation }) {
         if (attendingEvent) {
           setRecStep((prevRecStep) => {
             const newRecStep = Math.min(prevRecStep + 1, recTutorialSteps.length - 1);
-            console.log(`Prev step: ${prevRecStep}, New step: ${newRecStep}`);  // Debugging
             return newRecStep;
           });
         } else if (completedTutorial) {
@@ -692,12 +687,15 @@ export default function ({ navigation }) {
           Clear
         </Link>
       </RBSheet>
-            {/* Button to redirect to personal Photo Gallery */}
 
+      {/* Button to redirect to personal Photo Gallery */}
       <View style={styles.button}>
-        <Button onPress={() => navigation.navigate("Gallery")}> <Ionicons name="md-image-outline" color="white" size={20}/> My Photo Gallery </Button>
+        <Button icon={(
+          <Ionicons name="image-outline" color="white" size={20}/>
+        )} onPress={() => navigation.navigate("Gallery",{user: userInfo})}>
+          My Gallery
+        </Button>
       </View>
-
     </Layout>
   );
 }
@@ -714,5 +712,5 @@ const styles = StyleSheet.create({
     right: 10,
     zIndex: 1,
 
-},
+  },
 });

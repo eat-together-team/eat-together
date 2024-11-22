@@ -69,7 +69,7 @@ const FullCard = ({ route, navigation }) => {
       setLoading(false);
     });
   }, []);
-
+  
   // Fetch all attendees of this event
   const getAttendees = () => {
     route.params.event.attendees.forEach((attendee) => {

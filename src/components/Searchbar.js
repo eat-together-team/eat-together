@@ -1,6 +1,6 @@
+
 import React from "react";
 import TextInput from "./TextInput";
-
 const Searchbar = props => {
     return (
         <TextInput
@@ -11,5 +11,4 @@ const Searchbar = props => {
             width="100%" />
     );
 }
-
 export default Searchbar;

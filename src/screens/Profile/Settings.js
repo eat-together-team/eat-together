@@ -235,6 +235,11 @@ export default function ({ navigation }) {
             func: () => {Linking.openURL("https://www.eat-together.tech/privacy-policy")}
         },
         {
+            name: " Terms of Service",
+            icon: "hand-left",
+            func: () => {Linking.openURL("https://www.eat-together.tech/terms-and-conditions")}
+        },
+        {
             name: " Report a Bug",
             icon: "bug",
             func: () => {navigation.navigate("Report Bug")}

@@ -1,5 +1,4 @@
 //Meet other people
-
 import React, { useEffect, useState } from "react";
 import { FlatList, View, ActivityIndicator, StyleSheet } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
