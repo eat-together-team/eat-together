@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Image, ActivityIndicator } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import LargeText from "../../../components/LargeText";
@@ -21,6 +21,9 @@ const Question = ({ route, navigation }) => {
   const user = auth.currentUser;
   const isHost = user.uid === event.hostID;
 
+  // Reference to keep track of previous question index
+  const prevQuestionIndexRef = useRef(-1);
+
   // Function to shuffle colors
   const shuffleColors = () => {
     const colorsArray = ["#7A9CAE", "#AE7A7A", "#9B715A", "#E9B94C", "#E72525", "#38A2FF", "#83C18B"];
@@ -40,44 +43,48 @@ const Question = ({ route, navigation }) => {
       const gameData = doc.data();
       const { questions, currentQuestionIndex } = gameData;
 
-      // Update current question index
-      setCurrentQuestionIndex(currentQuestionIndex);
-
-      // Check if there are remaining questions
-      if (currentQuestionIndex < questions.length) {
-        const currQuestionId = questions[currentQuestionIndex];
-        const questionDoc = await db.collection('WyrQuestions').doc(currQuestionId).get();
-        if (questionDoc.exists) {
-          setOptionA(questionDoc.data().optionA);
-          setOptionB(questionDoc.data().optionB);
-          setIsLoading(false);
-
-          // Shuffle colors after loading the new question
-          shuffleColors();
-
-          // Reset selected option for the new question
-          setSelectedOption(null);
-
-          // Reset responses count for the new question
-          setResponsesCount(0);
-        }
-      } else {
-        // Navigate to EndGame if no more questions
-        navigation.navigate("EndGame");
-      }
-
       // Update responses count
       setResponsesCount(Object.keys(gameData.userResponses || {}).length);
+
+      // Check if the question index has changed
+      if (currentQuestionIndex !== prevQuestionIndexRef.current) {
+        // Update current question index
+        setCurrentQuestionIndex(currentQuestionIndex);
+        prevQuestionIndexRef.current = currentQuestionIndex;
+
+        // Reset selected option for the new question
+        setSelectedOption(null);
+
+        // Shuffle colors for the new question
+        shuffleColors();
+
+        // Load new question
+        if (currentQuestionIndex < questions.length) {
+          const currQuestionId = questions[currentQuestionIndex];
+          const questionDoc = await db.collection('WyrQuestions').doc(currQuestionId).get();
+          if (questionDoc.exists) {
+            setOptionA(questionDoc.data().optionA);
+            setOptionB(questionDoc.data().optionB);
+            setIsLoading(false);
+          }
+        } else {
+          // Navigate to EndGame if no more questions
+          navigation.navigate("EndGame");
+        }
+      }
     }
   };
 
   useEffect(() => {
-    // Retrieve current answer options and responses count
+    // Retrieve options initially
     retrieveOptions();
-    const intervalId = setInterval(retrieveOptions, 800);
-    return () => {
-      clearInterval(intervalId);
-    };
+
+    // Listen for real-time updates
+    const unsubscribe = currGame.onSnapshot(() => {
+      retrieveOptions();
+    });
+
+    return () => unsubscribe();
   }, []);
 
   // Function to handle voting
@@ -103,7 +110,7 @@ const Question = ({ route, navigation }) => {
         await currGame.update({
           responsesCount: firebase.firestore.FieldValue.increment(1),
         });
-        setResponsesCount(responsesCount + 1);
+        setResponsesCount(prevCount => prevCount + 1);
       }
 
       // Increment the vote count for the newly selected option
@@ -239,7 +246,7 @@ const Question = ({ route, navigation }) => {
 
         {isHost && (
           <View style={styles.nextButtonContainer}>
-            <TouchableOpacity onPress={moveToDiscuss} style={[styles.nextButton, styles.optionButton]}>
+            <TouchableOpacity onPress={moveToDiscuss} style={[styles.nextButton]}>
               <Text style={styles.nextButtonText}>Next</Text>
             </TouchableOpacity>
           </View>
@@ -261,7 +268,7 @@ const styles = StyleSheet.create({
   optionButton: {
     marginVertical: 10,
     width: "100%",
-    height: 60,
+    minHeight: 60,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
@@ -273,8 +280,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   selectedOption: {
-    borderWidth: 2,
-    borderColor: "black",
+    borderWidth: 3,
+    borderColor: "#FFD700", 
   },
   orContainer: {
     marginVertical: 15,
@@ -324,11 +331,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#5DB075",
     borderRadius: 10,
     paddingVertical: 15,
-    elevation: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.27,
-    shadowRadius: 4.65,
+    elevation: 5,
   },
   nextButtonText: {
     color: "white",

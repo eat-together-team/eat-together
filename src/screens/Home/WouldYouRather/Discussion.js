@@ -57,12 +57,12 @@ const Discussion = ({ route, navigation }) => {
           userResponses: {}, // Reset user responses
         });
 
-        navigation.navigate("Question", {
+        navigation.replace("Question", {
           event: event,
         });
       } else {
         // Navigate to EndGame if all questions have been answered
-        navigation.navigate("EndGame");
+        navigation.navigate("EndGame", { event: event });
       }
     }
   };

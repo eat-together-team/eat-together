@@ -1,14 +1,5 @@
-// Introductory Guidelines for playing Would You Rather Game
-
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Image,
-  ActivityIndicator,
-  Text,
-} from "react-native";
+import {View, ScrollView, StyleSheet, Image, ActivityIndicator, Text, } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -103,7 +94,7 @@ const IntroGuidelines = ({ route, navigation }) => {
 
             <View style={styles.ruleContainer}>
               <Image
-                source={require('../../../../assets/guideline1.png')}
+                // source={require('../../../../assets/guideline1.png')}
                 style={styles.ruleImage}
                 resizeMode="contain"
               />
@@ -113,7 +104,7 @@ const IntroGuidelines = ({ route, navigation }) => {
             </View>
             <View style={styles.ruleContainer}>
               <Image
-                source={require('../../../../assets/guideline2.png')}
+                // source={require('../../../../assets/guideline2.png')}
                 style={styles.ruleImage}
                 resizeMode="contain"
               />
@@ -128,7 +119,7 @@ const IntroGuidelines = ({ route, navigation }) => {
 
             <View style={styles.ruleContainer}>
               <Image
-                source={require('../../../../assets/guideline3.png')}
+                // source={require('../../../../assets/guideline3.png')}
                 style={styles.ruleImage3}
                 resizeMode="contain"
               />
@@ -138,7 +129,7 @@ const IntroGuidelines = ({ route, navigation }) => {
             </View>
             <View style={styles.ruleContainer}>
               <Image
-                source={require('../../../../assets/guideline4.png')}
+                // source={require('../../../../assets/guideline4.png')}
                 style={styles.ruleImage}
                 resizeMode="contain"
               />
@@ -148,7 +139,7 @@ const IntroGuidelines = ({ route, navigation }) => {
             </View>
             <View style={styles.ruleContainer}>
               <Image
-                source={require('../../../../assets/guideline5.png')}
+                // source={require('../../../../assets/guideline5.png')}
                 style={styles.ruleImage}
                 resizeMode="contain"
               />
@@ -158,17 +149,20 @@ const IntroGuidelines = ({ route, navigation }) => {
             </View>
           </View>
         </ScrollView>
-
         {loading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#5DB075" />
-              <Text style={styles.loadingText}>Loading questions...</Text>
-            </View>
-          ) : (
-            <Button onPress={startGame}>
-              <Text >Start Game</Text>
-            </Button>
-          )}
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#5DB075" />
+            <Text>Loading questions...</Text>
+          </View>
+        ) : (
+          <Button
+            style={styles.startButton}
+            onPress={startGame}
+          >
+            Start Game
+          </Button>
+        )}
+        
       </View>
     </Layout>
   );

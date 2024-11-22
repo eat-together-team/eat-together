@@ -3,7 +3,9 @@ import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import MediumText from "../../../components/MediumText";
 
-const EndGame = ({ navigation }) => {
+const EndGame = ({ navigation, route }) => {
+  const { event } = route.params;
+
   return (
     <Layout>
       <View style={styles.container}>
@@ -15,6 +17,8 @@ const EndGame = ({ navigation }) => {
           style={styles.playAgainButton}
           onPress={() => navigation.navigate("Home")}
         >
+           {/* need to finsih this  */}
+           {/* probably add another file called start new game to handle the state for this */}
           <MediumText style={styles.playAgainButtonText}>Play Again</MediumText>
         </TouchableOpacity>
         <TouchableOpacity
@@ -28,75 +32,74 @@ const EndGame = ({ navigation }) => {
   );
 };
 
-// styles that I got from teh figma design, will most likely need changing later
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    padding: 20,
+    backgroundColor: "#fff",
   },
   headerText: {
-    color: "#579960",
-    fontFamily: "Inter",
-    fontSize: 26,
-    fontStyle: "normal",
-    fontWeight: "600",
-    lineHeight: "normal",
-    textAlign: "center",
+    fontSize: 32, 
+    fontWeight: "bold",
     marginBottom: 20,
+    color: "#5DB075",
   },
   logo: {
-    width: 150,
-    height: 150,
+    width: 100,
+    height: 100,
+    resizeMode: "contain",
     marginBottom: 20,
   },
   subHeaderText: {
-    color: "#579960",
-    fontFamily: "Inter",
-    fontSize: 20,
-    fontStyle: "normal",
+    fontSize: 20, 
     fontWeight: "600",
-    lineHeight: "normal",
-    textAlign: "center",
     marginBottom: 10,
+    color: "#333",
   },
   thankYouText: {
-    color: "#579960",
-    fontFamily: "Inter",
-    fontSize: 20,
-    fontStyle: "normal",
-    fontWeight: "600",
-    lineHeight: "normal",
+    fontSize: 18,
     textAlign: "center",
     marginBottom: 30,
+    color: "#666",
   },
   playAgainButton: {
     backgroundColor: "#5DB075",
+    borderRadius: 10,
     paddingVertical: 15,
     paddingHorizontal: 30,
-    borderRadius: 10,
-    width: "100%",
+    marginBottom: 15,
+    width: "80%",
     alignItems: "center",
-    marginBottom: 10,
+    elevation: 3, 
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   playAgainButtonText: {
-    color: "white",
-    fontSize: 18,
+    fontSize: 18, 
+    color: "#fff",
+    fontWeight: "600",
   },
   exitButton: {
-    backgroundColor: "white",
-    borderColor: "#5DB075",
-    borderWidth: 2,
+    backgroundColor: "#FF6347",
+    borderRadius: 10,
     paddingVertical: 15,
     paddingHorizontal: 30,
-    borderRadius: 10,
-    width: "100%",
+    width: "80%",
     alignItems: "center",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   exitButtonText: {
-    color: "#5DB075",
     fontSize: 18,
+    color: "#fff",
+    fontWeight: "600",
   },
 });
 

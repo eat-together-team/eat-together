@@ -105,6 +105,45 @@ const StartGame = ({ route, navigation }) => {
     navigation.navigate("IntroGuidelines", { event: event });
   };
 
+  const startGame = async () => {
+    setLoading(true);
+    try {
+      const currGame = db.collection('WyrGames').doc();
+
+      // Fetch all questions from 'WyrQuestions' collection
+      const questionsSnapshot = await db.collection('WyrQuestions').get();
+      let questions = [];
+      questionsSnapshot.forEach((doc) => {
+        questions.push({ id: doc.id, ...doc.data() });
+      });
+
+      // Shuffle and select the first 20 questions
+      shuffleArray(questions);
+      const selectedQuestions = questions.slice(0, 20).map((q) => q.id);
+
+      // Initialize the game data in Firestore
+      await currGame.set({
+        aVotes: 0,
+        bVotes: 0,
+        currentQuestionIndex: 0,
+        discussionStage: false,
+        players: [user.uid],
+        questions: selectedQuestions,
+        totalQuestions: 20, // Ensure this is set to 20
+        responsesCount: 0,
+        id: currGame.id,
+      });
+
+      navigation.navigate("IntroGuidelines", {
+        event: { id: currGame.id },
+      });
+    } catch (error) {
+      console.error("Error starting game:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Layout style={styles.layout}>
       <TopNav

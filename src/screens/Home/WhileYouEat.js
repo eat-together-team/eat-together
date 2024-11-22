@@ -784,8 +784,6 @@ const shuffleArray = (array) => {
             Play Would You Rather?
           </Button>
 
-          {/* <View style={{ marginVertical: 20 }}/> */}
-
           {/* Icebreakers dropdown */}
           <Toggle
             open={openIcebreakers}
