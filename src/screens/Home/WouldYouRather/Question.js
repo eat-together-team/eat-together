@@ -231,7 +231,7 @@ const Question = ({ route, navigation }) => {
         </View>
 
         <View style={styles.responsesContainer}>
-          <Image source={require("../../../../assets/responseswyr.png")} style={styles.responseImage} />
+          {/* <Image source={require("../../../../assets/responseswyr.png")} style={styles.responseImage} /> */}
           <MediumText style={styles.responsesText}>
             {responsesCount} / {event.attendees.length}
           </MediumText>

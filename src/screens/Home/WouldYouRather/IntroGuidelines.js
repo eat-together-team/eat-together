@@ -160,18 +160,15 @@ const IntroGuidelines = ({ route, navigation }) => {
         </ScrollView>
 
         {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#5DB075" />
-            <Text>Loading questions...</Text>
-          </View>
-        ) : (
-          <Button
-            style={styles.startButton}
-            onPress={startGame}
-          >
-            Start Game
-          </Button>
-        )}
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#5DB075" />
+              <Text style={styles.loadingText}>Loading questions...</Text>
+            </View>
+          ) : (
+            <Button onPress={startGame}>
+              <Text >Start Game</Text>
+            </Button>
+          )}
       </View>
     </Layout>
   );
