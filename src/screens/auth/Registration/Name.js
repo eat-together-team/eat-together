@@ -174,7 +174,7 @@ const Name = props => {
                   height="100%"
                   onChangeText={(val) => setAge(val)}
                   iconLeftType="Ionicons"
-                  iconLeft="md-pencil"
+                  iconLeft="pencil-outline"
                   keyboardType="numeric"
                   required
                 />
