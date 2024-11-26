@@ -123,6 +123,42 @@ export default function (props) {
       console.error("Error removing read notifications:", error);
     }
   };
+
+
+  const deleteUnreadAlert = () => {
+    Alert.alert(
+      "Delete Notifications",
+      "Are you sure you want to delete all unread notifications?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "OK", onPress: () => removeUnreadNotifications() },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const removeUnreadNotifications = () => {
+    try {
+      const notifIds = [];
+      readNotifs.forEach((doc) => {
+        notifIds.push(doc.id);
+      });
+  
+      db.collection("Users").doc(user.uid).update({
+        notifications: firebase.firestore.FieldValue.arrayRemove(...unreadNotifs)
+      });
+  
+      console.log("All unread notifications removed successfully");
+    } catch (error) {
+      console.error("Error removing unread notifications:", error);
+    }
+  };
+
+
   
 
   return (
@@ -198,7 +234,11 @@ export default function (props) {
           }
           {unreadNotifs.length !== 0 &&
             <View>
-                <MediumText> Unread </MediumText>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between" }}>
+                  <MediumText> Unread</MediumText>
+                  <Link onPress={deleteUnreadAlert}>Clear Notifications </Link>
+                </View>
+
                 <FlatList
                   contentContainerStyle={styles.cards}
                   keyExtractor={(item) => item.id}
