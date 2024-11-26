@@ -318,9 +318,8 @@ const Recommendation = ({ route, navigation }) => {
               <View style={styles.row}>
                 <Ionicons name="time-outline" size={20} />
                 <NormalText paddingHorizontal={10} color="black">
-                    {/* {route.params.event.startDate ? getTime(route.params.event.startDate.toDate()) : getTime(route.params.event.date.toDate())}
-                    {route.params.event.endDate && " - ".concat(getTime(route.params.event.endDate.toDate()))} */}
-                    6:00 pm - 7:00 pm
+                    {route.params.event.startDate ? getTime(route.params.event.startDate.toDate()) : getTime(route.params.event.date.toDate())}
+                    {route.params.event.endDate && " - ".concat(getTime(route.params.event.endDate.toDate()))}
                 </NormalText>
               </View>
 

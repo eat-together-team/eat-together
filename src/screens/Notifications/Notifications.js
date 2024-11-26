@@ -144,7 +144,7 @@ export default function (props) {
   const removeUnreadNotifications = () => {
     try {
       const notifIds = [];
-      readNotifs.forEach((doc) => {
+      unreadNotifs.forEach((doc) => {
         notifIds.push(doc.id);
       });
   
