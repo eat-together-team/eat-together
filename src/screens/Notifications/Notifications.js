@@ -234,7 +234,7 @@ export default function (props) {
           }
           {unreadNotifs.length !== 0 &&
             <View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between" }}>
+                <View style={styles.notifStyle}>
                   <MediumText> Unread</MediumText>
                   <Link onPress={deleteUnreadAlert}>Clear Notifications </Link>
                 </View>
@@ -315,7 +315,7 @@ export default function (props) {
           }
           {readNotifs.length !== 0 &&
             <View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between" }}>
+              <View style={styles.notifStyle}>
                 <MediumText> Read</MediumText>
                 <Link onPress={deleteAlert}>Clear Notifications </Link>
               </View>
@@ -421,5 +421,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 20,
     paddingBottom: 40,
+  },
+
+  notifStyle:{
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: "space-between",
   },
 });
