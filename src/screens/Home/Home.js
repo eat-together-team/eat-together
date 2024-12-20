@@ -520,6 +520,10 @@ export default function ({ navigation }) {
 
   }, []);
 
+  useEffect(() => {
+    console.log("recStep: ", recStep);
+  }, [recStep])
+
   if (!isDataFetched) return null; // Don't render anything if data hasn't been fetched
 
   return (
@@ -711,6 +715,5 @@ const styles = StyleSheet.create({
     bottom: 10,
     right: 10,
     zIndex: 1,
-
   },
 });

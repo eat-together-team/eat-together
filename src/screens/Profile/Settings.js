@@ -191,6 +191,7 @@ export default function ({ navigation }) {
                     text: "Yes",
                     onPress: async () => {
                         await db.collection("Users").doc(user.uid).update({
+                            "settings.attendingEvent": false,
                             "settings.attendingTutorial": true,
                             "settings.tabsTutorial": true,
                             "settings.completedTutorial": false
@@ -203,6 +204,7 @@ export default function ({ navigation }) {
                     text: "No",
                     onPress: async () => {
                         await db.collection("Users").doc(user.uid).update({
+                            "settings.attendingEvent": true,
                             "settings.attendingTutorial": false,
                             "settings.tabsTutorial": false,
                             "settings.completedTutorial": true
