@@ -2,9 +2,78 @@
 
 Connecting students through shared meals. Our app allows you to create and join food meetups with ease.
 
-# Getting Started ✨✨✨
+# Setup ⚙️
+**Note: make sure that both your phone and laptop are on the same wifi network.**
 
-## Contributing Guidelines
+0. Clone this repository locally by typing: `git clone https://github.com/eat-together-team/eat-together.git`.
+1. Install [node.js](https://nodejs.org/en/). To ensure that you properly downloaded it, type `npm -v` in the terminal. This will display the currently installed version, if any.
+2. Get the Expo mobile app (https://expo.dev/client).
+3. Install the Expo npm library:
+
+```jsx
+npm install --global expo-cli
+```
+
+3. In the home/main directory of this repo, install all required libraries/dependencies:
+
+```jsx
+npm install
+```
+
+For MacOS users who are unable to use npm, use yarn instead:
+
+```sh
+npm install --global yarn
+yarn install
+```
+
+4. To link this project with Firebase, download the `.env` file from our Google Drive. Simply put it in the root directory. Download links are below!
+
+Core team link: [https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AOOH/view?usp=drive_link](https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AOOH/view?usp=drive_link)
+
+Cohort members link: [https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing](https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing)
+
+Ensure that the file is named "**.env**", not "env" (i.e. don't forget the starting period)!
+
+5. Start the environment using expo:
+
+```sh
+npx expo start
+```
+
+For yarn users, use:
+
+```sh
+yarn start
+```
+
+6. Once you see a QR code generated, type `s` in the terminal to switch from "development build" to "Expo Go".
+7. Scan the generated QR code with the Expo Go app (Android) or your camera app (iOS).
+8. Follow any necessary instructions that come (e.g. you may need to create your own EAS/Expo account), until you see an Eat Together-themed loading page!
+
+## Firebase Backend Setup (Ignore this section if you used the `.env` file)
+
+- Fill this firebase config to your config inside `./src/provider/Firebase.js`
+- Check out the Eat Together Google Drive for how to fill this out!
+
+```jsx
+// Better put your these secret keys in .env file
+const firebaseConfig = {
+	apiKey: '',
+	authDomain: '',
+	databaseURL: '',
+	projectId: '',
+	storageBucket: '',
+	messagingSenderId: '',
+	appId: '',
+};
+```
+
+and you are good to go!
+
+Check out [https://console.firebase.google.com/u/0/](https://console.firebase.google.com/u/0/) to look at our database.
+
+# Contributing Guidelines 🖥️
 
 We don't have any strict guidelines for your development conventions, but here are some general rules to follow:
 
@@ -14,7 +83,7 @@ We don't have any strict guidelines for your development conventions, but here a
 4. **Follow the clean code guidelines covered in your CSE classes.** We're not nitpicky about code quality but we do want to be able to understand what it does, especially if we read it months later.
 5. **If you have any questions, ask another member of the Eat Together development team!** We're here to help you out and make sure you have a good experience developing with Eat Together. If you're stuck on something, don't hesitate to reach out, and we'll try our best to respond!
 
-## Navigating the Repository
+# Navigating the Repository 📂
 
 The majority of development will be happening in the `src` folder. Inside the `src` folder, there are other subfolders:
 
@@ -39,74 +108,7 @@ Other (less but kinda) important files/folders to know:
 3. `.gitignore`: contains a list of files to ignore when pushing to git.
 4. `package.json` + `yarn.lock`: contains information about libraries/dependencies the app needs to run (`npm install` and `yarn.lock` rely on this file).
 
-## React Native Expo Installation
-0. Clone this repository locally by typing: `git clone https://github.com/eat-together-team/eat-together.git`.
-1. Install [node.js](https://nodejs.org/en/). To ensure that you properly downloaded it, type `npm -v` in the terminal. This will diplsay the currently installed version, if any.
-2. Install Expo:
-
-```jsx
-npm install --global expo-cli
-```
-
-3. In the home/main directory of this repo, install all required libraries/dependencies:
-
-```jsx
-npm install
-```
-
-For mac users who are unable to use npm, use yarn instead:
-
-```sh
-npm install --global yarn
-yarn install
-```
-
-4. To link this project with Firebase, download the `.env` file from our Google Drive. Simply put it in the root directory. Download links are below!
-
-Core team link: [https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AOOH/view?usp=drive_link](https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AOOH/view?usp=drive_link)
-
-Cohort members link: [https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing](https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing)
-
-Ensure that the file is named "**.env**", not "env" (i.e. don't forget the starting period)!
-
-5. Start the environment using expo:
-
-```jsx
-npx expo start
-```
-
-6. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app. Follow any necessary instructions that come (e.g. you may need to create your own EAS/Expo account).
-
-### Testing
-
-Before you commit your code, you can run all tests / submit new test cases for files you have worked on. To run all tests, use the following command:
-```sh
-npm tests
-```
-
-### Firebase Backend Setup (Ignore this section if you used the `.env` file)
-
-- Fill this firebase config to your config inside `./src/provider/Firebase.js`
-- Check out the Eat Together Google Drive for how to fill this out!
-
-```jsx
-// Better put your these secret keys in .env file
-const firebaseConfig = {
-	apiKey: '',
-	authDomain: '',
-	databaseURL: '',
-	projectId: '',
-	storageBucket: '',
-	messagingSenderId: '',
-	appId: '',
-};
-```
-
-and you are good to go!
-
-Check out https://console.firebase.google.com/u/0/ to look at our database.
-
-### How React Navigation Auth Flow Works
+## How React Navigation Auth Flow Works
 
 The checking logged users process is inside `./src/provider/AuthProvider`.
 
@@ -131,7 +133,14 @@ export default () => {
 };
 ```
 
-## Common Bugs & Fixes 🐛
+# Testing (work in progress, ignore for now)
+
+Before you commit your code, you can run all tests / submit new test cases for files you have worked on. To run all tests, use the following command:
+```sh
+npm tests
+```
+
+# Common Bugs & Fixes 🐛
 
 While there are many bugs that can arise while setting up the project, here are a few of the most common ones. Note that this list is not comprehensive nor final.
 
@@ -146,6 +155,6 @@ open -a simulator
 ```
 
 Once the simulator boots up, immediately quit the simulator app. Run `npm start` or `yarn start` again from the project directory, and open the simulator. It should then be resolved.
-- If you ever get a "giant red screen of death" (you'll know what it looks like when you see it), try running `expo start -c` or `yarn start -c` to clear the cache. This will often fix the problem.
+- If you ever get a "giant red screen of death" (you'll know what it looks like when you see it), try running `npx expo start -c` or `yarn start -c` to clear the cache. This will often fix the problem.
 - If you get an error saying that a certain library is not installed, try running `npm install` or `yarn install` again. If that doesn't work, try deleting the `node_modules` folder and running `npm install` or `yarn install` again.
-- ENSURE THAT THE NETWORK USED BY YOUR LAPTOP AND PHONE IS THE EXACT SAME! Otherwise, the app won't load. If this fails, you can also try the tunnel connection using `expo start --tunnel` or `yarn start --tunnel`.
+- ENSURE THAT THE NETWORK USED BY YOUR LAPTOP AND PHONE IS THE EXACT SAME! Otherwise, the app won't load. If this fails, you can also try the tunnel connection using `npx expo start --tunnel` or `yarn start --tunnel`.
