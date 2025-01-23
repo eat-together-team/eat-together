@@ -48,8 +48,7 @@ Other (less but kinda) important files/folders to know:
 npm install --global expo-cli
 ```
 
-3. Clone this repo.
-4. In the home/main directory of this repo, install all required libraries/dependencies:
+3. In the home/main directory of this repo, install all required libraries/dependencies:
 
 ```jsx
 npm install
@@ -62,25 +61,21 @@ npm install --global yarn
 yarn install
 ```
 
-5. To link this project with Firebase, download the `.env` file from our Google Drive. Simply put it in the root directory. Download links are below!
+4. To link this project with Firebase, download the `.env` file from our Google Drive. Simply put it in the root directory. Download links are below!
 
 Core team link: [https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AOOH/view?usp=drive_link](https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AOOH/view?usp=drive_link)
 
-Cohort members link: [https://drive.google.com/file/d/1nnjE3IeRhIdSdvf0qlhD68gS5fqfhzSw/view?usp=drive_link](https://drive.google.com/file/d/1nnjE3IeRhIdSdvf0qlhD68gS5fqfhzSw/view?usp=drive_link)
+Cohort members link: [https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing](https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing)
 
-6. Start the environment using expo:
+Ensure that the file is named `**.**env`, not `env` (i.e. don't forget the starting period)!
+
+5. Start the environment using expo:
 
 ```jsx
 npx expo start
 ```
 
-For yarn users, use the following command:
-
-```sh
-yarn start
-```
-
-8. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app. Follow any necessary instructions that come (e.g. you may need to create your own EAS/Expo account).
+6. Get the expo mobile app (https://expo.dev/client) and scan the generated QR code with the app. Follow any necessary instructions that come (e.g. you may need to create your own EAS/Expo account).
 
 ### Testing
 
