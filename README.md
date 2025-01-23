@@ -67,7 +67,7 @@ Core team link: [https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AO
 
 Cohort members link: [https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing](https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing)
 
-Ensure that the file is named "**.**env", not "env" (i.e. don't forget the starting period)!
+Ensure that the file is named "**.env**", not "env" (i.e. don't forget the starting period)!
 
 5. Start the environment using expo:
 
