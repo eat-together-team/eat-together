@@ -9,6 +9,8 @@ import Button from "../../../components/Button";
 
 import { db, auth } from "../../../provider/Firebase";
 import * as firebase from "firebase/compat";
+import answer from "../../../../assets/answer.jpg";
+
 
 const IntroGuidelines = ({ route, navigation }) => {
   const { event } = route.params;
@@ -94,7 +96,7 @@ const IntroGuidelines = ({ route, navigation }) => {
 
             <View style={styles.ruleContainer}>
               <Image
-                // source={require('../../../../assets/guideline1.png')}
+                source={answer}
                 style={styles.ruleImage}
                 resizeMode="contain"
               />
