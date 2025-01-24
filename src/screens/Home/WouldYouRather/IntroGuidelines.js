@@ -9,7 +9,7 @@ import Button from "../../../components/Button";
 
 import { db, auth } from "../../../provider/Firebase";
 import * as firebase from "firebase/compat";
-import answer from "../../../../assets/answer.jpg";
+
 
 
 const IntroGuidelines = ({ route, navigation }) => {
@@ -96,7 +96,7 @@ const IntroGuidelines = ({ route, navigation }) => {
 
             <View style={styles.ruleContainer}>
               <Image
-                source={answer}
+                source={require("../../../../assets/answer.jpg")}
                 style={styles.ruleImage}
                 resizeMode="contain"
               />
@@ -106,7 +106,7 @@ const IntroGuidelines = ({ route, navigation }) => {
             </View>
             <View style={styles.ruleContainer}>
               <Image
-                // source={require('../../../../assets/guideline2.png')}
+                source={require('../../../../assets/reponses.png')}
                 style={styles.ruleImage}
                 resizeMode="contain"
               />
@@ -121,7 +121,7 @@ const IntroGuidelines = ({ route, navigation }) => {
 
             <View style={styles.ruleContainer}>
               <Image
-                // source={require('../../../../assets/guideline3.png')}
+                source={require('../../../../assets/share.png')}
                 style={styles.ruleImage3}
                 resizeMode="contain"
               />
@@ -131,7 +131,7 @@ const IntroGuidelines = ({ route, navigation }) => {
             </View>
             <View style={styles.ruleContainer}>
               <Image
-                // source={require('../../../../assets/guideline4.png')}
+                source={require('../../../../assets/timer.png')}
                 style={styles.ruleImage}
                 resizeMode="contain"
               />
@@ -141,7 +141,7 @@ const IntroGuidelines = ({ route, navigation }) => {
             </View>
             <View style={styles.ruleContainer}>
               <Image
-                // source={require('../../../../assets/guideline5.png')}
+                source={require('../../../../assets/next.png')}
                 style={styles.ruleImage}
                 resizeMode="contain"
               />
@@ -170,7 +170,6 @@ const IntroGuidelines = ({ route, navigation }) => {
   );
 };
 
-// Styling of page elements
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -178,14 +177,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   scrollContent: {
-    paddingVertical: 5,
+    paddingVertical: 1,
   },
   infoContainer: {
-    marginHorizontal: 30,
+    marginHorizontal: 20,
   },
   heading: {
     textAlign: 'center',
-    marginVertical: 10,
+    marginVertical: 5,
   },
   ruleContainer: {
     marginVertical: 0,
@@ -194,20 +193,19 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   ruleImage: {
-    width: 100, 
-    height: 100, 
+    width: 110, 
+    height: 110, 
     marginRight: 20,
-    borderRadius: 41,
   },
   ruleImage3:{
-    width: 100, 
-    height: 100, 
+    width: 110, 
+    height: 110, 
     marginRight:20,
-    borderRadius: 30,
   },
   ruleText: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 17,
+    marginBottom: 5,
   },
   startButton: {
     marginHorizontal: 30,
