@@ -15,8 +15,6 @@ import Filter from "../components/Filter";
 
 import { db } from "../provider/Firebase";
 
-const pms = ["Eric Xiao", "Megan Louie", "Helen Lan", "Valentina Filizola", "Ian Tsai", "Ananya Vaidyaraman", "Saara Uthmaan"];
-
 export default function ({ navigation }) {
     // State variables, functions
 
