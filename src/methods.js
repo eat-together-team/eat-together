@@ -71,7 +71,6 @@ const getPeopleTags = (newPeople) => {
 
     return tags;
 };
-
 /**
  * Get the tags in common between two users.
  * @param {Object} currUser Current user.
