@@ -234,11 +234,11 @@ const Question = ({ route, navigation }) => {
         <View style={styles.separator} />
 
         <View style={styles.responsesLabelContainer}>
-          <MediumText># of Responses</MediumText>
+          <MediumText>Responses Submitted:</MediumText>
         </View>
 
         <View style={styles.responsesContainer}>
-          {/* <Image source={require("../../../../assets/responseswyr.png")} style={styles.responseImage} /> */}
+          { <Image source={require("../../../../assets/userimage.png")} style={styles.responseImage} />}
           <MediumText style={styles.responsesText}>
             {responsesCount} / {event.attendees.length}
           </MediumText>

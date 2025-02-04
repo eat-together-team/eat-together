@@ -18,6 +18,7 @@ const Discussion = ({ route, navigation }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(1);
   const [isHost, setIsHost] = useState(false);
   const user = auth.currentUser;
+  const totalPlayers = event.attendees.length;
 
   useEffect(() => {
     const fetchVotes = async () => {
@@ -100,24 +101,40 @@ const Discussion = ({ route, navigation }) => {
           <View style={styles.option}>
             <MediumText style={styles.optionText}>{optionA}</MediumText>
             <View style={styles.barContainer}>
-              <View style={[styles.bar, { width: getBarWidth(aVotes, responsesCount) }]} />
+              <View style={[styles.bar, { width: getBarWidth(aVotes, totalPlayers) }]} />
             </View>
-            <NormalText style={styles.voteCount}>{aVotes} votes</NormalText>
+            <View style={styles.ratioContainer}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Image
+                  source={require("../../../../assets/userimage.png")} 
+                  style={styles.userIcon}
+                />
+                <NormalText style={styles.voteCount}>{aVotes}/{totalPlayers}</NormalText>
+              </View>
+            </View>
           </View>
 
           <View style={styles.option}>
             <MediumText style={styles.optionText}>{optionB}</MediumText>
             <View style={styles.barContainer}>
-              <View style={[styles.bar, { width: getBarWidth(bVotes, responsesCount) }]} />
+              <View style={[styles.bar, { width: getBarWidth(bVotes, totalPlayers) }]} />
             </View>
-            <NormalText style={styles.voteCount}>{bVotes} votes</NormalText>
+            <View style={styles.ratioContainer}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Image
+                  source={require("../../../../assets/userimage.png")} 
+                  style={styles.userIcon}
+                />
+                <NormalText style={styles.voteCount}>{bVotes}/{totalPlayers}</NormalText>
+              </View>
+            </View>
           </View>
         </View>
 
         {isHost && (
           <View style={styles.nextButtonContainer}>
             <TouchableOpacity onPress={moveToNextQuestion} style={[styles.nextButton, styles.optionButton]}>
-              <Text style={styles.nextButtonText}>Next</Text>
+              <Text style={styles.nextButtonText}>Next Question</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -203,6 +220,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 20,
     textAlign: "center",
+  },
+  ratioContainer: {
+    marginTop: 5,
   },
 });
 
