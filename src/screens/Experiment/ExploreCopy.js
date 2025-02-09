@@ -13,6 +13,7 @@ import LoadingView from "../../components/LoadingView";
 import { compareDates } from "../../methods";
 import { db } from "../../provider/Firebase";
 import Button from "../../components/Button";
+import { ref } from "@react-native-firebase/database";
 
 export default function({ navigation }) {
     const [events, setEvents] = useState([]); // All public events
@@ -38,8 +39,23 @@ export default function({ navigation }) {
             });
           - Set the events and filteredEvents state variables to newEvents, and set the loading state variable to false.
         */
-      }
+        const ref = db.collection("Public Events");
+        await ref.onSnapshot((query) => {
+          let newEvents = [];
+          query.forEach((doc) => {
+            newEvents.push(doc.data());
+          })
 
+          //sort event by dates
+          newEvents = newEvents.sort((a, b) => {
+            return compareDates(a, b);
+          })
+          //update states
+          setFilteredEvents(newEvents);
+          setEvents(newEvents);
+          setLoading(false);
+        })
+      }
       fetchData();
     }, []);
     
@@ -51,6 +67,9 @@ export default function({ navigation }) {
       This method should return an array of events that match the search query.
       Hint: use the isMatch helper method written below.
     */
+   const search = (newEvents, text) => {
+    return newEvents.filter((event) => isMatch(event, text));
+   }
 
     // Determines if an event matches search query or not
     const isMatch = (event, text) => {
@@ -95,6 +114,8 @@ export default function({ navigation }) {
             - value: {HINT: a state variable}
             - onChangeText: onChangeText
           */}
+          <Searchbar placeholder="Search by name, tags, or host name"
+            value={searchQuery} onChangeText={onChangeText}/>
         </View>
       
       
@@ -102,13 +123,21 @@ export default function({ navigation }) {
         {loading ?
           <LoadingView/>
         : filteredEvents.length > 0 ? 
-          {/* 
+          /* 
             TODO: Display the events in a FlatList. This FlatList should have the following props:
             - contentContainerStyle: styles.cards
             - keyExtractor: item => item.id
             - data: {HINT: a state variable}
             - renderItem: ({item}) => <EventCard event={item}/>
-          */}
+          */
+          <FlatList contentContainerStyle={styles.cards} keyExtractor={item => item.id}
+            data={filteredEvents} renderItem={({item}) =>
+              <EventCard event={item} click={() => {
+                navigation.navigate("FullCard", {
+                  event: item
+                });
+              }}/>
+          }/>
         :
           <EmptyState title="No Meals" text="Organize your own, or start making new friends!"/>
         }
