@@ -25,11 +25,10 @@ import {db, auth} from "../../provider/Firebase";
 import * as firebase from "firebase/compat";
 import openMap from "react-native-open-maps";
 import { getCommonTags } from "../../methods";
+import moment from 'moment';
 
 import RBSheet from "react-native-raw-bottom-sheet";
-import Filter from "../../components/Filter";
 import Checkbox from "../../components/Checkbox";
-
 const Recommendation = ({ route, navigation }) => {
   // User and other user states
   const user = auth.currentUser;
@@ -52,8 +51,8 @@ const Recommendation = ({ route, navigation }) => {
   const [wednesday, setWednesday] = useState(false);
   const [thursday,setThursday] = useState(false);
   const [dayChosen, setDayChosen] = useState(false);
-  console.log(route.params.event.id)
-
+  const [startDate,setStartDate] = useState(route.params.event.startDate.toDate());
+  const [endDate, setEndDate] = useState(route.params.event.endDate.toDate());
   useEffect(() => {
     let existingTags = {}; // To avoid duplicates
 
@@ -181,35 +180,86 @@ const Recommendation = ({ route, navigation }) => {
     }
   };
 
-  const updateAvailabilities = async (monday,tuesday,wednesday,thursday) => {
-    if (route.params.event.availabilityCount){
-      const availabilityUpdates = {};
+  useEffect(() => {
+    const unsubscribe = db.collection("Private Events").doc(route.params.event.id).onSnapshot((eventDoc) => {
 
-      if (monday) availabilityUpdates["availabilityCount.mondayCount"] = firebase.firestore.FieldValue.increment(1);
-      if (tuesday) availabilityUpdates["availabilityCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(1);
-      if (wednesday) availabilityUpdates["availabilityCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(1);
-      if (thursday) availabilityUpdates["availabilityCount.thursdayCount"] = firebase.firestore.FieldValue.increment(1);
-      
-      await db.collection("Private Events").doc(route.params.event.id).update(availabilityUpdates);
+      const eventData = eventDoc.data();
+      let newStartDate = startDate;
+      let newEndDate = endDate;
+      if (eventData.voteCount) {
+        const voteCount = eventData.voteCount;
+        // Check if the user has voted
+        const voter = voteCount.voters.includes(route.params.userData.id);
+        if (voter) {
+          setDayChosen(true);
   
+          // Adjust seconds based on vote counts
+          if (
+            voteCount.mondayCount >= voteCount.tuesdayCount &&
+            voteCount.mondayCount >= voteCount.wednesdayCount &&
+            voteCount.mondayCount >= voteCount.thursdayCount
+          ) {
+            newStartDate = moment(newStartDate).subtract(3, 'days');
+            newEndDate = moment(newEndDate).subtract(3,'days');
+          } else if (
+            voteCount.tuesdayCount >= voteCount.mondayCount &&
+            voteCount.tuesdayCount >= voteCount.wednesdayCount &&
+            voteCount.tuesdayCount >= voteCount.thursdayCount
+          ) {
+            newStartDate = moment(newStartDate).subtract(2,'days');
+            newEndDate = moment(newEndDate).subtract(2,'days');
+          } else if (
+            voteCount.wednesdayCount >= voteCount.mondayCount &&
+            voteCount.wednesdayCount >= voteCount.tuesdayCount &&
+            voteCount.wednesdayCount >= voteCount.thursdayCount
+          ) {
+            newStartDate = moment(newStartDate).subtract(1,'days');
+            newEndDate = moment(newEndDate).subtract(1,'days');
+          } else if (
+            voteCount.thursdayCount >= voteCount.mondayCount &&
+            voteCount.thursdayCount >= voteCount.tuesdayCount &&
+            voteCount.thursdayCount >= voteCount.wednesdayCount
+          ) {
+            console.log("Thursday")
+          }
+          if (startDate === newStartDate && endDate.seconds === newEndDate) {
+            console.log("No changes detected, skipping update.");
+          } else {
+            setStartDate(newStartDate);
+            setEndDate(newEndDate);
+            db.collection("Private Events").doc(route.params.event.id).update({
+              startDate: moment(newStartDate).toDate(),
+              endDate: moment(newEndDate).toDate(),
+            });
+          }
+        }
+      }
+    });
+  
+    return () => unsubscribe(); // Cleanup listener on unmount
+  }, []); 
+        
 
-    }else{
-      mondayCount = monday ? 1 : 0;
-      tuesdayCount = tuesday ? 1 : 0;
-      wednesdayCount = wednesday ? 1 : 0;
-      thursdayCount = thursday ? 1 : 0;
-      const availabilityCount ={
+
+  const updateAvailabilities = async (monday,tuesday,wednesday,thursday) => {
+      const mondayCount = monday ? 1 : 0;
+      const tuesdayCount = tuesday ? 1 : 0;
+      const wednesdayCount = wednesday ? 1 : 0;
+      const thursdayCount = thursday ? 1 : 0;
+      const voters = [route.params.userData.id];
+
+      const voteCount ={
         mondayCount,
         tuesdayCount,
         wednesdayCount,
         thursdayCount,  
+        voters, 
       }
-
       await db.collection("Private Events").doc(route.params.event.id).update({
-        availabilityCount:availabilityCount,
+        voteCount:voteCount,
       });
-    }
-  }
+  } 
+
 
 
   // Fetch data from Firestore to see if the user has seen the tutorial before or not
@@ -354,8 +404,8 @@ const Recommendation = ({ route, navigation }) => {
               <View style={styles.row}>
                 <Ionicons name="calendar-outline" size={20} />
                 <NormalText paddingHorizontal={10} color="black">
-                    {dayChosen ?getDate(route.params.event.startDate.toDate())  : <Link onPress={() => {
-                      showTimeFilterRef.current.open() ,
+                    {dayChosen ?getDate(moment(startDate).toDate())  : <Link onPress={() => {
+                      showTimeFilterRef.current.open(),
                       setDayChosen(true);
                     }}> Choose an available day! </Link> }
                 </NormalText>
@@ -417,9 +467,16 @@ const Recommendation = ({ route, navigation }) => {
               <View style={styles.row}>
                 <Ionicons name="time-outline" size={20} />
                 <NormalText paddingHorizontal={10} color="black">
-                    {route.params.event.startDate ? getTime(route.params.event.startDate.toDate()) : getTime(route.params.event.date.toDate())}
-                    {route.params.event.endDate && " - ".concat(getTime(route.params.event.endDate.toDate()))}
+                    {route.params.event.startDate ? getTime(moment(startDate).toDate()) : getTime(route.params.event.date.toDate())}
+                    {route.params.event.endDate && " - ".concat(getTime(moment(endDate).toDate()))}
                 </NormalText>
+              </View>
+
+              <View style={styles.row}>
+                <Ionicons name="time-outline" size={20}/>
+                <Link onPress={() => {showTimeFilterRef.current.open()}} paddingHorizontal={10}>
+                    Modify availabilities
+                </Link>
               </View>
 
               <View style={{...styles.row, marginTop: 10}}>
@@ -442,6 +499,7 @@ const Recommendation = ({ route, navigation }) => {
                     More info
                 </Link>
               </View>
+
             </View>
 
             {route.params.event.menu && <View>
