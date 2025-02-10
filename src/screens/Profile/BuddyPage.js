@@ -5,7 +5,7 @@ import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
 import Searchbar from "../../components/Searchbar";
-import ProfileBubble from "../../components/ProfileBubble";
+import BuddyProfileBubble from "../../components/BuddyProfileBubble";
 import Header from "../../components/Header";
 import HorizontalRow from "../../components/HorizontalRow";
 import HorizontalSwitch from "../../components/HorizontalSwitch";
@@ -184,6 +184,12 @@ export default function ({ navigation }) {
             onPress={() => setMutualFriends(!mutualFriends)}
             text="Mutual friends"
           />
+
+          {/* <Filter
+            checked={school}
+            onPress={() => setMutualFriends(!school)}
+            text="Mutual friends"
+          /> */}
         </HorizontalRow>}
         <MediumText use700> Recommendations </MediumText>
       </View>
@@ -192,21 +198,33 @@ export default function ({ navigation }) {
         {loading || people.length === 0 ?
           <LoadingView/>
         : filteredSearchedPeople.length > 0 ?
+          // <FlatList
+          //   contentContainerStyle={styles.people}
+          //   keyExtractor={(item) => item.id}
+          //   data={filteredSearchedPeople}
+          //   renderItem={({ item }) => (
+          //     <BuddyProfileBubble
+          //       person={item}
+          //       click={() => {
+          //         navigation.navigate("BuddyRequest", {
+          //           person: item,
+          //         });
+          //       }}
+          //     />
+          //   )}
+          // />
           <FlatList
-            contentContainerStyle={styles.people}
-            keyExtractor={(item) => item.id}
-            data={filteredSearchedPeople}
-            renderItem={({ item }) => (
-              <ProfileBubble
-                person={item}
-                click={() => {
-                  navigation.navigate("BuddyRequest", {
-                    person: item,
-                  });
-                }}
-              />
-            )}
-          />
+          contentContainerStyle={styles.people}
+          keyExtractor={(item) => item.id}
+          data={filteredSearchedPeople}
+          renderItem={({ item }) => (
+            <BuddyProfileBubble
+              person={item}
+              navigation={navigation} // Pass navigation down
+              onPress={() => navigation.navigate("BuddyRequest", { person: item })}
+            />
+          )}
+        />
         :
           <EmptyState title="Empty" text="No results :("/>
         }

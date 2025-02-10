@@ -25,7 +25,7 @@ const ProfileBubble = props => {
                 <MediumText size={14}>
                     🗯️ "{props.person.bio}"
                 </MediumText>
-                
+
                 {props.person.inCommon.length > 0 && (<View style={styles.common}>
                     {getCommonSchoolTags(props.person.inCommon).length !== 0 && (<View style={styles.commonRow}>
                         <NormalText>🏫 You both are: </NormalText>

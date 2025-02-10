@@ -226,7 +226,9 @@ export default function ({ navigation }) {
         />
 
         <View style={styles.links}>
-          <TouchableOpacity
+
+          {/* add back connections when navigation succcessfully configured */}
+          {/* <TouchableOpacity
             style={styles.link}
             onPress={() => {
               navigation.navigate("Connections", {
@@ -238,7 +240,7 @@ export default function ({ navigation }) {
           >
             <Ionicons name="list-circle" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Connections</NormalText>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
             style={styles.link}
@@ -264,6 +266,19 @@ export default function ({ navigation }) {
           >
             <Ionicons name="time" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Eating Times</NormalText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+          style={styles.link}
+          onPress={() => {
+            navigation.navigate("BuddyPage", {
+              user: userInfo,
+            });
+          }}
+        >
+
+            <Ionicons name="person-add-sharp" size={20} color="#4C6FB1" />
+            <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
           </TouchableOpacity>
         </View>
 
