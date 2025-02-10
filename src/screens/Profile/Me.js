@@ -288,18 +288,6 @@ export default function ({ navigation }) {
           </TouchableOpacity>
         </View>*/}
 
-        {/* <SmallButton
-            onPress={() => {
-                navigation.navigate("SendBuddyRequest", {  // Ensure name matches Stack.Screen
-                    user: userInfo,
-                    image: userInfo.image,
-                    updateInfo,
-                });
-            }}
-        >
-            Connect
-        </SmallButton> */}
-
         <SmallButton
           onPress={() => navigation.navigate("SendBuddyRequest", { user: userInfo })}
         >

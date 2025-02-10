@@ -7,12 +7,15 @@ import {
   TouchableOpacity,
   TextInput,
 } from "react-native";
-import { Section, SectionContent, SectionImage } from "react-native-rapi-ui";
+import { Section, SectionContent } from "react-native-rapi-ui";
 import MediumText from "./MediumText";
 import SmallText from "./SmallText";
 import NormalText from "./NormalText";
+import { useNavigation } from "@react-navigation/native";
 
-const SendBuddyRequestCard = ({ user, onSend, onCancel }) => {
+const SendBuddyRequestCard = ({ user, onSend, onCancel}) => {
+    const navigation = useNavigation(); // Get the navigation object
+
   return (
     <Section style={styles.card} borderRadius={20}>
       <SectionContent>
@@ -31,10 +34,19 @@ const SendBuddyRequestCard = ({ user, onSend, onCancel }) => {
                 : require("../../assets/logo.png")
             }
           />
-          <View style={styles.profileDetails}>
+            <View style={styles.profileDetails}>
+            <TouchableOpacity
+                onPress={() =>
+                    navigation.navigate("Profile", {
+                    screen: "Me",
+                    params: { user: user },
+                    })
+                }
+            >
             <MediumText>{user.firstName} {user.lastName}</MediumText>
+            </TouchableOpacity>
             <SmallText color="#4C6FB1">View profile</SmallText>
-          </View>
+            </View>
         </View>
 
         {/* Tags and Info */}
@@ -53,7 +65,7 @@ const SendBuddyRequestCard = ({ user, onSend, onCancel }) => {
           <TextInput
             style={styles.messageInput}
             multiline
-            defaultValue="I’m sending this request because I would like to become your buddy! Please accept my request!"
+            defaultValue="I'm sending this request because I would like to become your buddy! Please accept my request!"
           />
           <SmallText color="gray" style={styles.editText}>Edit message</SmallText>
         </View>
