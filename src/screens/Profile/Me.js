@@ -19,6 +19,10 @@ import NormalText from "../../components/NormalText";
 import TagsList from "../../components/TagsList";
 import EventCard from "../../components/EventCard";
 // Add buddy button
+import Button from "../../components/Button";
+import SmallText from "../../components/SmallText";
+import Link from "../../components/Link";
+import SmallButton from "../../components/SmallButton";
 import { AntDesign } from '@expo/vector-icons';
 
 import { compareDates } from "../../methods";
@@ -30,6 +34,7 @@ export default function ({ navigation }) {
   const [banner, setBanner] = useState({});
   const [mealsAttended, setMealsAttended] = useState(0);
   const [mealsSignedUp, setMealsSignedUp] = useState(0);
+  const [modalVisible, setModalVisible] = useState(0); // added modal for buddy card
 
   const [events, setEvents] = useState([]);
 
@@ -283,6 +288,24 @@ export default function ({ navigation }) {
           </TouchableOpacity>
         </View>*/}
 
+        {/* <SmallButton
+            onPress={() => {
+                navigation.navigate("SendBuddyRequest", {  // Ensure name matches Stack.Screen
+                    user: userInfo,
+                    image: userInfo.image,
+                    updateInfo,
+                });
+            }}
+        >
+            Connect
+        </SmallButton> */}
+
+        <SmallButton
+          onPress={() => navigation.navigate("SendBuddyRequest", { user: userInfo })}
+        >
+          Connect
+        </SmallButton>
+
         <TagsList tags={userInfo.tags ? userInfo.tags : []} />
         <MediumText center>{userInfo.bio}</MediumText>
         {events.length > 0 && <View style={styles.eventRecordBackground}>
@@ -294,11 +317,7 @@ export default function ({ navigation }) {
                   event={event}
                   key={event.id}
                   click={() => {
-                    navigation.navigate("FullCard", {
-                      event,
-                    });
-                  }}
-                />
+                    navigation.navigate("FullCard", {event,});}}/>
               ))}
           </View>
         </View>}
