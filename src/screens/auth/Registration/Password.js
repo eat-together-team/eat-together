@@ -54,7 +54,7 @@ const Password = props => {
           },
           {
             text: "Read Terms of Service",
-            onPress: () => Linking.openURL("https://www.eat-together.tech/terms-and-conditions"),
+            onPress: () => Linking.openURL("https://www.eat-together.org/terms-and-conditions"),
             style: "cancel"
           }
         ]
