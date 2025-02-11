@@ -55,7 +55,7 @@ const Recommendation = ({ route, navigation }) => {
   const [endDate, setEndDate] = useState(route.params.event.endDate.toDate());
   useEffect(() => {
     let existingTags = {}; // To avoid duplicates
-
+    console.log(route.params.event)
     // Loads the tags of all the attendees
     route.params.event.suggestedAttendees.forEach(attendee => {
       if (attendee !== user.uid) {
@@ -241,24 +241,61 @@ const Recommendation = ({ route, navigation }) => {
         
 
 
-  const updateAvailabilities = async (monday,tuesday,wednesday,thursday) => {
-      const mondayCount = monday ? 1 : 0;
-      const tuesdayCount = tuesday ? 1 : 0;
-      const wednesdayCount = wednesday ? 1 : 0;
-      const thursdayCount = thursday ? 1 : 0;
-      const voters = [route.params.userData.id];
+  // const updateAvailabilities = async (monday,tuesday,wednesday,thursday) => {
+  //     let mondayCount , tuesdayCount, wednesdayCount , thursdayCount;
+  //     mondayCount = monday ? 1 : 0;
+  //     tuesdayCount = tuesday ? 1 : 0;
+  //     wednesdayCount = wednesday ? 1 : 0;
+  //     thursdayCount = thursday ? 1 : 0;
+  //     const voters = [route.params.userData.id];
+  //     const voteCount ={
+  //       mondayCount,
+  //       tuesdayCount,
+  //       wednesdayCount,
+  //       thursdayCount,  
+  //       voters, 
+  //     }
+  //     const userId = route.params.userData.id; // Get current user's ID
+  //     let previousVotes = eventData.userVotes?.[userId] || {}; // Fetch previous votes
+  //     console.log(previousVotes)
+  //     const voteUpdates = {};
 
-      const voteCount ={
-        mondayCount,
-        tuesdayCount,
-        wednesdayCount,
-        thursdayCount,  
-        voters, 
-      }
-      await db.collection("Private Events").doc(route.params.event.id).update({
-        voteCount:voteCount,
-      });
-  } 
+  //     if (previousVotes.monday && !monday){
+  //       voteUpdates["availabilityCount.mondayCount"] = firebase.firestore.FieldValue.increment(-1);
+  //     } else {
+  //       voteUpdates["availabilityCount.mondayCount"] = firebase.firestore.FieldValue.increment(1);
+  //     }
+  //     if (previousVotes.tuesday && !tuesday)
+  //       voteUpdates["availabilityCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(-1);
+  //     if (previousVotes.wednesday && !wednesday)
+  //       voteUpdates["availabilityCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(-1);
+  //     if (previousVotes.thursday && !thursday)
+  //       voteUpdates["availabilityCount.thursdayCount"] = firebase.firestore.FieldValue.increment(-1);
+
+  //     // If the user selects a new day they haven't voted for before, increment
+  //     if (!previousVotes.monday && monday)
+  //     if (!previousVotes.tuesday && tuesday)
+  //       voteUpdates["availabilityCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(1);
+  //     if (!previousVotes.wednesday && wednesday)
+  //       voteUpdates["availabilityCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(1);
+  //     if (!previousVotes.thursday && thursday)
+  //       voteUpdates["availabilityCount.thursdayCount"] = firebase.firestore.FieldValue.increment(1);
+
+
+  //     // if (monday) voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(1);
+  //     // if (tuesday) voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(1);
+  //     // if (wednesday) voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(1);
+  //     // if (thursday) voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(1);
+  //     // voteUpdates["voteCount.voters"] = firebase.firestore.FieldValue.arrayUnion(userId);
+
+  //     // console.log(voteUpdates)
+  //     // await db.collection("Private Events").doc(route.params.event.id).update({
+  //     //   monday: 
+  //     //   voters:firebase.firestore.FieldValue.arrayUnion(route.params.userData.id),
+  //     //   voteCount
+  //     // });
+
+  // } 
 
 
 
