@@ -55,7 +55,6 @@ const Recommendation = ({ route, navigation }) => {
   const [endDate, setEndDate] = useState(route.params.event.endDate.toDate());
   useEffect(() => {
     let existingTags = {}; // To avoid duplicates
-    console.log(route.params.event)
     // Loads the tags of all the attendees
     route.params.event.suggestedAttendees.forEach(attendee => {
       if (attendee !== user.uid) {
@@ -247,7 +246,6 @@ const Recommendation = ({ route, navigation }) => {
       const eventData = eventDoc.data();
       const userId = route.params.userData.id; 
       let previousVotes = eventData.userVotes?.[userId] || {}; 
-      console.log(previousVotes , "previous votes")
       let voteUpdates = {};
 
       // Modifying updates
