@@ -53,6 +53,7 @@ const Recommendation = ({ route, navigation }) => {
   const [dayChosen, setDayChosen] = useState(false);
   const [startDate,setStartDate] = useState(route.params.event.startDate.toDate());
   const [endDate, setEndDate] = useState(route.params.event.endDate.toDate());
+  const [maxVote, setMaxVote] = useState();
   useEffect(() => {
     let existingTags = {}; // To avoid duplicates
     // Loads the tags of all the attendees
@@ -185,6 +186,7 @@ const Recommendation = ({ route, navigation }) => {
       const eventData = eventDoc.data();
       let newStartDate = startDate;
       let newEndDate = endDate;
+      let maxVote = 0;
       if (eventData.userVotes) {
         const voters = eventData.userVotes; 
         const voteCount = eventData.voteCount;
@@ -200,6 +202,7 @@ const Recommendation = ({ route, navigation }) => {
           ) {
             newStartDate = moment(newStartDate).subtract(3, 'days');
             newEndDate = moment(newEndDate).subtract(3,'days');
+            maxVote = voteCount.mondayCount;
           } else if (
             voteCount.tuesdayCount >= voteCount.mondayCount &&
             voteCount.tuesdayCount >= voteCount.wednesdayCount &&
@@ -207,6 +210,8 @@ const Recommendation = ({ route, navigation }) => {
           ) {
             newStartDate = moment(newStartDate).subtract(2,'days');
             newEndDate = moment(newEndDate).subtract(2,'days');
+            maxVote = voteCount.tuesdayCount;
+
           } else if (
             voteCount.wednesdayCount >= voteCount.mondayCount &&
             voteCount.wednesdayCount >= voteCount.tuesdayCount &&
@@ -214,18 +219,21 @@ const Recommendation = ({ route, navigation }) => {
           ) {
             newStartDate = moment(newStartDate).subtract(1,'days');
             newEndDate = moment(newEndDate).subtract(1,'days');
+            maxVote = voteCount.wednesdayCount;
+
           } else if (
             voteCount.thursdayCount >= voteCount.mondayCount &&
             voteCount.thursdayCount >= voteCount.tuesdayCount &&
             voteCount.thursdayCount >= voteCount.wednesdayCount
           ) {
-            console.log("Thursday")
+            maxVote = voteCount.thursdayCount;
+
           }
           if (startDate === newStartDate && endDate.seconds === newEndDate) {
-            console.log("No changes detected, skipping update.");
           } else {
             setStartDate(newStartDate);
             setEndDate(newEndDate);
+            setMaxVote(maxVote);
             db.collection("Private Events").doc(route.params.event.id).update({
               startDate: moment(newStartDate).toDate(),
               endDate: moment(newEndDate).toDate(),
@@ -432,10 +440,13 @@ const Recommendation = ({ route, navigation }) => {
               <View style={styles.row}>
                 <Ionicons name="calendar-outline" size={20} />
                 <NormalText paddingHorizontal={10} color="black">
-                    {dayChosen ?getDate(moment(startDate).toDate())  : <Link onPress={() => {
+                    {dayChosen ? getDate(moment(startDate).toDate())  : <Link onPress={() => {
                       showTimeFilterRef.current.open(),
                       setDayChosen(true)
                     }}> Choose an available day! </Link> }
+                </NormalText>
+                <NormalText paddingHorizontal={10} color="black">
+                   Votes: {dayChosen ? maxVote :"" }
                 </NormalText>
               </View>
               <RBSheet
