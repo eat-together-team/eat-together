@@ -190,8 +190,6 @@ const Recommendation = ({ route, navigation }) => {
         const voters = eventData.userVotes; 
         const voteCount = eventData.voteCount;
         const voter = voters && Object.keys(voters).includes(route.params.userData.id);
-        console.log('voter' , voters)
-        const isVoter = !!voter;
         if (voter) {
           setDayChosen(true);
   
