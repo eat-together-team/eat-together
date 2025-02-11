@@ -191,6 +191,7 @@ export default function ({ navigation }) {
               });
             }}
           ></Ionicons>
+          <NormalText style={{color: "white"}}>Camera</NormalText>
         </View>
 
         <View style={styles.badge}>
@@ -210,6 +211,7 @@ export default function ({ navigation }) {
               });
             }}
           ></Ionicons>
+          <NormalText style={{color: "white"}}>Settings</NormalText>
         </View>
         <Image
           style={styles.image}
@@ -233,6 +235,20 @@ export default function ({ navigation }) {
           >
             <Ionicons name="list-circle" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Connections</NormalText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.link}
+            onPress={() => {
+              navigation.navigate("BuddyPage", {
+                user: userInfo,
+                image: userInfo.image,
+                updateInfo,
+              });
+            }}
+          >
+            <Ionicons name="person-add" size={20} color="#4C6FB1" />
+            <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -264,11 +280,11 @@ export default function ({ navigation }) {
 
         <View style={styles.name}>
           <LargeText size={24}>{userInfo.firstName + " " + userInfo.lastName + " (" + userInfo.pronouns + ")"}</LargeText>
-          <NormalText marginBottom={5}>🏫 {userInfo.school ? userInfo.school : "UW-Seattle"}</NormalText>
+          <MediumText>@{userInfo.username}</MediumText>
           <NormalText>
             🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
           </NormalText>
-          <MediumText>@{userInfo.username}</MediumText>
+          <NormalText marginBottom={5}>🏫 {userInfo.school ? userInfo.school : "UW-Seattle"}</NormalText>
         </View>
 
         {/*<View style = {styles.link}>
@@ -351,18 +367,21 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 20,
     top: 20,
+    alignItems: "center",
   },
 
   badge: {
     position: "absolute",
     left: 20,
     top: 70,
+    marginTop: 10,
   },
 
   settings: {
     position: "absolute",
     right: 20,
     top: 20,
+    alignItems: "center",
   },
 
   calendar: {
