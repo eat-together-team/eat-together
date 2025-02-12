@@ -57,7 +57,6 @@ const Recommendation = ({ route, navigation }) => {
   const [tuesdayVote , setTuesdayVote] = useState(0);
   const [wednesdayVote , setWednesdayVote] = useState(0);
   const [thursdayVote , setThursdayVote] = useState(0);
-
   useEffect(() => {
     let existingTags = {}; // To avoid duplicates
     // Loads the tags of all the attendees
@@ -193,11 +192,21 @@ const Recommendation = ({ route, navigation }) => {
       if (eventData.userVotes) {
         const voters = eventData.userVotes; 
         const voteCount = eventData.voteCount;
+        const voter = voters && Object.keys(voters).includes(route.params.userData.id);
+        const userVotes = voters[route.params.userData.id];
+
+        // sets the checkbox variables
         setMondayVote(voteCount.mondayCount);
         setTuesdayVote(voteCount.tuesdayCount);
         setWednesdayVote(voteCount.wednesdayCount);
         setThursdayVote(voteCount.thursdayCount);
-        const voter = voters && Object.keys(voters).includes(route.params.userData.id);
+
+        // calculates the number of days to subtract from thursday
+        setMonday(userVotes.monday);
+        setTuesday(userVotes.tuesday);
+        setWednesday(userVotes.wednesday);
+        setThursday(userVotes.thursday);
+
         if (voter) {
           setDayChosen(true);
   
@@ -225,8 +234,9 @@ const Recommendation = ({ route, navigation }) => {
             newStartDate = moment(newStartDate).subtract(1,'days');
             newEndDate = moment(newEndDate).subtract(1,'days');
           } 
-          if (startDate === newStartDate && endDate.seconds === newEndDate) {
-          } else {
+
+          // checking whether the start date and new start date are the same or not.
+          if (startDate !== newStartDate || endDate.seconds !== newEndDate) {
             setStartDate(newStartDate);
             setEndDate(newEndDate);
 
