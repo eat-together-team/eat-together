@@ -24,7 +24,7 @@ import getTime from "../../getTime";
 import {db, auth} from "../../provider/Firebase";
 import * as firebase from "firebase/compat";
 import openMap from "react-native-open-maps";
-import { getCommonTags } from "../../methods";
+import { getCommonTags, convertToFutureDate } from "../../methods";
 import moment from 'moment';
 
 import RBSheet from "react-native-raw-bottom-sheet";
@@ -216,24 +216,34 @@ const Recommendation = ({ route, navigation }) => {
             voteCount.mondayCount >= voteCount.wednesdayCount &&
             voteCount.mondayCount >= voteCount.thursdayCount
           ) {
-            newStartDate = moment(newStartDate).subtract(3, 'days');
-            newEndDate = moment(newEndDate).subtract(3,'days');
+            const dayOfWeek = 1;
+            const daysToMonday = dayOfWeek - moment(newStartDate).day();
+            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToMonday, 'days'));
+            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToMonday, 'days'));
           } else if (
             voteCount.tuesdayCount >= voteCount.mondayCount &&
             voteCount.tuesdayCount >= voteCount.wednesdayCount &&
             voteCount.tuesdayCount >= voteCount.thursdayCount
           ) {
-            newStartDate = moment(newStartDate).subtract(2,'days');
-            newEndDate = moment(newEndDate).subtract(2,'days');
-
+            const dayOfWeek = 2;
+            const daysToTuesday = dayOfWeek - moment(newStartDate).day();
+            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToTuesday, 'days'));
+            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToTuesday, 'days'));
           } else if (
             voteCount.wednesdayCount >= voteCount.mondayCount &&
             voteCount.wednesdayCount >= voteCount.tuesdayCount &&
             voteCount.wednesdayCount >= voteCount.thursdayCount
           ) {
-            newStartDate = moment(newStartDate).subtract(1,'days');
-            newEndDate = moment(newEndDate).subtract(1,'days');
-          } 
+            const dayOfWeek = 3;
+            const daysToWednesday = dayOfWeek - moment(newStartDate).day();
+            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToWednesday, 'days'));
+            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToWednesday, 'days'));
+          } else {
+            const dayOfWeek = 4;
+            const daysToThursday = dayOfWeek - moment(newStartDate).day();
+            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToThursday, 'days'));
+            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToThursday, 'days'));
+          }
 
           // checking whether the start date and new start date are the same or not.
           if (startDate !== newStartDate || endDate.seconds !== newEndDate) {
