@@ -83,7 +83,7 @@ const StartGame = ({ route, navigation }) => {
       discussionStage: false,
       players: [user.uid],
       questions: selectedQuestions,
-      totalQuestions: 20,
+      totalQuestions: 10,
       responsesCount: 0,
       id: currGame.id, 
     });

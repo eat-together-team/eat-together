@@ -13,14 +13,16 @@ const EndGame = ({ navigation, route }) => {
         <Image source={require("../../../../assets/logo.png")} style={styles.logo} />
         <Text style={styles.subHeaderText}>Would You Rather Game</Text>
         <Text style={styles.thankYouText}>Thank you for playing!</Text>
-        <TouchableOpacity
+        {/* Edit, getting rid of the pay again feature, leaving this to be impleented later if needed. */}
+        {/* <TouchableOpacity
           style={styles.playAgainButton}
           onPress={() => navigation.navigate("Home")}
         >
-           {/* need to finsih this  */}
+           {/* need to finish this  */}
            {/* probably add another file called start new game to handle the state for this */}
-          <MediumText style={styles.playAgainButtonText}>Play Again</MediumText>
-        </TouchableOpacity>
+          
+          {/* <MediumText style={styles.playAgainButtonText}>Play Again</MediumText> */}
+        {/* </TouchableOpacity> */} 
         <TouchableOpacity
           style={styles.exitButton}
           onPress={() => navigation.navigate("Home")}
@@ -63,25 +65,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 30,
     color: "#666",
-  },
-  playAgainButton: {
-    backgroundColor: "#5DB075",
-    borderRadius: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    marginBottom: 15,
-    width: "80%",
-    alignItems: "center",
-    elevation: 3, 
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  playAgainButtonText: {
-    fontSize: 18, 
-    color: "#fff",
-    fontWeight: "600",
   },
   exitButton: {
     backgroundColor: "#FF6347",

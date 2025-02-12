@@ -175,7 +175,7 @@ const Question = ({ route, navigation }) => {
           <View style={{ flexDirection: "row", alignItems: "center", width: 110 }}>
             <Text style={styles.questionWord}>Question: </Text>
             <Text style={styles.questionNumber}>{currentQuestionIndex + 1}</Text>
-            <Text style={styles.questionText}>/20</Text>
+            <Text style={styles.questionText}>/10</Text>
           </View>
         }
       />

@@ -34,7 +34,7 @@ const IntroGuidelines = ({ route, navigation }) => {
 
         // Shuffle and select the first 20 questions
         shuffleArray(questions);
-        const selectedQuestions = questions.slice(0, 20).map((q) => q.id);
+        const selectedQuestions = questions.slice(0, 10).map((q) => q.id);
 
         // Initialize the game data in Firestore
         await currGame.set({
@@ -44,7 +44,7 @@ const IntroGuidelines = ({ route, navigation }) => {
           discussionStage: false,
           players: [user.uid],
           questions: selectedQuestions,
-          totalQuestions: 20,
+          totalQuestions: 10,
           responsesCount: 0,
           userResponses: {},
         });
@@ -159,8 +159,7 @@ const IntroGuidelines = ({ route, navigation }) => {
         ) : (
           <Button
             style={styles.startButton}
-            onPress={startGame}
-          >
+            onPress={startGame}>
             Start Game
           </Button>
         )}
@@ -184,27 +183,28 @@ const styles = StyleSheet.create({
   },
   heading: {
     textAlign: 'center',
-    marginVertical: 5,
+    marginTop: 15, 
+    marginBottom: 10,
   },
   ruleContainer: {
-    marginVertical: 0,
+    marginVertical: -10,
     flexDirection: "row",
     alignItems: "center",
-    padding: 5,
+    padding: 0, 
   },
   ruleImage: {
-    width: 110, 
-    height: 110, 
+    width: 120, 
+    height: 120, 
     marginRight: 20,
   },
   ruleImage3:{
-    width: 110, 
-    height: 110, 
+    width: 120, 
+    height: 120, 
     marginRight:20,
   },
   ruleText: {
     flex: 1,
-    fontSize: 17,
+    fontSize: 18,
     marginBottom: 5,
   },
   startButton: {
