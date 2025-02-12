@@ -53,7 +53,11 @@ const Recommendation = ({ route, navigation }) => {
   const [dayChosen, setDayChosen] = useState(false);
   const [startDate,setStartDate] = useState(route.params.event.startDate.toDate());
   const [endDate, setEndDate] = useState(route.params.event.endDate.toDate());
-  const [maxVote, setMaxVote] = useState();
+  const [mondayVote , setMondayVote] = useState(0);
+  const [tuesdayVote , setTuesdayVote] = useState(0);
+  const [wednesdayVote , setWednesdayVote] = useState(0);
+  const [thursdayVote , setThursdayVote] = useState(0);
+
   useEffect(() => {
     let existingTags = {}; // To avoid duplicates
     // Loads the tags of all the attendees
@@ -186,10 +190,13 @@ const Recommendation = ({ route, navigation }) => {
       const eventData = eventDoc.data();
       let newStartDate = startDate;
       let newEndDate = endDate;
-      let maxVote = 0;
       if (eventData.userVotes) {
         const voters = eventData.userVotes; 
         const voteCount = eventData.voteCount;
+        setMondayVote(voteCount.mondayCount);
+        setTuesdayVote(voteCount.tuesdayCount);
+        setWednesdayVote(voteCount.wednesdayCount);
+        setThursdayVote(voteCount.thursdayCount);
         const voter = voters && Object.keys(voters).includes(route.params.userData.id);
         if (voter) {
           setDayChosen(true);
@@ -202,7 +209,6 @@ const Recommendation = ({ route, navigation }) => {
           ) {
             newStartDate = moment(newStartDate).subtract(3, 'days');
             newEndDate = moment(newEndDate).subtract(3,'days');
-            maxVote = voteCount.mondayCount;
           } else if (
             voteCount.tuesdayCount >= voteCount.mondayCount &&
             voteCount.tuesdayCount >= voteCount.wednesdayCount &&
@@ -210,7 +216,6 @@ const Recommendation = ({ route, navigation }) => {
           ) {
             newStartDate = moment(newStartDate).subtract(2,'days');
             newEndDate = moment(newEndDate).subtract(2,'days');
-            maxVote = voteCount.tuesdayCount;
 
           } else if (
             voteCount.wednesdayCount >= voteCount.mondayCount &&
@@ -219,21 +224,12 @@ const Recommendation = ({ route, navigation }) => {
           ) {
             newStartDate = moment(newStartDate).subtract(1,'days');
             newEndDate = moment(newEndDate).subtract(1,'days');
-            maxVote = voteCount.wednesdayCount;
-
-          } else if (
-            voteCount.thursdayCount >= voteCount.mondayCount &&
-            voteCount.thursdayCount >= voteCount.tuesdayCount &&
-            voteCount.thursdayCount >= voteCount.wednesdayCount
-          ) {
-            maxVote = voteCount.thursdayCount;
-
-          }
+          } 
           if (startDate === newStartDate && endDate.seconds === newEndDate) {
           } else {
             setStartDate(newStartDate);
             setEndDate(newEndDate);
-            setMaxVote(maxVote);
+
             db.collection("Private Events").doc(route.params.event.id).update({
               startDate: moment(newStartDate).toDate(),
               endDate: moment(newEndDate).toDate(),
@@ -445,9 +441,6 @@ const Recommendation = ({ route, navigation }) => {
                       setDayChosen(true)
                     }}> Choose an available day! </Link> }
                 </NormalText>
-                <NormalText paddingHorizontal={10} color="black">
-                   Votes: {dayChosen ? maxVote :"" }
-                </NormalText>
               </View>
               <RBSheet
                 height={320}
@@ -471,14 +464,16 @@ const Recommendation = ({ route, navigation }) => {
                   <Checkbox checked = {monday} onPress={() => {
                         setMonday(!monday);
                   }} />
-                  <MediumText>Monday</MediumText>
-                </View>
+                  <MediumText> Monday: </MediumText>
+                  <MediumText>{mondayVote} Votes </MediumText>
+=                </View>
                 <View style={styles.checkbox}>
                   <Checkbox checked={tuesday} text="Tuesday" marginBottom={5}
                       onPress={() => {
                        setTuesday(!tuesday);  
                   }}/>
-                  <MediumText>Tuesday</MediumText>
+                  <MediumText> Tuesday: </MediumText>
+                  <MediumText>{tuesdayVote} Votes </MediumText>
                 </View>
                 <View style={styles.checkbox}>
                   <Checkbox checked={wednesday} text="Wednesday" marginBottom={5}
@@ -486,17 +481,20 @@ const Recommendation = ({ route, navigation }) => {
                       setWednesday(!wednesday);
 
                   }}/>
-                  <MediumText>Wednesday</MediumText>
+                  <MediumText> Wednesday: </MediumText>
+                  <MediumText>{wednesdayVote} Votes </MediumText>
+
                 </View>
                 <View style={styles.checkbox}>
                   <Checkbox checked={thursday} text="Thursday" marginBottom={5}
                       onPress={() => {
                         setThursday(!thursday);
                   }}/>
-                  <MediumText>Thursday</MediumText>
+                  <MediumText> Thursday: </MediumText>
+                  <MediumText>{thursdayVote} Votes </MediumText>
                 </View>
                 <Button onPress = {() => updateAvailabilities(monday,tuesday,wednesday,thursday)}>
-                  Add availabilities
+                  change availabilities
                 </Button>
             </RBSheet> 
 
