@@ -29,7 +29,12 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "19"
+      "buildNumber": "19",
+      "icon": {
+        "light": "./assets/big_logo.png",
+        "dark": "./assets/dark_logo.png",
+        "tinted": "./assets/dark_logo.png"
+      }
     },
     "web": {
       "favicon": "./assets/big_logo.png"
