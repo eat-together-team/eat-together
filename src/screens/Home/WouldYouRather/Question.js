@@ -18,6 +18,7 @@ const Question = ({ route, navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [colors, setColors] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [discussionStage, setDiscussionStage] = useState(false);
   const user = auth.currentUser;
   const isHost = user.uid === event.hostID;
 
@@ -71,6 +72,14 @@ const Question = ({ route, navigation }) => {
           // Navigate to EndGame if no more questions
           navigation.navigate("EndGame");
         }
+      }
+
+      setDiscussionStage(gameData.discussionStage || false);
+
+      // If discussionStage is set to true, go to Discussion
+      if (gameData.discussionStage) {
+        navigation.navigate("Discussion", { event });
+        return;
       }
     }
   };
@@ -153,9 +162,8 @@ const Question = ({ route, navigation }) => {
   // Function to navigate to the discussion page
   const moveToDiscuss = async () => {
     await currGame.update({ discussionStage: true });
-    navigation.navigate("Discussion", {
-      event: event,
-    });
+    // Host also navigates right away
+    navigation.navigate("Discussion", { event });
   };
 
   return (
@@ -208,6 +216,7 @@ const Question = ({ route, navigation }) => {
                   styles.optionButton,
                   selectedOption === 'A' && styles.selectedOption,
                   { backgroundColor: colors[0] || '#5DB075' },
+                  { opacity: selectedOption === 'B' ? 0.5 : 1 },
                 ]}
               >
                 <MediumText style={styles.optionText}>{optionA}</MediumText>
@@ -223,6 +232,7 @@ const Question = ({ route, navigation }) => {
                   styles.optionButton,
                   selectedOption === 'B' && styles.selectedOption,
                   { backgroundColor: colors[1] || '#5DB075' },
+                  { opacity: selectedOption === 'A' ? 0.5 : 1 },
                 ]}
               >
                 <MediumText style={styles.optionText}>{optionB}</MediumText>
@@ -280,8 +290,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   selectedOption: {
-    borderWidth: 3,
-    borderColor: "#FFD700", 
+    borderWidth: 4,
+    borderColor: "#FFD700",
+    shadowColor: "#FFD700",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
   },
   orContainer: {
     marginVertical: 15,
