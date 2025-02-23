@@ -38,6 +38,9 @@ import Checkbox from "../../components/Checkbox";
 import TextInput from "../../components/TextInput";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import icebreakerList from "../../icebreakerList";
+import TypeAheadTextInput from "../../components/TypeAheadTextInput";
+import { yelpSearch } from "../../provider/Search";
+
 
 export default function ({ navigation }) {
     // Current user
@@ -78,7 +81,8 @@ export default function ({ navigation }) {
 
     const refType = useRef(); // Meal type widget
     const refTags = useRef(); // Tag search widget
-    
+    const refLocation = useRef(); // To toggle the location bottom drawer on/off
+
     // Loading notifications
     useEffect(() => {
         // Load user info
@@ -412,17 +416,19 @@ export default function ({ navigation }) {
                         </View>
 
 
-                        <TextInput
-                            placeholder="Location (e.g. 'Cafe on the Ave')"
-                            value={location}
-                            onChangeText={(val) => {
-                                setLocation(val);
-                            }}
-                            width="100%"
-                            iconLeft="location-outline"
-                            mainContainerStyle={styles.input}
-                            required
-                        />
+                        <TouchableOpacity onPress={() => refLocation.current.open()}>
+                            <View pointerEvents="none">
+                                <TextInput
+                                    placeholder="Location (e.g. 'Cafe on the Ave')"
+                                    value={location}
+                                    width="100%"
+                                    iconLeft="location-outline"
+                                    mainContainerStyle={styles.input}
+                                    editable={false}
+                                    required
+                                />
+                            </View>
+                        </TouchableOpacity>
 
                         <DateTimePickerModal isVisible={showStartDate} date={startDate}
                             mode={mode} onConfirm={changeStartDate} onCancel={() => setShowStartDate(false)}
@@ -595,6 +601,42 @@ export default function ({ navigation }) {
                             resetValue={false}
                         />
                     </RBSheet>
+
+
+                    <RBSheet
+                        height={400}
+                        ref={refLocation}
+                        closeOnDragDown={true}
+                        closeOnPressMask={false}
+                        customStyles={{
+                            wrapper: {
+                                backgroundColor: "rgba(0,0,0,0.5)",
+                            },
+                            draggableIcon: {
+                                backgroundColor: "#5DB075"
+                            },
+                            container: {
+                                borderTopLeftRadius: 20,
+                                borderTopRightRadius: 20,
+                                padding: 10
+                            }
+
+                        }}>
+                        <NormalText center marginBottom={10}>Start typing to search for a location!</NormalText>
+                        <TypeAheadTextInput
+                            placeholder="Location (e.g. 'Cafe on the Ave')"
+                            value={location}
+                            width="100%"
+                            iconLeft="location-outline"
+                            mainContainerStyle={styles.input}
+                            searchFn={yelpSearch}
+                            onSelect={(val) => {
+                                refLocation.current.close();
+                                setLocation(val);
+                            }}
+                        />
+                    </RBSheet>                    
+
                 </View>
             </KeyboardAvoidingWrapper>
         </Layout>
