@@ -602,7 +602,6 @@ export default function ({ navigation }) {
                         />
                     </RBSheet>
 
-
                     <RBSheet
                         height={400}
                         ref={refLocation}

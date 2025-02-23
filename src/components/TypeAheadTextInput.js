@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import debounce from 'lodash.debounce';
-import {ActivityIndicator} from "react-native";
+import {StyleSheet} from "react-native";
 import TextInput from "./TextInput";
-import Filter from "./Filter";
-
+import LoadingView from "./LoadingView"
+import { TouchableOpacity } from "react-native";
+import NormalText from "./NormalText";
 const DEFAULT_MAX_SEARCH_RESULTS_SIZE = 5;
 const DEFAULT_MIN_SEARCH_TERM_LENGTH = 3;
 const DEFAULT_DEBOUNCE_MS = 1000;
@@ -51,19 +52,37 @@ function TypeAheadTextInput(props) {
                     onChangeText?.(val);
                 }}           
             />
-            {state.processing && <ActivityIndicator/>}
-            { state.suggestions.map((suggestion, index) => <Filter
-              key={suggestion.id}
-              text={suggestion.name}
-              marginBottom={index === state.suggestions.lenght - 1 ? marginBottom : 5}
-              onPress={() => {
-                setState(prevState => ({...prevState, text: suggestion.name, suggestions: [] }));
-                onChangeText?.(suggestion.name);
-                onSelect?.(suggestion.name);
-              }}
-            />) }
+            {state.processing && <LoadingView/>}
+            { state.suggestions.map((suggestion, index) => 
+                <TouchableOpacity 
+                    style={{...styles.item, borderBottomWidth: 0,}}
+                    marginBottom={index === state.suggestions.length - 1 ? marginBottom : 5}
+                    onPress={() => {
+                      setState(prevState => ({...prevState, text: suggestion.name, suggestions: [] }));
+                      onChangeText?.(suggestion.name);
+                      onSelect?.(suggestion.name);
+                    }}
+      
+                >
+                    <NormalText color="black">{ suggestion.name }</NormalText>
+                </TouchableOpacity>        
+            ) }
         </>
     );
   }
+
+
+  const styles = StyleSheet.create({
+    item: {
+        flex: 1,
+        flexDirection: 'row',
+        padding: 10,
+        borderBottomWidth: 2,
+        borderBottomColor: '#5DB075',
+        borderRadius: 5,
+        marginTop: 2
+    },
+
+  });
 
   export default TypeAheadTextInput;
