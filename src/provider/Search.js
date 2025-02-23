@@ -28,7 +28,7 @@ export const yelpSearch = async (term, options) => {
         limit: options.maxSearchResultsSize
       }
     });
-    return response.data.businesses.map(business => ({id: business.id, name: business.name }));
+    return response.data.businesses.map(business => ({id: business.id, name: business.name + " " + business.location.address1 }));
   } catch {
     return [];
   }

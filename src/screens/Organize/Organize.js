@@ -630,7 +630,7 @@ export default function ({ navigation }) {
                             mainContainerStyle={styles.input}
                             searchFn={yelpSearch}
                             onSelect={(val) => {
-                                refLocation.current.close();
+                                // refLocation.current.close();
                                 setLocation(val);
                             }}
                         />

@@ -25,6 +25,7 @@ function TypeAheadTextInput(props) {
     } = props;
     
     const [state, setState] = useState({ text: value, suggestions: [], processing: false });
+    const [selectedItem, setSelectedItem] = useState(null);
 
     const wrappedSearchFn = useMemo(
         () => debounce(
@@ -53,20 +54,36 @@ function TypeAheadTextInput(props) {
                 }}           
             />
             {state.processing && <LoadingView/>}
-            { state.suggestions.map((suggestion, index) => 
-                <TouchableOpacity 
-                    style={{...styles.item, borderBottomWidth: 0,}}
+            { state.suggestions.map((suggestion, index) => {
+                const isSelected = selectedItem === suggestion.name;
+                return(
+                    <TouchableOpacity
+                    key={suggestion.name}
+                    style={[
+                      styles.item,
+                      { backgroundColor: isSelected ? '#5db075' : 'white'}, // Change background color when pressed
+                    ]}
                     marginBottom={index === state.suggestions.length - 1 ? marginBottom : 5}
                     onPress={() => {
-                      setState(prevState => ({...prevState, text: suggestion.name, suggestions: [] }));
+                      setState((prevState) => ({ ...prevState, text: suggestion.name, suggestions: [] }));
                       onChangeText?.(suggestion.name);
                       onSelect?.(suggestion.name);
                     }}
-      
-                >
-                    <NormalText color="black">{ suggestion.name }</NormalText>
-                </TouchableOpacity>        
-            ) }
+                    onPressIn={() => setSelectedItem(suggestion.name)} // Track selected item
+                    onPressOut={() => setSelectedItem(null)} // Reset on release
+                    activeOpacity={1}
+                  >
+                    <NormalText 
+                    color={isSelected ? 'white' : 'black'}
+                    numberofLines = {1}
+                    ellipsizeMode="tail"
+                    > 
+                      {suggestion.name}
+                    </NormalText>
+                  </TouchableOpacity>
+        
+                );
+            })}
         </>
     );
   }
@@ -77,8 +94,6 @@ function TypeAheadTextInput(props) {
         flex: 1,
         flexDirection: 'row',
         padding: 10,
-        borderBottomWidth: 2,
-        borderBottomColor: '#5DB075',
         borderRadius: 5,
         marginTop: 2
     },
