@@ -29,7 +29,7 @@ yarn install
 
 4. To link this project with Firebase, download the `.env` file from our Google Drive. Simply put it in the root directory. Download links are below!
 
-Core team link: [https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AOOH/view?usp=drive_link](https://drive.google.com/file/d/1oRlixVx9tN1vh5g7tcdQwYFWujf_AOOH/view?usp=drive_link)
+Core team link: [https://drive.google.com/file/d/1rv-9lrnczpkuq2ZjpwXydzQVsgvxNBbQ/view?usp=drive_link](https://drive.google.com/file/d/1rv-9lrnczpkuq2ZjpwXydzQVsgvxNBbQ/view?usp=drive_link)
 
 Cohort members link: [https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing](https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing)
 
@@ -153,6 +153,16 @@ While there are many bugs that can arise while setting up the project, here are 
 ```sh
 open -a simulator
 ```
+- Mac users: if `npx expo start` does not work and displays the following error ` Your macOS system limit does not allow enough watchers for Metro, install Watchman instead. Learn more: https://facebook.github.io/watchman/docs/install
+Error: EMFILE: too many open files, watch
+    at FSEvent.FSWatcher._handle.onchange (node:internal/fs/watchers:204:21) `, 
+ 	* Go to [https://brew.sh/](https://brew.sh/) and install homebrew.
+  	* Run these commands in your terminal to add Homebrew to your PATH:
+  	* `echo >> /Users/insert_user_name/.zprofile echo,'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/insert_user_name/.zprofile,eval "$(/opt/homebrew/bin/brewshellenv)"`
+  	* **NOTE: This will be displayed on the terminal you used to install homebrew. You can use those to get the desired path of your mac**
+  	* Then run `brew update`.
+  	* Install watchman using `brew install watchman`. In case you can't wait for homebrew to update you can directly install the latest build from github using `brew install -- HEAD watchman`.
+  	* Once watchman is installed, start the environment as normal. If it does not work, try starting expo using a tunnelled connection using `npx expo start --tunnel` or `yarn start --tunnel`.
 
 Once the simulator boots up, immediately quit the simulator app. Run `npm start` or `yarn start` again from the project directory, and open the simulator. It should then be resolved.
 - If you ever get a "giant red screen of death" (you'll know what it looks like when you see it), try running `npx expo start -c` or `yarn start -c` to clear the cache. This will often fix the problem.

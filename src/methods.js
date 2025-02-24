@@ -71,7 +71,6 @@ const getPeopleTags = (newPeople) => {
 
     return tags;
 };
-
 /**
  * Get the tags in common between two users.
  * @param {Object} currUser Current user.
@@ -314,4 +313,18 @@ export const getFreeTimes = (events) => {
     }
 
     return freeTimes;
+}
+
+/**
+ * Given a moment date object, convert it to 1 week later if it's before the current date
+ * @param {Object} date moment date object
+ * @returns {Object} moment date object, 1 week later
+ */
+export const convertToFutureDate = (date) => {
+    let currDate = new Date();
+    if (date.toDate() < currDate) {
+        date.add(1, 'week');
+    }
+
+    return date;
 }

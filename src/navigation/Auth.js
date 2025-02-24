@@ -23,6 +23,7 @@ import Experiment from "../screens/Experiment";
 
 import { db, auth, storage } from "../provider/Firebase";
 import moment from "moment";
+import ExploreCopy from "../screens/Experiment/ExploreCopy";
 
 const Stack = createStackNavigator();
 const Auth = () => {
@@ -236,6 +237,7 @@ const Auth = () => {
     >
       <Stack.Screen name="Landing" component={Landing} />
       <Stack.Screen name="Experiment" component={Experiment} />
+      <Stack.Screen name="ExploreCopy" component={ExploreCopy} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="ForgetPassword" component={ForgetPassword} />
 
