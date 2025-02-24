@@ -61,7 +61,7 @@ function TypeAheadTextInput(props) {
                     key={suggestion.name}
                     style={[
                       styles.item,
-                      { backgroundColor: isSelected ? '#5db075' : 'white'}, // Change background color when pressed
+                      { backgroundColor: isSelected ? '#5db075' : 'white'}, 
                     ]}
                     marginBottom={index === state.suggestions.length - 1 ? marginBottom : 5}
                     onPress={() => {
@@ -69,13 +69,13 @@ function TypeAheadTextInput(props) {
                       onChangeText?.(suggestion.name);
                       onSelect?.(suggestion.name);
                     }}
-                    onPressIn={() => setSelectedItem(suggestion.name)} // Track selected item
-                    onPressOut={() => setSelectedItem(null)} // Reset on release
+                    onPressIn={() => setSelectedItem(suggestion.name)} 
+                    onPressOut={() => setSelectedItem(null)} 
                     activeOpacity={1}
                   >
                     <NormalText 
                     color={isSelected ? 'white' : 'black'}
-                    numberofLines = {1}
+                    numberOfLines = {1}
                     ellipsizeMode="tail"
                     > 
                       {suggestion.name}
