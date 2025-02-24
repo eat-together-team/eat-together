@@ -95,14 +95,14 @@ async function sendInvites(
       chatID: chatID
     })
     .then(async (docRef) => {
-      await attendees.forEach((attendee) => {
+      await Promise.all(attendees.map(async(attendee) => {
         const ref = db.collection("User Invites").doc(attendee.id);
-        ref.get().then(async (docRef) => {
-          if (attendee !== user.id) {
+        return ref.get().then(async (docRef) => {
+          if (attendee.id !== user.id) {
             await sendInvitation(ref, invite, user, id);
           }
         });
-      });
+      }));
 
       const storeID = {
         type: invite.type, // There can be different private events
