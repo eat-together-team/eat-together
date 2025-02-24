@@ -1,17 +1,16 @@
 import { useState, useMemo } from "react";
 import debounce from 'lodash.debounce';
-import {StyleSheet} from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import TextInput from "./TextInput";
-import LoadingView from "./LoadingView"
-import { TouchableOpacity } from "react-native";
+import LoadingView from "./LoadingView";
+import Link from "./Link";
 import NormalText from "./NormalText";
+
 const DEFAULT_MAX_SEARCH_RESULTS_SIZE = 5;
 const DEFAULT_MIN_SEARCH_TERM_LENGTH = 3;
 const DEFAULT_DEBOUNCE_MS = 1000;
 
-
 function TypeAheadTextInput(props) {
-   
     const {
         value,
         searchFn,
@@ -21,6 +20,7 @@ function TypeAheadTextInput(props) {
         maxSearchResultsSize,
         debounceMs,
         marginBottom,
+        setLocation,
         ...restOfProps
     } = props;
     
@@ -46,42 +46,47 @@ function TypeAheadTextInput(props) {
                 value={state.text}
                 marginBottom={10}
                 onChangeText={val => {
+                    setLocation(val);
                     setState(prevState => ({...prevState, text: val, suggestions: [] }));
                     const trimmed = val?.trim();
                     if (trimmed && trimmed.length >= (minSearchTermLength || DEFAULT_MIN_SEARCH_TERM_LENGTH))
-                      wrappedSearchFn(trimmed);
+                        wrappedSearchFn(trimmed);
                     onChangeText?.(val);
                 }}           
             />
+            <Link onPress={() => {
+                setState(prevState => ({...prevState, text: "", suggestions: [] }));
+                setLocation("");
+            }}>Clear input</Link>
+
             {state.processing && <LoadingView/>}
-            { state.suggestions.map((suggestion, index) => {
+            {state.suggestions.map((suggestion, index) => {
                 const isSelected = selectedItem === suggestion.name;
-                return(
+                return (
                     <TouchableOpacity
-                    key={suggestion.name}
-                    style={[
-                      styles.item,
-                      { backgroundColor: isSelected ? '#5db075' : 'white'}, 
-                    ]}
-                    marginBottom={index === state.suggestions.length - 1 ? marginBottom : 5}
-                    onPress={() => {
-                      setState((prevState) => ({ ...prevState, text: suggestion.name, suggestions: [] }));
-                      onChangeText?.(suggestion.name);
-                      onSelect?.(suggestion.name);
-                    }}
-                    onPressIn={() => setSelectedItem(suggestion.name)} 
-                    onPressOut={() => setSelectedItem(null)} 
-                    activeOpacity={1}
-                  >
-                    <NormalText 
-                    color={isSelected ? 'white' : 'black'}
-                    numberOfLines = {1}
-                    ellipsizeMode="tail"
-                    > 
-                      {suggestion.name}
-                    </NormalText>
-                  </TouchableOpacity>
-        
+                        key={suggestion.name}
+                        style={[
+                            styles.item,
+                            { backgroundColor: isSelected ? '#5db075' : 'white'}, 
+                        ]}
+                        marginBottom={index === state.suggestions.length - 1 ? marginBottom : 5}
+                        onPress={() => {
+                            setState((prevState) => ({ ...prevState, text: suggestion.name, suggestions: [] }));
+                            onChangeText?.(suggestion.name);
+                            onSelect?.(suggestion.name);
+                        }}
+                        onPressIn={() => setSelectedItem(suggestion.name)} 
+                        onPressOut={() => setSelectedItem(null)} 
+                        activeOpacity={1}
+                    >
+                        <NormalText 
+                            color={isSelected ? 'white' : 'black'}
+                            numberOfLines = {1}
+                            ellipsizeMode="tail"
+                        > 
+                            {suggestion.name}
+                        </NormalText>
+                    </TouchableOpacity>
                 );
             })}
         </>

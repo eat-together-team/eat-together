@@ -629,6 +629,7 @@ export default function ({ navigation }) {
                             iconLeft="location-outline"
                             mainContainerStyle={styles.input}
                             searchFn={yelpSearch}
+                            setLocation={setLocation}
                             onSelect={(val) => {
                                 refLocation.current.close();
                                 setLocation(val);
