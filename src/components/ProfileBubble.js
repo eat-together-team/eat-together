@@ -49,7 +49,7 @@ const ProfileBubble = props => {
                 </View>)}
                 <TouchableOpacity style={styles.greenButton}>
                     <MediumText style= {{color: "white"}}>Send a buddy Request!</MediumText>
-                    <Ionicons name="person-add" size={20} color="white" />
+                    <Ionicons name="person-add" size={25} color="white" style={{marginLeft: 8}}/>
                 </TouchableOpacity>
             </TouchableOpacity>
         </View>
@@ -87,8 +87,10 @@ const styles = StyleSheet.create({
         backgroundColor: "#5DB075",
         flexDirection: "row",
         justifyContent: "center",
+        alignSelf: "center",
         borderRadius: 8,
         marginTop: 15,
+        width: "90%",
         padding: 10
     }
 })

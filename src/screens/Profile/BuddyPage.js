@@ -165,6 +165,16 @@ export default function ({ navigation }) {
 
   return (
     <Layout>
+      <Ionicons
+        name="arrow-back"
+        size={30}
+        style={{ marginLeft: 10, marginTop: 10 }}
+        onPress={() => {
+          navigation.navigate("Me", {
+            user: userInfo,
+          });
+        }}
+      ></Ionicons>
       <Header name="Find a Buddy" navigation={navigation} hasNotif={unread} buddy/>
 
       <View style={{ paddingHorizontal: 20 }}>
@@ -192,7 +202,7 @@ export default function ({ navigation }) {
           />
         </HorizontalRow>}
         <MediumText use700> Recommendations </MediumText>
-        <NormalText>Click to see profile</NormalText>
+        <NormalText style={{alignSelf: "flex-end"}}>Click to see profile</NormalText>
       </View>
 
       <View style={{ flex: 1, alignItems: "center" }}>
