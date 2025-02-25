@@ -247,8 +247,7 @@ export default function ({ navigation }) {
             <Feather name="edit-2" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Edit Profile</NormalText>
           </TouchableOpacity>
-
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.link}
             onPress={() => {
               navigation.navigate("AvailabilitiesHome", {
@@ -259,7 +258,8 @@ export default function ({ navigation }) {
           >
             <Ionicons name="time" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Eating Times</NormalText>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+
         </View>
 
         <View style={styles.name}>

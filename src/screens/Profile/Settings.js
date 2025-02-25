@@ -191,6 +191,7 @@ export default function ({ navigation }) {
                     text: "Yes",
                     onPress: async () => {
                         await db.collection("Users").doc(user.uid).update({
+                            "settings.attendingEvent": false,
                             "settings.attendingTutorial": true,
                             "settings.tabsTutorial": true,
                             "settings.completedTutorial": false
@@ -203,6 +204,7 @@ export default function ({ navigation }) {
                     text: "No",
                     onPress: async () => {
                         await db.collection("Users").doc(user.uid).update({
+                            "settings.attendingEvent": true,
                             "settings.attendingTutorial": false,
                             "settings.tabsTutorial": false,
                             "settings.completedTutorial": true
@@ -232,12 +234,12 @@ export default function ({ navigation }) {
         {
             name: " Privacy Policy",
             icon: "hand-left",
-            func: () => {Linking.openURL("https://www.eat-together.tech/privacy-policy")}
+            func: () => {Linking.openURL("https://www.eat-together.org/privacy-policy")}
         },
         {
             name: " Terms of Service",
             icon: "hand-left",
-            func: () => {Linking.openURL("https://www.eat-together.tech/terms-and-conditions")}
+            func: () => {Linking.openURL("https://www.eat-together.org/terms-and-conditions")}
         },
         {
             name: " Report a Bug",

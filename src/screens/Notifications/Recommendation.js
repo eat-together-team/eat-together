@@ -1,6 +1,6 @@
 // Full recommendation page
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Linking } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
@@ -24,8 +24,11 @@ import getTime from "../../getTime";
 import {db, auth} from "../../provider/Firebase";
 import * as firebase from "firebase/compat";
 import openMap from "react-native-open-maps";
-import { getCommonTags } from "../../methods";
+import { getCommonTags, convertToFutureDate } from "../../methods";
+import moment from 'moment';
 
+import RBSheet from "react-native-raw-bottom-sheet";
+import Checkbox from "../../components/Checkbox";
 const Recommendation = ({ route, navigation }) => {
   // User and other user states
   const user = auth.currentUser;
@@ -41,15 +44,26 @@ const Recommendation = ({ route, navigation }) => {
 
   const [attendingTutorial, setAttendingTutorial] = useState(true);  // State to see if we should show the attending an event tutorial
   const [isDataFetched, setIsDataFetched] = useState(false);  // State to track whether data has been fetched
+
+  const showTimeFilterRef = useRef();
+  const [monday, setMonday] = useState(false);
+  const [tuesday, setTuesday] = useState(false);
+  const [wednesday, setWednesday] = useState(false);
+  const [thursday,setThursday] = useState(false);
+  const [dayChosen, setDayChosen] = useState(false);
+  const [startDate,setStartDate] = useState(route.params.event.startDate.toDate());
+  const [endDate, setEndDate] = useState(route.params.event.endDate.toDate());
+  const [mondayVote , setMondayVote] = useState(0);
+  const [tuesdayVote , setTuesdayVote] = useState(0);
+  const [wednesdayVote , setWednesdayVote] = useState(0);
+  const [thursdayVote , setThursdayVote] = useState(0);
   useEffect(() => {
     let existingTags = {}; // To avoid duplicates
-
     // Loads the tags of all the attendees
     route.params.event.suggestedAttendees.forEach(attendee => {
       if (attendee !== user.uid) {
         db.collection("Users").doc(attendee).get().then(doc => {
           setAttendees(prev => [...prev, doc.data()]);
-
           // Find tags that are in common between users
           const tags = getCommonTags(route.params.userData, doc.data());
           let newTags = [];
@@ -168,6 +182,137 @@ const Recommendation = ({ route, navigation }) => {
       alert("This feature is still in development and will be applied to your future events!")
     }
   };
+
+  useEffect(() => {
+    const unsubscribe = db.collection("Private Events").doc(route.params.event.id).onSnapshot((eventDoc) => {
+
+      const eventData = eventDoc.data();
+      let newStartDate = startDate;
+      let newEndDate = endDate;
+      if (eventData.userVotes) {
+        const voters = eventData.userVotes; 
+        const voteCount = eventData.voteCount;
+        const voter = voters && Object.keys(voters).includes(route.params.userData.id);
+        const userVotes = voters[route.params.userData.id];
+
+        // sets the checkbox variables
+        setMondayVote(voteCount.mondayCount);
+        setTuesdayVote(voteCount.tuesdayCount);
+        setWednesdayVote(voteCount.wednesdayCount);
+        setThursdayVote(voteCount.thursdayCount);
+
+        // calculates the number of days to subtract from thursday
+        setMonday(userVotes.monday);
+        setTuesday(userVotes.tuesday);
+        setWednesday(userVotes.wednesday);
+        setThursday(userVotes.thursday);
+
+        if (voter) {
+          setDayChosen(true);
+  
+          // Adjust seconds based on vote counts
+          if (
+            voteCount.mondayCount >= voteCount.tuesdayCount &&
+            voteCount.mondayCount >= voteCount.wednesdayCount &&
+            voteCount.mondayCount >= voteCount.thursdayCount
+          ) {
+            const dayOfWeek = 1;
+            const daysToMonday = dayOfWeek - moment(newStartDate).day();
+            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToMonday, 'days'));
+            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToMonday, 'days'));
+          } else if (
+            voteCount.tuesdayCount >= voteCount.mondayCount &&
+            voteCount.tuesdayCount >= voteCount.wednesdayCount &&
+            voteCount.tuesdayCount >= voteCount.thursdayCount
+          ) {
+            const dayOfWeek = 2;
+            const daysToTuesday = dayOfWeek - moment(newStartDate).day();
+            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToTuesday, 'days'));
+            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToTuesday, 'days'));
+          } else if (
+            voteCount.wednesdayCount >= voteCount.mondayCount &&
+            voteCount.wednesdayCount >= voteCount.tuesdayCount &&
+            voteCount.wednesdayCount >= voteCount.thursdayCount
+          ) {
+            const dayOfWeek = 3;
+            const daysToWednesday = dayOfWeek - moment(newStartDate).day();
+            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToWednesday, 'days'));
+            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToWednesday, 'days'));
+          } else {
+            const dayOfWeek = 4;
+            const daysToThursday = dayOfWeek - moment(newStartDate).day();
+            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToThursday, 'days'));
+            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToThursday, 'days'));
+          }
+
+          // checking whether the start date and new start date are the same or not.
+          if (startDate !== newStartDate || endDate.seconds !== newEndDate) {
+            setStartDate(newStartDate);
+            setEndDate(newEndDate);
+
+            db.collection("Private Events").doc(route.params.event.id).update({
+              startDate: moment(newStartDate).toDate(),
+              endDate: moment(newEndDate).toDate(),
+            });
+          }
+        }
+      }
+    });
+  
+    return () => unsubscribe(); // Cleanup listener on unmount
+  }, []); 
+        
+
+
+  const updateAvailabilities = async (monday,tuesday,wednesday,thursday) => {
+      const eventRef = db.collection("Private Events").doc(route.params.event.id);
+      const eventDoc = await eventRef.get();
+      const eventData = eventDoc.data();
+      const userId = route.params.userData.id; 
+      let previousVotes = eventData.userVotes?.[userId] || {}; 
+      let voteUpdates = {};
+
+      // Modifying updates
+      if (previousVotes.monday && !monday) {
+        voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(-1);
+      } else {
+        voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(0);
+      }
+      if (previousVotes.tuesday && !tuesday) {
+        voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(-1);
+      } else {
+        voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(0);
+      }
+      if (previousVotes.wednesday && !wednesday) {
+        voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(-1);
+      } else {
+        voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(0);
+      }
+      if (previousVotes.thursday && !thursday) {
+        voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(-1);
+      } else {
+        voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(0);
+      }
+      // New User
+      if (!previousVotes.monday && monday) {
+        voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(1);
+      }
+      if (!previousVotes.tuesday && tuesday) {
+        voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(1);
+      }
+      if (!previousVotes.wednesday && wednesday) {
+        voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(1);
+      }
+      if (!previousVotes.thursday && thursday) {
+        voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(1);
+      }
+      voteUpdates[`userVotes.${userId}`] = { monday, tuesday, wednesday, thursday };
+  
+      await eventRef.update(voteUpdates);    
+      showTimeFilterRef.current.close()
+  } 
+
+
 
   // Fetch data from Firestore to see if the user has seen the tutorial before or not
   useEffect(() => {
@@ -311,16 +456,84 @@ const Recommendation = ({ route, navigation }) => {
               <View style={styles.row}>
                 <Ionicons name="calendar-outline" size={20} />
                 <NormalText paddingHorizontal={10} color="black">
-                    {route.params.event.startDate ? getDate(route.params.event.startDate.toDate()) : getDate(route.params.event.date.toDate())}
+                    {dayChosen ? getDate(moment(startDate).toDate())  : <Link onPress={() => {
+                      showTimeFilterRef.current.open(),
+                      setDayChosen(true)
+                    }}> Choose an available day! </Link> }
                 </NormalText>
               </View>
+              <RBSheet
+                height={320}
+                ref={showTimeFilterRef}
+                closeOnDragDown={true}
+                closeOnPressMask={false}
+                customStyles={{
+                    wrapper: {
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                    },
+                    draggableIcon: {
+                        backgroundColor: "black"
+                    },
+                    container: {
+                        borderTopLeftRadius: 20,
+                        borderTopRightRadius: 20,
+                        padding: 10
+                    }
+            }}>
+                <View style={styles.checkbox}>
+                  <Checkbox checked = {monday} onPress={() => {
+                        setMonday(!monday);
+                  }} />
+                  <MediumText> Monday: </MediumText>
+                  <MediumText>{mondayVote} Votes </MediumText>
+=                </View>
+                <View style={styles.checkbox}>
+                  <Checkbox checked={tuesday} text="Tuesday" marginBottom={5}
+                      onPress={() => {
+                       setTuesday(!tuesday);  
+                  }}/>
+                  <MediumText> Tuesday: </MediumText>
+                  <MediumText>{tuesdayVote} Votes </MediumText>
+                </View>
+                <View style={styles.checkbox}>
+                  <Checkbox checked={wednesday} text="Wednesday" marginBottom={5}
+                      onPress={() => {
+                      setWednesday(!wednesday);
+
+                  }}/>
+                  <MediumText> Wednesday: </MediumText>
+                  <MediumText>{wednesdayVote} Votes </MediumText>
+
+                </View>
+                <View style={styles.checkbox}>
+                  <Checkbox checked={thursday} text="Thursday" marginBottom={5}
+                      onPress={() => {
+                        setThursday(!thursday);
+                  }}/>
+                  <MediumText> Thursday: </MediumText>
+                  <MediumText>{thursdayVote} Votes </MediumText>
+                </View>
+                <Button onPress = {() => updateAvailabilities(monday,tuesday,wednesday,thursday)}>
+                  change availabilities
+                </Button>
+            </RBSheet> 
+
+
+
 
               <View style={styles.row}>
                 <Ionicons name="time-outline" size={20} />
                 <NormalText paddingHorizontal={10} color="black">
-                    {route.params.event.startDate ? getTime(route.params.event.startDate.toDate()) : getTime(route.params.event.date.toDate())}
-                    {route.params.event.endDate && " - ".concat(getTime(route.params.event.endDate.toDate()))}
+                    {route.params.event.startDate ? getTime(moment(startDate).toDate()) : getTime(route.params.event.date.toDate())}
+                    {route.params.event.endDate && " - ".concat(getTime(moment(endDate).toDate()))}
                 </NormalText>
+              </View>
+
+              <View style={styles.row}>
+                <Ionicons name="time-outline" size={20}/>
+                <Link onPress={() => {showTimeFilterRef.current.open()}} paddingHorizontal={10}>
+                    Modify availabilities
+                </Link>
               </View>
 
               <View style={{...styles.row, marginTop: 10}}>
@@ -343,6 +556,7 @@ const Recommendation = ({ route, navigation }) => {
                     More info
                 </Link>
               </View>
+
             </View>
 
             {route.params.event.menu && <View>
@@ -429,7 +643,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 5,
     right: 5
-  }
+  },
+  checkbox:{
+    flexDirection: "row", 
+    padding: 10, 
+    alignItems: "center", 
+    justifyContent: 'left',
+  },
 });
 
 export default Recommendation;
