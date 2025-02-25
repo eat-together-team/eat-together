@@ -1,13 +1,15 @@
 import React from "react";
 import { View, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+
 import MediumText from "./MediumText";
 import NormalText from "./NormalText";
 import Tag from "./Tag";
-import Button from "./Button";
-import { useNavigation } from "@react-navigation/native"; // ✅ Import navigation hook
+import CustomButton from "./CustomButton";
 
 const BuddyProfileBubble = (props) => {
-    const navigation = useNavigation(); // ✅ Initialize navigation
+    const navigation = useNavigation(); // Initialize navigation
 
     // Generates text for school tags in common with the user
     const getCommonSchoolTags = (tags) => {
@@ -58,11 +60,16 @@ const BuddyProfileBubble = (props) => {
             </TouchableOpacity>
 
             {/* ✅ Fix: Pass props.person to SendBuddyRequest */}
-            <Button
+            <CustomButton
                 onPress={() => navigation.navigate("SendBuddyRequest", { user: props.person })}
+                marginVertical={5}
             >
-                Send a buddy Request!
-            </Button>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <MediumText style= {{color: "white"}}>Send a Buddy Request!</MediumText>
+                    <Ionicons name="person-add" size={25} color="white" style={{marginLeft: 8}}/>
+                </View>
+                
+            </CustomButton>
         </View>
     );
 };

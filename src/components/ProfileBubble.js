@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
-import { Ionicons } from "@expo/vector-icons";
 import MediumText from "./MediumText";
 import NormalText from './NormalText';
 
@@ -26,10 +25,10 @@ const ProfileBubble = props => {
                 <MediumText size={14}>
                     🗯️ "{props.person.bio}"
                 </MediumText>
-
+                
                 {props.person.inCommon.length > 0 && (<View style={styles.common}>
                     {getCommonSchoolTags(props.person.inCommon).length !== 0 && (<View style={styles.commonRow}>
-                        <NormalText>This person is:</NormalText>
+                        <NormalText>🏫 You both are: </NormalText>
                         <ScrollView horizontal={true}>
                             <View onStartShouldSetResponder={() => true} style={{ flexDirection: "row" }}>
                                 {getCommonSchoolTags(props.person.inCommon).map(tag =>
@@ -38,7 +37,7 @@ const ProfileBubble = props => {
                         </ScrollView>
                     </View>)}
                     {getCommonHobbyFoodTags(props.person.inCommon).length !== 0 && (<View style={styles.commonRow}>
-                        <NormalText>Enjoyment:</NormalText>
+                        <NormalText>🤩 You both enjoy: </NormalText>
                         <ScrollView horizontal={true}>
                             <View onStartShouldSetResponder={() => true} style={{ flexDirection: "row" }}>
                                 {getCommonHobbyFoodTags(props.person.inCommon).map(tag =>
@@ -47,10 +46,7 @@ const ProfileBubble = props => {
                         </ScrollView>
                     </View>)}
                 </View>)}
-                <TouchableOpacity style={styles.greenButton}>
-                    <MediumText style= {{color: "white"}}>Send a buddy Request!</MediumText>
-                    <Ionicons name="person-add" size={25} color="white" style={{marginLeft: 8}}/>
-                </TouchableOpacity>
+
             </TouchableOpacity>
         </View>
     );
@@ -81,17 +77,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         flexWrap: "wrap"
-    },
-
-    greenButton: {
-        backgroundColor: "#5DB075",
-        flexDirection: "row",
-        justifyContent: "center",
-        alignSelf: "center",
-        borderRadius: 8,
-        marginTop: 15,
-        width: "90%",
-        padding: 10
     }
 })
 

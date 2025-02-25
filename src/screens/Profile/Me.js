@@ -184,20 +184,6 @@ export default function ({ navigation }) {
     <Layout>
       <ScrollView contentContainerStyle={styles.page}>
         <View style={[styles.background, {backgroundColor: banner}]} />
-        <View style={styles.palette}>
-          <Ionicons
-            name="aperture"
-            size={40}
-            color="white"
-            onPress={() => {
-              navigation.navigate("ColorPicker", {
-                oldbanner: banner,
-                updateBanner,
-              });
-            }}
-          ></Ionicons>
-          <NormalText style={{color: "white"}}>Background</NormalText>
-        </View>
 
         <View style={styles.badge}>
           <WithBadge mealsAttended={mealsAttended} mealsSignedUp={mealsSignedUp}/>
@@ -216,8 +202,24 @@ export default function ({ navigation }) {
               });
             }}
           ></Ionicons>
-          <NormalText style={{color: "white"}}>Settings</NormalText>
+          <NormalText color="white" size={10}>Settings</NormalText>
         </View>
+
+        <View style={styles.palette}>
+          <Ionicons
+            name="aperture"
+            size={40}
+            color="white"
+            onPress={() => {
+              navigation.navigate("ColorPicker", {
+                oldbanner: banner,
+                updateBanner,
+              });
+            }}
+          ></Ionicons>
+          <NormalText color="white" size={10}>Background</NormalText>
+        </View>
+
         <Image
           style={styles.image}
           source={
@@ -272,30 +274,12 @@ export default function ({ navigation }) {
 
         <View style={styles.name}>
           <LargeText size={24}>{userInfo.firstName + " " + userInfo.lastName + " (" + userInfo.pronouns + ")"}</LargeText>
-          <MediumText>@{userInfo.username}</MediumText>
           <NormalText>
             🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
           </NormalText>
           <NormalText marginBottom={5}>🏫 {userInfo.school ? userInfo.school : "UW-Seattle"}</NormalText>
+          <MediumText>@{userInfo.username}</MediumText>
         </View>
-
-        {/*<View style = {styles.link}>
-          <TouchableOpacity
-            style ={styles.link}
-            onPress={() => {
-              navigation.navigate("BuddyPage");
-            }}>
-            <NormalText>You do not have a buddy</NormalText>
-              <AntDesign name="adduser" size={24} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
-          </TouchableOpacity>
-        </View>*/}
-
-        <SmallButton
-          onPress={() => navigation.navigate("SendBuddyRequest", { user: userInfo })}
-        >
-          Connect
-        </SmallButton>
 
         <TagsList tags={userInfo.tags ? userInfo.tags : []} />
         <MediumText center>{userInfo.bio}</MediumText>
@@ -362,15 +346,15 @@ const styles = StyleSheet.create({
 
   palette: {
     position: "absolute",
-    left: 20,
-    top: 20,
-    alignItems: "center",
+    right: 20,
+    top: 80,
+    alignItems: "flex-end",
   },
 
   badge: {
     position: "absolute",
     left: 20,
-    top: 70,
+    top: 20,
     marginTop: 10,
   },
 
@@ -378,7 +362,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
     top: 20,
-    alignItems: "center",
+    alignItems: "flex-end",
   },
 
   calendar: {
