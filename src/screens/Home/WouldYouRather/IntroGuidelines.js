@@ -32,11 +32,11 @@ const IntroGuidelines = ({ route, navigation }) => {
           questions.push({ id: doc.id, ...doc.data() });
         });
 
-        // Shuffle and select the first 20 questions
+        // Shuffle and select the first 10 questions
         shuffleArray(questions);
         const selectedQuestions = questions.slice(0, 10).map((q) => q.id);
 
-        // Initialize the game data in Firestore
+        // Initialize the game data in Firebase/firestore
         await currGame.set({
           aVotes: 0,
           bVotes: 0,
@@ -61,7 +61,7 @@ const IntroGuidelines = ({ route, navigation }) => {
     loadQuestions();
   }, []);
 
-  // Shuffle utility function
+  // Shuffle questions
   const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
