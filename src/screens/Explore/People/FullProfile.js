@@ -344,7 +344,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
                 {status}
               </Button>
 
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={styles.link}
                 onPress={() => {
                   navigation.navigate("AvailabilitiesStatic", {
@@ -354,7 +354,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               >
                 <Ionicons name="time" size={20} color="#4C6FB1" />
                 <NormalText color="#4C6FB1"> Eating Times</NormalText>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           )}
         </View>

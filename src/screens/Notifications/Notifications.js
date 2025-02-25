@@ -123,6 +123,42 @@ export default function (props) {
       console.error("Error removing read notifications:", error);
     }
   };
+
+
+  const deleteUnreadAlert = () => {
+    Alert.alert(
+      "Delete Notifications",
+      "Are you sure you want to delete all unread notifications?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "OK", onPress: () => removeUnreadNotifications() },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const removeUnreadNotifications = () => {
+    try {
+      const notifIds = [];
+      unreadNotifs.forEach((doc) => {
+        notifIds.push(doc.id);
+      });
+  
+      db.collection("Users").doc(user.uid).update({
+        notifications: firebase.firestore.FieldValue.arrayRemove(...unreadNotifs)
+      });
+  
+      console.log("All unread notifications removed successfully");
+    } catch (error) {
+      console.error("Error removing unread notifications:", error);
+    }
+  };
+
+
   
 
   return (
@@ -198,7 +234,11 @@ export default function (props) {
           }
           {unreadNotifs.length !== 0 &&
             <View>
-                <MediumText> Unread </MediumText>
+                <View style={styles.notifStyle}>
+                  <MediumText> Unread </MediumText>
+                  <Link onPress={deleteUnreadAlert}>Clear Notifications </Link>
+                </View>
+
                 <FlatList
                   contentContainerStyle={styles.cards}
                   keyExtractor={(item) => item.id}
@@ -275,8 +315,8 @@ export default function (props) {
           }
           {readNotifs.length !== 0 &&
             <View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between" }}>
-                <MediumText> Read</MediumText>
+              <View style={styles.notifStyle}>
+                <MediumText> Read </MediumText>
                 <Link onPress={deleteAlert}>Clear Notifications </Link>
               </View>
               
@@ -381,5 +421,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 20,
     paddingBottom: 40,
+  },
+
+  notifStyle:{
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: "space-between",
   },
 });

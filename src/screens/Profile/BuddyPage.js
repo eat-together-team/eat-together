@@ -18,6 +18,7 @@ import { generateColor, randomize3, getCommonTags } from "../../methods";
 import { db, auth } from "../../provider/Firebase";
 import { sortBySimilarInterests } from "../../methods";
 import { tryoutId } from "../../constants";
+import NormalText from "../../components/NormalText";
 
 export default function ({ navigation }) {
   // Fetch current user
@@ -164,7 +165,17 @@ export default function ({ navigation }) {
 
   return (
     <Layout>
-      <Header name="Choose a Buddy" navigation={navigation} hasNotif={unread} buddy/>
+      <Ionicons
+        name="arrow-back"
+        size={30}
+        style={{ marginLeft: 10, marginTop: 10 }}
+        onPress={() => {
+          navigation.navigate("Me", {
+            user: userInfo,
+          });
+        }}
+      ></Ionicons>
+      <Header name="Find a Buddy" navigation={navigation} hasNotif={unread} buddy/>
 
       <View style={{ paddingHorizontal: 20 }}>
         <Searchbar
@@ -184,47 +195,27 @@ export default function ({ navigation }) {
             onPress={() => setMutualFriends(!mutualFriends)}
             text="Mutual friends"
           />
-
-          {/* <Filter
-            checked={school}
-            onPress={() => setMutualFriends(!school)}
-            text="Mutual friends"
-          /> */}
         </HorizontalRow>}
         <MediumText use700> Recommendations </MediumText>
+        <NormalText style={{alignSelf: "flex-end"}}>Click to see profile</NormalText>
       </View>
 
       <View style={{ flex: 1, alignItems: "center" }}>
         {loading || people.length === 0 ?
           <LoadingView/>
         : filteredSearchedPeople.length > 0 ?
-          // <FlatList
-          //   contentContainerStyle={styles.people}
-          //   keyExtractor={(item) => item.id}
-          //   data={filteredSearchedPeople}
-          //   renderItem={({ item }) => (
-          //     <BuddyProfileBubble
-          //       person={item}
-          //       click={() => {
-          //         navigation.navigate("BuddyRequest", {
-          //           person: item,
-          //         });
-          //       }}
-          //     />
-          //   )}
-          // />
           <FlatList
-          contentContainerStyle={styles.people}
-          keyExtractor={(item) => item.id}
-          data={filteredSearchedPeople}
-          renderItem={({ item }) => (
-            <BuddyProfileBubble
-              person={item}
-              navigation={navigation} // Pass navigation down
-              onPress={() => navigation.navigate("BuddyRequest", { person: item })}
-            />
-          )}
-        />
+            contentContainerStyle={styles.people}
+            keyExtractor={(item) => item.id}
+            data={filteredSearchedPeople}
+            renderItem={({ item }) => (
+              <BuddyProfileBubble
+                person={item}
+                navigation={navigation} // Pass navigation down
+                onPress={() => navigation.navigate("BuddyRequest", { person: item })}
+              />
+            )}
+          />
         :
           <EmptyState title="Empty" text="No results :("/>
         }
