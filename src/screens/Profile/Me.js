@@ -19,6 +19,10 @@ import NormalText from "../../components/NormalText";
 import TagsList from "../../components/TagsList";
 import EventCard from "../../components/EventCard";
 // Add buddy button
+import Button from "../../components/Button";
+import SmallText from "../../components/SmallText";
+import Link from "../../components/Link";
+import SmallButton from "../../components/SmallButton";
 import { AntDesign } from '@expo/vector-icons';
 
 import { compareDates } from "../../methods";
@@ -30,6 +34,7 @@ export default function ({ navigation }) {
   const [banner, setBanner] = useState({});
   const [mealsAttended, setMealsAttended] = useState(0);
   const [mealsSignedUp, setMealsSignedUp] = useState(0);
+  const [modalVisible, setModalVisible] = useState(0); // added modal for buddy card
 
   const [events, setEvents] = useState([]);
 
@@ -86,7 +91,7 @@ export default function ({ navigation }) {
                 }
               }).catch(e => {
                 // Still activates after logout for some accounts, commented for now
-                //alert("There was an error fetching some of your meals :( try again later");
+                // alert("There was an error fetching some of your meals :( try again later");
 
                 eventsLength--;
                 newEvents = newEvents.sort((a, b) => {
@@ -191,7 +196,7 @@ export default function ({ navigation }) {
               });
             }}
           ></Ionicons>
-          <NormalText style={{color: "white"}}>Camera</NormalText>
+          <NormalText style={{color: "white"}}>Background</NormalText>
         </View>
 
         <View style={styles.badge}>
@@ -223,6 +228,8 @@ export default function ({ navigation }) {
         />
 
         <View style={styles.links}>
+
+          {/* add back connections when navigation succcessfully configured */}
           <TouchableOpacity
             style={styles.link}
             onPress={() => {
@@ -242,12 +249,10 @@ export default function ({ navigation }) {
             onPress={() => {
               navigation.navigate("BuddyPage", {
                 user: userInfo,
-                image: userInfo.image,
-                updateInfo,
               });
             }}
           >
-            <Ionicons name="person-add" size={20} color="#4C6FB1" />
+            <Ionicons name="person-add-sharp" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
           </TouchableOpacity>
 
@@ -263,19 +268,6 @@ export default function ({ navigation }) {
             <Feather name="edit-2" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Edit Profile</NormalText>
           </TouchableOpacity>
-          {/* <TouchableOpacity
-            style={styles.link}
-            onPress={() => {
-              navigation.navigate("AvailabilitiesHome", {
-                user: userInfo,
-                updateAvailabilities,
-              });
-            }}
-          >
-            <Ionicons name="time" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Eating Times</NormalText>
-          </TouchableOpacity> */}
-
         </View>
 
         <View style={styles.name}>
@@ -299,6 +291,12 @@ export default function ({ navigation }) {
           </TouchableOpacity>
         </View>*/}
 
+        <SmallButton
+          onPress={() => navigation.navigate("SendBuddyRequest", { user: userInfo })}
+        >
+          Connect
+        </SmallButton>
+
         <TagsList tags={userInfo.tags ? userInfo.tags : []} />
         <MediumText center>{userInfo.bio}</MediumText>
         {events.length > 0 && <View style={styles.eventRecordBackground}>
@@ -310,9 +308,7 @@ export default function ({ navigation }) {
                   event={event}
                   key={event.id}
                   click={() => {
-                    navigation.navigate("FullCard", {
-                      event,
-                    });
+                    navigation.navigate("FullCard", { event });
                   }}
                 />
               ))}
@@ -322,6 +318,7 @@ export default function ({ navigation }) {
     </Layout>
   );
 }
+
 const styles = StyleSheet.create({
   cards: {
     alignItems: "center",
@@ -402,8 +399,4 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-
-  buddy: {
-
-  }
 });

@@ -5,7 +5,7 @@ import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
 import Searchbar from "../../components/Searchbar";
-import ProfileBubble from "../../components/ProfileBubble";
+import BuddyProfileBubble from "../../components/BuddyProfileBubble";
 import Header from "../../components/Header";
 import HorizontalRow from "../../components/HorizontalRow";
 import HorizontalSwitch from "../../components/HorizontalSwitch";
@@ -195,11 +195,6 @@ export default function ({ navigation }) {
             onPress={() => setMutualFriends(!mutualFriends)}
             text="Mutual friends"
           />
-          <Filter
-            checked={mutualFriends}
-            onPress={() => setMutualFriends(!mutualFriends)}
-            text="School"
-          />
         </HorizontalRow>}
         <MediumText use700> Recommendations </MediumText>
         <NormalText style={{alignSelf: "flex-end"}}>Click to see profile</NormalText>
@@ -214,13 +209,10 @@ export default function ({ navigation }) {
             keyExtractor={(item) => item.id}
             data={filteredSearchedPeople}
             renderItem={({ item }) => (
-              <ProfileBubble
+              <BuddyProfileBubble
                 person={item}
-                click={() => {
-                  navigation.navigate("BuddyRequest", {
-                    person: item,
-                  });
-                }}
+                navigation={navigation} // Pass navigation down
+                onPress={() => navigation.navigate("BuddyRequest", { person: item })}
               />
             )}
           />

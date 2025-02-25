@@ -121,7 +121,7 @@ function TextInput(props) {
             <TouchableOpacity onPress={iconLeftOnPress} style={styles.leftContainer}>
                 {iconLeftType === "Ionicons" && 
                 <Ionicons size={iconFontSize} name={iconLeft} color={iconLeftColor}/>}
-                
+
                 {iconLeftType === "FontAwesome" && 
                 <FontAwesome size={iconFontSize} name={iconLeft} color={iconLeftColor}/>}
             </TouchableOpacity>
