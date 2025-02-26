@@ -442,63 +442,6 @@ const WhileYouEat = ({ route, navigation }) => {
     setRecSteps((prevStep) => prevStep - 1);
   }
 
-  // Function to start the Would You Rather Game
-const startGame = async () => {
-  setLoading(true);
-  try {
-    const currGame = db.collection("WyrGames").doc(event.id);
-
-    // Check if game data already exists
-    const doc = await currGame.get();
-    if (!doc.exists) {
-      // Fetch all questions from 'WyrQuestions' collection
-      const questionsSnapshot = await db.collection("WyrQuestions").get();
-      let questions = [];
-      questionsSnapshot.forEach((doc) => {
-        questions.push({ id: doc.id, ...doc.data() });
-      });
-
-      // Shuffle and select the first 20 questions
-      shuffleArray(questions);
-      const selectedQuestions = questions.slice(0, 20).map((q) => q.id);
-
-      // Initialize the game data in Firestore
-      await currGame.set({
-        aVotes: 0,
-        bVotes: 0,
-        currentQuestionIndex: 0,
-        discussionStage: false,
-        players: [user.uid],
-        questions: selectedQuestions,
-        totalQuestions: 20,
-        responsesCount: 0,
-        userResponses: {},
-        hostID: user.uid, // Assuming the starter is the host
-      });
-    } else {
-      // Add current user to the players list
-      await currGame.update({
-        players: firebase.firestore.FieldValue.arrayUnion(user.uid),
-      });
-    }
-
-    navigation.navigate("IntroGuidelines", {
-      event: event,
-    });
-  } catch (error) {
-    console.error("Error starting game:", error);
-    Alert.alert("Error", "An error occurred while starting the game.");
-  } finally {
-    setLoading(false);
-  }
-};
-// Utility function to shuffle an array
-const shuffleArray = (array) => {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-};
 
   // Tutorial message for meetup details
   const recTutSteps = [

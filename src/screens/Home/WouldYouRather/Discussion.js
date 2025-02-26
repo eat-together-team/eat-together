@@ -84,10 +84,10 @@ const Discussion = ({ route, navigation }) => {
         }
         leftAction={() => navigation.goBack()}
         rightContent={
-          <View style={{ flexDirection: "row", alignItems: "center", width: 110 }}>
-            <Text style={styles.questionWord}>Question: </Text>
-            <Text style={styles.questionNumber}>{currentQuestionIndex}</Text>
-            <Text style={styles.questionText}>/10</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", width: 110, marginRight: 15 }}>
+            <MediumText style={styles.questionWord}>Question: </MediumText>
+            <NormalText style={styles.questionNumber}>{currentQuestionIndex}</NormalText>
+            <NormalText style={styles.questionText}>/10</NormalText>
           </View>
         }
       />
@@ -134,7 +134,7 @@ const Discussion = ({ route, navigation }) => {
         {isHost && (
           <View style={styles.nextButtonContainer}>
             <TouchableOpacity onPress={moveToNextQuestion} style={[styles.nextButton, styles.optionButton]}>
-              <Text style={styles.nextButtonText}>Next Question</Text>
+              <MediumText style={styles.nextButtonText}>Next Question</MediumText>
             </TouchableOpacity>
           </View>
         )}

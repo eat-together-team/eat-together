@@ -13,20 +13,7 @@ const EndGame = ({ navigation, route }) => {
         <Image source={require("../../../../assets/logo.png")} style={styles.logo} />
         <Text style={styles.subHeaderText}>Would You Rather Game</Text>
         <Text style={styles.thankYouText}>Thank you for playing!</Text>
-        {/* Edit, getting rid of the pay again feature, leaving this to be impleented later if needed. */}
-        {/* <TouchableOpacity
-          style={styles.playAgainButton}
-          onPress={() => navigation.navigate("Home")}
-        >
-           {/* need to finish this  */}
-           {/* probably add another file called start new game to handle the state for this */}
-          
-          {/* <MediumText style={styles.playAgainButtonText}>Play Again</MediumText> */}
-        {/* </TouchableOpacity> */} 
-        <TouchableOpacity
-          style={styles.exitButton}
-          onPress={() => navigation.navigate("Home")}
-        >
+        <TouchableOpacity style={styles.exitButton} onPress={() => navigation.navigate("Home")} >
           <MediumText style={styles.exitButtonText}>Exit Game</MediumText>
         </TouchableOpacity>
       </View>

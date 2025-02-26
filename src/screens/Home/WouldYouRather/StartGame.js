@@ -200,7 +200,6 @@ const StartGame = ({ route, navigation }) => {
               <MediumText>Event:</MediumText>
               <NormalText>{event.title}</NormalText>
               <MediumText size={17}>{event.name}</MediumText>
-              {/* <NormalText>Location: {event.location}</NormalText> */}
             </View>
           </View>
         </ScrollView>
@@ -274,9 +273,6 @@ const styles = StyleSheet.create({
   },
   infoSection: {
     marginVertical: 20,
-  },
-  startButton: {
-    // Add styles for the start button if needed
   },
 });
 

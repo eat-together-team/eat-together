@@ -154,7 +154,7 @@ const IntroGuidelines = ({ route, navigation }) => {
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#5DB075" />
-            <Text>Loading questions...</Text>
+            <NormalText>Loading questions...</NormalText>
           </View>
         ) : (
           <Button
