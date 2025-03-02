@@ -9,10 +9,10 @@ const EndGame = ({ navigation, route }) => {
   return (
     <Layout>
       <View style={styles.container}>
-        <Text style={styles.headerText}>Eat Together</Text>
+        <MediumText style={styles.headerText}>Eat Together</MediumText>
         <Image source={require("../../../../assets/logo.png")} style={styles.logo} />
-        <Text style={styles.subHeaderText}>Would You Rather Game</Text>
-        <Text style={styles.thankYouText}>Thank you for playing!</Text>
+        <NormalText style={styles.subHeaderText}>Would You Rather Game</NormalText>
+        <NormalText style={styles.thankYouText}>Thank you for playing!</NormalText>
         <TouchableOpacity style={styles.exitButton} onPress={() => navigation.navigate("Home")} >
           <MediumText style={styles.exitButtonText}>Exit Game</MediumText>
         </TouchableOpacity>
