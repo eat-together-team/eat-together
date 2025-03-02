@@ -718,15 +718,14 @@ const WhileYouEat = ({ route, navigation }) => {
             <GalleryPreview>{imageGallery}</GalleryPreview>
           </TouchableOpacity>
 
-          {/* <Button marginVertical={20} onPress={() => {
+          <Button marginVertical={20} onPress={() => {
             navigation.navigate("IntroGuidelines", {
               event: event,
               people: people
             })
           }}>
             Play Would You Rather?
-          </Button> */}
-          <View style={{ marginVertical: 20 }}/>
+          </Button>
 
           {/* Icebreakers dropdown */}
           <Toggle
