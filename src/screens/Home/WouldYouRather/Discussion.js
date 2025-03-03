@@ -17,6 +17,7 @@ const Discussion = ({ route, navigation }) => {
   const [responsesCount, setResponsesCount] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(1);
   const [isHost, setIsHost] = useState(false);
+  
   const user = auth.currentUser;
   const totalPlayers = event.attendees.length;
 
@@ -131,14 +132,13 @@ const Discussion = ({ route, navigation }) => {
           </View>
         </View>
 
-        {isHost && (
+        {isHost || event.type === "recommendation" && (
           <View style={styles.nextButtonContainer}>
             <TouchableOpacity onPress={moveToNextQuestion} style={[styles.nextButton, styles.optionButton]}>
               <MediumText style={styles.nextButtonText}>Next Question</MediumText>
             </TouchableOpacity>
           </View>
         )}
-
       </ScrollView>
     </Layout>
   );

@@ -12,7 +12,7 @@ import EventGallery from "./EventGallery";
 import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ChatRoom from "../Chat/ChatRoom";
-import Recommendation from "../Notifications/Recommendation";
+import Recommendation from "../Recommendations/Recommendation";
 import InvitePeople from "../Organize/InvitePeople";
 // Would You Rather imports
 import StartGame from "./WouldYouRather/StartGame";

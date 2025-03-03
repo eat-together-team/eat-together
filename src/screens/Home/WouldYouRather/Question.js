@@ -19,6 +19,7 @@ const Question = ({ route, navigation }) => {
   const [colors, setColors] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [discussionStage, setDiscussionStage] = useState(false);
+
   const user = auth.currentUser;
   const isHost = user.uid === event.hostID;
 
@@ -254,7 +255,7 @@ const Question = ({ route, navigation }) => {
           </MediumText>
         </View>
 
-        {isHost && (
+        {isHost || event.type === "recommendation" && (
           <View style={styles.nextButtonContainer}>
             <TouchableOpacity onPress={moveToDiscuss} style={[styles.nextButton]}>
               <Text style={styles.nextButtonText}>Next</Text>

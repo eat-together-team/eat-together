@@ -71,7 +71,6 @@ const WhileYouEat = ({ route, navigation }) => {
   const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);
   const numColumns = 3;
   const screenWidth = Dimensions.get("window").width;
-  const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
 
   // Fetch meetup data on page load
   useEffect(() => {
@@ -553,14 +552,14 @@ const WhileYouEat = ({ route, navigation }) => {
                     <NormalText size={18}>Edit Event</NormalText>
                   </MenuOption>
                 )}
-                <MenuOption
+                {event.hostID !== user.uid && <MenuOption
                   onSelect={() => withdrawAlert()}
                   style={styles.option}
                 >
                   <NormalText size={18} color="red">
                     Withdraw
                   </NormalText>
-                </MenuOption>
+                </MenuOption>}
 
                 {event.hostID === user.uid && (
                   <>
