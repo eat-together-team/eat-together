@@ -22,28 +22,33 @@ export const sortBySimilarInterests = async (userInfo, newPeople) => {
         }
     });
 
-    await fetch("https://eat-together-match.uw.r.appspot.com/find_similarity", {
-      method: "POST",
-      body: JSON.stringify({
-        currTags: currTags,
-        otherTags: getPeopleTags(newPeople),
-      }),
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let i = 0;
-        newPeople.forEach((p) => {
-          p.similarity = res[i];
-          i++;
+    try {
+        const otherTags = getPeopleTags(newPeople).slice(0, 100);
+        const response = await fetch("https://eat-together-match.uw.r.appspot.com/find_similarity", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                currTags: currTags,
+                otherTags: otherTags,
+            }),
         });
 
-        result = newPeople.sort((a, b) => b.similarity - a.similarity);
-      })
-      .catch((e) => {
-        // If error, alert the user
-        alert("An error occured, try again later :(");
+        const responseText = await response.text();
+        const similarityScores = JSON.parse(responseText);
+    
+        newPeople.slice(0, 100).forEach((person, index) => {
+            person.similarity = similarityScores[index];
+        });
+    
+        result = newPeople.sort((a, b) => (b.similarity || 0) - (a.similarity || 0));
+
+    } catch (error) {
+        console.error("Detailed error finding similarities:", error);
+        alert("An error occurred, try again in 45 seconds :(");
         result = newPeople;
-      });
+    }    
 
     return result;
 };
