@@ -43,6 +43,7 @@ export const sortBySimilarInterests = async (userInfo, newPeople) => {
         });
     
         result = newPeople.sort((a, b) => (b.similarity || 0) - (a.similarity || 0));
+        alert("You have now gotten your recommendations. Please wait for 45 seconds before trying again")
 
     } catch (error) {
         console.error("Detailed error finding similarities:", error);
