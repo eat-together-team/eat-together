@@ -27,10 +27,9 @@ export const sortBySimilarInterests = async (userInfo, newPeople) => {
         for ( let i = newPeople.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [newPeople[i], newPeople[j]] = [newPeople[j], newPeople[i]];
-        } // Fischer Yates shuffling algorithm. Seems pretty cool!
+        }
 
         const otherTags = getPeopleTags(newPeople).slice(0, 100);
-        // console.log(otherTags)
         const response = await fetch("https://eat-together-match.uw.r.appspot.com/find_similarity", {
             method: "POST",
             headers: {
