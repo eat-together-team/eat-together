@@ -53,10 +53,12 @@ const Recommendation = ({ route, navigation }) => {
   const [dayChosen, setDayChosen] = useState(false);
   const [startDate,setStartDate] = useState(route.params.event.startDate.toDate());
   const [endDate, setEndDate] = useState(route.params.event.endDate.toDate());
-  const [mondayVote , setMondayVote] = useState(0);
-  const [tuesdayVote , setTuesdayVote] = useState(0);
-  const [wednesdayVote , setWednesdayVote] = useState(0);
-  const [thursdayVote , setThursdayVote] = useState(0);
+  const [mondayVote, setMondayVote] = useState(0);
+  const [tuesdayVote, setTuesdayVote] = useState(0);
+  const [wednesdayVote, setWednesdayVote] = useState(0);
+  const [thursdayVote, setThursdayVote] = useState(0);
+  const [votesChanged, setVotesChanged] = useState(false); // State to track whether votes have changed
+
   useEffect(() => {
     let existingTags = {}; // To avoid duplicates
     // Loads the tags of all the attendees
@@ -184,6 +186,9 @@ const Recommendation = ({ route, navigation }) => {
   };
 
   useEffect(() => {
+    if (!votesChanged) return; // Only run if votes have changed
+
+    // Listen for changes in the event document
     const unsubscribe = db.collection("Private Events").doc(route.params.event.id).onSnapshot((eventDoc) => {
 
       const eventData = eventDoc.data();
@@ -260,9 +265,7 @@ const Recommendation = ({ route, navigation }) => {
     });
   
     return () => unsubscribe(); // Cleanup listener on unmount
-  }, []); 
-        
-
+  }, [votesChanged]); 
 
   const updateAvailabilities = async (monday,tuesday,wednesday,thursday) => {
       const eventRef = db.collection("Private Events").doc(route.params.event.id);
@@ -309,7 +312,8 @@ const Recommendation = ({ route, navigation }) => {
       voteUpdates[`userVotes.${userId}`] = { monday, tuesday, wednesday, thursday };
   
       await eventRef.update(voteUpdates);    
-      showTimeFilterRef.current.close()
+      showTimeFilterRef.current.close();
+      setVotesChanged(true); // Set the votes changed state to true
   } 
 
 
