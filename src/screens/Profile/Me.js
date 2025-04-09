@@ -5,7 +5,8 @@ import {
   Image,
   Dimensions,
   ScrollView,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert
 } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import { Ionicons, Feather } from "@expo/vector-icons";
@@ -71,6 +72,7 @@ export default function ({ navigation }) {
               .get()
               .then((event) => {
                 let data = event.data();
+                data.type = e.type;
                 newEvents.push(data);
                 eventsLength--;
 
@@ -99,6 +101,51 @@ export default function ({ navigation }) {
 
     fetchData();
   }, []);
+
+  // For selecting a photo
+  const handleChoosePhoto = async () => {
+      Alert.alert (
+          "Pick Image",
+          "Choose an image for your profile",
+          [
+              {
+                  text: "Gallery",
+                  onPress: () => galleryImageSelector(),
+              },
+              { text: "Take a photo", onPress: () => cameraImageSelector() },
+          ],
+          { cancelable: false}
+      );
+  };
+
+  // For selecting a photo from gallery
+  const galleryImageSelector = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        quality: 1,
+    });
+    if (!result.cancelled) {
+        setPhoto(result.assets[0].uri);
+    }
+  };
+
+  // For selecting a photo by capturing an image with camera
+  const cameraImageSelector = async () => {
+      try {
+          await ImagePicker.requestCameraPermissionsAsync({});
+          let result = await ImagePicker.launchCameraAsync({
+              cameraType: ImagePicker.CameraType.back,
+              allowsEditing: true,
+              quality: 1,
+          });
+          if (!result.cancelled) {
+              setPhoto(result.assets[0].uri);
+          }
+      } catch (error) {
+          alert("Error uploading message: " + error.message);
+      }
+  };
 
   // Update user profile after editing
   const updateInfo = (newFirstName, newLastName, newPronouns, newBio, newTags, newImage) => {
@@ -200,8 +247,7 @@ export default function ({ navigation }) {
             <Feather name="edit-2" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Edit Profile</NormalText>
           </TouchableOpacity>
-
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.link}
             onPress={() => {
               navigation.navigate("AvailabilitiesHome", {
@@ -212,7 +258,8 @@ export default function ({ navigation }) {
           >
             <Ionicons name="time" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Eating Times</NormalText>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+
         </View>
 
         <View style={styles.name}>
@@ -224,17 +271,17 @@ export default function ({ navigation }) {
           <MediumText>@{userInfo.username}</MediumText>
         </View>
 
-        <View style = {styles.link}>
-        <TouchableOpacity
-          style ={styles.link}
-          onPress={() => {
-            navigation.navigate("BuddyPage");
-          }}>
-          <NormalText>You do not have a buddy</NormalText>
-            <AntDesign name="adduser" size={24} color="#4C6FB1" />
+        {/*<View style = {styles.link}>
+          <TouchableOpacity
+            style ={styles.link}
+            onPress={() => {
+              navigation.navigate("BuddyPage");
+            }}>
+            <NormalText>You do not have a buddy</NormalText>
+              <AntDesign name="adduser" size={24} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
           </TouchableOpacity>
-        </View>
+        </View>*/}
 
         <TagsList tags={userInfo.tags ? userInfo.tags : []} />
         <MediumText center>{userInfo.bio}</MediumText>

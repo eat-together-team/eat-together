@@ -77,7 +77,7 @@ export default function edit({ route, navigation }) {
         });
 
         if (!result.cancelled) {
-            setImage(result.uri);
+            setImage(result.assets[0].uri);
         }
     };
 
@@ -227,7 +227,6 @@ export default function edit({ route, navigation }) {
                                 iconLeft="person-circle-outline"
                                 value={firstName}
                                 width={"47%"}
-                                height={40}
                                 required
                             />
                             <TextInput
@@ -236,7 +235,6 @@ export default function edit({ route, navigation }) {
                                 iconLeft="person-circle-outline"
                                 value={lastName}
                                 width={"47%"}
-                                height={40}
                                 required
                             />
                         </View>
@@ -248,7 +246,7 @@ export default function edit({ route, navigation }) {
                                 onChangeText={(val) => setAge(val)}
                                 width={"47%"}
                                 iconLeftType="Ionicons"
-                                iconLeft="md-pencil"
+                                iconLeft="pencil"
                                 value={age}
                                 required
                             />
@@ -282,7 +280,6 @@ export default function edit({ route, navigation }) {
                                         borderWidth: 1,
                                         borderRadius: 10,
                                     }}
-                                    height={40}
                                     textInputProps = {{
                                         placeholder: "Pronouns",
                                     }}

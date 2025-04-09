@@ -11,14 +11,13 @@ import {
     Alert,
     Platform
 } from "react-native";
-import { Layout, Picker, Text, Section, SectionContent } from "react-native-rapi-ui";
+import { Layout } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import eventTags from "../../eventTags";
 
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import RBSheet from "react-native-raw-bottom-sheet";
 import TagsSection from "../../components/TagsSection";
-import SuggestSelection from "../../components/SuggestSelection";
 
 import Header from "../../components/Header";
 import getDate from "../../getDate";
@@ -39,7 +38,9 @@ import Checkbox from "../../components/Checkbox";
 import TextInput from "../../components/TextInput";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import icebreakerList from "../../icebreakerList";
-import { FontAwesome } from "@expo/vector-icons";
+import TypeAheadTextInput from "../../components/TypeAheadTextInput";
+import { yelpSearch } from "../../provider/Search";
+
 
 export default function ({ navigation }) {
     // Current user
@@ -78,7 +79,9 @@ export default function ({ navigation }) {
 
     const [semiPrivate, setSemiPrivate] = useState(false); //Checkbox state to see if public event should be semiprivate
 
-    const refRBSheet = useRef(); // To toggle the bottom drawer on/off
+    const refType = useRef(); // Meal type widget
+    const refTags = useRef(); // Tag search widget
+    const refLocation = useRef(); // To toggle the location bottom drawer on/off
 
     // Loading notifications
     useEffect(() => {
@@ -185,7 +188,7 @@ export default function ({ navigation }) {
             quality: 1,
         });
         if (!result.cancelled) {
-            setPhoto(result.uri);
+            setPhoto(result.assets[0].uri);
         }
     };
 
@@ -199,7 +202,7 @@ export default function ({ navigation }) {
                 quality: 1,
             });
             if (!result.cancelled) {
-                setPhoto(result.uri);
+                setPhoto(result.assets[0].uri);
             }
         } catch (error) {
             alert("Error uploading message: " + error.message);
@@ -227,6 +230,7 @@ export default function ({ navigation }) {
         setSemiPrivate(false);
         setName("");
         setType(null);
+        setPickerValue(null);
         setLocation("");
         setStartDate(new Date());
         setEndDate(moment(new Date()).add(1, 'hours').toDate());
@@ -321,7 +325,7 @@ export default function ({ navigation }) {
                         <TouchableOpacity onPress={() => handleChoosePhoto()}>
                             <ImageBackground source={{ uri: photo }} style={styles.image}>
                                 <View style={styles.imageOverlay}>
-                                    <Ionicons name="md-image-outline" color="white" size={30}></Ionicons>
+                                    <Ionicons name="image-outline" color="white" size={30}></Ionicons>
                                 </View>
                             </ImageBackground>
                         </TouchableOpacity>
@@ -346,24 +350,19 @@ export default function ({ navigation }) {
                         />
 
                         <View style={{...styles.multiple, zIndex: 1000}}>
-                            <View style={{ width: "48%" }}>
-                                <Picker
-                                    items={types}
-                                    value={pickerValue}
-                                    placeholder="Meal Type"
-                                    onValueChange={(val) => {
-                                        setPickerValue(val);
-                                        setType(val);
-                                    }}
-                                />
-
-                                <FontAwesome
-                                    size={8}
-                                    name={"asterisk"}
-                                    color={"red"}
-                                    style={{ position: "absolute", right: 8, top: 20 }}
-                                />
-                            </View>
+                            <TouchableOpacity onPress={() => refType.current.open()} style={styles.smallInputEnd}>
+                                <View pointerEvents="none" style={{ flex: 1 }}>
+                                    <TextInput
+                                        value={pickerValue}
+                                        placeholder="Meal Type"
+                                        width="100%"
+                                        height={50}
+                                        iconLeft="fast-food-outline"
+                                        editable={false}
+                                        required
+                                    />
+                                </View>
+                            </TouchableOpacity>
 
                             <TouchableOpacity onPress={() => {
                                 setShowStartDate(true);
@@ -417,17 +416,19 @@ export default function ({ navigation }) {
                         </View>
 
 
-                        <TextInput
-                            placeholder="Location (e.g. 'Cafe on the Ave')"
-                            value={location}
-                            onChangeText={(val) => {
-                                setLocation(val);
-                            }}
-                            width="100%"
-                            iconLeft="location-outline"
-                            mainContainerStyle={styles.input}
-                            required
-                        />
+                        <TouchableOpacity onPress={() => refLocation.current.open()}>
+                            <View pointerEvents="none">
+                                <TextInput
+                                    placeholder="Location (e.g. 'Cafe on the Ave')"
+                                    value={location}
+                                    width="100%"
+                                    iconLeft="location-outline"
+                                    mainContainerStyle={styles.input}
+                                    editable={false}
+                                    required
+                                />
+                            </View>
+                        </TouchableOpacity>
 
                         <DateTimePickerModal isVisible={showStartDate} date={startDate}
                             mode={mode} onConfirm={changeStartDate} onCancel={() => setShowStartDate(false)}
@@ -449,7 +450,7 @@ export default function ({ navigation }) {
                             scrollEnabled={false}
                         />
 
-                        {type === "public" && <TouchableOpacity onPress={() => refRBSheet.current.open()}
+                        {type === "public" && <TouchableOpacity onPress={() => refTags.current.open()}
                             style={styles.input}>
                             <View pointerEvents="none">
                                 <TextInput
@@ -464,7 +465,7 @@ export default function ({ navigation }) {
 
                         {/*Checkbox to determine whether or not this event should be semiprivate*/}
                         {type === "public" && <View style={styles.center}>
-                            <Checkbox checked = {semiPrivate} onPress = {() => {
+                            <Checkbox checked={semiPrivate} onPress = {() => {
                                 setSemiPrivate(!semiPrivate);
                             }}/>
                             <NormalText>Make this event only visible to friends</NormalText>
@@ -534,10 +535,40 @@ export default function ({ navigation }) {
                             Invite Others
                         </Button>}
                     </ScrollView>
+
+                    <RBSheet
+                        height={400}
+                        ref={refType}
+                        closeOnDragDown={true}
+                        closeOnPressMask={false}
+                        customStyles={{
+                            wrapper: {
+                                backgroundColor: "rgba(0,0,0,0.5)",
+                            },
+                            draggableIcon: {
+                                backgroundColor: "#5DB075"
+                            },
+                            container: {
+                                borderTopLeftRadius: 20,
+                                borderTopRightRadius: 20,
+                                padding: 10
+                            }
+
+                        }}>
+                        <NormalText center marginBottom={10}>What kind of meal do you want to host?</NormalText>
+
+                        {types.map((type, i) => (
+                            <Button key={i} marginVertical={5} onPress={() => {
+                                setType(type.value);
+                                setPickerValue(type.label);
+                                refType.current.close();
+                            }}>{type.label}</Button>
+                        ))}
+                    </RBSheet>
                     
                     <RBSheet
                         height={400}
-                        ref={refRBSheet}
+                        ref={refTags}
                         closeOnDragDown={true}
                         closeOnPressMask={false}
                         customStyles={{
@@ -570,6 +601,42 @@ export default function ({ navigation }) {
                             resetValue={false}
                         />
                     </RBSheet>
+
+                    <RBSheet
+                        height={400}
+                        ref={refLocation}
+                        closeOnDragDown={true}
+                        closeOnPressMask={false}
+                        customStyles={{
+                            wrapper: {
+                                backgroundColor: "rgba(0,0,0,0.5)",
+                            },
+                            draggableIcon: {
+                                backgroundColor: "#5DB075"
+                            },
+                            container: {
+                                borderTopLeftRadius: 20,
+                                borderTopRightRadius: 20,
+                                padding: 10
+                            }
+
+                        }}>
+                        <NormalText center marginBottom={10}>Start typing to search for a location!</NormalText>
+                        <TypeAheadTextInput
+                            placeholder="Location (e.g. 'Cafe on the Ave')"
+                            value={location}
+                            width="100%"
+                            iconLeft="location-outline"
+                            mainContainerStyle={styles.input}
+                            searchFn={yelpSearch}
+                            setLocation={setLocation}
+                            onSelect={(val) => {
+                                refLocation.current.close();
+                                setLocation(val);
+                            }}
+                        />
+                    </RBSheet>                    
+
                 </View>
             </KeyboardAvoidingWrapper>
         </Layout>

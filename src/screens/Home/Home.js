@@ -17,7 +17,6 @@ import TutorialMessage from "../../components/TutorialMessage";
 import RecTutorialMessage from "../../components/RecTutorialMessage";
 import Link from "../../components/Link";
 import Button from "../../components/Button"
-import Gallery from "./Gallery";
 
 import { db, auth } from "../../provider/Firebase";
 import { AuthContext } from "../../provider/AuthProvider";
@@ -63,10 +62,6 @@ export default function ({ navigation }) {
   // Display a bottom drawer showing more filters
   const showTypeRef = useRef();
   const showFromRef = useRef();
-
-  useEffect(() => {
-    console.log(step);
-  }, [step]);
 
   useEffect(() => {
     // updates stuff right after React makes changes to the DOM
@@ -507,7 +502,6 @@ export default function ({ navigation }) {
         if (attendingEvent) {
           setRecStep((prevRecStep) => {
             const newRecStep = Math.min(prevRecStep + 1, recTutorialSteps.length - 1);
-            console.log(`Prev step: ${prevRecStep}, New step: ${newRecStep}`);  // Debugging
             return newRecStep;
           });
         } else if (completedTutorial) {
@@ -524,6 +518,10 @@ export default function ({ navigation }) {
     return () => unsubscribe();
 
   }, []);
+
+  useEffect(() => {
+    console.log("recStep: ", recStep);
+  }, [recStep])
 
   if (!isDataFetched) return null; // Don't render anything if data hasn't been fetched
 
@@ -692,12 +690,15 @@ export default function ({ navigation }) {
           Clear
         </Link>
       </RBSheet>
-            {/* Button to redirect to personal Photo Gallery */}
 
+      {/* Button to redirect to personal Photo Gallery */}
       <View style={styles.button}>
-        <Button onPress={() => navigation.navigate("Gallery")}> <Ionicons name="md-image-outline" color="white" size={20}/> My Photo Gallery </Button>
+        <Button icon={(
+          <Ionicons name="image-outline" color="white" size={20}/>
+        )} onPress={() => navigation.navigate("Gallery",{user: userInfo})}>
+          My Gallery
+        </Button>
       </View>
-
     </Layout>
   );
 }
@@ -713,6 +714,5 @@ const styles = StyleSheet.create({
     bottom: 10,
     right: 10,
     zIndex: 1,
-
-},
+  },
 });

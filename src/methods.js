@@ -22,28 +22,39 @@ export const sortBySimilarInterests = async (userInfo, newPeople) => {
         }
     });
 
-    await fetch("https://eat-together-match.uw.r.appspot.com/find_similarity", {
-      method: "POST",
-      body: JSON.stringify({
-        currTags: currTags,
-        otherTags: getPeopleTags(newPeople),
-      }),
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let i = 0;
-        newPeople.forEach((p) => {
-          p.similarity = res[i];
-          i++;
+    try {
+
+        for ( let i = newPeople.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newPeople[i], newPeople[j]] = [newPeople[j], newPeople[i]];
+        }
+
+        const otherTags = getPeopleTags(newPeople).slice(0, 100);
+        const response = await fetch("https://eat-together-match.uw.r.appspot.com/find_similarity", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                currTags: currTags,
+                otherTags: otherTags,
+            }),
         });
 
-        result = newPeople.sort((a, b) => b.similarity - a.similarity);
-      })
-      .catch((e) => {
-        // If error, alert the user
-        alert("An error occured, try again later :(");
+        const responseText = await response.text();
+        const similarityScores = JSON.parse(responseText);
+    
+        newPeople.slice(0, 100).forEach((person, index) => {
+            person.similarity = similarityScores[index];
+        });
+    
+        result = newPeople.sort((a, b) => (b.similarity || 0) - (a.similarity || 0));
+        alert("You have now gotten your recommendations! Please wait for 45 seconds before trying again.")
+    } catch (error) {
+        console.error("Detailed error finding similarities:", error);
+        alert("An error occurred, try again in 45 seconds :(");
         result = newPeople;
-      });
+    }    
 
     return result;
 };
@@ -71,7 +82,6 @@ const getPeopleTags = (newPeople) => {
 
     return tags;
 };
-
 /**
  * Get the tags in common between two users.
  * @param {Object} currUser Current user.
@@ -314,4 +324,18 @@ export const getFreeTimes = (events) => {
     }
 
     return freeTimes;
+}
+
+/**
+ * Given a moment date object, convert it to 1 week later if it's before the current date
+ * @param {Object} date moment date object
+ * @returns {Object} moment date object, 1 week later
+ */
+export const convertToFutureDate = (date) => {
+    let currDate = new Date();
+    if (date.toDate() < currDate) {
+        date.add(1, 'week');
+    }
+
+    return date;
 }

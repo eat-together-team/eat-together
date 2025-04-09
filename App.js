@@ -4,24 +4,18 @@ import { AuthProvider } from "./src/provider/AuthProvider";
 import { ThemeProvider } from "react-native-rapi-ui";
 import { MenuProvider } from "react-native-popup-menu";
 import { LogBox } from "react-native";
-import * as Updates from 'expo-updates';
 import * as Network from 'expo-network';
-import { View, Text } from "react-native";
 
 import 'react-native-reanimated';
-import NormalText from "./src/components/NormalText";
-import LargeText from "./src/components/LargeText";
-import MediumText from "./src/components/MediumText";
-import SmallText from "./src/components/SmallText";
 
 export default function App() {
-  LogBox.ignoreAllLogs(); //DISABLE THOSE STUPID WARNINGS SLAYYYYY
+  LogBox.ignoreAllLogs(); // Disables annoying warning in terminal, feel free to uncomment if needed
 
   // Only uncomment if you do not want error info in terminal
   // console.warn = function () {};
   // console.error = function () {};
 
-  // Check for app updates
+  // Check for internet connection status
   useEffect(() => {
     async function getNetwork() {
       const hasNetwork = await Network.getNetworkStateAsync();

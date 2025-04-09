@@ -95,14 +95,14 @@ async function sendInvites(
       chatID: chatID
     })
     .then(async (docRef) => {
-      await attendees.forEach((attendee) => {
+      await Promise.all(attendees.map(async(attendee) => {
         const ref = db.collection("User Invites").doc(attendee.id);
-        ref.get().then(async (docRef) => {
-          if (attendee !== user.id) {
+        return ref.get().then(async (docRef) => {
+          if (attendee.id !== user.id) {
             await sendInvitation(ref, invite, user, id);
           }
         });
-      });
+      }));
 
       const storeID = {
         type: invite.type, // There can be different private events
@@ -170,7 +170,7 @@ export default function ({ route, navigation }) {
 
   // Filters
   const [curSearch, setCurSearch] = useState("");
-  const [available, setAvailable] = useState(true);
+  const [available, setAvailable] = useState(false);
   const [friendsOnly, setFriendsOnly] = useState(false);
   const [similarInterests, setSimilarInterests] = useState(false);
   const [mutualFriends, setMutualFriends] = useState(false);
@@ -179,7 +179,7 @@ export default function ({ route, navigation }) {
   const [loadingScreen, setLoadingScreen] = useState(true); // Loading screen for filter calculations
 
   // Fetch users
-  useEffect(async () => {
+  useEffect(() => {
     async function fetchData() {
       // Fetch users
       const ref = db.collection("Users");
@@ -225,8 +225,8 @@ export default function ({ route, navigation }) {
         });
 
         setUsers(list);
-        setFilteredUsers(filterByAvailability(list));
-        setFilteredSearchedUsers(filterByAvailability(list));
+        setFilteredUsers(list);
+        setFilteredSearchedUsers(list);
       });
     }
 
@@ -335,14 +335,14 @@ export default function ({ route, navigation }) {
 
         <HorizontalRow>
           <Filter
-            checked={available}
-            onPress={() => setAvailable(!available)}
-            text="Is available"
-          />
-          <Filter
             checked={friendsOnly}
             onPress={() => setFriendsOnly(!friendsOnly)}
             text="Friends only"
+          />
+          <Filter
+            checked={available}
+            onPress={() => setAvailable(!available)}
+            text="Is available"
           />
           <Filter
             checked={similarInterests}

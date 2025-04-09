@@ -11,7 +11,7 @@ function TextInput(props) {
         bold = false,
         value = "",
         color = "black",
-        fontSize = 15,
+        fontSize = 14,
         placeholder = "",
         secureTextEntry = false,
         autoComplete="off",
@@ -33,7 +33,7 @@ function TextInput(props) {
         backgroundColor = "white",
         borderColor = "lightgrey",
         borderWidth = 1,
-        height = 40,
+        height = 42,
         width = "30%",
         marginTop = "0%",
         marginBottom = "0%",
@@ -131,7 +131,7 @@ function TextInput(props) {
                 onChangeText={onChangeText}
                 placeholder={placeholder}
                 placeholderTextColor={"darkgrey"}
-                autoCapitalize={false}
+                autoCapitalize="none"
                 autoComplete={autoComplete}
                 autoCorrect={autoCorrect}
                 value={value}
@@ -162,3 +162,4 @@ function TextInput(props) {
   }
 
   export default TextInput;
+  

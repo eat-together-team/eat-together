@@ -4,11 +4,12 @@
     "owner": "eat-together-team",
     "slug": "eat-together",
     "description": "Connecting students through shared meals.",
-    "version": "1.1.3",
-    "sdkVersion": "51.0.0",
+    "version": "1.4.0",
+    "sdkVersion": "52.0.0",
     "orientation": "portrait",
     "icon": "./assets/big_logo.png",
     "scheme": "com.eat.together",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -17,13 +18,9 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "updates": {
-      "fallbackToCacheTimeout": 1000,
-      "url": "https://u.expo.dev/605daf62-9a09-4742-8204-1f8dfb5e4363"
-    },
     "android": {
       "package": "com.eat.together",
-      "versionCode": 24,
+      "versionCode": 36,
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ],
@@ -32,7 +29,12 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "10"
+      "buildNumber": "20",
+      "icon": {
+        "light": "./assets/big_logo.png",
+        "dark": "./assets/dark_logo.png",
+        "tinted": "./assets/dark_logo.png"
+      }
     },
     "web": {
       "favicon": "./assets/big_logo.png"
@@ -46,13 +48,15 @@
           "photosPermission": "The app accesses your photos to let you pick a profile image."
         }
       ],
+      "expo-font",
       [
-        "expo-updates",
+        "expo-build-properties",
         {
-          "username": "eat-together"
+          "android": {
+            "kotlinVersion": "1.9.25"
+          }
         }
-      ],
-      //"expo-font"
+      ]
     ],
     "extra": {
       "eas": {
