@@ -17,13 +17,13 @@ import Link from "../../components/Link";
 import TextInput from "../../components/TextInput";
 import NormalText from "../../components/NormalText";
 
-//Global variables
+// Global variables
 const numColumns = 3;
 const screenWidth = Dimensions.get("window").width;
 const tileSize = (screenWidth - 2.7 * 5 * numColumns) / numColumns;
 
 export default function Gallery({ route, navigation }) {
-    //State Variables
+    // State Variables
     const user = auth.currentUser;
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,7 +38,6 @@ export default function Gallery({ route, navigation }) {
     
     // Picker Function
     const [caption,setCaption] = useState('');
-    const [captionLoading, setCaptionLoading] = useState(false);
 
     // Image Details
     const [firstName, setFirstName] = useState('');
@@ -54,6 +53,8 @@ export default function Gallery({ route, navigation }) {
     const [column, setColumn] = useState(false);
     const [meetup, setMeetup] = useState(false);
 
+    // For downloading
+    const [downloading, setDownloading] = useState(false);
 
     // Reference Variables for the selection component
     const showViewFilterRef = useRef();
@@ -521,6 +522,44 @@ export default function Gallery({ route, navigation }) {
         value: item.eventId,
     }));
 
+    const downloadImage = async (imageUrl) => {
+        try {
+            // Request permissions
+            const { status } = await MediaLibrary.requestPermissionsAsync();
+            
+            if (status !== 'granted') {
+                alert('Sorry, we need media library permissions to download the image!');
+                return;
+            }
+            
+            // Set image path
+            const fileUri = `${FileSystem.documentDirectory}EatTogether${Date.now()}.jpg`;
+
+            // Download the image to the file system
+            const { uri } = await FileSystem.downloadAsync(imageUrl, fileUri);
+
+            // Save the downloaded image to the gallery
+            const asset = await MediaLibrary.createAssetAsync(uri);
+            await MediaLibrary.createAlbumAsync('Downloads', asset, false);
+
+            alert('Image downloaded successfully!');
+        } catch (error) {
+            console.error('Error downloading image:', error);
+            alert('Error downloading the image.');
+        }
+    };
+
+    useEffect(() => {
+        if (downloading) {
+            downloadImage(selectedImageUri).then(() => {
+                setDownloading(false);
+            }).catch((error) => {
+                console.error("Download failed: ", error);
+                setDownloading(false);
+            });
+        }
+    }, [downloading]);
+
     return (
         <Layout>
             <TopNav
@@ -697,6 +736,12 @@ export default function Gallery({ route, navigation }) {
                     middleContent={<MediumText>   </MediumText>}
                     leftContent={<Ionicons name="chevron-back" size={20} />}
                     leftAction={() => handleCloseModal()}
+                    rightContent={<Ionicons name="download-outline" size={20} style={{opacity: downloading ? 0.3 : 1}}/>}
+                    rightAction={() => {
+                        if (!downloading) {
+                            setDownloading(true);
+                        }
+                    }}
                 />
                 <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <View style={styles.modalBackground}>

@@ -22,7 +22,7 @@
       "package": "com.eat.together",
       "versionCode": 36,
       "permissions": [
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO", "MEDIA_LIBRARY", "MEDIA_LIBRARY_WRITE_ONLY"
       ],
       "runtimeVersion": "1.0.0"
     },
