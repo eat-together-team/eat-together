@@ -65,6 +65,14 @@ export default function ({ route, navigation }) {
     });
   }, []);
 
+  useEffect(() => {
+    if (message.length > 0) {
+      
+    } else {
+
+    }
+  }, [message])
+
   const handleUploadImage = async () => {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
@@ -298,7 +306,7 @@ export default function ({ route, navigation }) {
             onChangeText={setMessage}
             iconLeft="camera-outline"
             iconRight="send"
-            iconRightColor="#D3D3D3"
+            iconRightColor= {message.length > 0 ? "black" : "#A9A9A9"}
             iconRightFontSize={20}
             iconRightDisabled={message.length === 0}
             iconLeftOnPress={handleChoosePhoto}
