@@ -1,6 +1,6 @@
 import React from 'react'
-import {View, StyleSheet} from 'react-native';
-const RestaurantCard = () => {
+import {View} from 'react-native';
+const RestaurantCard = ({children}) => {
   return (
     <View style = {{width:311,
         height: 470,
@@ -10,7 +10,10 @@ const RestaurantCard = () => {
         shadowOffset: {
             width: 0,
             height: 4,
-        },}}>
+        },
+        marginBottom:10,
+        }}>
+            {children}
     </View>
   )
 }
