@@ -54,7 +54,7 @@ const Password = props => {
           },
           {
             text: "Read Terms of Service",
-            onPress: () => Linking.openURL("https://www.eat-together.tech/terms-and-conditions"),
+            onPress: () => Linking.openURL("https://www.eat-together.org/terms-and-conditions"),
             style: "cancel"
           }
         ]
@@ -153,7 +153,7 @@ const Password = props => {
           </View>
 
           <Progress.Bar progress={1} width={200} color="#5DB075" style={{marginTop: 30}}/>
-          <NormalText>Step 5 of 5</NormalText>
+          <NormalText>Step 4 of 4</NormalText>
         </View>
       </KeyboardAvoidingWrapper>
     </SafeAreaView>

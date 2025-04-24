@@ -167,8 +167,8 @@ const Tags = props => {
                 marginHorizontal={10}>Next</Button>
             </View>
 
-            <Progress.Bar progress={0.4} width={200} color="#5DB075" style={{marginTop: 30}}/>
-            <NormalText>Step 2 of 5</NormalText>
+            <Progress.Bar progress={0.5} width={200} color="#5DB075" style={{marginTop: 30}}/>
+            <NormalText>Step 2 of 4</NormalText>
         </ScrollView>
 
         <RBSheet
