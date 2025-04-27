@@ -109,6 +109,7 @@ function TextInput(props) {
             display: props.required ? "flex" : displayRightIcon,
             flexDirection: "row",
             alignItems: "center",
+
             marginRight: "3%",
             justifyContent: "center",
 

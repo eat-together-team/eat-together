@@ -1,8 +1,9 @@
 import React, {useState} from 'react'
-import {StyleSheet, View, TextInput, Text} from "react-native";
-import { Layout, TopNav} from "react-native-rapi-ui";
+import {StyleSheet, View, Text} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
+import TextInput from '../../components/TextInput';
 
 const CuisineCard = () => {
 const [cuisineSearch, setCuisineSearch] = useState("");
@@ -16,9 +17,11 @@ const [cuisineSearch, setCuisineSearch] = useState("");
             <Text style = {styles.exampleText}>E.g. favorite culture, favorite dish</Text>
           </View>
           <View style = {styles.textInputContainer}>
-            <TextInput
-              style={styles.cuisineTagInput}
-              placeholder='Type a tag...' onChangeText={(newText)=> setCuisineSearch(newText)}/>
+            <TextInput 
+              placeholder='Type a tag...'
+              iconLeft = "pricetags-outline"
+              width = "80%"
+              />
           </View>
         </RestaurantCard>
       </View>
@@ -58,7 +61,6 @@ const styles = StyleSheet.create({
       textAlign:'center'
     },
     cuisineTagInput:{
-      width:"90%",
       borderColor:'gray',
       borderWidth: 0.5,
       borderRadius: 5,
