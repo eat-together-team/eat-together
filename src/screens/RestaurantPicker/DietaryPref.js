@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
-import {StyleSheet, View, TextInput, Text} from "react-native";
+import {StyleSheet, View, Text} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
-
+import TextInput from '../../components/TextInput';
 const DietaryPref = () => {
   return (
     <View>
@@ -14,9 +14,11 @@ const DietaryPref = () => {
                 <Text style = {styles.exampleText}>E.g. Vegetarian, Gluten-free</Text>
             </View>
             <View style = {styles.textInputContainer}>
-                <TextInput
-                style = {styles.dietTagInput}
-                placeholder='Type a tag...' onChangeText={(newText)=> setCuisineSearch(newText)}/>
+              <TextInput 
+                placeholder='Type a tag...'
+                iconLeft = "pricetags-outline"
+                width = "80%"
+                />
             </View>
         </RestaurantCard>
     </View>
