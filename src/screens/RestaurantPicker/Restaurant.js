@@ -1,5 +1,5 @@
-import React, {useState} from 'react'
-import {StyleSheet, View, TextInput, Text} from "react-native";
+import React from 'react'
+import {StyleSheet, View, } from "react-native";
 import { Layout, TopNav} from "react-native-rapi-ui";
 import MediumText from "../../components/MediumText";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,6 +9,7 @@ import CardCarousel from './CardCarousel';
 import PriceRangeCard from './PriceRangeCard';
 
 const Restaurant = ({navigation}) => {
+  //Card components passed into carousel
   const cards = [<CuisineCard/>, <DietaryPref/>, <PriceRangeCard/>]
   return (
     <Layout>
