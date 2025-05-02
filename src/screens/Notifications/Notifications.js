@@ -164,7 +164,7 @@ export default function (props) {
   return (
     <Layout>
       {props.fromNav ?
-        <Header name="Notifications" navigation={props.navigation} connections/> :
+        <Header name="Notifications" navigation={props.navigation} /> :
         <TopNav
           middleContent={<MediumText center>Notifications</MediumText>}
           leftContent={
