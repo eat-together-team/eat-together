@@ -1,6 +1,6 @@
 # Build folders
-./android
-./ios
+/android
+/ios
 
 node_modules/**/*
 .expo/*
