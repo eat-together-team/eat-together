@@ -30,7 +30,7 @@ export default function (props) {
   const [unreadNotifs, setUnreadNotifs] = useState([]);
 
   const [recommendations, setRecommendations] = useState([]);
-  
+
   const [recommendation, setRecommendation] = useState({
     name: "Cafe on the Ave",
     suggestedAttendees: ["0chp0zXVEeXywPjMNUu08lC1gIY2", "c01Lzorh3EccO0aQlqa9mZeysf23"],
@@ -52,7 +52,7 @@ export default function (props) {
       // Get the list of notifications from the backend
       await db.collection("Users").doc(user.uid).onSnapshot((snap) => {
         if (!snap.exists) return;
-        
+
         let data = snap.data();
         setUserData(data);
 
@@ -113,11 +113,11 @@ export default function (props) {
       readNotifs.forEach((doc) => {
         notifIds.push(doc.id);
       });
-  
+
       db.collection("Users").doc(user.uid).update({
         notifications: firebase.firestore.FieldValue.arrayRemove(...readNotifs)
       });
-  
+
       console.log("All read notifications removed successfully");
     } catch (error) {
       console.error("Error removing read notifications:", error);
@@ -147,11 +147,11 @@ export default function (props) {
       unreadNotifs.forEach((doc) => {
         notifIds.push(doc.id);
       });
-  
+
       db.collection("Users").doc(user.uid).update({
         notifications: firebase.firestore.FieldValue.arrayRemove(...unreadNotifs)
       });
-  
+
       console.log("All unread notifications removed successfully");
     } catch (error) {
       console.error("Error removing unread notifications:", error);
@@ -159,12 +159,12 @@ export default function (props) {
   };
 
 
-  
+
 
   return (
     <Layout>
       {props.fromNav ?
-        <Header name="Notifications" navigation={props.navigation} /> :
+        <Header name="Notifications" navigation={props.navigation}/> :
         <TopNav
           middleContent={<MediumText center>Notifications</MediumText>}
           leftContent={
@@ -183,7 +183,7 @@ export default function (props) {
         press={() => props.navigation.navigate("ChatMain")}
         pingRight={unread}
       />}
-      
+
       {loading ?
         <View style={styles.noInvitesView}>
           <ActivityIndicator size={100} color="#5DB075" />
@@ -319,7 +319,7 @@ export default function (props) {
                 <MediumText> Read </MediumText>
                 <Link onPress={deleteAlert}>Clear Notifications </Link>
               </View>
-              
+
               <FlatList
                 contentContainerStyle={styles.cards}
                 keyExtractor={(item) => item.id}
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexDirection: "row",
   },
-  
+
   cards: {
     alignItems: "center",
     paddingTop: 20,
@@ -424,8 +424,8 @@ const styles = StyleSheet.create({
   },
 
   notifStyle:{
-    flexDirection: 'row', 
-    alignItems: 'center', 
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: "space-between",
   },
 });

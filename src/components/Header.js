@@ -8,7 +8,7 @@ import {tryoutId} from "../constants";
 
 const Header = (props) => {
   const user = auth.currentUser;
-  
+
   return (
     <View style={styles.header}>
       {props.back && (
