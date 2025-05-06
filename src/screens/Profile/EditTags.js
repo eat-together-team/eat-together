@@ -93,7 +93,6 @@ const EditTags = props => {
                 }}>
                     <View pointerEvents="none">
                         <TextInput
-                            height={40}
                             width="100%"
                             placeholder="Tags"
                             value={schoolTagsValue}
@@ -116,7 +115,6 @@ const EditTags = props => {
                 }}>
                     <View pointerEvents="none">
                         <TextInput
-                            height={40}
                             width="100%"
                             placeholder="Tags"
                             value={hobbyTagsValue}
@@ -139,7 +137,6 @@ const EditTags = props => {
                 }}>
                     <View pointerEvents="none">
                         <TextInput
-                            height={40}
                             width="100%"
                             placeholder="Tags"
                             value={foodTagsValue}
