@@ -53,17 +53,31 @@ export default function ({ route, navigation }) {
         setUsers(doc.data().uids); // Users in group
 
         let temp = [];
-        doc.data().messages.forEach((message) => {
+        doc.data().messages.forEach((message, index) => {
+          let messageObj = {
+            ...message,
+            nextMessage: doc.data().messages[index + 1] || null // fetches the next message
+          }
+
           // insert message at beginning of array
-          temp.unshift(message);
+          temp.unshift(messageObj);
         });
 
+        // console.log(temp);
         setMessages(temp);
         setRead(temp);
         setLoading(false);
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (message.length > 0) {
+      
+    } else {
+
+    }
+  }, [message])
 
   const handleUploadImage = async () => {
     try {
@@ -279,7 +293,7 @@ export default function ({ route, navigation }) {
         </View>
       :
         <KeyboardAvoidingView 
-          style={{ flex: 1 }}
+          style={{ flex: 1}}
           behavior={Platform.OS === "ios" ? "padding" : ""}
         >
           <FlatList
@@ -290,6 +304,8 @@ export default function ({ route, navigation }) {
             inverted={true}
             keyExtractor={(item) => item.sentAt.toString()}
           />
+          {/* message bar */}
+          {/* add another view and wrap textInput */}
           <TextInput
             style={styles.textInput}
             placeholder="Send Message"
@@ -298,7 +314,7 @@ export default function ({ route, navigation }) {
             onChangeText={setMessage}
             iconLeft="camera-outline"
             iconRight="send"
-            iconRightColor="#D3D3D3"
+            iconRightColor= {message.length > 0 ? "black" : "#A9A9A9"}
             iconRightFontSize={20}
             iconRightDisabled={message.length === 0}
             iconLeftOnPress={handleChoosePhoto}
