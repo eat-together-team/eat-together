@@ -2,21 +2,25 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, FlatList, View, Alert, Dimensions, Image, TouchableOpacity, Modal, TouchableWithoutFeedback } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
+
 import Button from "../../components/Button";
 import MediumText from "../../components/MediumText";
+import NormalText from "../../components/NormalText";
+import LargeText from "../../components/LargeText";
+import TextInput from "../../components/TextInput";
 import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
 import Filter from "../../components/Filter";
 import HorizontalRow from "../../components/HorizontalRow";
+
 import { auth, db, storage } from "../../provider/Firebase";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase/compat";
-import NormalText from "../../components/NormalText";
-import LargeText from "../../components/LargeText";
-import TextInput from "../../components/TextInput";
 
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 
-//Global variables
+// Global variables
 const numColumns = 3;
 const screenWidth = Dimensions.get("window").width;
 const tileSize = (screenWidth - 2.7 * 5 * numColumns) / numColumns;
@@ -32,7 +36,8 @@ export default function EventGallery({ route, navigation }) {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImageUri, setSelectedImageUri] = useState(null);
     const [userNames, setUserNames] = useState("");
-    //Caption Vairables
+
+    // Caption Vairables
     const [firstName,setFirstName] = useState('');
     const [lastName,setLastName] = useState('');
     const [imageCaption,setImageCaption] = useState('');
@@ -42,6 +47,8 @@ export default function EventGallery({ route, navigation }) {
     const [caption,setCaption] = useState('');
     const [isCaptionModalVisible, setIsCaptionModalVisible] = useState(false);
 
+    // For downloading
+    const [downloading, setDownloading] = useState(false);
 
     // Use Effect to get the image gallery Data
     useEffect(() => {
@@ -274,51 +281,49 @@ export default function EventGallery({ route, navigation }) {
         }
     };
 
-        // Add image caption
+    // Add image caption
+    const addCaption = async(imageUrl,imageCaption) => {
+        setLoading(true);
+        const image = imageGallery.findIndex(img => img.imageUrl === imageUrl);
+        if (image !== -1) {
+            // Update the image's event assignment
+            const updatedImages = [...imageGallery];
+            updatedImages[image] = {
+                ...updatedImages[image],
+                imageCaption: imageCaption,
+            };
+            // Update the user document with the modified gallery array
+            let db_name = image.imagePermissions === "public" ? "Public Events" : "Private Events";
+            await db.collection(db_name).doc(event.id).update({
+                eventGallery: updatedImages,
+            });
+            // await db.collection("Users").doc(user.uid).update({
+            //     gallery: updatedImages,
+            // });
 
-        const addCaption = async(imageUrl,imageCaption) => {
-            setLoading(true);
-            const image = imageGallery.findIndex(img => img.imageUrl === imageUrl);
-            if (image !== -1) {
-                // Update the image's event assignment
-                const updatedImages = [...imageGallery];
-                updatedImages[image] = {
-                    ...updatedImages[image],
-                    imageCaption: imageCaption,
-                };
-                // Update the user document with the modified gallery array
-                let db_name = image.imagePermissions === "public" ? "Public Events" : "Private Events";
-                await db.collection(db_name).doc(event.id).update({
-                    eventGallery: updatedImages,
-                });
-                // await db.collection("Users").doc(user.uid).update({
-                //     gallery: updatedImages,
-                // });
-    
-    
-                // Update the state or do any necessary actions after assigning the image to the event
-                setImageGallery(updatedImages);
-                setCaption('');
-                alert("Caption Added!");
-                setIsCaptionModalVisible(false);
-                setIsModalVisible(false);
-    
-            } else if(image == 0){
-                // Handle the case where the image is not found
-                alert("Only the User that uploaded the image can edit it! ");
-            }
-    
-    
-            setLoading(false);
-        };
-    
-        const editCaption = async (imageUrl) =>{
-            setIsCaptionModalVisible(true);
-            await addCaption(imageUrl);
-    
-        };
-    
-    
+
+            // Update the state or do any necessary actions after assigning the image to the event
+            setImageGallery(updatedImages);
+            setCaption('');
+            alert("Caption Added!");
+            setIsCaptionModalVisible(false);
+            setIsModalVisible(false);
+
+        } else if(image == 0){
+            // Handle the case where the image is not found
+            alert("Only the User that uploaded the image can edit it! ");
+        }
+
+
+        setLoading(false);
+    };
+
+    const editCaption = async (imageUrl) =>{
+        setIsCaptionModalVisible(true);
+        await addCaption(imageUrl);
+
+    };
+
     const handleImagePress = (uri) => {
         setSelectedImageUri(uri);
         getMetadata(uri);
@@ -328,6 +333,44 @@ export default function EventGallery({ route, navigation }) {
     const handleCloseModal = () => {
         setIsModalVisible(false);
     };
+
+    const downloadImage = async (imageUrl) => {
+        try {
+            // Request permissions
+            const { status } = await MediaLibrary.requestPermissionsAsync();
+            
+            if (status !== 'granted') {
+                alert('Sorry, we need media library permissions to download the image!');
+                return;
+            }
+            
+            // Set image path
+            const fileUri = `${FileSystem.documentDirectory}EatTogether${Date.now()}.jpg`;
+
+            // Download the image to the file system
+            const { uri } = await FileSystem.downloadAsync(imageUrl, fileUri);
+
+            // Save the downloaded image to the gallery
+            const asset = await MediaLibrary.createAssetAsync(uri);
+            await MediaLibrary.createAlbumAsync('Downloads', asset, false);
+
+            alert('Image downloaded successfully!');
+        } catch (error) {
+            console.error('Error downloading image:', error);
+            alert('Error downloading the image.');
+        }
+    };
+
+    useEffect(() => {
+        if (downloading) {
+            downloadImage(selectedImageUri).then(() => {
+                setDownloading(false);
+            }).catch((error) => {
+                console.error("Download failed: ", error);
+                setDownloading(false);
+            });
+        }
+    }, [downloading]);
 
     return (
         <Layout>
@@ -365,10 +408,16 @@ export default function EventGallery({ route, navigation }) {
                     middleContent={<MediumText>   </MediumText>}
                     leftContent={<Ionicons name="chevron-back" size={20} />}
                     leftAction={() => handleCloseModal()}
+                    rightContent={<Ionicons name="download-outline" size={20} style={{opacity: downloading ? 0.3 : 1}}/>}
+                    rightAction={() => {
+                        if (!downloading) {
+                            setDownloading(true);
+                        }
+                    }}
                 />
                 <TouchableWithoutFeedback onPress={handleCloseModal}>
                     <View style={styles.modalBackground}>
-                            <Image style={{ width: screenWidth, height: screenWidth, resizeMode: 'cover' }} source={{ uri: selectedImageUri }} />
+                        <Image style={{ width: screenWidth, height: screenWidth, resizeMode: 'cover' }} source={{ uri: selectedImageUri }} />
                     </View>
                 </TouchableWithoutFeedback>
 
