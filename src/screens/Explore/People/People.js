@@ -73,7 +73,7 @@ export default function ({ navigation }) {
         let users = [];
         query.forEach((doc) => {
           let data = doc.data();
-          if (data.id !== user.uid && data.verified && !userData.blockedIDs.includes(doc.data().id)
+          if (data.id !== user.uid && data.verified && !userData.blockedIDs.includes(doc.data().id) && data.id !== tryoutId
             && !doc.data().blockedIDs.includes(user.uid) && !userData.friendIDs.includes(doc.data().id)) { // Only show verified + unblocked + non-friend users + non-private accounts
             data.inCommon = getCommonTags(userData, data);
             data.color = generateColor();

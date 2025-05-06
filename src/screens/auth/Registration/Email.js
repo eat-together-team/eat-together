@@ -129,12 +129,12 @@ const Email = props => {
           </View>
 
           <Progress.Bar
-            progress={0.8}
+            progress={0.75}
             width={200}
             color="#5DB075"
             style={{marginTop: 30, alignSelf: "center"}}
           />
-          <NormalText center>Step 4 of 5</NormalText>
+          <NormalText center>Step 3 of 4</NormalText>
         </View>
       </KeyboardAvoidingWrapper>
     </Layout>
