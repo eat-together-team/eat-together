@@ -71,7 +71,6 @@ const WhileYouEat = ({ route, navigation }) => {
   const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);
   const numColumns = 3;
   const screenWidth = Dimensions.get("window").width;
-  const tileSize = (screenWidth - 2.4 * 5 * numColumns) / numColumns;
 
   // Fetch meetup data on page load
   useEffect(() => {
@@ -553,14 +552,14 @@ const WhileYouEat = ({ route, navigation }) => {
                     <NormalText size={18}>Edit Event</NormalText>
                   </MenuOption>
                 )}
-                <MenuOption
+                {event.hostID !== user.uid && <MenuOption
                   onSelect={() => withdrawAlert()}
                   style={styles.option}
                 >
                   <NormalText size={18} color="red">
                     Withdraw
                   </NormalText>
-                </MenuOption>
+                </MenuOption>}
 
                 {event.hostID === user.uid && (
                   <>
@@ -718,15 +717,14 @@ const WhileYouEat = ({ route, navigation }) => {
             <GalleryPreview>{imageGallery}</GalleryPreview>
           </TouchableOpacity>
 
-          {/* <Button marginVertical={20} onPress={() => {
+          <Button marginVertical={20} onPress={() => {
             navigation.navigate("IntroGuidelines", {
               event: event,
               people: people
             })
           }}>
             Play Would You Rather?
-          </Button> */}
-          <View style={{ marginVertical: 20 }}/>
+          </Button>
 
           {/* Icebreakers dropdown */}
           <Toggle

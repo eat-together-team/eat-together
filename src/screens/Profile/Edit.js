@@ -227,7 +227,6 @@ export default function edit({ route, navigation }) {
                                 iconLeft="person-circle-outline"
                                 value={firstName}
                                 width={"47%"}
-                                height={40}
                                 required
                             />
                             <TextInput
@@ -236,7 +235,6 @@ export default function edit({ route, navigation }) {
                                 iconLeft="person-circle-outline"
                                 value={lastName}
                                 width={"47%"}
-                                height={40}
                                 required
                             />
                         </View>
@@ -282,7 +280,6 @@ export default function edit({ route, navigation }) {
                                         borderWidth: 1,
                                         borderRadius: 10,
                                     }}
-                                    height={40}
                                     textInputProps = {{
                                         placeholder: "Pronouns",
                                     }}
