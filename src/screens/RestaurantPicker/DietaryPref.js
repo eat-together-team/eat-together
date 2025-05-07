@@ -4,6 +4,10 @@ import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
 import TextInput from '../../components/TextInput';
 const DietaryPref = () => {
+  const [dietText, setDietText] = useState("");
+  const handleTextChange = (text) =>{
+    setDietText(text);
+  }
   return (
     <View>
         <RestaurantCard>
@@ -18,6 +22,8 @@ const DietaryPref = () => {
                 placeholder='Type a tag...'
                 iconLeft = "pricetags-outline"
                 width = "80%"
+                value={dietText}
+                onChangeText ={handleTextChange}
                 />
             </View>
         </RestaurantCard>
