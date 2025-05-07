@@ -7,6 +7,10 @@ import TextInput from '../../components/TextInput';
 
 const CuisineCard = () => {
 const [cuisineSearch, setCuisineSearch] = useState("");
+const handleTextChange = (text) =>{
+  setCuisineSearch(text);
+};
+
   return (
       <View>
         <RestaurantCard>
@@ -21,6 +25,8 @@ const [cuisineSearch, setCuisineSearch] = useState("");
               placeholder='Type a tag...'
               iconLeft = "pricetags-outline"
               width = "80%"
+              value = {cuisineSearch}
+              onChangeText= {handleTextChange}
               />
           </View>
         </RestaurantCard>
