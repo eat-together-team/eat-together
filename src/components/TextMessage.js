@@ -16,7 +16,7 @@ const TextMessage = (props) => {
     setIsModalVisible(true);
   };
 
-  const handleCloseModalth = () => {
+  const handleCloseModal = () => {
     setIsModalVisible(false);
   };
 
@@ -37,7 +37,7 @@ const TextMessage = (props) => {
         {!props.url && <NormalText color={props.sentBy == user.uid ? "white" : "black"} size={16}>{props.message}</NormalText>}
 
         {/* // what happens when click on image */}
-        <Modal visible={isModalVisible} transparent={true}> 
+        <Modal visible={isModalVisible} transparent={true}>
           <TouchableOpacity style={styles.modalContainer} onPress={handleCloseModal}>
             <Image
               source={{ uri: props.url }}
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   you: {
     backgroundColor: "#5db075",
     borderRadius: 20,
-    borderTopRightRadius: 0, // made top corner not round 
+    borderTopRightRadius: 0, // made top corner not round
     marginHorizontal: 30,
     marginVertical: 10,
     paddingHorizontal: 20,
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     maxWidth: 200,
   },
   other: {
-    backgroundColor: "#FFFFFF", // changed to white background 
+    backgroundColor: "#FFFFFF", // changed to white background
     borderRadius: 20,
     borderTopLeftRadius: 0,
     marginHorizontal: 30,
