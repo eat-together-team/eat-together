@@ -14,7 +14,7 @@ const Restaurant = ({navigation}) => {
   return (
     <Layout>
       <TopNav 
-        middleContent={<MediumText>Discover</MediumText>}
+        middleContent={<MediumText size = "17">Discover Places To Eat</MediumText>}
         leftContent={<Ionicons name="chevron-back" size={20} />}
         onPress= {() => navigation.goBack()}
       />
