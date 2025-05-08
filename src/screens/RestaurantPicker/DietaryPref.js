@@ -3,11 +3,22 @@ import {StyleSheet, View, Text} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
 import TextInput from '../../components/TextInput';
+import TagsSection from '../../components/TagsSection';
+
 const DietaryPref = () => {
   const [dietText, setDietText] = useState("");
   const handleTextChange = (text) =>{
     setDietText(text);
   }
+
+  const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
+  const dietaryTags = [
+    "vegan",
+    "vegetarian",
+    "gluten_free",
+    "halal",
+    "kosher"
+   ];
   return (
     <View>
         <RestaurantCard>
@@ -18,13 +29,24 @@ const DietaryPref = () => {
                 <Text style = {styles.exampleText}>E.g. Vegetarian, Gluten-free</Text>
             </View>
             <View style = {styles.textInputContainer}>
-              <TextInput 
-                placeholder='Type a tag...'
-                iconLeft = "pricetags-outline"
-                width = "80%"
-                value={dietText}
-                onChangeText ={handleTextChange}
-                />
+              <TagsSection
+                        multi={true}
+                        selectedItems={selectedDietaryTags}
+                        onItemSelect={(item) => {
+                            if (selectedDietaryTags.length >= 4) {
+                                alert("You can only select up to 4 tags.");
+                            } else {
+                              setSelectedDietaryTags([...selectedDietaryTags, item]);
+                            }
+                        }}
+                        onRemoveItem={(item, index) => {
+                            const newTags = selectedDietaryTags.filter((tag, i) => i !== index);
+                            setSelectedDietaryTags(newTags);
+                        }}
+                        items={dietaryTags}
+                        chip={true}
+                        resetValue={false}
+                    />
             </View>
         </RestaurantCard>
     </View>
