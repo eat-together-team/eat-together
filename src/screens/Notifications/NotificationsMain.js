@@ -10,7 +10,7 @@ import ChatRoom from "../Chat/ChatRoom";
 import FullCard from "../Profile/FullCard";
 import FullProfile from "../Explore/People/FullProfile";
 import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
-import Recommendation from "./Recommendation";
+import Recommendation from "../Recommendations/Recommendation";
 
 const Stack = createStackNavigator();
 
