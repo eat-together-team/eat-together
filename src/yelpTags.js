@@ -222,3 +222,5 @@ const foodTagsToYelpCategories = {
   "Frappe": "coffee",
   "Iced coffee": "coffee"
 };
+
+export default foodTagsToYelpCategories;
