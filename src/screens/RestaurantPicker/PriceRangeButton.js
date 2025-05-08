@@ -1,8 +1,19 @@
 import React from 'react'
 import {TouchableOpacity, Text, StyleSheet} from 'react-native';
-const PriceRangeButton = ({dollars, text}) => {
+const PriceRangeButton = ({dollars, text, setPriceRange}) => {
+  const handlePriceRange = () =>{
+    if(dollars === "$"){
+      setPriceRange(1);
+    }else if (dollars === "$$"){
+      setPriceRange(2);
+    }else if (dollars === "$$$"){
+      setPriceRange(3);
+    }else{
+      setPriceRange(4);
+    }
+  };
   return (
-    <TouchableOpacity style = {styles.priceContainer}>
+    <TouchableOpacity style = {styles.priceContainer} onPress={handlePriceRange}>
       <Text>
         <Text style = {{color: "#5DB075", fontSize: 15, fontWeight: 500}}>{dollars}</Text>
         <Text style = {{color:"#A9A9A9", fontSize: 15, fontWeight: 500}}>{text}</Text>
