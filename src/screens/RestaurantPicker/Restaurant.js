@@ -7,9 +7,10 @@ import CuisineCard from './CuisineCard';
 import DietaryPref from './DietaryPref';
 import CardCarousel from './CardCarousel';
 import PriceRangeCard from './PriceRangeCard';
+import StartCard from './StartCard';
 
 const Restaurant = ({navigation}) => {
-  const cards = [<CuisineCard/>, <DietaryPref/>, <PriceRangeCard/>]
+  const cards = [<StartCard/>, <CuisineCard/>, <DietaryPref/>, <PriceRangeCard/>]
   return (
     <Layout>
       <TopNav 
