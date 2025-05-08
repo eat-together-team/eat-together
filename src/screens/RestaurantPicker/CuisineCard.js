@@ -4,13 +4,17 @@ import { Ionicons } from "@expo/vector-icons";
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
 import TextInput from '../../components/TextInput';
-
+import TagsSection from '../../components/TagsSection';
+import foodTagsToYelpCategories from '../../yelpTags';
 const CuisineCard = () => {
 const [cuisineSearch, setCuisineSearch] = useState("");
 const handleTextChange = (text) =>{
   setCuisineSearch(text);
 };
 
+const foodTags = Object.keys(foodTagsToYelpCategories);
+
+const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
   return (
       <View>
         <RestaurantCard>
@@ -21,13 +25,31 @@ const handleTextChange = (text) =>{
             <Text style = {styles.exampleText}>E.g. favorite culture, favorite dish</Text>
           </View>
           <View style = {styles.textInputContainer}>
-            <TextInput 
+          <TagsSection
+                    multi={true}
+                    selectedItems={cuisineTagSelected}
+                    onItemSelect={(item) => {
+                        if (cuisineTagSelected.length >= 4) {
+                            alert("You can only select up to 4 tags.");
+                        } else {
+                            setCuisineTagSelected([...cuisineTagSelected, item]);
+                        }
+                    }}
+                    onRemoveItem={(item, index) => {
+                        const newTags = cuisineTagSelected.filter((tag, i) => i !== index);
+                        setCuisineTagSelected(newTags);
+                    }}
+                    items={foodTags}
+                    chip={true}
+                    resetValue={false}
+                />
+            { /* <TextInput 
               placeholder='Type a tag...'
               iconLeft = "pricetags-outline"
               width = "80%"
               value = {cuisineSearch}
               onChangeText= {handleTextChange}
-              />
+              /> */}
           </View>
         </RestaurantCard>
       </View>
