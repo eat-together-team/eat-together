@@ -3,7 +3,7 @@ import {View} from 'react-native';
 const RestaurantCard = ({children}) => {
   return (
     <View style = {{width:311,
-        height: 470,
+        height: 500,
         backgroundColor: "#FFFFFF",
         borderRadius: 40,
         shadowOpacity: 0.25,
@@ -12,6 +12,7 @@ const RestaurantCard = ({children}) => {
             height: 4,
         },
         marginBottom:10,
+        marginTop: 50,
         }}>
             {children}
     </View>

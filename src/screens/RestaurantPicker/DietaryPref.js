@@ -2,28 +2,17 @@ import React, {useState} from 'react'
 import {StyleSheet, View, Text} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
-import TextInput from '../../components/TextInput';
 import TagsSection from '../../components/TagsSection';
 
 const DietaryPref = () => {
-  const [dietText, setDietText] = useState("");
-  const handleTextChange = (text) =>{
-    setDietText(text);
-  }
 
   const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
-  const dietaryTags = [
-    "vegan",
-    "vegetarian",
-    "gluten_free",
-    "halal",
-    "kosher"
-   ];
+  const dietaryTags = ["vegan","vegetarian","gluten_free","halal","kosher"];
   return (
     <View>
         <RestaurantCard>
             <View style = {styles.questionContainer}>
-                <RestaurantQuestion text = "Do you have any dietary preferences?"/>
+                <RestaurantQuestion text = {"Do you have any dietary preferences?"}/>
             </View>
             <View style = {styles.exampleTextContainer}>
                 <Text style = {styles.exampleText}>E.g. Vegetarian, Gluten-free</Text>
