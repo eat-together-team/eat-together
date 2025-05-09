@@ -72,7 +72,7 @@
     "react-native-web": "^0.20.0",
     "react-schedule-selector": "^2.0.0",
     "styled-components": "^5.3.5",
-    "yelp-fusion": "^3.0.0",
+    "yelp-fusion": "^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
