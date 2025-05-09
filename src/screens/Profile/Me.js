@@ -68,14 +68,12 @@ export default function ({ navigation }) {
             doc.data().archivedEventIDs.length
           );
 
-          // 拉取好友信息
           const friendIDs = doc.data().friendIDs || [];
           let promises = friendIDs.map(async (uid) => {
             const userRef = db.collection('Users').doc(uid);
             const userSnap = await userRef.get();
             if (userSnap.exists) {
               const data = userSnap.data();
-              // 头像优先用 image 字段，否则用默认
               let image = data.hasImage ? data.image : require("../../../assets/logo.png");
               return {
                 id: data.id,
