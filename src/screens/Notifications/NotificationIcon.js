@@ -5,7 +5,7 @@ const InviteIcon = props => {
 
     //Choose which icon to display
     function whichIcon() {
-        if(props.accepted === "accepted") {
+        if(props.accepted === "accepte") {
             return ["checkmark-circle", "green"];
         } else if(props.accepted === "declined") {
             return ["close-circle", "red"];
