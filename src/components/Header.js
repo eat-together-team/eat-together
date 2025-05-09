@@ -8,7 +8,7 @@ import {tryoutId} from "../constants";
 
 const Header = (props) => {
   const user = auth.currentUser;
-  
+
   return (
     <View style={styles.header}>
       {props.back && (
@@ -22,7 +22,7 @@ const Header = (props) => {
           <TouchableOpacity onPress={() => {
             props.navigation.navigate("ConnectionRequests");
           }}>
-            <Ionicons name="people-circle-outline" size={30} color="black" style={{ marginRight: 5 }}/>
+            <Ionicons name="mail-unread-outline" size={30} color="black" style={{ marginRight: 5 }}/>
           </TouchableOpacity>
         )}
         {props.notifs && props.navigation && (

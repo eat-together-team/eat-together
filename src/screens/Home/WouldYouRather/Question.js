@@ -255,7 +255,7 @@ const Question = ({ route, navigation }) => {
           </MediumText>
         </View>
 
-        {isHost || event.type === "recommendation" && (
+        {(isHost || event.type === "recommendation") && (
           <View style={styles.nextButtonContainer}>
             <TouchableOpacity onPress={moveToDiscuss} style={[styles.nextButton]}>
               <Text style={styles.nextButtonText}>Next</Text>
