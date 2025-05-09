@@ -215,7 +215,7 @@ export default function ({ navigation }) {
     <ImageBackground
       source={avatarSource}
       style={{ flex: 1 }}
-      blurRadius={20}
+      blurRadius={10}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
         <View style={styles.settings}>
