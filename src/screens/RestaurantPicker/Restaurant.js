@@ -8,6 +8,7 @@ import DietaryPref from './DietaryPref';
 import CardCarousel from './CardCarousel';
 import PriceRangeCard from './PriceRangeCard';
 import StartCard from './StartCard';
+import DontWorryCard from './DontWorryCard';
 
 export default function ({navigation}) {
   //grab state of all user input
@@ -15,9 +16,15 @@ export default function ({navigation}) {
   const [priceRange, setPriceRange] = useState();
   const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
   const [index, setIndex] = useState(0);
+  const[pressedFinished, setPressedFinished] = useState(false);
+
   const incrementIndex = ()=>{
-    setIndex(Math.min(cards.length - 1, index + 1)); //can't go below index 0
-    console.log(index);
+    if(index === cards.length - 1){
+      setPressedFinished(true);
+    }else{
+      setIndex(Math.min(cards.length - 1, index + 1)); //can't go below index 0 
+    }
+
   }
   const decrementIndex = () =>{
     setIndex(Math.max(0, index - 1)); //can't go above card.length - 1
@@ -25,6 +32,7 @@ export default function ({navigation}) {
 
   //card carousel
   const cards = [<StartCard incrementIndex = {incrementIndex}/>, 
+    <DontWorryCard incrementIndex = {incrementIndex} decrementIndex = {decrementIndex}/>,
   <CuisineCard setCategoryAliases = {setCategoryAliases}/>, 
   <DietaryPref setSelectedDietaryTags = {setSelectedDietaryTags} selectedDietaryTags = {selectedDietaryTags}/>, 
   <PriceRangeCard setPriceRange = {setPriceRange}/>];
@@ -37,7 +45,13 @@ export default function ({navigation}) {
         leftAction={() => navigation.goBack()}
       />
       <View style = {styles.outerContainer}>
-        <CardCarousel cards = {cards} incrementIndex = {incrementIndex} decrementIndex = {decrementIndex} index = {index}/>
+        <CardCarousel cards = {cards} 
+        incrementIndex = {incrementIndex} 
+        decrementIndex = {decrementIndex} 
+        index = {index}
+        pressedFinished = {pressedFinished}
+        setPressedFinished = {setPressedFinished}
+        />
       </View>
     </Layout>
   )

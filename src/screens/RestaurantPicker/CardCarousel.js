@@ -1,8 +1,7 @@
 import React, {useState} from 'react'
 import {View, StyleSheet, TouchableOpacity,Text, Modal} from 'react-native';
 
-const CardCarousel = ({cards, incrementIndex, decrementIndex, index}) => {
-  const[pressedFinished, setPressedFinished] = useState(false);
+const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished}) => {
 
   return (
     <View>
@@ -11,7 +10,7 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index}) => {
             visible={pressedFinished} 
             transparent={true}
             >
-            <View style = {styles.overlay}>``
+            <View style = {styles.overlay}>
                 <View style = {styles.prefContainer}>
                     <Text style = {{fontFamily:"Inter", fontWeight: 600, color:"#00000080", textAlign:'center', marginTop: 30}}>
                         Preferences are set!</Text>
@@ -29,8 +28,8 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index}) => {
                     </View>
                 </View>
             </View>
-        </Modal> 
-        {index > 0 && <View style = {styles.buttonContainer}>
+        </Modal>
+        {index > 1&& <View style = {styles.buttonContainer}>
             <TouchableOpacity style = {styles.backButton} onPress={decrementIndex}>
                 <Text style = {{color:"#5DB075"}}>Back</Text>
             </TouchableOpacity>
@@ -40,7 +39,7 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index}) => {
         </View>
         }
         <View style = {styles.stepContainer}>
-            {index > 0 && <Text style = {styles.stepText}>Step {index + 1} of {cards.length}</Text>}
+            {index > 1 && <Text style = {styles.stepText}>Step {index - 1} of {cards.length - 2}</Text>}
         </View>
   </View>
   )
