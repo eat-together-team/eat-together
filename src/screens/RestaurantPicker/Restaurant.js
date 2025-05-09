@@ -9,8 +9,6 @@ import CuisineCard from './CuisineCard';
 import DietaryPref from './DietaryPref';
 import CardCarousel from './CardCarousel';
 import PriceRangeCard from './PriceRangeCard';
-import StartCard from './StartCard';
-import DontWorryCard from './DontWorryCard';
 
 export default function ({navigation}) {
   //grab state of all user input
