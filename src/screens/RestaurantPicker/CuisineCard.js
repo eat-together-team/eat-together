@@ -4,12 +4,11 @@ import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
 import TagsSection from '../../components/TagsSection';
 import foodTagsToYelpCategories from '../../yelpTags';
-const CuisineCard = () => {
+const CuisineCard = ({setCategoryAliases}) => {
 
 const foodTags = Object.keys(foodTagsToYelpCategories);
 
 const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
-const [categoryAliases, setCategoryAliases] = useState([]);
 
 useEffect(()=> {
   //map out each food tag to yelp's approved category aliases 

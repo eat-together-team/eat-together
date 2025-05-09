@@ -3,7 +3,7 @@ import {StyleSheet, View, TextInput, Text, TouchableOpacity} from "react-native"
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantStartQuestion from "../../components/RestaurantStartQuestion";
 import Button from '../../components/Button';
-const StartCard = () => {
+const StartCard = ({incrementIndex}) => {
   return (
     <View>
         <RestaurantCard>
@@ -13,8 +13,8 @@ const StartCard = () => {
                 </View>
             </View>
             <View style = {styles.buttonContainer}>
-                <Button fontSize={14} paddingHorizontal={25} paddingVertical={10}>Set Preferences First</Button>
-                <Button fontSize={14} paddingHorizontal={25} paddingVertical={10}>I'd rather explore any!</Button>
+                <Button onPress ={incrementIndex} fontSize={16} paddingHorizontal={25} paddingVertical={10}>Set Preferences First</Button>
+                <Button fontSize={16} paddingHorizontal={25} paddingVertical={10}>I'd rather explore any!</Button>
             </View>
         </RestaurantCard>
     </View>

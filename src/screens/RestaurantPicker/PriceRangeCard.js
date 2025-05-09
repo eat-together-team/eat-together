@@ -1,9 +1,10 @@
-import React from 'react'
+import React,{useState, useEffect} from 'react'
 import {StyleSheet, View, TextInput, Text, TouchableOpacity} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
 import PriceRangeButton from './PriceRangeButton';
-const PriceRangeCard = () => {
+
+const PriceRangeCard = ({setPriceRange}) => {
   return (
     <View>
         <RestaurantCard>
@@ -11,10 +12,10 @@ const PriceRangeCard = () => {
                 <RestaurantQuestion text = "What is your price range?"/>
             </View>
             <View style = {styles.buttonContainer}>
-              <PriceRangeButton dollars="$" text="(Under $10)"/>
-              <PriceRangeButton dollars="$$" text="($11-$30)"/>
-              <PriceRangeButton dollars="$$$" text="($31-$60)"/>
-              <PriceRangeButton dollars="$$$" text="(Above $61)"/>
+              <PriceRangeButton dollars="$" text="(Under $10)" setPriceRange = {setPriceRange}/>
+              <PriceRangeButton dollars="$$" text="($11-$30)" setPriceRange = {setPriceRange}/>
+              <PriceRangeButton dollars="$$$" text="($31-$60)" setPriceRange = {setPriceRange}/>
+              <PriceRangeButton dollars="$$$$" text="(Above $61)" setPriceRange = {setPriceRange}/>
             </View>
         </RestaurantCard>
     </View>
