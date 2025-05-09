@@ -3,14 +3,15 @@ import {StyleSheet, View, } from "react-native";
 import { Layout, TopNav} from "react-native-rapi-ui";
 import MediumText from "../../components/MediumText";
 import { Ionicons } from "@expo/vector-icons";
+import StartCard from './StartCard';
+import DontWorryCard from './DontWorryCard';
 import CuisineCard from './CuisineCard';
 import DietaryPref from './DietaryPref';
 import CardCarousel from './CardCarousel';
 import PriceRangeCard from './PriceRangeCard';
-import StartCard from './StartCard';
 
 const Restaurant = ({navigation}) => {
-  const cards = [<StartCard/>, <CuisineCard/>, <DietaryPref/>, <PriceRangeCard/>]
+  const cards = [<StartCard/>, <DontWorryCard/>, <CuisineCard/>, <DietaryPref/>, <PriceRangeCard/>]
   return (
     <Layout>
       <TopNav 

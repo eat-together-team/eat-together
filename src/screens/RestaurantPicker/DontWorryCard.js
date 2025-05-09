@@ -3,18 +3,19 @@ import {StyleSheet, View, TextInput, Text, TouchableOpacity} from "react-native"
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantStartQuestion from "../../components/RestaurantStartQuestion";
 import Button from '../../components/Button';
-const StartCard = () => {
+const DontWorryCard = () => {
   return (
     <View>
         <RestaurantCard>
             <View style = {styles.questionContainer}>
                 <View style = {styles.textWrapper}>
-                    <RestaurantStartQuestion text = {"Any thoughts on where to grab food?"}/>
+                    <RestaurantStartQuestion text = {"Don't worry!\nWe'll help you!"}/>\
+                    <Text style = {styles.subText}>Start by answering a few questions!</Text>
                 </View>
             </View>
             <View style = {styles.buttonContainer}>
-                <Button fontSize={14} paddingHorizontal={25} paddingVertical={10}>Set Preferences First</Button>
-                <Button fontSize={14} paddingHorizontal={25} paddingVertical={10}>I'd rather explore any!</Button>
+                <Button fontSize={14} width={195} paddingVertical={10}>Start</Button>
+                <Button fontSize={14} width={195} paddingVertical={10} backgroundColor={'white'} color={'#5DB075'}>Back</Button>
             </View>
         </RestaurantCard>
     </View>
@@ -33,7 +34,7 @@ const styles = StyleSheet.create({
             height: 4,
         },
         display:'flex',
-        justifyContent:'center',
+        justifyContent:'space-evenly',
         alignItems:'center',
       },
       textWrapper: {
@@ -45,6 +46,15 @@ const styles = StyleSheet.create({
         display:'flex',
         justifyContent:'space-evenly',
         alignItems:'center'
-      }
+      },
+      subText:{
+      fontFamily:'Inter',
+      fontWeight: 600,
+      fontSize: 20,
+      lineHeight: 20,
+      paddingVertical:10,
+      color:"#A9A9A9",
+      textAlign:'center'
+    }
 })
-export default StartCard
+export default DontWorryCard
