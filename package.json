@@ -72,7 +72,7 @@
     "rn-swiper-list": "^2.2.0",
     "reanimated-color-picker": "^4.0.1",
     "styled-components": "^5.3.5",
-    "yelp-fusion": "^3.0.0",
+    "yelp-fusion": "^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
