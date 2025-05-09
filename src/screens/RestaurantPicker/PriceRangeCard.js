@@ -1,12 +1,10 @@
-import React,{useState} from 'react'
+import React,{useState, useEffect} from 'react'
 import {StyleSheet, View, TextInput, Text, TouchableOpacity} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
 import PriceRangeButton from './PriceRangeButton';
 
-const PriceRangeCard = () => {
-  const [priceRange, setPriceRange] = useState();
-  console.log(priceRange);
+const PriceRangeCard = ({setPriceRange}) => {
   return (
     <View>
         <RestaurantCard>

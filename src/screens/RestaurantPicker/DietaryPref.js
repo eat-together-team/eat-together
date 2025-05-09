@@ -4,9 +4,8 @@ import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
 import TagsSection from '../../components/TagsSection';
 
-const DietaryPref = () => {
+const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
 
-  const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
   const dietaryTags = ["vegan","vegetarian","gluten_free","halal","kosher"];
   return (
     <View>

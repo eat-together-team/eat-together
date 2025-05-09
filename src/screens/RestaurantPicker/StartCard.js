@@ -1,0 +1,50 @@
+import React from 'react'
+import {StyleSheet, View, TextInput, Text, TouchableOpacity} from "react-native";
+import RestaurantCard from "../../components/RestaurantCard";
+import RestaurantStartQuestion from "../../components/RestaurantStartQuestion";
+import Button from '../../components/Button';
+const StartCard = ({incrementIndex}) => {
+  return (
+    <View>
+        <RestaurantCard>
+            <View style = {styles.questionContainer}>
+                <View style = {styles.textWrapper}>
+                    <RestaurantStartQuestion text = "Any thoughts on where to grab food?"/>
+                </View>
+            </View>
+            <View style = {styles.buttonContainer}>
+                <Button onPress ={incrementIndex} fontSize={16} paddingHorizontal={25} paddingVertical={10}>Set Preferences First</Button>
+                <Button fontSize={16} paddingHorizontal={25} paddingVertical={10}>I'd rather explore any!</Button>
+            </View>
+        </RestaurantCard>
+    </View>
+  )
+}
+const styles = StyleSheet.create({
+    questionContainer:{
+        backgroundColor:'#FFFFFF',
+        width: '100%',
+        height: 200,
+        borderTopLeftRadius: 40,
+        borderTopRightRadius: 40,
+        shadowOpacity: 0.25,
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        display:'flex',
+        justifyContent:'center',
+        alignItems:'center',
+      },
+      textWrapper: {
+        width: '80%',
+        alignItems: 'center',
+      },
+      buttonContainer:{
+        height: 230,
+        display:'flex',
+        justifyContent:'space-evenly',
+        alignItems:'center'
+      }
+})
+export default StartCard
