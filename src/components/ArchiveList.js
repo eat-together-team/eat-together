@@ -17,7 +17,7 @@ const ArchiveList = props => {
             <ScrollView 
                 horizontal={true} 
                 style={{ marginVertical: props.marginVertical !== undefined ? 
-                                                        props.marginVertical : 0 }}
+                    props.marginVertical : 0 }}
                 contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-start' }}
             >
                 {props.archives.map((archive, i) => (
