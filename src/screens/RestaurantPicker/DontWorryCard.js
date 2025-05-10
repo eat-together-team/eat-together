@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, View, TextInput, Text, TouchableOpacity} from "react-native";
+import {StyleSheet, View, Text} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantStartQuestion from "../../components/RestaurantStartQuestion";
 import Button from '../../components/Button';
@@ -20,7 +20,7 @@ const DontWorryCard = ({incrementIndex, decrementIndex}) => {
         </RestaurantCard>
     </View>
   )
-}
+};
 const styles = StyleSheet.create({
     questionContainer:{
         backgroundColor:'#FFFFFF',

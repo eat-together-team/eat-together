@@ -1,5 +1,8 @@
-import React, {useState} from 'react'
-import {View, StyleSheet, TouchableOpacity,Text, Modal} from 'react-native';
+import React from 'react'
+import {View, StyleSheet, TouchableOpacity, Modal} from 'react-native';
+import SmallText from '../../components/SmallText';
+import MediumText from '../../components/MediumText';
+import LargeText from '../../components/LargeText';
 
 const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished}) => {
     const [index, setIndex] = useState(0);
@@ -17,40 +20,43 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
   return (
     <View>
         {cards[index]}
-        <Modal 
-            visible={pressedFinished} 
-            transparent={true}
-            >
+        <Modal visible={pressedFinished} transparent={true}>
             <View style = {styles.overlay}>
                 <View style = {styles.prefContainer}>
-                    <Text style = {{fontFamily:"Inter", fontWeight: 600, color:"#00000080", textAlign:'center', marginTop: 30}}>
-                        Preferences are set!</Text>
-                    <Text style = {{fontFamily:"Inter", fontSize: 30, fontWeight: 800, textAlign:'center', marginTop:20, marginBottom: 30}}
-                    >Ready to Swipe?</Text>
-                    <Text style = {{fontFamily:"Inter", fontWeight:400, fontSize: 25, textAlign:"center"}}>Swipe <Text style = {{color:"#5DB075", fontWeight:800}}>LEFT</Text> to skip.</Text>
-                    <Text style = {{fontFamily:"Inter", fontWeight:400, fontSize: 25, textAlign:"center"}}>Swipe <Text style = {{color:"#5DB075", fontWeight:800}}>RIGHT</Text> to save.</Text>
+                    <MediumText color = "#00000080" center = "center" style = {{marginTop:30 }}>Preferences are set!</MediumText>
+                    <LargeText  size = "30" center = {true} marginBottom = {30} style = {{marginTop:20}}>Ready to Swipe?</LargeText>
+                    <MediumText size = "25" center = {true}>Swipe <SmallText weight = "800" size = "25" color = "#5DB075">LEFT</SmallText> to skip.</MediumText>
+                    <MediumText size = "25" center = {true} >Swipe <SmallText weight = "800" size = "25" color = "#5DB075">RIGHT</SmallText> to save.</MediumText>
                     <View style = {[styles.buttonContainer, {marginTop:30}]}>
                         <TouchableOpacity style = {styles.backButton} onPress={()=> setPressedFinished(false)}>
-                            <Text style = {{color:"#5DB075"}}>Back</Text>
+                            <SmallText size = "13" color = "#5DB075" weight = "600" >Back</SmallText>
                         </TouchableOpacity>
                         <TouchableOpacity style = {styles.nextButton}>
-                            <Text style = {{color: "#FFFFFF"}}>Start</Text>
+                            <SmallText size = "13" color = "#FFFFFF" weight = "600" >Start</SmallText>
                         </TouchableOpacity>
                     </View>
                 </View>
             </View>
         </Modal>
-        {index > 1&& <View style = {styles.buttonContainer}>
-            <TouchableOpacity style = {styles.backButton} onPress={decrementIndex}>
-                <Text style = {{color:"#5DB075"}}>Back</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style = {styles.nextButton} onPress={incrementIndex}>
-                {index == cards.length - 1 ? <Text style = {{color: "#FFFFFF"}}>Finish</Text>: <Text style = {{color: "#FFFFFF"}}>Next</Text> }
-            </TouchableOpacity>
-        </View>
+        {index > 1 &&
+            <View style = {styles.buttonContainer}>
+                <TouchableOpacity style = {styles.backButton} onPress={decrementIndex}>
+                    <SmallText size = "13" color = "#5DB075">Back</SmallText>
+                </TouchableOpacity>
+                <TouchableOpacity style = {styles.nextButton} onPress={incrementIndex}>
+                    {
+                        index == cards.length - 1 ? 
+                        <SmallText color = "#FFFFFF">Finish</SmallText> : 
+                        <SmallText color = "#FFFFFF">Next</SmallText> 
+                    }
+                </TouchableOpacity>
+            </View>
         }
         <View style = {styles.stepContainer}>
-            {index > 1 && <Text style = {styles.stepText}>Step {index - 1} of {cards.length - 2}</Text>}
+            {
+                index > 1 && 
+                <SmallText size = "12">Step {index - 1} of {cards.length - 2}</SmallText>
+            }
         </View>
   </View>
   )
