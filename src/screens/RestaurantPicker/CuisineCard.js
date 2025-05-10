@@ -1,24 +1,54 @@
-import React, {useState} from 'react'
-import {StyleSheet, View, TextInput, Text} from "react-native";
-import { Layout, TopNav} from "react-native-rapi-ui";
+import React, {useState, useEffect} from 'react'
+import {StyleSheet, View} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
+import TagsSection from '../../components/TagsSection';
+import foodTagsToYelpCategories from '../../yelpTags';
+import SmallText from '../../components/SmallText';
 
-const CuisineCard = () => {
-const [cuisineSearch, setCuisineSearch] = useState("");
+const CuisineCard = ({setCategoryAliases}) => {
+
+const foodTags = Object.keys(foodTagsToYelpCategories);
+
+const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
+
+useEffect(()=> {
+  //map out each food tag to yelp's approved category aliases 
+  const updatedCategoryAliases = cuisineTagSelected.map((item) =>{
+      return foodTagsToYelpCategories[item];
+  });
+  setCategoryAliases(updatedCategoryAliases);
+
+}, [cuisineTagSelected]);
+
   return (
       <View>
         <RestaurantCard>
           <View style ={styles.questionContainer}>
-            <RestaurantQuestion text = "What Cuisine(s) are you in the mood for?"/>
+            <RestaurantQuestion text = {"What Cuisine(s) are you\nin the mood for?"}/>
           </View>
           <View style = {styles.exampleTextContainer}>
-            <Text style = {styles.exampleText}>E.g. favorite culture, favorite dish</Text>
+            <SmallText weight = {600} color = "#A9A9A9" size = {13} center ={true}>E.g. favorite culture, favorite dish</SmallText>
           </View>
           <View style = {styles.textInputContainer}>
-            <TextInput
-              style={styles.cuisineTagInput}
-              placeholder='Type a tag...' onChangeText={(newText)=> setCuisineSearch(newText)}/>
+            <TagsSection
+                      multi={true}
+                      selectedItems={cuisineTagSelected}
+                      onItemSelect={(item) => {
+                          if (cuisineTagSelected.length >= 4) {
+                              alert("You can only select up to 4 tags.");
+                          } else {
+                              setCuisineTagSelected([...cuisineTagSelected, item]);
+                          }
+                      }}
+                      onRemoveItem={(item, index) => {
+                          const newTags = cuisineTagSelected.filter((tag, i) => i !== index);
+                          setCuisineTagSelected(newTags);
+                      }}
+                      items={foodTags}
+                      chip={true}
+                      resetValue={false}
+                  />
           </View>
         </RestaurantCard>
       </View>
@@ -49,16 +79,7 @@ const styles = StyleSheet.create({
       marginTop:30,
       marginBottom:10,
     },
-    exampleText:{
-      fontFamily:'Inter',
-      fontWeight: 600,
-      fontSize:15,
-      lineHeight: 15,
-      color:"#A9A9A9",
-      textAlign:'center'
-    },
     cuisineTagInput:{
-      width:"90%",
       borderColor:'gray',
       borderWidth: 0.5,
       borderRadius: 5,

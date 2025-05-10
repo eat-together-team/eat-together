@@ -1,30 +1,32 @@
 import React from 'react'
 import {StyleSheet, View} from "react-native";
+import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from '../../components/RestaurantQuestion';
-import RestaurantCard from '../../components/RestaurantCard';
 import Button from '../../components/Button';
-const StartCard = ({incrementIndex}) => {
+import MediumText from '../../components/MediumText';
+const DontWorryCard = ({incrementIndex, decrementIndex}) => {
   return (
     <View>
         <RestaurantCard>
             <View style = {styles.questionContainer}>
                 <View style = {styles.textWrapper}>
-                    <RestaurantQuestion size = {30} text = "Any thoughts on where to grab food?"/>
+                    <RestaurantQuestion marginBottom = {10} size = {30} text = {"Don't worry!\nWe'll help you!"}/>
+                    <MediumText size = {18} color = "#808080" center = "center">Start by answering a few questions!</MediumText>
                 </View>
             </View>
             <View style = {styles.buttonContainer}>
-                <Button onPress={incrementIndex} fontSize={16} paddingHorizontal={25} paddingVertical={10}>Set Preferences First</Button>
-                <Button fontSize={16} paddingHorizontal={25} paddingVertical={10}>I'd rather explore any!</Button>
+                <Button onPress ={incrementIndex} fontSize={14} width={195} paddingVertical={10}>Start</Button>
+                <Button onPress ={decrementIndex} fontSize={14} width={195} paddingVertical={10} backgroundColor={'white'} color={'#5DB075'}>Back</Button>
             </View>
         </RestaurantCard>
     </View>
   )
-}
+};
 const styles = StyleSheet.create({
     questionContainer:{
         backgroundColor:'#FFFFFF',
         width: '100%',
-        height: 200,
+        height: 210,
         borderTopLeftRadius: 40,
         borderTopRightRadius: 40,
         shadowOpacity: 0.25,
@@ -33,7 +35,7 @@ const styles = StyleSheet.create({
             height: 4,
         },
         display:'flex',
-        justifyContent:'center',
+        justifyContent:'space-evenly',
         alignItems:'center',
       },
       textWrapper: {
@@ -45,6 +47,6 @@ const styles = StyleSheet.create({
         display:'flex',
         justifyContent:'space-evenly',
         alignItems:'center'
-      }
+      },
 })
-export default StartCard
+export default DontWorryCard

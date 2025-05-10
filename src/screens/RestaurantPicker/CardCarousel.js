@@ -1,31 +1,77 @@
-import React, {useState} from 'react'
-import {View, StyleSheet, TouchableOpacity,Text, Modal} from 'react-native';
+import React from 'react'
+import {View, StyleSheet, TouchableOpacity, Modal} from 'react-native';
+import SmallText from '../../components/SmallText';
+import MediumText from '../../components/MediumText';
+import LargeText from '../../components/LargeText';
+import Button from '../../components/Button';
 
-const CardCarousel = ({cards}) => {
-  const [index, setIndex] = useState(0);
+const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished}) => {
 
-  const incrementIndex = ()=>{
-    setIndex(Math.min(cards.length - 1, index + 1)); //can't go below index 0
-    if(index === cards.length - 1){
-        console.log("user wants to go to next page boy");
-    }
-  }
-  const decrementIndex = () =>{
-    setIndex(Math.max(0, index - 1)); //can't go above card.length - 1
-  }
   return (
     <View>
         {cards[index]}
-        <View style = {styles.buttonContainer}>
-            <TouchableOpacity style = {styles.backButton} onPress={decrementIndex}>
-                <Text style = {{color:"#5DB075"}}>Back</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style = {styles.nextButton} onPress={incrementIndex}>
-                {index == cards.length - 1 ? <Text style = {{color: "#FFFFFF"}}>Finish</Text>: <Text style = {{color: "#FFFFFF"}}>Next</Text> }
-            </TouchableOpacity>
-        </View>
+        <Modal visible={pressedFinished} transparent={true}>
+            <View style = {styles.overlay}>
+                <View style = {styles.prefContainer}>
+                    <MediumText color = "#00000080" center = "center" style = {{marginTop:30 }}>Preferences are set!</MediumText>
+                    <LargeText  size = {30} center = {true} marginBottom = {30} style = {{marginTop:20}}>Ready to Swipe?</LargeText>
+                    <MediumText size = {25} center = {true}>Swipe <SmallText weight = {800} size = {25} color = "#5DB075">LEFT</SmallText> to skip.</MediumText>
+                    <MediumText size = {25} center = {true} >Swipe <SmallText weight = {800} size = {25} color = "#5DB075">RIGHT</SmallText> to save.</MediumText>
+                    <View style = {[styles.buttonContainer, {marginTop:30}]}>
+                        <Button
+                            backgroundColor="white"
+                            color="#5DB075"
+                            onPress={() => {
+                                setPressedFinished(false);
+                            }}
+                            fontSize={16}
+                            paddingHorizontal={25}
+                            paddingVertical={10}
+                            marginHorizontal={10}
+                        >
+                            Back
+                        </Button>
+                        <Button
+                            fontSize={16}
+                            paddingHorizontal={25}
+                            paddingVertical={10}
+                            marginHorizontal={10}
+                        >
+                            Start
+                        </Button>
+                    </View>
+                </View>
+            </View>
+        </Modal>
+        {index > 1 &&
+            <View style = {styles.buttonContainer}>
+                <Button
+                    backgroundColor="white"
+                    color="#5DB075"
+                    onPress={decrementIndex}
+                    fontSize={16}
+                    paddingHorizontal={25}
+                    paddingVertical={10}
+                    marginHorizontal={10}
+                >
+                    Back
+                </Button>
+                <Button
+                    onPress={incrementIndex}
+                    fontSize={16}
+                    paddingHorizontal={25}
+                    paddingVertical={10}
+                    marginHorizontal={10}
+                >
+                    {index == cards.length - 1 ? "Finish" : "Next"}
+                </Button>
+            </View>
+        }
         <View style = {styles.stepContainer}>
-            <Text style = {styles.stepText}>Step {index + 1} of {cards.length}</Text>
+            {
+                index > 1 && 
+                <SmallText size = {12}>Step {index - 1} of {cards.length - 2}</SmallText>
+            }
         </View>
   </View>
   )
@@ -75,6 +121,19 @@ const styles = StyleSheet.create({
         fontWeight: 400,
         fontSize: 15,
         color: "#000000",
+    },
+    overlay:{
+        flex:1,
+        justifyContent:'center',
+        alignItems:'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    prefContainer:{
+        display:'flex',
+        backgroundColor:"#F7F7F7",
+        borderRadius:20,
+        height:360,
+        width:315,
     }
 })
 export default CardCarousel
