@@ -26,6 +26,12 @@ const Tag = props => {
     );
 }
 
+Tag.defaultProps = {
+    text: '',
+    type: 'default',
+    remove: null,
+  };
+  
 const styles = StyleSheet.create({
     tag: {
         justifyContent: 'center',
