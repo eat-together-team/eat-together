@@ -1,16 +1,16 @@
 import React from 'react'
 import {StyleSheet, View} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
-import RestaurantQuestion from '../../components/RestaurantQuestion';
 import Button from '../../components/Button';
 import MediumText from '../../components/MediumText';
+import LargeText from '../../components/LargeText';
 const DontWorryCard = ({incrementIndex, decrementIndex}) => {
   return (
     <View>
         <RestaurantCard>
             <View style = {styles.questionContainer}>
                 <View style = {styles.textWrapper}>
-                    <RestaurantQuestion marginBottom = "10" size = "30" text = {"Don't worry!\nWe'll help you!"}/>
+                    <LargeText center = "center" marginBottom = "20" color = "#5DB075">Don't worry!{'\n'}We'll help you!</LargeText>
                     <MediumText size = "18" color = "#808080" center = "center">Start by answering a few questions!</MediumText>
                 </View>
             </View>

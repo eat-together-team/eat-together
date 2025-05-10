@@ -1,7 +1,7 @@
 import React from 'react'
 import {StyleSheet, View} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
-import RestaurantQuestion from "../../components/RestaurantQuestion";
+import MediumText from '../../components/MediumText';
 import PriceRangeButton from '../../components/PriceRangeButton';
 
 const PriceRangeCard = ({setPriceRange, priceRange}) => {
@@ -9,7 +9,7 @@ const PriceRangeCard = ({setPriceRange, priceRange}) => {
     <View>
         <RestaurantCard>
             <View style = {styles.questionContainer}>
-                <RestaurantQuestion text = "What is your price range?"/>
+              <MediumText center = "center" color = "#5DB075">What is your price {'\n'}range?</MediumText>
             </View>
             <View style = {styles.buttonContainer}>
               <PriceRangeButton dollars="$" text="(Under $10)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
