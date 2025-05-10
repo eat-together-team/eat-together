@@ -1,8 +1,8 @@
-import React,{useState} from 'react'
-import {StyleSheet, View, TextInput, Text, TouchableOpacity} from "react-native";
+import React from 'react'
+import {StyleSheet, View} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
-import PriceRangeButton from './PriceRangeButton';
+import PriceRangeButton from '../../components/PriceRangeButton';
 
 const PriceRangeCard = ({setPriceRange, priceRange}) => {
   return (

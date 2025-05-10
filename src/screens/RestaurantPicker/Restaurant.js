@@ -47,12 +47,13 @@ export default function ({navigation}) {
         onPress= {() => navigation.goBack()}
       />
       <View style = {styles.outerContainer}>
-        <CardCarousel cards = {cards} 
-        incrementIndex = {incrementIndex} 
-        decrementIndex = {decrementIndex} 
-        index = {index}
-        pressedFinished = {pressedFinished}
-        setPressedFinished = {setPressedFinished}
+        <CardCarousel 
+          cards = {cards} 
+          incrementIndex = {incrementIndex} 
+          decrementIndex = {decrementIndex} 
+          index = {index}
+          pressedFinished = {pressedFinished}
+          setPressedFinished = {setPressedFinished}
         />
       </View>
     </Layout>
