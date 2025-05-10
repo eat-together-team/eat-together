@@ -1,7 +1,7 @@
 import React from 'react'
-import {StyleSheet, View, TextInput, Text, TouchableOpacity} from "react-native";
-import RestaurantCard from "../../components/RestaurantCard";
-import RestaurantStartQuestion from "../../components/RestaurantStartQuestion";
+import {StyleSheet, View} from "react-native";
+import RestaurantQuestion from '../../components/RestaurantQuestion';
+import RestaurantCard from '../../components/RestaurantCard';
 import Button from '../../components/Button';
 const StartCard = ({incrementIndex}) => {
   return (
@@ -9,7 +9,7 @@ const StartCard = ({incrementIndex}) => {
         <RestaurantCard>
             <View style = {styles.questionContainer}>
                 <View style = {styles.textWrapper}>
-                    <RestaurantStartQuestion text = "Any thoughts on where to grab food?"/>
+                    <RestaurantQuestion size = "30" text = "Any thoughts on where to grab food?"/>
                 </View>
             </View>
             <View style = {styles.buttonContainer}>
