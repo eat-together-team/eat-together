@@ -216,7 +216,7 @@ export default function ({ navigation }) {
     <ImageBackground
       source={avatarSource}
       style={{ flex: 1 }}
-      blurRadius={10}
+      blurRadius={20}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
         <View style={styles.settings}>
@@ -233,12 +233,40 @@ export default function ({ navigation }) {
             }}
           />
         </View>
-        <View style={[styles.rowInfoBlock, { justifyContent: 'center', marginTop: 32, marginBottom: 12 }]}>
-          <View style={{ position: "relative", width: 100, height: 100, marginRight: 29, alignItems: 'center', justifyContent: 'center' }}>
-            <Image style={styles.image} source={avatarSource} />
+        <View
+          style={[
+            styles.rowInfoBlock,
+            {
+              justifyContent: 'center',
+              marginTop: 32,
+              marginBottom: 12,
+            },
+          ]}
+        >
+          <View
+            style={{
+              position: "relative",
+              width: 100,
+              height: 100,
+              marginRight: 29,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Image
+              style={styles.image}
+              source={avatarSource}
+            />
           </View>
           <View style={styles.infoBlock}>
-            <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginBottom: 2, minWidth: 0 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'flex-end',
+                marginBottom: 2,
+                minWidth: 0,
+              }}
+            >
               <LargeText
                 style={styles.name}
                 numberOfLines={1}
@@ -265,17 +293,38 @@ export default function ({ navigation }) {
                 </NormalText>
               ) : null}
             </View>
-            <NormalText size={16} style={{ color: 'white', textAlign: 'left'}}>
+            <NormalText
+              size={16}
+              style={{
+                color: 'white',
+                textAlign: 'left',
+              }}
+            >
               @{userInfo.username}
             </NormalText>
-            <NormalText marginBottom={2} style={{ color: 'white', textAlign: 'left' }}>
+            <NormalText
+              marginBottom={2}
+              style={{
+                color: 'white',
+                textAlign: 'left',
+              }}
+            >
               🏫 {userInfo.school ? userInfo.school : "UW-Seattle"}
             </NormalText>
-            <NormalText style={{ color: 'white', textAlign: 'left', marginBottom: 8 }}>
+            <NormalText
+              style={{
+                color: 'white',
+                textAlign: 'left',
+                marginBottom: 8,
+              }}
+            >
               🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
             </NormalText>
             <Button
-              style={[styles.baseOutlineButton, { paddingHorizontal: 22, alignSelf: 'flex-start', marginTop: 2 }]}
+              style={[
+                styles.baseOutlineButton,
+                { paddingHorizontal: 22, alignSelf: 'flex-start', marginTop: 2 },
+              ]}
               fontSize={14}
               onPress={() => {
                 navigation.navigate("Edit", {
@@ -303,10 +352,21 @@ export default function ({ navigation }) {
           </NormalText>
         ) : null}
 
-        <TagsList tags={userInfo.tags || []} style={{ marginLeft: 18 }} marginVertical={0} />
+        <TagsList
+          tags={userInfo.tags || []}
+          style={{ marginLeft: 18 }}
+          marginVertical={0}
+        />
 
         {friends.length > 0 && (
-          <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginLeft: 18, marginTop: 12 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'flex-end',
+              marginLeft: 18,
+              marginTop: 12,
+            }}
+          >
             {/* profile photos */}
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               {friends.slice(0, 4).map((f, idx) => (
@@ -334,14 +394,36 @@ export default function ({ navigation }) {
                   justifyContent: 'center',
                   marginLeft: -12,
                 }}>
-                  <NormalText style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>+{friends.length - 4}</NormalText>
+                  <NormalText
+                    style={{
+                      color: 'white',
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                    }}
+                  >
+                    +{friends.length - 4}
+                  </NormalText>
                 </View>
               )}
             </View>
             {/* name lists */}
-            <NormalText style={{ color: 'white', marginLeft: 8, fontSize: 13, marginBottom: 2 }}>
+            <NormalText
+              style={{
+                color: 'white',
+                marginLeft: 8,
+                fontSize: 13,
+                marginBottom: 2,
+              }}
+            >
               Friends with {friends.slice(0, 2).map((f, i) => (
-                <NormalText key={f.id} style={{ fontWeight: 'bold', color: 'white', fontSize: 13 }}>
+                <NormalText
+                  key={f.id}
+                  style={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    fontSize: 13,
+                  }}
+                >
                   {f.firstName}{i === 0 && friends.length > 1 ? ', ' : ''}
                 </NormalText>
               ))}
@@ -350,14 +432,31 @@ export default function ({ navigation }) {
           </View>
         )}
         {friends.length === 0 && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 18, marginTop: 12, marginBottom: 8 }}>
-            <NormalText style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginLeft: 18,
+              marginTop: 12,
+              marginBottom: 8,
+            }}
+          >
+            <NormalText
+              style={{
+                color: 'white',
+                fontSize: 16,
+                fontWeight: 'bold',
+              }}
+            >
               No connections yet—add a friend!
             </NormalText>
           </View>
         )}
         <Button
-          style={[styles.baseOutlineButton, { paddingHorizontal: 21, alignSelf: 'flex-end', marginTop: 0, right: 18 }]}
+          style={[
+            styles.baseOutlineButton,
+            { paddingHorizontal: 21, alignSelf: 'flex-end', marginTop: 0, right: 18 },
+          ]}
           fontSize={14}
           onPress={() => {
             navigation.navigate("Connections", {
@@ -371,9 +470,17 @@ export default function ({ navigation }) {
         </Button>
         <View style={styles.card}>
           <LargeText style={styles.cardHeader}>Photos</LargeText>
-          <GalleryList images={images} style={{ marginLeft: 18 }} marginVertical={0} />
+          <GalleryList
+            images={images}
+            style={{ marginLeft: 18 }}
+            marginVertical={0}
+          />
           <LargeText style={styles.cardHeader}>Archives</LargeText>
-          <ArchiveList archives={events} style={{ marginLeft: 18, marginBottom: 12 }} marginVertical={0} />
+          <ArchiveList
+            archives={events}
+            style={{ marginLeft: 18, marginBottom: 12 }}
+            marginVertical={0}
+          />
         </View>
       </ScrollView>
     </ImageBackground>

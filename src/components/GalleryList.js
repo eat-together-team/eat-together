@@ -14,8 +14,12 @@ const GalleryList = props => {
     }
     return (
         <View style={[{ flexDirection: "row" }, props.style]}>
-            <ScrollView horizontal={true} style={{ marginVertical: props.marginVertical !== undefined ? props.marginVertical : 0 }}
-                contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-start' }}>
+            <ScrollView
+                horizontal={true}
+                style={{ marginVertical: props.marginVertical !== undefined 
+                                                    ? props.marginVertical : 0 }}
+                contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-start' }}
+            >
                 {props.images && props.images.map((img, i) => (
                     <View key={img.imageId || i} style={{
                         width: 140,
@@ -25,11 +29,26 @@ const GalleryList = props => {
                     }}>
                         <Image
                             source={{ uri: img.imageUrl }}
-                            style={{ width: 140, height: 140, borderRadius: 16, marginBottom: 0 }}
+                            style={{
+                                width: 140,
+                                height: 140,
+                                borderRadius: 16,
+                                marginBottom: 0,
+                            }}
                             resizeMode="cover"
                         />
-                        {img.imageCaption && img.imageCaption !== 'Click the Add/Edit Button to insert a caption!' && (
-                            <NormalText style={{ fontWeight: 'bold', fontSize: 15, color: '#222', marginTop: 8, marginLeft: 2 }} numberOfLines={1}>
+                        {img.imageCaption && img.imageCaption !== 
+                                    'Click the Add/Edit Button to insert a caption!' && (
+                            <NormalText
+                                style={{
+                                    fontWeight: 'bold',
+                                    fontSize: 15,
+                                    color: '#222',
+                                    marginTop: 8,
+                                    marginLeft: 2,
+                                }}
+                                numberOfLines={1}
+                            >
                                 {img.imageCaption}
                             </NormalText>
                         )}
