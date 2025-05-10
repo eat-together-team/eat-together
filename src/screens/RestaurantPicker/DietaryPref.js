@@ -1,7 +1,6 @@
 import React from 'react'
 import {StyleSheet, View,} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
-import RestaurantQuestion from "../../components/RestaurantQuestion";
 import TagsSection from '../../components/TagsSection';
 import MediumText from '../../components/MediumText';
 
@@ -12,7 +11,7 @@ const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
     <View>
         <RestaurantCard>
             <View style = {styles.questionContainer}>
-                <RestaurantQuestion text = {"Do you have any dietary preferences?"}/>
+                <MediumText color = "#5DB075" center ="center">Do you have any dietary preferences?</MediumText>
             </View>
             <View style = {styles.exampleTextContainer}>
                 <MediumText size = "13" color = "#A9A9A9" center={true}>E.g. Vegetarian, Gluten-free</MediumText>

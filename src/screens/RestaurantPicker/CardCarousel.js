@@ -14,8 +14,8 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                 <View style = {styles.prefContainer}>
                     <MediumText color = "#00000080" center = "center" style = {{marginTop:30 }}>Preferences are set!</MediumText>
                     <LargeText  size = "30" center = {true} marginBottom = {30} style = {{marginTop:20}}>Ready to Swipe?</LargeText>
-                    <MediumText size = "25" center = {true}>Swipe <SmallText weight = "800" size = "25" color = "#5DB075">LEFT</SmallText> to skip.</MediumText>
-                    <MediumText size = "25" center = {true} >Swipe <SmallText weight = "800" size = "25" color = "#5DB075">RIGHT</SmallText> to save.</MediumText>
+                    <SmallText size = "25" center = {true}>Swipe <MediumText size = "25" color = "#5DB075">LEFT</MediumText> to skip.</SmallText>
+                    <SmallText size = "25" center = {true} >Swipe <MediumText weight = "800" size = "25" color = "#5DB075">RIGHT</MediumText> to save.</SmallText>
                     <View style = {[styles.buttonContainer, {marginTop:30}]}>
                         <TouchableOpacity style = {styles.backButton} onPress={()=> setPressedFinished(false)}>
                             <MediumText size = "13" color = "#5DB075" weight = "600" >Back</MediumText>

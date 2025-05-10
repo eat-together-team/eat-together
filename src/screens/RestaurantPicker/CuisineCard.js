@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import {StyleSheet, View} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
-import RestaurantQuestion from "../../components/RestaurantQuestion";
 import TagsSection from '../../components/TagsSection';
 import foodTagsToYelpCategories from '../../yelpTags';
 import MediumText from '../../components/MediumText';
@@ -25,7 +24,7 @@ useEffect(()=> {
       <View>
         <RestaurantCard>
           <View style ={styles.questionContainer}>
-            <RestaurantQuestion text = {"What Cuisine(s) are you\nin the mood for?"}/>
+            <MediumText color = "#5DB075" center = "center">What Cuisine(s) are you {'\n'} in the mood for?</MediumText>
           </View>
           <View style = {styles.exampleTextContainer}>
             <MediumText weight = "600" color = "#A9A9A9" size = "13" center ={true}>E.g. favorite culture, favorite dish</MediumText>
