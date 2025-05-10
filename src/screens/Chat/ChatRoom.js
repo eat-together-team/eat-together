@@ -280,32 +280,30 @@ export default function ({ route, navigation }) {
           style={{ flex: 1}}
           behavior={Platform.OS === "ios" ? "padding" : ""}
         >
-          <View>
-            <FlatList
-              data={messages}
-              renderItem={({ item }) => (
-                <TextMessage {...item}/>
-              )}
-              inverted={true}
-              keyExtractor={(item) => item.sentAt.toString()}
-            />
-            {/* message bar */}
-            {/* add another view and wrap textInput */}
-            <TextInput
-              style={{ position: 'absolute', bottom: 0, width: '100%' }}                
-              placeholder="Send Message"
-              width="100%"
-              value={message}
-              onChangeText={setMessage}
-              iconLeft="camera-outline"
-              iconRight="send"
-              iconRightColor={message.length > 0 ? "black" : "#A9A9A9"}
-              iconRightFontSize={20}
-              iconRightDisabled={message.length === 0}
-              iconLeftOnPress={handleChoosePhoto}
-              iconRightOnPress={() => onSend(null)}
-            />
-          </View>
+          <FlatList
+            data={messages}
+            renderItem={({ item }) => (
+              <TextMessage {...item}/>
+            )}
+            inverted={true}
+            keyExtractor={(item) => item.sentAt.toString()}
+          />
+          {/* message bar */}
+          {/* add another view and wrap textInput */}
+          <TextInput
+            style={styles.textInput}
+            placeholder="Send Message"
+            width="100%"
+            value={message}
+            onChangeText={setMessage}
+            iconLeft="camera-outline"
+            iconRight="send"
+            iconRightColor= {message.length > 0 ? "black" : "#A9A9A9"}
+            iconRightFontSize={20}
+            iconRightDisabled={message.length === 0}
+            iconLeftOnPress={handleChoosePhoto}
+            iconRightOnPress={() => onSend(null)}
+          />
         </KeyboardAvoidingView>
       }
     </Layout>
