@@ -41,8 +41,8 @@ export default function ({navigation}) {
 
   return (
     <Layout>
-      <TopNav 
-        middleContent={<MediumText size = "17">Discover Places To Eat</MediumText>}
+      <TopNav
+        middleContent={<MediumText size = {17}>Discover Places To Eat</MediumText>}
         leftContent={<Ionicons name="chevron-back" size={20} />}
         onPress= {() => navigation.goBack()}
       />

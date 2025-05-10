@@ -15,7 +15,7 @@ const DietaryPref = () => {
                 <MediumText color = "#5DB075" center ="center">Do you have any dietary preferences?</MediumText>
             </View>
             <View style = {styles.exampleTextContainer}>
-                <MediumText size = "13" color = "#A9A9A9" center={true}>E.g. Vegetarian, Gluten-free</MediumText>
+                <SmallText size = {13} color = "#A9A9A9" center={true}>E.g. Vegetarian, Gluten-free</SmallText>
             </View>
             <View style = {styles.textInputContainer}>
               <TagsSection

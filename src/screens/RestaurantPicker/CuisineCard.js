@@ -28,7 +28,7 @@ useEffect(()=> {
             <MediumText color = "#5DB075" center = "center">What Cuisine(s) are you {'\n'} in the mood for?</MediumText>
           </View>
           <View style = {styles.exampleTextContainer}>
-            <MediumText weight = "600" color = "#A9A9A9" size = "13" center ={true}>E.g. favorite culture, favorite dish</MediumText>
+            <SmallText weight = {600} color = "#A9A9A9" size = {13} center ={true}>E.g. favorite culture, favorite dish</SmallText>
           </View>
           <View style = {styles.textInputContainer}>
             <TagsSection
