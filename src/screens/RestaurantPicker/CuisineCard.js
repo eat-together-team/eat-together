@@ -1,9 +1,11 @@
 import React, {useState, useEffect} from 'react'
-import {StyleSheet, View, Text} from "react-native";
+import {StyleSheet, View} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
 import TagsSection from '../../components/TagsSection';
 import foodTagsToYelpCategories from '../../yelpTags';
+import SmallText from '../../components/SmallText';
+
 const CuisineCard = ({setCategoryAliases}) => {
 
 const foodTags = Object.keys(foodTagsToYelpCategories);
@@ -26,7 +28,7 @@ useEffect(()=> {
             <RestaurantQuestion text = {"What Cuisine(s) are you\nin the mood for?"}/>
           </View>
           <View style = {styles.exampleTextContainer}>
-            <Text style = {styles.exampleText}>E.g. favorite culture, favorite dish</Text>
+            <SmallText weight = "600" color = "#A9A9A9" size = "13" center ={true}>E.g. favorite culture, favorite dish</SmallText>
           </View>
           <View style = {styles.textInputContainer}>
             <TagsSection
@@ -76,14 +78,6 @@ const styles = StyleSheet.create({
     exampleTextContainer:{
       marginTop:30,
       marginBottom:10,
-    },
-    exampleText:{
-      fontFamily:'Inter',
-      fontWeight: 600,
-      fontSize:15,
-      lineHeight: 15,
-      color:"#A9A9A9",
-      textAlign:'center'
     },
     cuisineTagInput:{
       borderColor:'gray',
