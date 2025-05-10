@@ -79,43 +79,6 @@ export default function ({ route, navigation }) {
     }
   }, [message])
 
-  // const handleUploadImage = async () => {
-  //   try {
-  //     let result = await ImagePicker.launchImageLibraryAsync({
-  //       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-  //       allowsEditing: true,
-  //       quality: 1,
-  //     });
-
-  //     if (!result.cancelled) {
-  //       const source = { uri: result.assets[0].uri };
-
-  //       const response = await fetch(source.uri);
-  //       const blob = await response.blob();
-  //       const filename = source.uri.substring(source.uri.lastIndexOf('/') + 1);
-
-  //       // Upload to this group's folder
-  //       var ref = storage.ref().child('groups/' + group.groupID + "/" + filename).put(blob, {
-  //         contentType: 'image/jpeg'
-  //       });
-
-  //       try {
-  //         await ref;
-  //         const downloadURL = await ref.snapshot.ref.getDownloadURL();
-  //         onSend(downloadURL);
-  //         alert("Image Sent!");
-  //       } catch (e) {
-  //         console.log(e);
-  //         alert("Failed to upload image.");
-  //       }
-  //       onSend();
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     // Alert.alert("Error picking image.");
-  //   }
-  // };
-
   // For selecting a photo
   const handleChoosePhoto = async () => {
       Alert.alert (
