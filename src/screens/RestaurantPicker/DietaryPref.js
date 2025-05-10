@@ -15,7 +15,7 @@ const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
                 <RestaurantQuestion text = {"Do you have any dietary preferences?"}/>
             </View>
             <View style = {styles.exampleTextContainer}>
-                <SmallText size = "13" color = "#A9A9A9" center={true}>E.g. Vegetarian, Gluten-free</SmallText>
+                <SmallText size = {13} color = "#A9A9A9" center={true}>E.g. Vegetarian, Gluten-free</SmallText>
             </View>
             <View style = {styles.textInputContainer}>
               <TagsSection

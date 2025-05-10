@@ -28,7 +28,7 @@ useEffect(()=> {
             <RestaurantQuestion text = {"What Cuisine(s) are you\nin the mood for?"}/>
           </View>
           <View style = {styles.exampleTextContainer}>
-            <SmallText weight = "600" color = "#A9A9A9" size = "13" center ={true}>E.g. favorite culture, favorite dish</SmallText>
+            <SmallText weight = {600} color = "#A9A9A9" size = {13} center ={true}>E.g. favorite culture, favorite dish</SmallText>
           </View>
           <View style = {styles.textInputContainer}>
             <TagsSection
