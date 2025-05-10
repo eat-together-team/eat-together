@@ -18,10 +18,10 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                     <MediumText size = "25" center = {true} >Swipe <SmallText weight = "800" size = "25" color = "#5DB075">RIGHT</SmallText> to save.</MediumText>
                     <View style = {[styles.buttonContainer, {marginTop:30}]}>
                         <TouchableOpacity style = {styles.backButton} onPress={()=> setPressedFinished(false)}>
-                            <SmallText size = "13" color = "#5DB075" weight = "600" >Back</SmallText>
+                            <MediumText size = "13" color = "#5DB075" weight = "600" >Back</MediumText>
                         </TouchableOpacity>
                         <TouchableOpacity style = {styles.nextButton}>
-                            <SmallText size = "13" color = "#FFFFFF" weight = "600" >Start</SmallText>
+                            <MediumText size = "13" color = "#FFFFFF" weight = "600" >Start</MediumText>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -30,13 +30,13 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
         {index > 1 &&
             <View style = {styles.buttonContainer}>
                 <TouchableOpacity style = {styles.backButton} onPress={decrementIndex}>
-                    <SmallText size = "13" color = "#5DB075">Back</SmallText>
+                    <MediumText size = "13" color = "#5DB075">Back</MediumText>
                 </TouchableOpacity>
                 <TouchableOpacity style = {styles.nextButton} onPress={incrementIndex}>
                     {
                         index == cards.length - 1 ? 
-                        <SmallText color = "#FFFFFF">Finish</SmallText> : 
-                        <SmallText color = "#FFFFFF">Next</SmallText> 
+                        <MediumText size = "13" color = "#FFFFFF">Finish</MediumText> : 
+                        <MediumText size = "13" color = "#FFFFFF">Next</MediumText>
                     }
                 </TouchableOpacity>
             </View>
