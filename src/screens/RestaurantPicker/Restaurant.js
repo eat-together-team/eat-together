@@ -11,22 +11,22 @@ import StartCard from './StartCard';
 import DontWorryCard from './DontWorryCard';
 
 export default function ({navigation}) {
-  //grab state of all user input
+  //grab state of all user input to pass into Yelp params
   const [categoryAliases, setCategoryAliases] = useState([]);
   const [priceRange, setPriceRange] = useState();
   const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
   const [index, setIndex] = useState(0);
-  const[pressedFinished, setPressedFinished] = useState(false);
-
-  const incrementIndex = ()=>{
-    if(index === cards.length - 1){
+  const [pressedFinished, setPressedFinished] = useState(false);
+  
+  const incrementIndex = () => {
+    if (index === cards.length - 1){
       setPressedFinished(true);
-    }else{
+    } else{
       setIndex(Math.min(cards.length - 1, index + 1)); //can't go below index 0 
     }
 
   }
-  const decrementIndex = () =>{
+  const decrementIndex = () => {
     setIndex(Math.max(0, index - 1)); //can't go above card.length - 1
   }
 
