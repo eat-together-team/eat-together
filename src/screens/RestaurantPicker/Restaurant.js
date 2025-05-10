@@ -31,11 +31,13 @@ export default function ({navigation}) {
   }
 
   //card carousel
-  const cards = [<StartCard incrementIndex = {incrementIndex}/>, 
+  const cards = [
+    <StartCard incrementIndex = {incrementIndex}/>, 
     <DontWorryCard incrementIndex = {incrementIndex} decrementIndex = {decrementIndex}/>,
-  <CuisineCard setCategoryAliases = {setCategoryAliases}/>, 
-  <DietaryPref setSelectedDietaryTags = {setSelectedDietaryTags} selectedDietaryTags = {selectedDietaryTags}/>, 
-  <PriceRangeCard setPriceRange = {setPriceRange}/>];
+    <CuisineCard setCategoryAliases = {setCategoryAliases}/>, 
+    <DietaryPref setSelectedDietaryTags = {setSelectedDietaryTags} selectedDietaryTags = {selectedDietaryTags}/>, 
+    <PriceRangeCard setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+  ];
 
   return (
     <Layout>
