@@ -317,33 +317,31 @@ export default function ({ route, navigation }) {
           style={{ flex: 1}}
           behavior={Platform.OS === "ios" ? "padding" : ""}
         >
-          <FlatList
-            data={messages}
-            renderItem={({ item }) => (
-              <TextMessage {...item}/>
-            )}
-            inverted={true}
-            keyExtractor={(item) => item.sentAt.toString()}
-          />
-          {/* message bar */}
-          {/* add another view and wrap textInput */}
-          <View style={{justifyContent: 'flex-end' }}>
-            <TextInput
-            style={styles.textInput}
-            placeholder="Send Message"
-            width="100%"
-            value={message}
-            onChangeText={setMessage}
-            iconLeft="camera-outline"
-            iconRight="send"
-            iconRightColor= {message.length > 0 ? "black" : "#A9A9A9"}
-            iconRightFontSize={20}
-            iconRightDisabled={message.length === 0}
-            iconLeftOnPress={handleChoosePhoto}
-            iconRightOnPress={() => onSend(null)}
-          />
-
-
+          <View>
+            <FlatList
+              data={messages}
+              renderItem={({ item }) => (
+                <TextMessage {...item}/>
+              )}
+              inverted={true}
+              keyExtractor={(item) => item.sentAt.toString()}
+            />
+              {/* message bar */}
+              {/* add another view and wrap textInput */}
+              <TextInput
+                style={{ position: 'absolute', bottom: 0, width: '100%' }}                
+                placeholder="Send Message"
+                width="100%"
+                value={message}
+                onChangeText={setMessage}
+                iconLeft="camera-outline"
+                iconRight="send"
+                iconRightColor={message.length > 0 ? "black" : "#A9A9A9"}
+                iconRightFontSize={20}
+                iconRightDisabled={message.length === 0}
+                iconLeftOnPress={handleChoosePhoto}
+                iconRightOnPress={() => onSend(null)}
+              />
           </View>
         </KeyboardAvoidingView>
       }
@@ -359,16 +357,4 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
 
-  page: {
-    paddingTop: 30,
-    alignItems: "center",
-    paddingHorizontal: 10,
-  },
-
-  background: {
-    position: "absolute",
-    width: Dimensions.get("screen").width,
-    height: 100,
-    backgroundColor: "#5DB075",
-  }
 });
