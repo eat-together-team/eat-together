@@ -4,7 +4,7 @@ import RestaurantCard from "../../components/RestaurantCard";
 import TagsSection from '../../components/TagsSection';
 import foodTagsToYelpCategories from '../../yelpTags';
 import MediumText from '../../components/MediumText';
-
+import SmallText from '../../components/SmallText';
 const CuisineCard = ({setCategoryAliases}) => {
 
 const foodTags = Object.keys(foodTagsToYelpCategories);
@@ -27,7 +27,7 @@ useEffect(()=> {
             <MediumText color = "#5DB075" center = "center">What Cuisine(s) are you {'\n'} in the mood for?</MediumText>
           </View>
           <View style = {styles.exampleTextContainer}>
-            <MediumText weight = "600" color = "#A9A9A9" size = "13" center ={true}>E.g. favorite culture, favorite dish</MediumText>
+            <MediumText weight = {600} color = "#A9A9A9" size = {13} center ={true}>E.g. favorite culture, favorite dish</MediumText>
           </View>
           <View style = {styles.textInputContainer}>
             <TagsSection

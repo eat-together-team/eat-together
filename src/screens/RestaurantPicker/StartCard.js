@@ -9,11 +9,11 @@ const StartCard = ({incrementIndex}) => {
         <RestaurantCard>
             <View style = {styles.questionContainer}>
                 <View style = {styles.textWrapper}>
-                  <LargeText center = "center" color = "#5DB075">Any thoughts on where to grab food?</LargeText>
+                    <LargeText color = "#5DB075" size = {30} center = "center">Any thoughts on where to grab food?</LargeText>
                 </View>
             </View>
             <View style = {styles.buttonContainer}>
-                <Button onPress ={incrementIndex} fontSize={16} paddingHorizontal={25} paddingVertical={10}>Set Preferences First</Button>
+                <Button onPress={incrementIndex} fontSize={16} paddingHorizontal={25} paddingVertical={10}>Set Preferences First</Button>
                 <Button fontSize={16} paddingHorizontal={25} paddingVertical={10}>I'd rather explore any!</Button>
             </View>
         </RestaurantCard>

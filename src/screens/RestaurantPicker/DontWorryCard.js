@@ -10,8 +10,8 @@ const DontWorryCard = ({incrementIndex, decrementIndex}) => {
         <RestaurantCard>
             <View style = {styles.questionContainer}>
                 <View style = {styles.textWrapper}>
-                    <LargeText center = "center" marginBottom = "20" color = "#5DB075">Don't worry!{'\n'}We'll help you!</LargeText>
-                    <MediumText size = "18" color = "#808080" center = "center">Start by answering a few questions!</MediumText>
+                    <LargeText marginBottom = {10} size = {30} color = "#5DB075" center = "center">Don't Worry We'll Help You!</LargeText>
+                    <MediumText size = {18} color = "#808080" center = "center">Start by answering a few questions!</MediumText>
                 </View>
             </View>
             <View style = {styles.buttonContainer}>
