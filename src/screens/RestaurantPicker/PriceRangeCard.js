@@ -4,7 +4,7 @@ import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantQuestion from "../../components/RestaurantQuestion";
 import PriceRangeButton from './PriceRangeButton';
 
-const PriceRangeCard = ({setPriceRange}) => {
+const PriceRangeCard = ({setPriceRange, priceRange}) => {
   return (
     <View>
         <RestaurantCard>
@@ -12,10 +12,10 @@ const PriceRangeCard = ({setPriceRange}) => {
                 <RestaurantQuestion text = "What is your price range?"/>
             </View>
             <View style = {styles.buttonContainer}>
-              <PriceRangeButton dollars="$" text="(Under $10)" setPriceRange = {setPriceRange}/>
-              <PriceRangeButton dollars="$$" text="($11-$30)" setPriceRange = {setPriceRange}/>
-              <PriceRangeButton dollars="$$$" text="($31-$60)" setPriceRange = {setPriceRange}/>
-              <PriceRangeButton dollars="$$$$" text="(Above $61)" setPriceRange = {setPriceRange}/>
+              <PriceRangeButton dollars="$" text="(Under $10)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+              <PriceRangeButton dollars="$$" text="($11-$30)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+              <PriceRangeButton dollars="$$$" text="($31-$60)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+              <PriceRangeButton dollars="$$$$" text="(Above $61)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
             </View>
         </RestaurantCard>
     </View>
