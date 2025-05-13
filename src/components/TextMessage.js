@@ -9,6 +9,16 @@ import getTime from "../getTime";
 const TextMessage = (props) => {
   const user = firebase.auth().currentUser;
   const messageDate = moment.unix(props.sentAt).toDate();
+  let nextMessageDate = ""
+  if(props.nextMessage) {
+      nextMessageDate =  moment.unix(props.nextMessage.sentAt).toDate();
+      console.log("nextMsg", getTime(nextMessageDate), "this msg date", getTime(messageDate))
+  }
+  
+
+  
+  // console.log("here is the next msg dat", nextMessageDate)
+  // console.log("here is the next msg", props.nextMessage)
   const [isModalVisible, setIsModalVisible] = useState(false);
   // console.log("This is the next msg", props.nextMessage)
 
@@ -50,10 +60,12 @@ const TextMessage = (props) => {
 
       {/* <NormalText> </NormalText>  this is where I put time and add seperate styles to get it to the side */}
       {/* Time and user matching logic */}
-      {<NormalText style={props.sentBy == user.uid ? timeStyle.you : timeStyle.other} color="#666666" size={12}>{getDate(messageDate, false)}, {getTime(messageDate)}</NormalText>}
-
-
-
+      {(!props.nextMessage || props.nextMessage.sentBy !== props.sentBy
+        || (nextMessageDate === "" || getTime(messageDate) !== getTime(nextMessageDate))) &&
+        (<NormalText style={props.sentBy == user.uid ? timeStyle.you : timeStyle.other} color="#666666" size={12}>
+          {getDate(messageDate, false)}, {getTime(messageDate)}
+        </NormalText>)}
+      {/* {<NormalText style={props.sentBy == user.uid ? timeStyle.you : timeStyle.other} color="#666666" size={12}>{getDate(messageDate, false)}, {getTime(messageDate)}</NormalText>} */}
     </View>
   );
 };
@@ -64,7 +76,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderTopRightRadius: 0, // made top corner not round
     marginHorizontal: 30,
-    marginVertical: 10,
+    marginVertical: 3,
     paddingHorizontal: 20,
     paddingVertical: 10,
     alignSelf: "flex-end",
@@ -75,7 +87,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderTopLeftRadius: 0,
     marginHorizontal: 30,
-    marginVertical: 10,
+    marginVertical: 3,
     paddingHorizontal: 20,
     paddingVertical: 10,
     alignSelf: "flex-start",
@@ -103,7 +115,8 @@ const styles = StyleSheet.create({
 const timeStyle = StyleSheet.create({
   you: {
     marginHorizontal: 10,
-    marginVertical: 0,
+    marginTop: 5,
+    marginBottom: 5,
     paddingHorizontal: 20,
     paddingVertical: 0,
     alignSelf: "flex-end",
@@ -111,7 +124,8 @@ const timeStyle = StyleSheet.create({
   },
   other: {
     marginHorizontal: 10,
-    marginVertical: 0,
+    marginTop: 5,
+    marginBottom: 5,
     paddingHorizontal: 20,
     paddingVertical: 0,
     alignSelf: "flex-start",

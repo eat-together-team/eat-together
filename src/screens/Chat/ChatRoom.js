@@ -34,6 +34,8 @@ export default function ({ route, navigation }) {
 
   // Common constant references
   let group = route.params.group;
+  console.log("group", group)
+
   const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState(null);
   const messageRef = db.collection("Groups").doc(group.groupID);
