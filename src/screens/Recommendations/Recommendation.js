@@ -5,6 +5,7 @@ import { View, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Link
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 
+// Components
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
@@ -17,19 +18,24 @@ import Link from "../../components/Link";
 import Toggle from "../../components/Toggle";
 import CircularButton from "../../components/CircularButton";
 import RecTutorialMessage from "../../components/RecTutorialMessage";  // Tutorial message for recommendations
-
-import getDate from "../../getDate";
-import getTime from "../../getTime";
-
-import {db, auth} from "../../provider/Firebase";
-import * as firebase from "firebase/compat";
-import openMap from "react-native-open-maps";
-import { getCommonTags, convertToFutureDate } from "../../methods";
-import moment from 'moment';
-
 import RBSheet from "react-native-raw-bottom-sheet";
 import Checkbox from "../../components/Checkbox";
+
+// Scripts
+import getDate from "../../getDate";
+import getTime from "../../getTime";
+import { getCommonTags, convertToFutureDate } from "../../methods";
+
+// Providers
+import { db, auth } from "../../provider/Firebase";
+import * as firebase from "firebase/compat";
+import openMap from "react-native-open-maps";
+import moment from 'moment';
+import { usePostHog } from "posthog-react-native";
+
 const Recommendation = ({ route, navigation }) => {
+  const posthog = usePostHog(); // For analytics
+
   // User and other user states
   const user = auth.currentUser;
   const [groupChat, setGroupChat] = useState(null); // Info for the group chat
@@ -154,6 +160,8 @@ const Recommendation = ({ route, navigation }) => {
         attendedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
         "settings.attendingEvent": true
       }).then(() => {
+        posthog.capture("Attending Recommendation"); // To analyze how often recommendations are used
+
         navigation.goBack();
         alert("You are signed up :)");
       });

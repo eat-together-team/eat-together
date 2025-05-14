@@ -6,6 +6,7 @@ import { Layout } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import RBSheet from "react-native-raw-bottom-sheet";
 
+// Components
 import EventCard from "../../components/EventCard";
 import Header from "../../components/Header";
 import Searchbar from "../../components/Searchbar";
@@ -17,16 +18,18 @@ import TutorialMessage from "../../components/TutorialMessage";
 import RecTutorialMessage from "../../components/RecTutorialMessage";
 import Link from "../../components/Link";
 import Button from "../../components/Button"
-
-import { db, auth } from "../../provider/Firebase";
-import { AuthContext } from "../../provider/AuthProvider";
-import { compareDates } from "../../methods";
 import MediumText from "../../components/MediumText";
 import RecommendationsCard from "../../components/RecommendationsCard";
 
+// Methods and providers
+import { db, auth } from "../../provider/Firebase";
+import { AuthContext } from "../../provider/AuthProvider";
+import { usePostHog } from "posthog-react-native";
+import { compareDates } from "../../methods";
+
 export default function ({ navigation }) {
-  // Get current user
-  const user = auth.currentUser;
+  const user = auth.currentUser; // Get current user
+  const posthog = usePostHog(); // For analytics
 
   const [userInfo, setUserInfo] = useState(null);
   const [step, setStep] = useState(0); // Used to display tutorial message
@@ -115,6 +118,13 @@ export default function ({ navigation }) {
                   setFilteredSearchedEvents(newEvents);
                 });
             });
+            
+            // Track user login event
+            posthog.identify(user.uid, {
+              uid: user.uid,
+              email: user.email,
+              name: doc.data().firstName + " " + doc.data().lastName
+            });
           }
         });
     }
@@ -169,6 +179,13 @@ export default function ({ navigation }) {
 
         setLoading(false); // Stop showing loading screen
       });
+    });
+  }, []);
+
+  // Tracks user's last login
+  useEffect(() => {
+    db.collection("Users").doc(user.uid).update({
+      lastLogin: new Date()
     });
   }, []);
 
@@ -518,10 +535,6 @@ export default function ({ navigation }) {
     return () => unsubscribe();
 
   }, []);
-
-  useEffect(() => {
-    console.log("recStep: ", recStep);
-  }, [recStep])
 
   if (!isDataFetched) return null; // Don't render anything if data hasn't been fetched
 

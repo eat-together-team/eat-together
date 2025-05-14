@@ -2,6 +2,7 @@
 //Sets up login permissions
 
 import React, { useState, useContext, useEffect } from "react";
+import { Alert, Linking } from "react-native";
 import "firebase/firestore";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -31,9 +32,11 @@ import { tryoutId } from "../constants";
 
 //Push notifications functions and imports
 import * as NotificationFunctions from "expo-notifications";
-
 import DeviceToken from "../screens/utils/DeviceToken";
-import {Alert, Linking} from "react-native";
+
+// Analytics
+import { PostHogProvider } from "posthog-react-native";
+import { POSTHOG_API_KEY } from "@env";
 
 async function registerForPushNotificationsAsync() {
   let token;
@@ -222,7 +225,16 @@ export default () => {
         currUser.email !== "calebcile@gmail.com" ? (
           <VerifyEmail setCurrUser={auth_context.setCurrUser}/>
         ) : (
-          user === true && <Main />
+          user === true && 
+            <PostHogProvider
+              apiKey={POSTHOG_API_KEY}
+              options={{ host: "https://us.i.posthog.com" }}
+              autocapture={{
+                captureTouches: true
+              }}
+            >
+              <Main />
+            </PostHogProvider>
         )
       }
     </NavigationContainer>
