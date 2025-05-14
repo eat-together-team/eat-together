@@ -81,43 +81,6 @@ export default function ({ route, navigation }) {
     }
   }, [message])
 
-  const handleUploadImage = async () => {
-    try {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 1,
-      });
-
-      if (!result.cancelled) {
-        const source = { uri: result.assets[0].uri };
-
-        const response = await fetch(source.uri);
-        const blob = await response.blob();
-        const filename = source.uri.substring(source.uri.lastIndexOf('/') + 1);
-
-        // Upload to this group's folder
-        var ref = storage.ref().child('groups/' + group.groupID + "/" + filename).put(blob, {
-          contentType: 'image/jpeg'
-        });
-
-        try {
-          await ref;
-          const downloadURL = await ref.snapshot.ref.getDownloadURL();
-          onSend(downloadURL);
-          alert("Image Sent!");
-        } catch (e) {
-          console.log(e);
-          alert("Failed to upload image.");
-        }
-        onSend();
-      }
-    } catch (error) {
-      console.log(error);
-      // Alert.alert("Error picking image.");
-    }
-  };
-
   // For selecting a photo
   const handleChoosePhoto = async () => {
       Alert.alert (
@@ -137,31 +100,52 @@ export default function ({ route, navigation }) {
   // For selecting a photo from gallery
   const galleryImageSelector = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
-        quality: 1,
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      quality: 1,
     });
     if (!result.cancelled) {
-        onSend(result.assets[0].uri);
+      await uploadImageToStorage(result.assets[0].uri);
     }
   };
-
+  
   // For selecting a photo by capturing an image with camera
   const cameraImageSelector = async () => {
-      try {
-          await ImagePicker.requestCameraPermissionsAsync({});
-          let result = await ImagePicker.launchCameraAsync({
-              cameraType: ImagePicker.CameraType.back,
-              allowsEditing: true,
-              quality: 1,
-          });
-          if (!result.cancelled) {
-              onSend(result.assets[0].uri);
-          }
-      } catch (error) {
-          alert("Error uploading message: " + error.message);
+    try {
+      await ImagePicker.requestCameraPermissionsAsync({});
+      let result = await ImagePicker.launchCameraAsync({
+        cameraType: ImagePicker.CameraType.back,
+        allowsEditing: true,
+        quality: 1,
+      });
+      if (!result.cancelled) {
+        await uploadImageToStorage(result.assets[0].uri);
       }
+    } catch (error) {
+      Alert.alert("Error", "Failed to take photo: " + error.message);
+    }
   };
+  
+  const uploadImageToStorage = async (uri) => {
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      const filename = uri.substring(uri.lastIndexOf('/') + 1);
+  
+      const ref = storage.ref().child('groups/' + group.groupID + '/' + filename);
+      const uploadTask = await ref.put(blob, {
+        contentType: 'image/jpeg',
+      });
+  
+      const downloadURL = await uploadTask.ref.getDownloadURL();
+      onSend(downloadURL);
+      Alert.alert("Success", "Image Sent!");
+    } catch (e) {
+      console.error("Upload failed:", e);
+      Alert.alert("Error", "Failed to upload image.");
+    }
+  };
+  
 
   // Set all messages to read
   const setRead = (messages) => {
@@ -296,7 +280,7 @@ export default function ({ route, navigation }) {
       :
         <KeyboardAvoidingView 
           style={{ flex: 1}}
-          behavior={Platform.OS === "ios" ? "padding" : ""}
+          behavior={Platform.OS === "ios" ? "position" : ""}
         >
           <FlatList
             data={messages}
@@ -336,16 +320,4 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
 
-  page: {
-    paddingTop: 30,
-    alignItems: "center",
-    paddingHorizontal: 10,
-  },
-
-  background: {
-    position: "absolute",
-    width: Dimensions.get("screen").width,
-    height: 100,
-    backgroundColor: "#5DB075",
-  }
 });
