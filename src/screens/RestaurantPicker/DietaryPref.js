@@ -6,6 +6,7 @@ import MediumText from '../../components/MediumText';
 
 const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
 
+  //dietary tags (approved category aliases) from Yelp
   const dietaryTags = ["vegan","vegetarian","gluten_free","halal","kosher"];
   return (
     <View>

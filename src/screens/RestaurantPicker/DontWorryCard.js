@@ -4,6 +4,7 @@ import RestaurantCard from "../../components/RestaurantCard";
 import Button from '../../components/Button';
 import MediumText from '../../components/MediumText';
 import LargeText from '../../components/LargeText';
+
 const DontWorryCard = ({incrementIndex, decrementIndex}) => {
   return (
     <View>

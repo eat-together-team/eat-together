@@ -4,21 +4,23 @@ import RestaurantCard from "../../components/RestaurantCard";
 import TagsSection from '../../components/TagsSection';
 import foodTagsToYelpCategories from '../../yelpTags';
 import MediumText from '../../components/MediumText';
-import SmallText from '../../components/SmallText';
-const CuisineCard = ({setCategoryAliases}) => {
 
-const foodTags = Object.keys(foodTagsToYelpCategories);
+const CuisineCard = ({setCategoryAliases, categoryAliases}) => {
+  //Eat together's food tags
+  const foodTags = Object.keys(foodTagsToYelpCategories); 
 
-const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
+  //State for keeping track of user's selected cuisine tags
+  const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
 
-useEffect(()=> {
-  //map out each food tag to yelp's approved category aliases 
-  const updatedCategoryAliases = cuisineTagSelected.map((item) =>{
-      return foodTagsToYelpCategories[item];
-  });
-  setCategoryAliases(updatedCategoryAliases);
+  //gets corresponding category alias for every food tag selected
+  useEffect(()=> {
+    //map out each food tag to yelp's approved category aliases 
+    const updatedCategoryAliases = cuisineTagSelected.map((item) =>{
+        return foodTagsToYelpCategories[item];
+    });
+    setCategoryAliases(updatedCategoryAliases);
 
-}, [cuisineTagSelected]);
+  }, [cuisineTagSelected]);
 
   return (
       <View>
