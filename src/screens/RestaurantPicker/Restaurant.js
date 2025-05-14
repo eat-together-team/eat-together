@@ -14,6 +14,7 @@ export default function ({navigation}) {
 
   //grab state of all user input to pass into Yelp params
   const [categoryAliases, setCategoryAliases] = useState([]);
+  const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
   const [priceRange, setPriceRange] = useState();
   const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
   const [index, setIndex] = useState(0);
@@ -37,7 +38,7 @@ export default function ({navigation}) {
   const cards = [
     <StartCard incrementIndex = {incrementIndex}/>, 
     <DontWorryCard incrementIndex = {incrementIndex} decrementIndex = {decrementIndex}/>,
-    <CuisineCard setCategoryAliases = {setCategoryAliases} categoryAliases = {categoryAliases}/>, 
+    <CuisineCard setCategoryAliases = {setCategoryAliases} categoryAliases = {categoryAliases} setCuisineTagSelected = {setCuisineTagSelected} cuisineTagSelected = {cuisineTagSelected}/>, 
     <DietaryPref setSelectedDietaryTags = {setSelectedDietaryTags} selectedDietaryTags = {selectedDietaryTags}/>, 
     <PriceRangeCard setPriceRange = {setPriceRange} priceRange = {priceRange}/>
   ];

@@ -1,16 +1,14 @@
-import React, {useState, useEffect} from 'react'
+import React, {useEffect} from 'react'
 import {StyleSheet, View} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
 import TagsSection from '../../components/TagsSection';
 import foodTagsToYelpCategories from '../../yelpTags';
 import MediumText from '../../components/MediumText';
 
-const CuisineCard = ({setCategoryAliases, categoryAliases}) => {
+const CuisineCard = ({setCategoryAliases, cuisineTagSelected, setCuisineTagSelected}) => {
+  
   //Eat together's food tags
   const foodTags = Object.keys(foodTagsToYelpCategories); 
-
-  //State for keeping track of user's selected cuisine tags
-  const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
 
   //gets corresponding category alias for every food tag selected
   useEffect(()=> {
