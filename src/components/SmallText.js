@@ -14,7 +14,7 @@ const SmallText = props => {
                 color: props.color ? props.color : "black",
                 textAlign: props.center ? "center" : "auto",
                 paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
-                marginBottom: props.marginBottom ? props.marginBottom : 0
+                marginBottom: props.marginBottom ? props.marginBottom : 0,
             }}>
                 {props.children}
             </Text>
@@ -24,7 +24,7 @@ const SmallText = props => {
         <Text style={{
             fontSize: props.size ? props.size : 10,
             fontWeight: props.weight ? props.weight : "normal",
-            fontFamily: 'Inter_300Light',
+            fontFamily: props.fontFamily ? props.fontFamily :'Inter_300Light',
             color: props.color ? props.color : "black",
             textAlign: props.center ? "center" : "auto",
             paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
