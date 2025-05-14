@@ -18,8 +18,8 @@ const PriceRangeButton = ({dollars, text, setPriceRange , priceRange}) => {
   return (
     <TouchableOpacity style = {styles.priceContainer(priceRange,dollars)} onPress={handlePriceRange}>
       <MediumText>
-        <MediumText color  = "#5DB075" size = "15">{dollars}</MediumText>
-        <MediumText color = "#A9A9A9" size = "15">{text}</MediumText>
+        <MediumText color  = "#5DB075" size = {15}>{dollars}</MediumText>
+        <MediumText color = "#A9A9A9" size = {15}>{text}</MediumText>
       </MediumText>
     </TouchableOpacity>
   )

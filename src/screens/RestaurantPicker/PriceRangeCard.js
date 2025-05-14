@@ -5,6 +5,7 @@ import MediumText from '../../components/MediumText';
 import PriceRangeButton from '../../components/PriceRangeButton';
 
 const PriceRangeCard = ({setPriceRange, priceRange}) => {
+
   return (
     <View>
         <RestaurantCard>
