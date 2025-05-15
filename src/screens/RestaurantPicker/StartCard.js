@@ -1,15 +1,15 @@
 import React from 'react'
 import {StyleSheet, View} from "react-native";
-import RestaurantQuestion from '../../components/RestaurantQuestion';
 import RestaurantCard from '../../components/RestaurantCard';
 import Button from '../../components/Button';
+import LargeText from '../../components/LargeText';
 const StartCard = ({incrementIndex}) => {
   return (
     <View>
         <RestaurantCard>
             <View style = {styles.questionContainer}>
                 <View style = {styles.textWrapper}>
-                    <RestaurantQuestion size = {30} text = "Any thoughts on where to grab food?"/>
+                    <LargeText color = "#5DB075" size = {30} center = "center">Any thoughts on where to grab food?</LargeText>
                 </View>
             </View>
             <View style = {styles.buttonContainer}>

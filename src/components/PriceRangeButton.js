@@ -1,5 +1,7 @@
 import React from 'react'
-import {TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {TouchableOpacity, StyleSheet} from 'react-native';
+import MediumText
+ from './MediumText';
 const PriceRangeButton = ({dollars, text, setPriceRange , priceRange}) => {
  
   const handlePriceRange = () =>{
@@ -15,10 +17,10 @@ const PriceRangeButton = ({dollars, text, setPriceRange , priceRange}) => {
   };
   return (
     <TouchableOpacity style = {styles.priceContainer(priceRange,dollars)} onPress={handlePriceRange}>
-      <Text>
-        <Text style = {{color:"#5DB075", fontSize: 15, fontWeight: 500}}>{dollars}</Text>
-        <Text style = {{color:"#A9A9A9", fontSize: 15, fontWeight: 500}}>{text}</Text>
-      </Text>
+      <MediumText>
+        <MediumText color  = "#5DB075" size = {15}>{dollars}</MediumText>
+        <MediumText color = "#A9A9A9" size = {15}>{text}</MediumText>
+      </MediumText>
     </TouchableOpacity>
   )
 }

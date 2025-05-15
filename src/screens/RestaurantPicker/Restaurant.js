@@ -11,22 +11,26 @@ import StartCard from './StartCard';
 import DontWorryCard from './DontWorryCard';
 
 export default function ({navigation}) {
-  //grab state of all user input
+
+  //grab state of all user input to pass into Yelp params
   const [categoryAliases, setCategoryAliases] = useState([]);
+  const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
   const [priceRange, setPriceRange] = useState();
   const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
   const [index, setIndex] = useState(0);
-  const[pressedFinished, setPressedFinished] = useState(false);
+  const [pressedFinished, setPressedFinished] = useState(false);
 
-  const incrementIndex = ()=>{
-    if(index === cards.length - 1){
+  //increment index for button to render next card in carousel
+  const incrementIndex = () => {
+    if (index === cards.length - 1){
       setPressedFinished(true);
-    }else{
+    } else{
       setIndex(Math.min(cards.length - 1, index + 1)); //can't go below index 0 
     }
-
   }
-  const decrementIndex = () =>{
+
+  //decrement index for button to go back to previous card in carousel
+  const decrementIndex = () => {
     setIndex(Math.max(0, index - 1)); //can't go above card.length - 1
   }
 
@@ -34,7 +38,7 @@ export default function ({navigation}) {
   const cards = [
     <StartCard incrementIndex = {incrementIndex}/>, 
     <DontWorryCard incrementIndex = {incrementIndex} decrementIndex = {decrementIndex}/>,
-    <CuisineCard setCategoryAliases = {setCategoryAliases}/>, 
+    <CuisineCard setCategoryAliases = {setCategoryAliases} categoryAliases = {categoryAliases} setCuisineTagSelected = {setCuisineTagSelected} cuisineTagSelected = {cuisineTagSelected}/>, 
     <DietaryPref setSelectedDietaryTags = {setSelectedDietaryTags} selectedDietaryTags = {selectedDietaryTags}/>, 
     <PriceRangeCard setPriceRange = {setPriceRange} priceRange = {priceRange}/>
   ];
@@ -47,12 +51,13 @@ export default function ({navigation}) {
         leftAction={() => navigation.goBack()}
       />
       <View style = {styles.outerContainer}>
-        <CardCarousel cards = {cards} 
-        incrementIndex = {incrementIndex} 
-        decrementIndex = {decrementIndex} 
-        index = {index}
-        pressedFinished = {pressedFinished}
-        setPressedFinished = {setPressedFinished}
+        <CardCarousel 
+          cards = {cards} 
+          incrementIndex = {incrementIndex} 
+          decrementIndex = {decrementIndex} 
+          index = {index}
+          pressedFinished = {pressedFinished}
+          setPressedFinished = {setPressedFinished}
         />
       </View>
     </Layout>
