@@ -380,58 +380,58 @@ export default function ({ route, navigation }) {
 
       <Button
         disabled={disabled || loading}
-        // onPress={() => {
-        //   setLoading(true);
+        onPress={() => {
+          setLoading(true);
 
-        //   // Check which page the user came from (WhileYouEat or Organize)
-        //   if (route.params.from === "WhileYouEat") {
-        //     users.filter((user) => user.invited).forEach((attendee) => {
-        //       const ref = db.collection("User Invites").doc(attendee.id);
-        //       ref.get().then(async (docRef) => {
-        //         if (attendee.id !== user.id) {
-        //           await sendInvitation(ref, route.params, userInfo, route.params.id);
-        //         }
-        //       });
-        //     });
+          // Check which page the user came from (WhileYouEat or Organize)
+          if (route.params.from === "WhileYouEat") {
+            users.filter((user) => user.invited).forEach((attendee) => {
+              const ref = db.collection("User Invites").doc(attendee.id);
+              ref.get().then(async (docRef) => {
+                if (attendee.id !== user.id) {
+                  await sendInvitation(ref, route.params, userInfo, route.params.id);
+                }
+              });
+            });
 
-        //     navigation.goBack();
-        //     alert("Invitations sent! Make sure to do attendance when the meal starts!");
-        //   } else {
-        //     let id = Date.now() + user.uid; // Generate a unique ID for the event
+            navigation.goBack();
+            alert("Invitations sent! Make sure to do attendance when the meal starts!");
+          } else {
+            let id = Date.now() + user.uid; // Generate a unique ID for the event
 
-        //     if (route.params.hasImage) {
-        //       storeImage(route.params.image, id).then(() => {
-        //         fetchImage(id).then((uri) => {
-        //           sendInvites(
-        //             users.filter((user) => user.invited),
-        //             route.params,
-        //             navigation,
-        //             userInfo,
-        //             id,
-        //             uri,
-        //             route.params.icebreakers,
-        //             route.params.clearAll
-        //           ).then(() => {
-        //             setLoading(false);
-        //           });
-        //         });
-        //       });
-        //     } else {
-        //       sendInvites(
-        //         users.filter((user) => user.invited),
-        //         route.params,
-        //         navigation,
-        //         userInfo,
-        //         id,
-        //         "",
-        //         route.params.icebreakers,
-        //         route.params.clearAll
-        //       ).then(() => {
-        //         setLoading(false);
-        //       });
-        //     }
-        //   }
-        // }}
+            if (route.params.hasImage) {
+              storeImage(route.params.image, id).then(() => {
+                fetchImage(id).then((uri) => {
+                  sendInvites(
+                    users.filter((user) => user.invited),
+                    route.params,
+                    navigation,
+                    userInfo,
+                    id,
+                    uri,
+                    route.params.icebreakers,
+                    route.params.clearAll
+                  ).then(() => {
+                    setLoading(false);
+                  });
+                });
+              });
+            } else {
+              sendInvites(
+                users.filter((user) => user.invited),
+                route.params,
+                navigation,
+                userInfo,
+                id,
+                "",
+                route.params.icebreakers,
+                route.params.clearAll
+              ).then(() => {
+                setLoading(false);
+              });
+            }
+          }
+        }}
         marginBottom={Platform.OS === "ios"? -34 : 0}
       >
        {loading ? "Sending ..." : "Send Invites"}
