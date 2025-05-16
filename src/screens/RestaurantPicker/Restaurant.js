@@ -1,5 +1,5 @@
-import React from 'react'
-import {StyleSheet, View, } from "react-native";
+import React, {useState} from 'react'
+import {StyleSheet, View, TouchableOpacity, Text, Touchable} from "react-native";
 import { Layout, TopNav} from "react-native-rapi-ui";
 import MediumText from "../../components/MediumText";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,9 +9,9 @@ import CardCarousel from './CardCarousel';
 import PriceRangeCard from './PriceRangeCard';
 import StartCard from './StartCard';
 import DontWorryCard from './DontWorryCard';
+import restaurant from '../../restaurantFetch';
 
 export default function ({navigation}) {
-
   //grab state of all user input to pass into Yelp params
   const [categoryAliases, setCategoryAliases] = useState([]);
   const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
@@ -19,6 +19,18 @@ export default function ({navigation}) {
   const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
   const [index, setIndex] = useState(0);
   const [pressedFinished, setPressedFinished] = useState(false);
+  const[result, setResult] = useState(null);
+
+  //yelp
+  const findRestaurant = async() =>{
+    const categoryParams = categoryAliases + selectedDietaryTags;
+    try{
+      const result = await restaurant(categoryParams);
+      console.log(result);
+    }catch(err){
+      console.log(err);
+    }
+  } 
 
   //increment index for button to render next card in carousel
   const incrementIndex = () => {
@@ -40,7 +52,7 @@ export default function ({navigation}) {
     <DontWorryCard incrementIndex = {incrementIndex} decrementIndex = {decrementIndex}/>,
     <CuisineCard setCategoryAliases = {setCategoryAliases} categoryAliases = {categoryAliases} setCuisineTagSelected = {setCuisineTagSelected} cuisineTagSelected = {cuisineTagSelected}/>, 
     <DietaryPref setSelectedDietaryTags = {setSelectedDietaryTags} selectedDietaryTags = {selectedDietaryTags}/>, 
-    <PriceRangeCard setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+    <PriceRangeCard setPriceRange = {setPriceRange} priceRange = {priceRange}/>,
   ];
 
   return (
@@ -51,6 +63,9 @@ export default function ({navigation}) {
         onPress= {() => navigation.goBack()}
       />
       <View style = {styles.outerContainer}>
+        <TouchableOpacity onPress= {findRestaurant}>
+          <Text>Press</Text>
+        </TouchableOpacity>
         <CardCarousel 
           cards = {cards} 
           incrementIndex = {incrementIndex} 
