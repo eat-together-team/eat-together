@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
-  Dimensions,
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
@@ -277,8 +276,8 @@ export default function ({ route, navigation }) {
         </View>
       :
         <KeyboardAvoidingView 
-          style={{ flex: 1}}
-          behavior={Platform.OS === "ios" ? "position" : ""}
+          style={{ flex: 1 , marginBottom:-34}}
+          behavior={Platform.OS === "ios" ? "height" : ""}
         >
           <FlatList
             data={messages}
