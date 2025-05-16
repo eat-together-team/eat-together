@@ -276,7 +276,7 @@ export default function ({ route, navigation }) {
         </View>
       :
         <KeyboardAvoidingView 
-          style={{ flex: 1 , marginBottom:-34}}
+          style={{ flex: 1 , marginBottom:Platform.OS === "ios" ? -34 : 0}}
           behavior={Platform.OS === "ios" ? "height" : ""}
         >
           <FlatList
