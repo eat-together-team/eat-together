@@ -28,6 +28,7 @@ import getDate from '../../getDate';
 import getTime from '../../getTime';
 import openMap from "react-native-open-maps";
 
+
 export default function ({ route, navigation }) {
     // Save the invite as a shorter name
     let invite = route.params.invite;
@@ -143,6 +144,7 @@ export default function ({ route, navigation }) {
                 }
                 leftAction={() => navigation.goBack()}
             />
+
             <ScrollView contentContainerStyle={styles.page}>
                 <ImageBackground
                     style={styles.imageBackground}

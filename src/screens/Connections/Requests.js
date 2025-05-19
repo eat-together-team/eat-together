@@ -12,6 +12,7 @@ import MediumText from "../../components/MediumText";
 
 import { db } from "../../provider/Firebase";
 import firebase from "firebase/compat";
+import { formatDistanceToNow } from "date-fns";
 
 export default function ({ back, navigation }) {
     const user = firebase.auth().currentUser;
@@ -28,7 +29,11 @@ export default function ({ back, navigation }) {
                     id: doc.id,
                     name: data.name,
                     username: data.username,
-                    profile: data.profile
+                    profile: data.profile,
+                    year: data.year || "Year not listed",
+                    degree: data.degree || "Degree not listed",
+                    major: data.major || "Major not listed",
+                    timestamp: data.timestamp?.toDate() || new Date()
                 });
             });
 
@@ -46,7 +51,7 @@ export default function ({ back, navigation }) {
         <Layout>
             <TopNav
                 middleContent={
-                    <MediumText center>Requests</MediumText>
+                    <MediumText center>Friend Requests</MediumText>
                 }
                 leftContent={
                     <Ionicons

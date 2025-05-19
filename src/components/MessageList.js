@@ -4,7 +4,8 @@ import {
     StyleSheet,
     Image,
     TouchableOpacity,
-    Dimensions
+    Dimensions,
+    Text
 } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 
@@ -12,10 +13,10 @@ import MediumText from "./MediumText";
 
 import firebase from "firebase/compat";
 import { auth, db } from "../provider/Firebase";
+//import { id, year, username, profile, degree, timestamp, major} from './Notification';
 
 const MessageList = props => {
     const user = auth.currentUser;
-    
     return (
         <View style={styles.outline}>
             <TouchableOpacity onPress={props.click}>
@@ -25,11 +26,15 @@ const MessageList = props => {
                 }]}>
                     <View style={styles.headleft}>
                         <Image style={styles.image} source={{uri: props.person.profile}}/>
-                        <MediumText>
-                            {props.person.name.length > 10
-                            ? props.person.name.substring(0, 10) + "..."
-                            : props.person.name}
-                        </MediumText>
+                        <View style={styles.textContainer}>
+                            <Text style={styles.username}>{props.person.username}</Text>
+                            <View style={styles.tagsContainer}>
+                                <Text style={styles.tag}>{props.person.degree}</Text>
+                                <Text style={styles.tag}>{props.person.year}</Text>
+                                <Text style={styles.tag}>{props.person.major}</Text>
+                            </View>
+                        </View>
+                       
                     </View>
                 
                     <View style={styles.response}>
@@ -40,7 +45,7 @@ const MessageList = props => {
                                 alert("Couldn't delete request, try again later.");
                             });
                         }}>
-                            <Ionicons name={"close-circle-outline"} size={40}/>
+                            <Ionicons name={"close-circle-outline"} size={40} color="red" style={styles.boldIcon}/>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => {
                             const user = firebase.auth().currentUser;
@@ -64,7 +69,7 @@ const MessageList = props => {
                                 alert("This user seems to no longer exist :(");
                             })
                         }}>
-                            <Ionicons name={"checkmark-circle-outline"} size={40}/>
+                            <Ionicons name={"checkmark-circle-outline"} size={40} color="green" style={styles.boldIcon}/>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -76,9 +81,9 @@ const MessageList = props => {
 const styles = StyleSheet.create({
     outline: {
         marginVertical: 5,
-        shadowColor: "#000000",
-        backgroundColor: "white",
-        borderRadius: 15,
+        shadowColor: "transparent", // removed shadow
+        backgroundColor: "transparent", // removed background
+        borderRadius: 0,
         paddingVertical: 10,
         shadowOpacity: 0.25,
         shadowOffset: {
@@ -89,28 +94,57 @@ const styles = StyleSheet.create({
     },
     head: {
         flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between"
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        paddingHorizontal: 10,
     },
     headleft: {
         flexDirection: "row",
+        flex: 1,
         alignItems: "center",
-        flexWrap: "wrap"
+        flexWrap: "nowrap"
     },
     image: {
-        width: 50,
-        height: 50,
-        borderRadius: 50,
-        marginLeft: 15,
-        marginRight: 10
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        marginRight: 12,
     },
     name: {
-        marginRight: 20,
+        marginRight: 10,
+    },
+    
+    textContainer: {
+        flexShrink: 1,
+        maxWidth: Dimensions.get('window').width * 0.55,
+    },
+    username: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 4,
+    },
+    tagsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+    },
+    tag: {
+        backgroundColor: '#FFF4D4',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12,
+        fontSize: 10,
+        color: '#333',
+        marginRight: 6,
+        marginBottom: 4,
     },
     response: {
-        marginRight: 25,
-        flexDirection: "row"
-    }
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        gap: 0,
+        flexShrink: 0,
+        paddingRight: 0,
+    },
 })
 
 export default MessageList;
