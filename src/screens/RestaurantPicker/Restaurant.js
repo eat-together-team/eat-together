@@ -23,7 +23,7 @@ export default function ({navigation}) {
 
   //yelp
   const findRestaurant = async() =>{
-    const categoryParams = categoryAliases + selectedDietaryTags;
+    const categoryParams = categoryAliases.concat(selectedDietaryTags);
     try{
       const result = await restaurant(categoryParams);
       console.log(result);
@@ -63,9 +63,6 @@ export default function ({navigation}) {
         onPress= {() => navigation.goBack()}
       />
       <View style = {styles.outerContainer}>
-        <TouchableOpacity onPress= {findRestaurant}>
-          <Text>Press</Text>
-        </TouchableOpacity>
         <CardCarousel 
           cards = {cards} 
           incrementIndex = {incrementIndex} 
