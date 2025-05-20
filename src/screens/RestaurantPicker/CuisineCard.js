@@ -86,6 +86,9 @@ const styles = StyleSheet.create({
     },
     textInputContainer:{
       alignItems:'center',
+      width:"90%",
+      marginLeft: 'auto',
+      marginRight:'auto',
     }
   })
 export default CuisineCard

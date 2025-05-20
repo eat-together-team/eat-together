@@ -1,9 +1,9 @@
-import React from 'react'
 import {View, StyleSheet, Modal} from 'react-native';
 import SmallText from '../../components/SmallText';
 import MediumText from '../../components/MediumText';
 import LargeText from '../../components/LargeText';
 import Button from '../../components/Button';
+import ProgressBar from './ProgressBar';
 
 const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished}) => {
 
@@ -67,6 +67,7 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                 </Button>
             </View>
         }
+        { index >= 2 && <ProgressBar index = {index}/>}
         <View style = {styles.stepContainer}>
             {
                 index > 1 && 
@@ -134,6 +135,6 @@ const styles = StyleSheet.create({
         borderRadius:20,
         height:360,
         width:315,
-    }
+    },
 })
 export default CardCarousel
