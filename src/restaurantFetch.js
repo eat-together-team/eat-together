@@ -8,11 +8,12 @@ const restaurant = async (categoryParams) => {
 
   const search_endpoint = 'https://api.yelp.com/v3/businesses/search';
 
-  let categories = ['coffee', 'restaurant', 'food']; // Default categories if user doesn't provide any
+  let categories = categoryParams? categoryParams : ['coffee', 'restaurant', 'food'];
   const location = 'The Ave, Seattle, WA'
-  const limit = 5;
+  const limit = 10;
   const radius = 1000;  // 1 km radius
 
+  console.log(categories);
   // Example user input
   const userInputCategories = ['Duck lover', 'Noodles', 'Dim sum', 'Curry'];
 
@@ -30,7 +31,7 @@ const restaurant = async (categoryParams) => {
     sort_by: 'best_match', // sort by rating and review count
   };
 
-  let restaurant;
+  let businesses;
 
   await axios.get(search_endpoint, {
     headers: {
@@ -38,16 +39,16 @@ const restaurant = async (categoryParams) => {
     },
     params,
   }).then(response => {
-    const businesses = response.data.businesses;
+    businesses = response.data.businesses;
 
     // Randomly select one restaurant from the top 5 matching restaurants
-    const randomIndex = Math.floor(Math.random() * businesses.length);
-    restaurant = businesses[randomIndex];
+    // const randomIndex = Math.floor(Math.random() * businesses.length);
+    // restaurant = businesses[randomIndex];
   }).catch(error => {
     console.log(error);
   });
 
-  return restaurant;
+  return businesses;
 }
 
 export default restaurant;
