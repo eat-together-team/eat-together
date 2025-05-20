@@ -1,5 +1,5 @@
-import React, {useState} from 'react'
-import {StyleSheet, View, TouchableOpacity, Text, Touchable} from "react-native";
+import {useState, useEffect} from 'react'
+import {StyleSheet, View,} from "react-native";
 import { Layout, TopNav} from "react-native-rapi-ui";
 import MediumText from "../../components/MediumText";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,17 +20,68 @@ export default function ({navigation}) {
   const [index, setIndex] = useState(0);
   const [pressedFinished, setPressedFinished] = useState(false);
   const[result, setResult] = useState(null);
-
+  console.log(pressedFinished);
+  console.log(priceRange);
+  console.log(categoryAliases);
+  console.log(selectedDietaryTags);
+  console.log(result[0]);
+  
   //yelp
   const findRestaurant = async() =>{
+    //combine category params
     const categoryParams = categoryAliases.concat(selectedDietaryTags);
+    
     try{
       const result = await restaurant(categoryParams);
       console.log(result);
+
+      const formattedResponse = extractRestaurantInfo(result);
+
+      return formattedResponse;
     }catch(err){
       console.log(err);
     }
   } 
+
+  //Format the response from Yelp API
+  const extractRestaurantInfo = (businesses) => {
+    if (!businesses || businesses.length === 0) {
+      return [];
+    }
+  
+    return businesses.map(business => {
+      return {
+        id: business.id,
+        name: business.name,
+        rating: business.rating,
+        reviewCount: business.review_count,
+        price: business.price,
+        categories: business.categories.map(cat => cat.title).join(', '),
+        address: business.location.display_address.join(', '),
+        phone: business.display_phone,
+        distance: Math.round(business.distance), 
+        imageUrl: business.image_url,
+        url: business.url
+      };
+    });
+  };
+
+  //make API request once user pressed "Finish" button
+  useEffect(() => {
+    if (pressedFinished) {
+      const fetchData = async() => {
+        try{
+          const response = await findRestaurant();
+          console.log(response);
+
+          setResult(response);
+        }catch(err){
+          console.log(err);
+        }
+      }
+      fetchData();
+    }
+  }, [pressedFinished]);
 
   //increment index for button to render next card in carousel
   const incrementIndex = () => {

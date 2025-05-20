@@ -4,7 +4,7 @@ import axios from "axios";
 const apiKey = YELP_API_KEY;
 
 // Library that helps allows you to send HTTP requests to the API endpoint.
-const restaurant = async (categoryParams) => {
+const restaurant = async (categoryParams, priceRange) => {
 
   const search_endpoint = 'https://api.yelp.com/v3/businesses/search';
 
@@ -30,6 +30,9 @@ const restaurant = async (categoryParams) => {
     radius: radius,
     sort_by: 'best_match', // sort by rating and review count
   };
+  if(priceRange){
+    params.price = priceRange.toString();
+  }
 
   let businesses;
 
