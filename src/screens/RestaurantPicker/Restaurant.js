@@ -9,6 +9,7 @@ import CardCarousel from './CardCarousel';
 import PriceRangeCard from './PriceRangeCard';
 import StartCard from './StartCard';
 import DontWorryCard from './DontWorryCard';
+import SwipeDeck from './SwipeDeck';
 import restaurant from '../../restaurantFetch';
 
 export default function ({navigation}) {
@@ -20,20 +21,14 @@ export default function ({navigation}) {
   const [index, setIndex] = useState(0);
   const [pressedFinished, setPressedFinished] = useState(false);
   const[result, setResult] = useState(null);
-  console.log(pressedFinished);
-  console.log(priceRange);
-  console.log(categoryAliases);
-  console.log(selectedDietaryTags);
-  console.log(result[0]);
-  
-  //yelp
+
+  //makes API call
   const findRestaurant = async() =>{
     //combine category params
     const categoryParams = categoryAliases.concat(selectedDietaryTags);
     
     try{
       const result = await restaurant(categoryParams);
-      console.log(result);
 
       const formattedResponse = extractRestaurantInfo(result);
 
@@ -67,26 +62,28 @@ export default function ({navigation}) {
   };
 
   //make API request once user pressed "Finish" button
-  useEffect(() => {
-    if (pressedFinished) {
-      const fetchData = async() => {
-        try{
-          const response = await findRestaurant();
-          console.log(response);
+  // useEffect(() => {
+  //   if (pressedFinished) {
+  //     const fetchData = async() => {
+  //       try{
+  //         const response = await findRestaurant();
+  //         console.log(response);
 
-          setResult(response);
-        }catch(err){
-          console.log(err);
-        }
-      }
-      fetchData();
-    }
-  }, [pressedFinished]);
-
+  //         setResult(response);
+  //       }catch(err){
+  //         console.log(err);
+  //       }
+  //     }
+  //     fetchData();
+  //   }
+  // }, [pressedFinished]);
   //increment index for button to render next card in carousel
   const incrementIndex = () => {
-    if (index === cards.length - 1){
+    if (index === cards.length - 2){
       setPressedFinished(true);
+      if(pressedFinished){ //if user presses start button when modal is up, increment index
+        setIndex(Math.min(cards.length - 1, index + 1));
+      }
     } else{
       setIndex(Math.min(cards.length - 1, index + 1)); //can't go below index 0 
     }
@@ -104,6 +101,7 @@ export default function ({navigation}) {
     <CuisineCard setCategoryAliases = {setCategoryAliases} categoryAliases = {categoryAliases} setCuisineTagSelected = {setCuisineTagSelected} cuisineTagSelected = {cuisineTagSelected}/>, 
     <DietaryPref setSelectedDietaryTags = {setSelectedDietaryTags} selectedDietaryTags = {selectedDietaryTags}/>, 
     <PriceRangeCard setPriceRange = {setPriceRange} priceRange = {priceRange}/>,
+    <SwipeDeck/>
   ];
 
   return (
