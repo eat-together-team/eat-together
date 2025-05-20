@@ -47,6 +47,10 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                             paddingHorizontal={25}
                             paddingVertical={10}
                             marginHorizontal={10}
+                            onPress = {()=> {
+                                incrementIndex();
+                                setPressedFinished(false);
+                            }}
                         >
                             Start
                         </Button>
@@ -54,7 +58,7 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                 </View>
             </View>
         </Modal>
-        {index > 1 &&
+        {(index >= 2 && index <=4 )  &&
             <View style = {styles.buttonContainer}>
                 <Button
                     backgroundColor="white"
@@ -74,15 +78,15 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                     paddingVertical={10}
                     marginHorizontal={10}
                 >
-                    {index == cards.length - 1 ? "Finish" : "Next"}
+                    {index == cards.length - 2 ? "Finish" : "Next"}
                 </Button>
             </View>
         }
-        { index >= 2 && <ProgressBar index = {index}/>}
+        { (index >= 2 && index <=4) && <ProgressBar index = {index}/>}
         <View style = {styles.stepContainer}>
             {
-                index > 1 && 
-                <SmallText size = {12}>Step {index - 1} of {cards.length - 2}</SmallText>
+                (index >=2 && index <=4) && 
+                <SmallText size = {12}>Step {index - 1} of {cards.length - 3}</SmallText>
             }
         </View>
   </View>

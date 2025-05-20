@@ -1,6 +1,5 @@
-import React from 'react'
 import {View, Text} from "react-native";
-const SwipeDeck = () => {
+const SwipeDeck = ({results}) => {
   return (
     <View>
         <Text>Hello</Text>
