@@ -55,7 +55,7 @@ const EditTags = props => {
         <ScrollView contentContainerStyle={styles.scrollContent}>
             {/*hobbies*/}
             <View style={styles.tagSection}>
-                <NormalText left marginBottom={10} style={{ fontSize: 14, fontFamily: 'Inter_700Bold' }}> 
+                <NormalText left marginBottom={10}> 
                     Hobbies
                 </NormalText>
                 <NormalText left marginBottom={5}>Select your hobbies</NormalText>
@@ -66,34 +66,34 @@ const EditTags = props => {
                             key={index} 
                             style={styles.chip}
                             onPress={() => {
-                            const newTags = hobbyTagsSelected.filter((_, i) => i !== index);
-                            setHobbyTagsSelected(newTags);
+                                const newTags = hobbyTagsSelected.filter((_, i) => i !== index);
+                                setHobbyTagsSelected(newTags);
                             }}
                         >
-                            <NormalText style={{fontSize: 14, color: 'white' }}>{tag}</NormalText>
+                            <NormalText color="white">{tag}</NormalText>
                         </TouchableOpacity>
                         ))}
                     </ScrollView>
 
                     <TouchableOpacity
                         onPress={() => {
-                        setSchool(false);
-                        setFood(false);
-                        setHobby(true);
-                        setGoal(false);
-                        refRBSheet.current.open();
+                            setSchool(false);
+                            setFood(false);
+                            setHobby(true);
+                            setGoal(false);
+                            refRBSheet.current.open();
                         }}
                         style={styles.addTagButton}
                     >
                         <Ionicons name="add-circle-outline" size={24} color="#5DB075" />
-                        <SmallText style={{ marginLeft: 4, color: "#5DB075" }}>Add</SmallText>
+                        <SmallText color="#5DB075">Add</SmallText>
                     </TouchableOpacity>
                 </View>
             </View>
 
             {/*about me*/}
             <View style={styles.tagSection}>
-                <NormalText left marginBottom={5} style={{ fontSize: 14, fontFamily: 'Inter_700Bold' }}>
+                <NormalText left marginBottom={5}>
                     About Me
                 </NormalText>
                 <NormalText left marginBottom={5}>Select what represents you</NormalText>
@@ -101,9 +101,9 @@ const EditTags = props => {
                 {/* Wrap tags and add button in a row container */}
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingRight: 8 }}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ paddingRight: 8 }}
                     >
                         {schoolTagsSelected.map((tag, index) => (
                             <TouchableOpacity
@@ -114,7 +114,7 @@ const EditTags = props => {
                                     setSchoolTagsSelected(newTags);
                                 }}
                                 >
-                                <NormalText style={{ fontSize: 14, color: 'white' }}>{tag}</NormalText>
+                                <NormalText color="white">{tag}</NormalText>
                             </TouchableOpacity>
                         ))}
                     </ScrollView>
@@ -128,24 +128,24 @@ const EditTags = props => {
                             refRBSheet.current.open();
                         }}
                         style={[styles.addTagButton, { marginLeft: 8 }]} 
-                        >
+                    >
                         <Ionicons name="add-circle-outline" size={24} color="#5DB075" />
-                        <SmallText style={{ marginLeft: 4, color: "#5DB075" }}>Add</SmallText>
+                        <SmallText color="#5DB075">Add</SmallText>
                     </TouchableOpacity>
                 </View>
              </View>
 
             {/*goals*/}
             <View style={styles.tagSection}>
-                <NormalText left marginBottom={5} style={{ fontSize: 14, fontFamily: 'Inter_700Bold' }}> 
+                <NormalText left marginBottom={5}> 
                     I'm looking to
                 </NormalText>
                 <NormalText left marginBottom={5}>Select your goals</NormalText>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingRight: 8 }}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ paddingRight: 8 }}
                     >
                         {goalTagsSelected.map((tag, index) => (
                             <TouchableOpacity
@@ -156,39 +156,39 @@ const EditTags = props => {
                                     setGoalTagsSelected(newTags);
                                 }}
                                 >
-                                <NormalText style={{ fontSize: 14, color: 'white' }}>{tag}</NormalText>
+                                <NormalText color="white">{tag}</NormalText>
                             </TouchableOpacity>
                         ))}
                     </ScrollView>
 
                     <TouchableOpacity
-                    onPress={() => {
-                        setSchool(false);
-                        setFood(false);
-                        setHobby(false);
-                        setGoal(true);
-                        refRBSheet.current.open();
-                    }}
-                    style={[styles.addTagButton]} 
+                        onPress={() => {
+                            setSchool(false);
+                            setFood(false);
+                            setHobby(false);
+                            setGoal(true);
+                            refRBSheet.current.open();
+                        }}
+                        style={[styles.addTagButton]}
                     >
                         <Ionicons name="add-circle-outline" size={24} color="#5DB075" />
-                        <SmallText style={{ marginLeft: 4, color: "#5DB075" }}>Add</SmallText>
+                        <SmallText color="#5DB075">Add</SmallText>
                     </TouchableOpacity>
                 </View>
             </View>
 
             {/*food*/}
             <View style={styles.tagSection}>
-                 <NormalText left marginBottom={5} style={{ fontSize: 14, fontFamily: 'Inter_700Bold' }}> 
+                <NormalText left marginBottom={5}> 
                     Food Preferences
                 </NormalText>
                 <NormalText left marginBottom={5}>Select your food preferences</NormalText>
                 {/* Wrap tags and add button in a row container */}
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                     <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingRight: 8 }}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ paddingRight: 8 }}
                     >
                     {foodTagsSelected.map((tag, index) => (
                         <TouchableOpacity
@@ -199,23 +199,23 @@ const EditTags = props => {
                             setFoodTagsSelected(newTags);
                         }}
                         >
-                            <NormalText style={{ fontSize: 14, color: 'white' }}>{tag}</NormalText>
+                            <NormalText color="white">{tag}</NormalText>
                         </TouchableOpacity>
                     ))}
                     </ScrollView>
 
                     <TouchableOpacity
-                    onPress={() => {
-                        setSchool(false);
-                        setFood(true);
-                        setHobby(false);
-                        setGoal(false);
-                        refRBSheet.current.open();
-                    }}
-                    style={[styles.addTagButton, { marginLeft: 8 }]} 
+                        onPress={() => {
+                            setSchool(false);
+                            setFood(true);
+                            setHobby(false);
+                            setGoal(false);
+                            refRBSheet.current.open();
+                        }}
+                        style={[styles.addTagButton, { marginLeft: 8 }]} 
                     >
                         <Ionicons name="add-circle-outline" size={24} color="#5DB075" />
-                        <SmallText style={{ marginLeft: 4, color: "#5DB075" }}>Add</SmallText>
+                        <SmallText color="#5DB075">Add</SmallText>
                     </TouchableOpacity>
                 </View>
             </View>
