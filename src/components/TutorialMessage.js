@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, Image, Modal, StyleSheet, View } from 'react-native';
+import { Alert, Image, Modal, StyleSheet, View, Dimensions } from 'react-native';
 
 import NormalText from './NormalText';
 import MediumText from './MediumText';
@@ -8,6 +8,8 @@ import Button from './Button';
 import BorderedButton from './BorderedButton';
 
 import { db } from "../provider/Firebase";
+
+const screenWidth = Dimensions.get('window').width;
 
 const TutorialMessage = (props) => {
   const [modalVisible, setModalVisible] = useState(true);
@@ -52,44 +54,39 @@ const TutorialMessage = (props) => {
       {modalVisible && <Backdrop />}
       {arrowVisible && (
         <>
-          {/* Rotation Container for Line with Arrow */}
-          <View
-            style={{
-              position: 'absolute',
-              zIndex: 2,
-              bottom: props.bottom ? parseInt(props.bottom) + actualModalHeight : 10 + actualModalHeight,
-              left: '50%',
-              width: 1,
-              height: 1,
-              transform: [{rotate: `${props.angle ? props.angle : 0}deg`}], // Rotation
-            }}
-          >
           {/* Line with Arrow */}
           <View
             style={{
               position: 'absolute',
-              bottom: 0,
-              left: 0,
-              width: 7,
-              height: props.length ? props.length * 10 : 50,
-              backgroundColor: 'white',
+              left: props.left,
+              bottom: props.bottom ? parseInt(props.bottom) + actualModalHeight : 10,
+              height: props.length ? props.length : 50,
+              width: 0,
+              zIndex: 999,
+              borderLeftWidth: 25,
+              borderRightWidth: 25,
+              borderBottomWidth: 50,
+              borderLeftColor: 'transparent',
+              borderRightColor: 'transparent',
+              borderBottomColor: 'white',
+              transform: [{ rotate: '180deg' }],
             }}
           >
             <View 
               style={{
                 position: 'absolute',
-                top: -20, // Place at the top end of the line
-                left: -7, // Center the arrow
+                top: -20,
+                left: -7,
                 width: 0,
                 height: 0,
+                zIndex: 999,
                 borderColor: 'transparent',
                 borderTopColor: 'white',
                 borderWidth: 10,
-                transform: [{ rotate: '180deg' }],  // Rotate the arrow to point in the opposite direction
+                transform: [{ rotate: '180deg' }],
               }}
             />
           </View>
-        </View>
       </>
     )}
     <Modal
@@ -142,7 +139,8 @@ const TutorialMessage = (props) => {
           </View>
         </View>
       </View>
-    </Modal>
+    </Modal> 
+    
     </>
   );
 };
