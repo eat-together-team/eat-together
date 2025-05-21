@@ -9,12 +9,14 @@ const Tag = props => {
             backgroundColor: props.type === "school" ? "#FFFCE5"
                 : props.type === "hobby" ? "#E5F7FF"
                 : props.type === "food" ? "#FDE5FF"
+                : props.type === "goal" ? "#FC9803"
                 : "#E5FFF2"
         }] : styles.tag}>
             <MediumText size={12} color={
                 props.type === "school" ? "#CC9300"
                 : props.type === "hobby" ? "#05097A"
                 : props.type === "food" ? "#460072"
+                : props.type === "goal" ? "#362001"
                 : "white"
             }>{props.text}</MediumText>
             {props.remove && 
@@ -25,12 +27,6 @@ const Tag = props => {
         </View>
     );
 }
-
-Tag.defaultProps = {
-    text: '',
-    type: 'default',
-    remove: null,
-  };
   
 const styles = StyleSheet.create({
     tag: {
