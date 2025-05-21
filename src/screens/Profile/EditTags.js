@@ -72,7 +72,6 @@ const EditTags = props => {
   }, [foodTagsSelected]);
 
   return (
-    //header w/ back button 
     <Layout style={styles.page}>
         <ScrollView contentContainerStyle={{ alignItems: "center" }}>
             <LargeText center marginBottom={20}>Edit your tags!</LargeText>
