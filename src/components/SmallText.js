@@ -7,7 +7,7 @@ const SmallText = props => {
 
     if (!fontsLoaded) {
         return (
-            <Text style={{
+            <Text style={[{
                 fontSize: props.size ? props.size : 10,
                 fontWeight: props.weight ? props.weight : "normal",
                 fontFamily: Platform.os === 'ios' ? 'AppleSDGothicNeo-Light' : 'sans-serif-light',
@@ -15,13 +15,13 @@ const SmallText = props => {
                 textAlign: props.center ? "center" : "auto",
                 paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
                 marginBottom: props.marginBottom ? props.marginBottom : 0
-            }}>
+            }, props.style]}>
                 {props.children}
             </Text>
         );
     }
     return (
-        <Text style={{
+        <Text style={[{
             fontSize: props.size ? props.size : 10,
             fontWeight: props.weight ? props.weight : "normal",
             fontFamily: 'Inter_300Light',
@@ -29,7 +29,7 @@ const SmallText = props => {
             textAlign: props.center ? "center" : "auto",
             paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
             marginBottom: props.marginBottom ? props.marginBottom : 0
-        }}>
+        }, props.style]}>
             {props.children}
         </Text>
     );

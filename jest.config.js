@@ -1,6 +1,6 @@
 module.exports = {
     preset: 'react-native',
-    setupFilesAfterEnv: ['../eat-together/jest.setup.js'],
+    setupFilesAfterEnv: ['./jest.setup.js'],
     transform: {
       '^.+\\.[jt]sx?$': 'babel-jest',
     },
