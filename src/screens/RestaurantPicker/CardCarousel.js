@@ -1,11 +1,28 @@
+<<<<<<< Updated upstream
 import {View, StyleSheet, Modal} from 'react-native';
+=======
+import React, { useState } from 'react'
+import {View, StyleSheet, Modal, ScrollView} from 'react-native';
+>>>>>>> Stashed changes
 import SmallText from '../../components/SmallText';
 import MediumText from '../../components/MediumText';
 import LargeText from '../../components/LargeText';
 import Button from '../../components/Button';
+<<<<<<< Updated upstream
 import ProgressBar from './ProgressBar';
+=======
+import RecommendationCard from './Recommendation';
+>>>>>>> Stashed changes
 
 const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished}) => {
+  const [showRecommendation, setShowRecommendation] = useState(false);
+
+  if (showRecommendation) {
+    return <ScrollView contentContainerStyle={{ alignItems: "center", paddingBottom: 40 }}
+                showsVerticalScrollIndicator={false}>
+                <RecommendationCard />
+            </ScrollView>;
+  }
 
   return (
     <View>
@@ -32,6 +49,10 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                             Back
                         </Button>
                         <Button
+                            onPress={() => {
+                                setPressedFinished(false);
+                                setShowRecommendation(true);
+                            }}
                             fontSize={16}
                             paddingHorizontal={25}
                             paddingVertical={10}
