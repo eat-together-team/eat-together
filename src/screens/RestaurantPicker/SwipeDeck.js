@@ -1,8 +1,13 @@
 import {View, Text} from "react-native";
-const SwipeDeck = ({results}) => {
+const SwipeDeck = ({result}) => {
+  
   return (
     <View>
-        <Text>Hello</Text>
+      {result.map((restaurant) => {
+        return(
+          <Text>{restaurant.name}</Text>
+        )
+      })}
     </View>
   )
 }

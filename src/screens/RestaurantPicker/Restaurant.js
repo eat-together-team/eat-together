@@ -21,12 +21,11 @@ export default function ({navigation}) {
   const [index, setIndex] = useState(0);
   const [pressedFinished, setPressedFinished] = useState(false);
   const[result, setResult] = useState(null);
-
+  console.log(pressedFinished);
   //makes API call
   const findRestaurant = async() =>{
     //combine category params
     const categoryParams = categoryAliases.concat(selectedDietaryTags);
-    
     try{
       const result = await restaurant(categoryParams);
 
@@ -62,21 +61,21 @@ export default function ({navigation}) {
   };
 
   //make API request once user pressed "Finish" button
-  // useEffect(() => {
-  //   if (pressedFinished) {
-  //     const fetchData = async() => {
-  //       try{
-  //         const response = await findRestaurant();
-  //         console.log(response);
+  useEffect(() => {
+    if (pressedFinished) {
+      const fetchData = async() => {
+        try{
+          const response = await findRestaurant();
+          console.log(response);
 
-  //         setResult(response);
-  //       }catch(err){
-  //         console.log(err);
-  //       }
-  //     }
-  //     fetchData();
-  //   }
-  // }, [pressedFinished]);
+          setResult(response);
+        }catch(err){
+          console.log(err);
+        }
+      }
+      fetchData();
+    }
+  }, [pressedFinished]);
   //increment index for button to render next card in carousel
   const incrementIndex = () => {
     if (index === cards.length - 2){
@@ -101,7 +100,7 @@ export default function ({navigation}) {
     <CuisineCard setCategoryAliases = {setCategoryAliases} categoryAliases = {categoryAliases} setCuisineTagSelected = {setCuisineTagSelected} cuisineTagSelected = {cuisineTagSelected}/>, 
     <DietaryPref setSelectedDietaryTags = {setSelectedDietaryTags} selectedDietaryTags = {selectedDietaryTags}/>, 
     <PriceRangeCard setPriceRange = {setPriceRange} priceRange = {priceRange}/>,
-    <SwipeDeck/>
+    <SwipeDeck result = {result}/>
   ];
 
   return (
