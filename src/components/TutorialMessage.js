@@ -10,6 +10,7 @@ import BorderedButton from './BorderedButton';
 import { db } from "../provider/Firebase";
 
 import arrow from "../../assets/tutorial-arrow.png"
+import skip from "../../assets/tutorial-skip.png"
 
 
 const TutorialMessage = (props) => {
@@ -63,7 +64,7 @@ const TutorialMessage = (props) => {
                 position: 'absolute', 
                 left: props.left,
                 bottom: props.bottom ? parseInt(props.bottom) + actualModalHeight : 10,
-                height: props.length ? props.length : 25,
+                height: 25,
                 resizeMode: 'contain',
                 zIndex: 999,
               }}
@@ -80,7 +81,16 @@ const TutorialMessage = (props) => {
         <View style={styles.modalContent}>
           <View style={styles.spacedRow}>
             <MediumText style={styles.titleText}>{props.title}</MediumText>
-            <Link onPress={handleSkipTutorial}>Skip Tutorial</Link>
+            <Link onPress={handleSkipTutorial}><Image
+              source={skip} 
+              style={{
+                width: 50,
+                position: 'absolute', 
+                height: 25,
+                resizeMode: 'contain',
+                zIndex: 999,
+              }}
+            /></Link>
           </View>
           
           <NormalText style={styles.tutorialText}>{props.content}</NormalText>
@@ -144,7 +154,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     borderWidth: 1,  // Add this line to specify border width
-    borderColor: '#5DB075',  // Add this line to specify border color
+    borderColor: '#FFFFFF',  // Add this line to specify border color
   },
 
   spacedRow: {
@@ -172,7 +182,11 @@ const styles = StyleSheet.create({
     color: '#767676',
     paddingTop: 50,
     textDecorationLine: 'underline',
-  }
+  },
+
+  titleText: {
+    color: '#2f6a40',
+  },
 });
 
 const Backdrop = () => {
