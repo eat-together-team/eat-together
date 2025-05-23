@@ -7,7 +7,8 @@ import {
   FlatList,
   ActivityIndicator,
   Platform,
-  Alert
+  Alert, 
+  Image
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import * as ImagePicker from 'expo-image-picker';
@@ -31,13 +32,17 @@ export default function ({ route, navigation }) {
   const [message, setMessage] = useState(""); // Text input for message
 
   const [loading, setLoading] = useState(true); // Loading state for the page
+  const [otherUser, setOtherUser] = useState(); // other user for which to load profile photo
+  const [otherImage, setOtherImage] = useState("");
 
   // Common constant references
   let group = route.params.group;
   console.log("group", group)
 
   const user = auth.currentUser;
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState({});
+  
+  // const [userInfo, setUserInfo] = useState(null);
   const messageRef = db.collection("Groups").doc(group.groupID);
 
   // Keep track of tutorial state
@@ -54,11 +59,16 @@ export default function ({ route, navigation }) {
       if (doc.data()) { // Checks if doc exists (used to prevent crash after blocking a user)
         setUsers(doc.data().uids); // Users in group
 
+        const otherUsers = doc.data().uids.filter(u => u !== user.uid)
+        setOtherUser(otherUsers[0])
+
+
         let temp = [];
         doc.data().messages.forEach((message, index) => {
           let messageObj = {
             ...message,
-            nextMessage: doc.data().messages[index + 1] || null // fetches the next message
+            nextMessage: doc.data().messages[index + 1] || null, // fetches the next message
+            prevMessage: doc.data().messages[index - 1] || null,
           }
 
           // insert message at beginning of array
@@ -72,6 +82,15 @@ export default function ({ route, navigation }) {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (otherUser) {
+      db.collection("Users").doc(otherUser).get()
+      .then((doc) => {
+        setOtherImage(doc.data().image);
+      })
+    }
+  }, [otherUser])
 
   useEffect(() => {
     if (message.length > 0) {
@@ -257,14 +276,22 @@ export default function ({ route, navigation }) {
           />
         </>
       }
-
       <TopNav
         middleContent={
           <TouchableOpacity onPress={() => navigation.navigate("ChatRoomDetails", {
-              group: group
+            group: group
           })}>
-              <MediumText>{group.name}</MediumText>
-          </TouchableOpacity>
+            <View style={styles.title}>
+            <Image style={styles.image}
+              source={ otherImage
+              ? { uri: otherImage }
+              : require("../../../assets/logo.png")
+              }
+            />
+            <MediumText>{group.name}</MediumText>
+            </View>
+            
+        </TouchableOpacity>
         }
         leftContent={<Ionicons name="chevron-back" size={20} />}
         leftAction={() => {
@@ -285,7 +312,7 @@ export default function ({ route, navigation }) {
           <FlatList
             data={messages}
             renderItem={({ item }) => (
-              <TextMessage {...item}/>
+              <TextMessage {...item} group={group}/>
             )}
             inverted={true}
             keyExtractor={(item) => item.sentAt.toString()}
@@ -319,5 +346,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
-
+  image: {
+    marginRight: 15,
+    width: 45,
+    height: 45,
+    borderColor: "white",
+    borderWidth: 0,
+    borderRadius: 100,
+    backgroundColor: "white",
+  }, 
+  title: {
+    flexDirection: "row", 
+    alignItems: "center",
+    position: "absolute", 
+    left: -150,
+    top: -25
+  }
 });

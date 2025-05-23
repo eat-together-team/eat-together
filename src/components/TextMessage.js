@@ -5,6 +5,9 @@ import NormalText from "./NormalText";
 import moment from "moment";
 import getDate from "../getDate";
 import getTime from "../getTime";
+import { TopNav, Layout } from "react-native-rapi-ui";
+import MediumText from "./MediumText";
+import { Ionicons } from "@expo/vector-icons";
 
 const TextMessage = (props) => {
   const user = firebase.auth().currentUser;
@@ -12,8 +15,13 @@ const TextMessage = (props) => {
   let nextMessageDate = ""
   if(props.nextMessage) {
       nextMessageDate =  moment.unix(props.nextMessage.sentAt).toDate();
-      console.log("nextMsg", getTime(nextMessageDate), "this msg date", getTime(messageDate))
+      // console.log("nextMsg", getTime(nextMessageDate), "this msg date", getTime(messageDate))
   }
+  let prevMessageDate = ""
+  if (props.prevMessage) {
+    prevMessageDate = moment.unix(props.prevMessage.sentAt).toDate();
+  }
+
   
 
   
@@ -32,7 +40,16 @@ const TextMessage = (props) => {
 
   return (
     <View>
-      <View style={props.sentBy == user.uid ? styles.you : styles.other} borderRadius={20}>
+      {/* removed background color for image text message styling */}
+
+      {/* date */}
+      {(!props.prevMessage || (prevMessageDate === "" || getDate(messageDate) !== getDate(prevMessageDate))) &&
+        (<MediumText style={timeStyle.day} color="#666666" size={14}>
+          {getDate(messageDate, false) == getDate(new Date(), false) ? "Today" : getDate(messageDate, false)}
+        </MediumText>)}
+
+      
+      <View style={props.url ? (props.sentBy == user.uid ? styles.youImage : styles.otherImage) : (props.sentBy == user.uid ? styles.you : styles.other)} borderRadius={20}>
         {/* {props.sentName && <NormalText color= {props.sentBy == user.uid ? "#666666" : "#000E08"} size={12}>{props.sentName}</NormalText>}
         <NormalText color="#666666" size={12}>{getDate(messageDate, false)}, {getTime(messageDate)}</NormalText> */}
         {props.url && (
@@ -44,10 +61,28 @@ const TextMessage = (props) => {
             />
           </TouchableOpacity>
         )}
+
         {!props.url && <NormalText color={props.sentBy == user.uid ? "white" : "black"} size={16}>{props.message}</NormalText>}
 
         {/* // what happens when click on image */}
-        <Modal visible={isModalVisible} transparent={true}>
+        <Modal visible={isModalVisible} transparent={false}>
+        {/* added top nav to image chat view */}
+
+        <TopNav
+        middleContent={
+          <TouchableOpacity onPress={() => navigation.navigate("ChatRoomDetails", {
+              group: group
+          })}>
+              <MediumText>{props.group.name}</MediumText>
+          </TouchableOpacity>
+        }
+        leftContent={<Ionicons name="chevron-back" size={20} />}
+        leftAction={() => {
+          // Temporary fix with invalid chat preview, to be fixed in the future for better speed.
+          navigation.goBack();
+        }}
+        />
+       
           <TouchableOpacity style={styles.modalContainer} onPress={handleCloseModal}>
             <Image
               source={{ uri: props.url }}
@@ -58,12 +93,12 @@ const TextMessage = (props) => {
         </Modal>
       </View>
 
-      {/* <NormalText> </NormalText>  this is where I put time and add seperate styles to get it to the side */}
-      {/* Time and user matching logic */}
+
       {(!props.nextMessage || props.nextMessage.sentBy !== props.sentBy
         || (nextMessageDate === "" || getTime(messageDate) !== getTime(nextMessageDate))) &&
         (<NormalText style={props.sentBy == user.uid ? timeStyle.you : timeStyle.other} color="#666666" size={12}>
-          {getDate(messageDate, false)}, {getTime(messageDate)}
+          {getTime(messageDate)}
+          {/* {getDate(messageDate, false)}, {getTime(messageDate)} */}
         </NormalText>)}
       {/* {<NormalText style={props.sentBy == user.uid ? timeStyle.you : timeStyle.other} color="#666666" size={12}>{getDate(messageDate, false)}, {getTime(messageDate)}</NormalText>} */}
     </View>
@@ -93,7 +128,17 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     maxWidth: 200,
   },
-  image: {
+  youImage: {
+    alignSelf: "flex-end",
+    maxWidth: 200,
+    marginHorizontal: 30,
+    marginVertical: 3,
+  }, otherImage: {
+    marginHorizontal: 30,
+    marginVertical: 3,
+    alignSelf: "flex-start",
+    maxWidth: 200,
+  }, image: {
     borderRadius: 20,
     marginVertical: 10,
     width: 150,
@@ -108,7 +153,7 @@ const styles = StyleSheet.create({
   modalImage: {
     width: "50%",
     height: "50%",
-    aspectRatio: 1,
+    aspectRatio: 1
   },
 });
 
@@ -131,6 +176,9 @@ const timeStyle = StyleSheet.create({
     alignSelf: "flex-start",
     maxWidth: 200,
   },
+  day: {
+    alignSelf: "center", 
+  }
 });
 
 export default TextMessage;
