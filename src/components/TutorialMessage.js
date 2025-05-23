@@ -88,7 +88,7 @@ const TutorialMessage = (props) => {
                 position: 'absolute', 
                 height: 25,
                 resizeMode: 'contain',
-                zIndex: 999,
+                zIndex: 900,
               }}
             /></Link>
           </View>
@@ -129,6 +129,22 @@ const TutorialMessage = (props) => {
             )}
           </View>
         </View>
+        {props.status && (
+          <View style={styles.spacedRow}>
+            <View style={styles.statusOverall}>
+              <View style={{
+                backgroundColor: '#5DB075',
+                borderRadius: 20,
+                height: 10,
+                width: `${props.status}%`, 
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                zIndex: 2,
+              }}/>
+            </View>
+          </View>
+        )}
       </View>
     </Modal> 
     
@@ -170,6 +186,7 @@ const styles = StyleSheet.create({
 
   buttonContainer: {
     flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'center'
   },
 
@@ -187,6 +204,17 @@ const styles = StyleSheet.create({
   titleText: {
     color: '#2f6a40',
   },
+
+  statusOverall: {
+    backgroundColor: '#d9d9d9',
+    borderRadius: 20,
+    height: 10,
+    width: '100%',
+    position: 'relative', 
+    zIndex: 1,
+    marginTop: 20
+  },
+
 });
 
 const Backdrop = () => {
