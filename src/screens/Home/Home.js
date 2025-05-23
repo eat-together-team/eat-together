@@ -415,9 +415,16 @@ export default function ({ navigation }) {
     {
       title: 'You!',
       content: '• Meal preference information available.\n• Find meals you have attended here!\n',
-      disableNext: true,
       left: "83%",
       status: 80,
+    },
+    {
+      title: 'Congrats, you have finished the tutorial. Click finish to return to the main page.',
+      disableNext: true,
+      bottom: "40%",
+      modalHeight: 300,
+      left: "50%",
+      status: 100,
     },
   ];
 

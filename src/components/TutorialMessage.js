@@ -115,7 +115,7 @@ const TutorialMessage = (props) => {
                 fontSize={14}
                 onPress={handleSkipTutorial}
               >
-                Done
+                Finish Tutorial
               </Button>
             ) : (
               <Button
