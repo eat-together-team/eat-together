@@ -25,18 +25,17 @@ export default function ({ back, navigation }) {
             const list = [];
             query.forEach((doc) => {
                 let data = doc.data();
+                const schoolTags = (data.tags || []).filter(tag => tag.type === "school");
+                console.log(schoolTags);
                 list.push({
                     id: doc.id,
                     name: data.name,
                     username: data.username,
                     profile: data.profile,
-                    year: data.year || "Year not listed",
-                    degree: data.degree || "Degree not listed",
-                    major: data.major || "Major not listed",
+                    tags: schoolTags,
                     timestamp: data.timestamp?.toDate() || new Date()
                 });
             });
-
             setRequests(list);
             setLoading(false);
         });
@@ -67,7 +66,7 @@ export default function ({ back, navigation }) {
             : requests.length > 0 ?
                 <FlatList contentContainerStyle={styles.invites} keyExtractor={item => item.id}
                         data={requests} renderItem={({item}) =>
-                    <MessageList person={item} click={() => {
+                    <MessageList person={item} timestamp={formatDistanceToNow(item.timestamp, { addSuffix: true })} click={() => {
                         db.collection("Users").doc(item.id).get().then((doc) => {
                             if (doc.data()) {
                                 navigation.navigate("FullProfile", {
@@ -107,4 +106,3 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     }
 });
-

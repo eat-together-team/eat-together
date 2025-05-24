@@ -13,7 +13,8 @@ import MediumText from "./MediumText";
 
 import firebase from "firebase/compat";
 import { auth, db } from "../provider/Firebase";
-//import { id, year, username, profile, degree, timestamp, major} from './Notification';
+import TagsList from "./TagsList";
+import SmallText from './SmallText';
 
 const MessageList = props => {
     const user = auth.currentUser;
@@ -27,16 +28,17 @@ const MessageList = props => {
                     <View style={styles.headleft}>
                         <Image style={styles.image} source={{uri: props.person.profile}}/>
                         <View style={styles.textContainer}>
-                            <Text style={styles.username}>{props.person.username}</Text>
-                            <View style={styles.tagsContainer}>
-                                <Text style={styles.tag}>{props.person.degree}</Text>
-                                <Text style={styles.tag}>{props.person.year}</Text>
-                                <Text style={styles.tag}>{props.person.major}</Text>
-                            </View>
+                            <MediumText style={styles.username}>{props.person.username}</MediumText>
+                           
+                            {/* <View style={styles.tagsContainer}>
+                                
+                            </View> */}
+                           
                         </View>
                        
                     </View>
-                
+                    
+                    <SmallText style={styles.timestamp}>{props.timestamp}</SmallText>
                     <View style={styles.response}>
                         <TouchableOpacity onPress={() => {
                             db.collection("User Invites").doc(user.uid).collection("Connections").doc(props.person.id).delete().then(() => {
@@ -45,7 +47,7 @@ const MessageList = props => {
                                 alert("Couldn't delete request, try again later.");
                             });
                         }}>
-                            <Ionicons name={"close-circle-outline"} size={40} color="red" style={styles.boldIcon}/>
+                            <Ionicons name={"close-circle-outline"} size={40} color="#EA3323" style={styles.boldIcon}/>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => {
                             const user = firebase.auth().currentUser;
@@ -69,7 +71,7 @@ const MessageList = props => {
                                 alert("This user seems to no longer exist :(");
                             })
                         }}>
-                            <Ionicons name={"checkmark-circle-outline"} size={40} color="green" style={styles.boldIcon}/>
+                            <Ionicons name={"checkmark-circle-outline"} size={40} color="#5db075" style={styles.boldIcon}/>
                         </TouchableOpacity>
                     </View>
                 </View>

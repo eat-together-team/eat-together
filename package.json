@@ -21,6 +21,7 @@
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/stack": "^6.3.0",
     "axios": "^1.6.8",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.0.3",
     "eas-cli": "^9.0.3",
     "eslint": "^8.22.0",
