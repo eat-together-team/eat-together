@@ -56,7 +56,9 @@ export default function ({ back, navigation }) {
             : requests.length > 0 ?
                 <FlatList contentContainerStyle={styles.invites} keyExtractor={item => item.id}
                         data={requests} renderItem={({item}) =>
-                    <MessageList person={item} timestamp={formatDistanceToNow(item.timestamp, { addSuffix: true })} click={() => {
+                    <MessageList person={item} 
+                                timestamp={formatDistanceToNow(item.timestamp, { addSuffix: true })}
+                                click={() => {
                         db.collection("Users").doc(item.id).get().then((doc) => {
                             if (doc.data()) {
                                 navigation.navigate("FullProfile", {
