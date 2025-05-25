@@ -30,7 +30,6 @@ export default function ({ back, navigation }) {
                     name: data.name,
                     username: data.username,
                     profile: data.profile,
-                    // tags: data.tags,
                     timestamp: data.timestamp?.toDate() || new Date()
                 });
             });

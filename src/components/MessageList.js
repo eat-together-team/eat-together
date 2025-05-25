@@ -5,7 +5,6 @@ import {
     Image,
     TouchableOpacity,
     Dimensions,
-    Text
 } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 
@@ -13,7 +12,6 @@ import MediumText from "./MediumText";
 
 import firebase from "firebase/compat";
 import { auth, db } from "../provider/Firebase";
-import TagsList from "./TagsList";
 import SmallText from './SmallText';
 
 const MessageList = props => {
@@ -29,13 +27,7 @@ const MessageList = props => {
                         <Image style={styles.image} source={{uri: props.person.profile}}/>
                         <View style={styles.textContainer}>
                             <MediumText style={styles.username}>{props.person.username}</MediumText>
-                           
-                            {/* <View style={styles.tagsContainer}>
-                                
-                            </View> */}
-                           
                         </View>
-                       
                     </View>
                     
                     <View style={styles.actionColumn}>
