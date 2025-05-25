@@ -1,7 +1,7 @@
 //Look at your connection requests
 
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, StyleSheet, View, TouchableOpacity, } from "react-native";
 import { Layout, TopNav } from 'react-native-rapi-ui';
 import { Ionicons } from "@expo/vector-icons";
 
@@ -25,14 +25,12 @@ export default function ({ back, navigation }) {
             const list = [];
             query.forEach((doc) => {
                 let data = doc.data();
-                const schoolTags = (data.tags || []).filter(tag => tag.type === "school");
-                console.log(schoolTags);
                 list.push({
                     id: doc.id,
                     name: data.name,
                     username: data.username,
                     profile: data.profile,
-                    tags: schoolTags,
+                    // tags: data.tags,
                     timestamp: data.timestamp?.toDate() || new Date()
                 });
             });
@@ -48,19 +46,12 @@ export default function ({ back, navigation }) {
 
     return (
         <Layout>
-            <TopNav
-                middleContent={
-                    <MediumText center>Friend Requests</MediumText>
-                }
-                leftContent={
-                    <Ionicons
-                        name="chevron-back"
-                        size={20}
-                    />
-                }
-                leftAction={() => navigation.goBack()}
-            />
-
+            <View style={styles.navContainer}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Ionicons name="chevron-back" size={24} color="black" style = {styles.backButton}/>
+                </TouchableOpacity>
+                <MediumText style={styles.navTitle}>Friend Requests</MediumText>
+            </View>
             {loading ?
                 <LoadingView/>
             : requests.length > 0 ?
@@ -91,7 +82,7 @@ export default function ({ back, navigation }) {
 const styles = StyleSheet.create({
     invites: {
         alignItems: "center",
-        padding: 30
+        padding: 5,
     },
     submit: {
         position: 'absolute',
@@ -104,5 +95,25 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    timestamp: {
+        fontSize: 12,
+        color: 'gray',
+        marginBottom: 5,
+    },
+    navContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+    },
+    navTitle: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        marginLeft: 10,
+        paddingTop: 20
+    },
+    backButton: {
+        paddingTop: 12
     }
 });

@@ -38,41 +38,43 @@ const MessageList = props => {
                        
                     </View>
                     
-                    <SmallText style={styles.timestamp}>{props.timestamp}</SmallText>
-                    <View style={styles.response}>
-                        <TouchableOpacity onPress={() => {
-                            db.collection("User Invites").doc(user.uid).collection("Connections").doc(props.person.id).delete().then(() => {
-                                alert("Request Declined");
-                            }).catch(() => {
-                                alert("Couldn't delete request, try again later.");
-                            });
-                        }}>
-                            <Ionicons name={"close-circle-outline"} size={40} color="#EA3323" style={styles.boldIcon}/>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => {
-                            const user = firebase.auth().currentUser;
-                            db.collection("Usernames").doc(props.person.username).get().then((doc) => {
-                                // STEP 1: Add friend to current user's data
-                                db.collection("Users").doc(user.uid).update({
-                                    friendIDs: firebase.firestore.FieldValue.arrayUnion(doc.data().id)
-                                }).then(() => {
-                                    // STEP 2: Add current user as friend to other user's data
-                                    db.collection("Users").doc(doc.data().id).update({
-                                        friendIDs: firebase.firestore.FieldValue.arrayUnion(user.uid)
+                    <View style={styles.actionColumn}>
+                        <SmallText style={styles.timestamp}>{props.timestamp}</SmallText>
+                        <View style={styles.response}>
+                            <TouchableOpacity onPress={() => {
+                                db.collection("User Invites").doc(user.uid).collection("Connections").doc(props.person.id).delete().then(() => {
+                                    alert("Request Declined");
+                                }).catch(() => {
+                                    alert("Couldn't delete request, try again later.");
+                                });
+                            }}>
+                                <Ionicons name={"close-circle-outline"} size={40} color="#EA3323" style={styles.boldIcon}/>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => {
+                                const user = firebase.auth().currentUser;
+                                db.collection("Usernames").doc(props.person.username).get().then((doc) => {
+                                    // STEP 1: Add friend to current user's data
+                                    db.collection("Users").doc(user.uid).update({
+                                        friendIDs: firebase.firestore.FieldValue.arrayUnion(doc.data().id)
                                     }).then(() => {
-                                        // STEP 3: Delete invite
-                                        db.collection("User Invites").doc(user.uid).collection("Connections").doc(doc.data().id).delete().then(() => {
-                                            props.delete(props.person.id);
-                                            alert("Taste Bud Added");
-                                        });
+                                        // STEP 2: Add current user as friend to other user's data
+                                        db.collection("Users").doc(doc.data().id).update({
+                                            friendIDs: firebase.firestore.FieldValue.arrayUnion(user.uid)
+                                        }).then(() => {
+                                            // STEP 3: Delete invite
+                                            db.collection("User Invites").doc(user.uid).collection("Connections").doc(doc.data().id).delete().then(() => {
+                                                props.delete(props.person.id);
+                                                alert("Taste Bud Added");
+                                            });
+                                        })
                                     })
+                                }).catch(() => {
+                                    alert("This user seems to no longer exist :(");
                                 })
-                            }).catch(() => {
-                                alert("This user seems to no longer exist :(");
-                            })
-                        }}>
-                            <Ionicons name={"checkmark-circle-outline"} size={40} color="#5db075" style={styles.boldIcon}/>
-                        </TouchableOpacity>
+                            }}>
+                                <Ionicons name={"checkmark-circle-outline"} size={40} color="#5db075" style={styles.boldIcon}/>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </TouchableOpacity>
@@ -146,6 +148,19 @@ const styles = StyleSheet.create({
         gap: 0,
         flexShrink: 0,
         paddingRight: 0,
+    },
+    timestamp: {
+        fontSize: 12,
+        color: 'gray',
+        marginBottom: 4,
+        minHeight: 16,
+        textAlign: 'center',
+    },
+    actionColumn: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        minHeight: 70,
     },
 })
 
