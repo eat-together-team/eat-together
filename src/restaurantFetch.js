@@ -40,10 +40,6 @@ const restaurant = async (categoryParams, priceRange) => {
     params,
   }).then(response => {
     businesses = response.data.businesses;
-
-    // Randomly select one restaurant from the top 5 matching restaurants
-    // const randomIndex = Math.floor(Math.random() * businesses.length);
-    // restaurant = businesses[randomIndex];
   }).catch(error => {
     console.log(error);
   });
