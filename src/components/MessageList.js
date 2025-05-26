@@ -27,7 +27,7 @@ const MessageList = props => {
                     backgroundColor: declined ? "#f5f5f5" : props.color,
                     opacity: declined ? 0.5 : 1,
                     width: props.width ? props.width : Dimensions.get('screen').width - 40,
-
+                    //marginTop: declined ? 10000 : accepted ? 5000 : 0,  --> this should send things to bottom FIX
                 }]}>
                     <View style={styles.headleft}>
                         <Image style={styles.image} source={{uri: props.person.profile}}/>
@@ -43,13 +43,16 @@ const MessageList = props => {
                             {!accepted && !declined ?(
                                 <>
                                     <TouchableOpacity onPress={() => {
-                                        db.collection("User Invites").doc(user.uid).collection("Connections").doc(props.person.id).delete().then(() => {
-                                            props.delete(props.person.id);
-                                            setDeclined(true);
-                                            alert("Request Declined");
-                                        }).catch(() => {
-                                            alert("Couldn't delete request, try again later.");
-                                        });
+                                        setDeclined(true);
+                                        //alert("Request Declined");
+                                        setTimeout(() => {
+                                            db.collection("User Invites").doc(user.uid).collection("Connections").doc(props.person.id).delete().then(() => {
+                                                props.delete(props.person.id);
+                                            }).catch(() => {
+                                                alert("Couldn't delete request, try again later.");
+                                            });
+                                        }, 86400000);
+                                        
                                     }}>
                                         <Ionicons name="close-circle-outline" size={40} color="#EA3323" style={styles.boldIcon} />
                                     </TouchableOpacity>
@@ -65,9 +68,15 @@ const MessageList = props => {
                                                     friendIDs: firebase.firestore.FieldValue.arrayUnion(user.uid)
                                                 }).then(() => {
                                                     db.collection("User Invites").doc(user.uid).collection("Connections").doc(otherUserId).delete().then(() => {
-                                                        props.delete(props.person.id);
                                                         setAccepted(true);
-                                                        alert("Taste Bud Added");
+                                                        //alert("Taste Bud Added");
+                                                        setTimeout(() => {
+                                                            db.collection("User Invites").doc(user.uid).collection("Connections").doc(otherUserId).delete().then(() => {
+                                                                props.delete(props.person.id);
+                                                            }).catch(() => {
+                                                                alert("Couldn't delete request, try again later.");
+                                                            }, 86400000);
+                                                        })
                                                     });
                                                 });
                                             });
