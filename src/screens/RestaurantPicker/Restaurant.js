@@ -61,21 +61,21 @@ export default function ({navigation}) {
   };
 
   //make API request once user pressed "Finish" button
-  useEffect(() => {
-    if (pressedFinished) {
-      const fetchData = async() => {
-        try{
-          const response = await findRestaurant();
-          console.log(response);
+  // useEffect(() => {
+  //   if (pressedFinished) {
+  //     const fetchData = async() => {
+  //       try{
+  //         const response = await findRestaurant();
+  //         console.log(response);
 
-          setResult(response);
-        }catch(err){
-          console.log(err);
-        }
-      }
-      fetchData();
-    }
-  }, [pressedFinished]);
+  //         setResult(response);
+  //       }catch(err){
+  //         console.log(err);
+  //       }
+  //     }
+  //     fetchData();
+  //   }
+  // }, [pressedFinished]);
   //increment index for button to render next card in carousel
   const incrementIndex = () => {
     if (index === cards.length - 2){
