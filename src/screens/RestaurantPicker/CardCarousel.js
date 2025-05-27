@@ -1,33 +1,12 @@
-import {View, StyleSheet, Modal} from 'react-native';
 import React, { useState } from 'react'
-import {View, StyleSheet, Modal, ScrollView} from 'react-native';
+import {View, StyleSheet, Modal} from 'react-native';
 import SmallText from '../../components/SmallText';
 import MediumText from '../../components/MediumText';
 import LargeText from '../../components/LargeText';
 import Button from '../../components/Button';
 import ProgressBar from './ProgressBar';
-import RecommendationCard from './Recommendation';
 
 const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished}) => {
-  const [showRecommendation, setShowRecommendation] = useState(false);
-
-  if (showRecommendation) {
-    return <ScrollView contentContainerStyle={{ alignItems: "center", paddingBottom: 40 }}
-                showsVerticalScrollIndicator={false}>
-                <RecommendationCard />
-            </ScrollView>;
-  }
-    const [index, setIndex] = useState(0);
-
-  const incrementIndex = ()=>{
-    setIndex(Math.min(cards.length - 1, index + 1)); //can't go below index 0
-    if(index === cards.length - 1){
-        console.log("user wants to go to next page boy");
-    }
-  }
-  const decrementIndex = () =>{
-    setIndex(Math.max(0, index - 1)); //can't go above card.length - 1
-  }
 
   return (
     <View>
@@ -54,10 +33,6 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                             Back
                         </Button>
                         <Button
-                            onPress={() => {
-                                setPressedFinished(false);
-                                setShowRecommendation(true);
-                            }}
                             fontSize={16}
                             paddingHorizontal={25}
                             paddingVertical={10}
