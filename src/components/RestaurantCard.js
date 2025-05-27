@@ -1,8 +1,8 @@
-import React from 'react'
 import { View, ScrollView, Dimensions } from 'react-native';
 
 const CARD_MAX_HEIGHT = Dimensions.get('window').height * 0.7; 
 
+//Card components for Restaurant picker feature
 const RestaurantCard = ({children, expanded}) => {
   return (
     <View style={{
