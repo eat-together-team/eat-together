@@ -53,7 +53,6 @@
     "react-native": "0.79.2",
     "react-native-chart-kit": "^6.12.0",
     "react-native-color-picker": "^0.6.0",
-    "react-native-deck-swiper": "^2.0.17",
     "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-gradle-plugin": "^0.71.19",
@@ -72,6 +71,7 @@
     "react-native-svg": "15.11.2",
     "react-native-web": "^0.20.0",
     "react-schedule-selector": "^2.0.0",
+    "rn-swiper-list": "^2.2.0",
     "styled-components": "^5.3.5",
     "yelp-fusion": "^3.0.0"
   },

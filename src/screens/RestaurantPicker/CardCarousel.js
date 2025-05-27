@@ -1,3 +1,4 @@
+import React, { useState } from 'react'
 import {View, StyleSheet, Modal} from 'react-native';
 import SmallText from '../../components/SmallText';
 import MediumText from '../../components/MediumText';
