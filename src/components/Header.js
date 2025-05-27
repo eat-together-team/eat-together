@@ -20,7 +20,7 @@ const Header = (props) => {
       <View style={styles.icons}>
         {props.connections && props.navigation && (
           <TouchableOpacity onPress={() => {
-            props.navigation.navigate("ConnectionRequests");
+            props.navigation.navigate("GroupChat");
           }}>
             <Ionicons name="mail-unread-outline" size={30} color="black" style={{ marginRight: 5 }}/>
           </TouchableOpacity>
