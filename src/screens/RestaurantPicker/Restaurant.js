@@ -21,6 +21,8 @@ export default function ({navigation}) {
   const [index, setIndex] = useState(0);
   const [pressedFinished, setPressedFinished] = useState(false);
   const[result, setResult] = useState(null);
+  const [cardsLeft, setCardsLeft] = useState();
+  const[userResults, setUserResults] = useState([]);
   console.log(pressedFinished);
   //makes API call
   const findRestaurant = async() =>{
@@ -100,7 +102,7 @@ export default function ({navigation}) {
     <CuisineCard setCategoryAliases = {setCategoryAliases} categoryAliases = {categoryAliases} setCuisineTagSelected = {setCuisineTagSelected} cuisineTagSelected = {cuisineTagSelected}/>, 
     <DietaryPref setSelectedDietaryTags = {setSelectedDietaryTags} selectedDietaryTags = {selectedDietaryTags}/>, 
     <PriceRangeCard setPriceRange = {setPriceRange} priceRange = {priceRange}/>,
-    <SwipeDeck result = {result}/>
+    <SwipeDeck userResults = {userResults} setUserResults = {setUserResults} cardsLeft = {cardsLeft} setCardsLeft = {setCardsLeft} result = {result}/>
   ];
 
   return (
