@@ -2,11 +2,21 @@ import {View} from "react-native";
 import {useState, useEffect, useCallback} from 'react'
 import RestaurantCard from "../../components/RestaurantCard";
 import RestaurantRec from '../../components/RestaurantRec';
+import Button from "../../components/Button";
+import MediumText from "../../components/MediumText";
 import {Swiper} from 'rn-swiper-list';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
-const SwipeDeck = ({result, cardsLeft, userResults, setCardsLeft, setUserResults}) => {
+const SwipeDeck = ({result, cardsLeft, userResults, setCardsLeft, setUserResults, loading}) => {
+  
+  if(loading){
+    return (
+      <MediumText>
+        Loading...
+      </MediumText>
+    )
+  }
   
   const [expanded, setExpanded] = useState(false);
   useEffect(() => {
@@ -22,7 +32,6 @@ const SwipeDeck = ({result, cardsLeft, userResults, setCardsLeft, setUserResults
     setUserResults(prev => [...prev, result[index]]);
   }, [setCardsLeft, setUserResults]);
 
-  console.log("WHATTT", userResults);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', paddingTop: 40 }}>
@@ -30,6 +39,9 @@ const SwipeDeck = ({result, cardsLeft, userResults, setCardsLeft, setUserResults
           cardStyle={{
             alignSelf: 'center',
           }}
+          disableTopSwipe = {true}
+          disableBottomSwipe = {true}
+          translateYRange={[0,0, 0]}
           data={result}
           renderCard={(item, index) => (
             <RestaurantCard key = {index} expanded={expanded}>
@@ -44,6 +56,11 @@ const SwipeDeck = ({result, cardsLeft, userResults, setCardsLeft, setUserResults
           onSwipeRight={handleSwipeRight}
         />
       </View>
+      <Button 
+        marginVertical = {10}
+        width = {150}>
+        Finish
+      </Button>
     </GestureHandlerRootView>
   )
 }
