@@ -1,7 +1,7 @@
 // Notifications page
 
 import React, { useEffect, useState, useContext } from "react";
-import { ScrollView, FlatList, View, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
+import { ScrollView, FlatList, View, StyleSheet, ActivityIndicator, TouchableOpacity, Alert, Image } from "react-native";
 
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,6 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Header from "../../components/Header";
 import HorizontalSwitch from "../../components/HorizontalSwitch";
 import MediumText from "../../components/MediumText";
+import SmallText from "../../components/SmallText";
 import Notification from "../../components/Notification";
 import EmptyState from "../../components/EmptyState";
 import Link from "../../components/Link";
@@ -40,6 +41,7 @@ export default function (props) {
   }); // Recommendations
 
   const [loading, setLoading] = useState(true); // Loading state for the page
+  const [requests, setRequests] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -62,15 +64,16 @@ export default function (props) {
         let newReadNotifs = [];
         let newUnreadNotifs = [];
         let newRecommendations = [];
+        //let newRequests = [];
 
         notifications.forEach((notif) => {
           if(notif.type === "recommendation") {
             newRecommendations.push(notif);
           }
-          else if(notif.readAt && !newReadNotifs.includes(notif)) {
+          else if(notif.readAt && !newReadNotifs.includes(notif) && notif.type !== "user profile") {
             newReadNotifs.push(notif);
           }
-          else if(!notif.readAt && !newUnreadNotifs.includes(notif)){
+          else if(!notif.readAt && !newUnreadNotifs.includes(notif) && notif.type !== "user profile"){
             newUnreadNotifs.push(notif);
           }
         })
@@ -78,10 +81,25 @@ export default function (props) {
         newReadNotifs.reverse();
         newUnreadNotifs.reverse();
         newRecommendations.reverse();
+        //newRequests.reverse();
 
         setReadNotifs(newReadNotifs);
         setUnreadNotifs(newUnreadNotifs);
         setRecommendations(newRecommendations);
+        //setRequests(newRequests);
+      });
+
+      db.collection("User Invites").doc(user.uid).collection("Connections").get().then((querySnapshot) => {
+        const list = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          list.push({
+            id: doc.id,
+            username: data.username,
+            profile: data.profile,
+          });
+        });
+        setRequests(list.reverse());
       });
     }
 
@@ -191,6 +209,28 @@ export default function (props) {
         </View>
       : notifications.length > 0 ?
         <ScrollView style={{padding: 5}}>
+          {requests.length !== 0 &&
+            <View>
+              <TouchableOpacity
+                style={styles.friendRequestPreview}
+                onPress={() => props.navigation.navigate("Requests")}
+              >
+                <MediumText style={styles.frTitle}> Friend Requests </MediumText>
+                <View style={styles.frSubHeader}>
+                  <MediumText style={styles.frSub}> You have {requests.length} new friend requests!</MediumText>
+                  <Ionicons name="chevron-forward" size={20} color="black" style={styles.rightArrow}/>
+                </View>
+                <View style={styles.avatarRow}>
+                  {requests.slice(0, 3).map((req, index) => (
+                    <Image key={req.id || index} source={{ uri: req.profile}} style={styles.profilePic}/>
+                  ))}
+                  <SmallText numberOfLines={1} ellipsizeMode="tail" style={styles.requestText}>
+                    {requests.map((r) => r.username).join(", ")}
+                  </SmallText>
+                </View>
+              </TouchableOpacity>
+            </View>
+          }
           {recommendations.length !== 0 &&
             <View>
               <MediumText> Recommendations </MediumText>
@@ -300,9 +340,9 @@ export default function (props) {
                               alert("There seems to be an error fetching this event. Please try again later.");
                             });
                             break;
-                          case "user profile":
-                            props.navigation.navigate("Requests");
-                            break;
+                          // case "user profile":
+                          //   props.navigation.navigate("Requests");
+                          //   break;
                           default:
                             alert("Sorry, an error has occurred.");
                             break;
@@ -428,4 +468,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: "space-between",
   },
+
+  frTitle:{
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginLeft: 20,
+    paddingTop: 10
+  },
+
+  frSub:{
+    marginLeft: 25,
+    fontSize: 15
+  },
+
+  rightArrow:{
+    marginRight: 10
+  },
+
+  frSubHeader:{
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  },
+
+  avatarRow:{
+    flexDirection: 'row',
+    alignItems: "center",
+    marginBottom: 20,
+    marginTop: 5
+  },
+
+  profilePic:{
+    width: 35,
+    height: 35,
+    borderRadius: 25,
+    marginLeft: 25,
+    marginRight: 5
+  },
+
+  requestText:{
+    color: "#777",
+  }
 });
