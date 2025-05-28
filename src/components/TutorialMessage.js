@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Image, Modal, StyleSheet, View } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
 
 import NormalText from './NormalText';
 import MediumText from './MediumText';
@@ -10,8 +11,6 @@ import BorderedButton from './BorderedButton';
 import { db } from "../provider/Firebase";
 
 import arrow from "../../assets/tutorial-arrow.png"
-import skip from "../../assets/tutorial-skip.png"
-
 
 const TutorialMessage = (props) => {
   const [modalVisible, setModalVisible] = useState(true);
@@ -81,16 +80,14 @@ const TutorialMessage = (props) => {
         <View style={styles.modalContent}>
           <View style={styles.spacedRow}>
             <MediumText style={styles.titleText}>{props.title}</MediumText>
-            <Link onPress={handleSkipTutorial}><Image
-              source={skip} 
-              style={{
-                width: 50,
-                position: 'absolute', 
-                height: 25,
-                resizeMode: 'contain',
-                zIndex: 900,
-              }}
-            /></Link>
+            {!props.disableNext && (
+              <Ionicons 
+                name="close" 
+                onPress={handleSkipTutorial} 
+                size={30} 
+                color="grey"
+              />
+            )}
           </View>
           
           <NormalText style={styles.tutorialText}>{props.content}</NormalText>
