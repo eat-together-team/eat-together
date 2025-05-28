@@ -24,6 +24,8 @@ import { compareDates } from "../../methods";
 import MediumText from "../../components/MediumText";
 import RecommendationsCard from "../../components/RecommendationsCard";
 
+import firebase from "firebase/compat";
+
 export default function ({ navigation }) {
   // Get current user
   const user = auth.currentUser;
@@ -159,6 +161,37 @@ export default function ({ navigation }) {
         }
       });
     }
+
+    async function fetchPartnerEvents(){ 
+      const now = firebase.firestore.Timestamp.now();
+      const nextWeekDate = now.toDate();
+      nextWeekDate.setDate(nextWeekDate.getDate() + 7);
+      const nextWeek = firebase.firestore.Timestamp.fromDate(nextWeekDate);
+      
+      const partners = ["shake","stack"]
+
+      const snapshot = await db
+        .collection("Private Events")
+        .where("startDate", ">=", now)
+        .where("startDate", "<=",nextWeek)
+        .get();
+            
+
+      const matchingDocs = snapshot.docs.filter(doc => {
+        const data = doc.data();
+        const name = (data.name || "").toLowerCase();
+        return partners.some(word => name.includes(word));
+      });
+
+      
+      const results = matchingDocs.map(doc => ({
+        ...doc.data(),
+      }));
+      
+      console.log(results);
+    }
+
+    fetchPartnerEvents()
 
     fetchEvents().then(() => {
       fetchRecs().then(() => {

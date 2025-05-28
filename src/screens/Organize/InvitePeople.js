@@ -1,7 +1,7 @@
 //Display upcoming events to join
 
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList, Dimensions, ActivityIndicator } from "react-native";
+import { View, StyleSheet, FlatList, ActivityIndicator,Platform} from "react-native";
 
 import { db, auth, storage } from "../../provider/Firebase";
 import { TopNav, Layout } from "react-native-rapi-ui";
@@ -432,7 +432,10 @@ export default function ({ route, navigation }) {
             }
           }
         }}
-      >{loading ? "Sending ..." : "Send Invites"}</Button>
+        marginBottom={Platform.OS === "ios"? -34 : 0}
+      >
+       {loading ? "Sending ..." : "Send Invites"}
+      </Button>
     </Layout>
   );
 }
@@ -440,21 +443,5 @@ export default function ({ route, navigation }) {
 const styles = StyleSheet.create({
   invites: {
     alignItems: "center",
-  },
-  submit: {
-    position: "absolute",
-    bottom: 0,
-  },
-  tagInput: {
-    width: "100%",
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    marginVertical: 10,
-  },
-
-  input: {
-    width: Dimensions.get("screen").width / 1.5,
-    marginRight: 10,
   },
 });
