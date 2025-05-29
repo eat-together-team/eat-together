@@ -419,7 +419,8 @@ export default function ({ navigation }) {
       status: 80,
     },
     {
-      content: 'Congrats, you have finished the tutorial. Click finish to return to the main page.',
+      title: 'Next',
+      content: 'Click "Finish" to return to the main page!',
       disableNext: true,
       bottom: "40%",
       modalHeight: 300,
