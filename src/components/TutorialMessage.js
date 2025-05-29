@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Image, Modal, StyleSheet, View } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
 
 import NormalText from './NormalText';
 import MediumText from './MediumText';
@@ -8,6 +9,8 @@ import Button from './Button';
 import BorderedButton from './BorderedButton';
 
 import { db } from "../provider/Firebase";
+
+import arrow from "../../assets/tutorial-arrow.png"
 
 const TutorialMessage = (props) => {
   const [modalVisible, setModalVisible] = useState(true);
@@ -52,44 +55,19 @@ const TutorialMessage = (props) => {
       {modalVisible && <Backdrop />}
       {arrowVisible && (
         <>
-          {/* Rotation Container for Line with Arrow */}
-          <View
-            style={{
-              position: 'absolute',
-              zIndex: 2,
-              bottom: props.bottom ? parseInt(props.bottom) + actualModalHeight : 10 + actualModalHeight,
-              left: '50%',
-              width: 1,
-              height: 1,
-              transform: [{rotate: `${props.angle ? props.angle : 0}deg`}], // Rotation
-            }}
-          >
-          {/* Line with Arrow */}
-          <View
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              width: 7,
-              height: props.length ? props.length * 10 : 50,
-              backgroundColor: 'white',
-            }}
-          >
-            <View 
+          {/* Arrow */}
+            <Image
+              source={arrow} 
               style={{
-                position: 'absolute',
-                top: -20, // Place at the top end of the line
-                left: -7, // Center the arrow
-                width: 0,
-                height: 0,
-                borderColor: 'transparent',
-                borderTopColor: 'white',
-                borderWidth: 10,
-                transform: [{ rotate: '180deg' }],  // Rotate the arrow to point in the opposite direction
+                width: 50,
+                position: 'absolute', 
+                left: props.left,
+                bottom: props.bottom ? parseInt(props.bottom) + actualModalHeight : 10,
+                height: 25,
+                resizeMode: 'contain',
+                zIndex: 999,
               }}
             />
-          </View>
-        </View>
       </>
     )}
     <Modal
@@ -102,7 +80,14 @@ const TutorialMessage = (props) => {
         <View style={styles.modalContent}>
           <View style={styles.spacedRow}>
             <MediumText style={styles.titleText}>{props.title}</MediumText>
-            <Link onPress={handleSkipTutorial}>Skip Tutorial</Link>
+            {!props.disableNext && (
+              <Ionicons 
+                name="close" 
+                onPress={handleSkipTutorial} 
+                size={30} 
+                color="grey"
+              />
+            )}
           </View>
           
           <NormalText style={styles.tutorialText}>{props.content}</NormalText>
@@ -127,7 +112,7 @@ const TutorialMessage = (props) => {
                 fontSize={14}
                 onPress={handleSkipTutorial}
               >
-                Done
+                Finish
               </Button>
             ) : (
               <Button
@@ -136,13 +121,30 @@ const TutorialMessage = (props) => {
                 fontSize={14}
                 onPress={props.next}
               >
-                Next
+                Next -&gt;
               </Button>
             )}
           </View>
         </View>
+        {props.status && (
+          <View style={styles.spacedRow}>
+            <View style={styles.statusOverall}>
+              <View style={{
+                backgroundColor: '#5DB075',
+                borderRadius: 20,
+                height: 10,
+                width: `${props.status}%`, 
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                zIndex: 2,
+              }}/>
+            </View>
+          </View>
+        )}
       </View>
-    </Modal>
+    </Modal> 
+    
     </>
   );
 };
@@ -165,7 +167,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     borderWidth: 1,  // Add this line to specify border width
-    borderColor: '#5DB075',  // Add this line to specify border color
+    borderColor: '#FFFFFF',  // Add this line to specify border color
   },
 
   spacedRow: {
@@ -181,6 +183,7 @@ const styles = StyleSheet.create({
 
   buttonContainer: {
     flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'center'
   },
 
@@ -193,7 +196,22 @@ const styles = StyleSheet.create({
     color: '#767676',
     paddingTop: 50,
     textDecorationLine: 'underline',
-  }
+  },
+
+  titleText: {
+    color: '#2f6a40',
+  },
+
+  statusOverall: {
+    backgroundColor: '#d9d9d9',
+    borderRadius: 20,
+    height: 10,
+    width: '100%',
+    position: 'relative', 
+    zIndex: 1,
+    marginTop: 20
+  },
+
 });
 
 const Backdrop = () => {
