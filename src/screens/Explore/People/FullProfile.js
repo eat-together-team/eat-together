@@ -178,8 +178,8 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               .collection("User Invites")
               .doc(data.id)
               .collection("Connections")
-              .doc(user.uid);
-            ref.get().then((doc) => {
+              .doc(user.uid)
+              ref.get().then((doc) => {
               if (doc.exists) {
                 setDisabled(true);
                 setStatus("Request Sent");
@@ -246,6 +246,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               name: userData.firstName + " " + userData.lastName,
               username: userData.username,
               profile: inviterImage,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             })
             .then(() => {
               setStatus("Request Sent");

@@ -1,6 +1,6 @@
 // Will coome back to this later for the tag functionality
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     StyleSheet,
@@ -20,6 +20,11 @@ const MessageList = props => {
     const user = auth.currentUser;
     const [accepted, setAccepted] = useState(false);
     const [declined, setDeclined] = useState(false);
+
+    useEffect(() => {
+        setAccepted(props.accepted || false);
+        setDeclined(props.declined || false);
+    }, [props.accepted, props.declined]);
     return (
         <View style={styles.outline}>
             <TouchableOpacity onPress={props.click}>
@@ -44,6 +49,7 @@ const MessageList = props => {
                                 <>
                                     <TouchableOpacity onPress={() => {
                                         setDeclined(true);
+                                        props.updateStatus(props.person.id, 'declined'); 
                                         //alert("Request Declined");
                                         setTimeout(() => {
                                             db.collection("User Invites").doc(user.uid).collection("Connections").doc(props.person.id).delete().then(() => {
@@ -67,17 +73,20 @@ const MessageList = props => {
                                                 db.collection("Users").doc(otherUserId).update({
                                                     friendIDs: firebase.firestore.FieldValue.arrayUnion(user.uid)
                                                 }).then(() => {
-                                                    db.collection("User Invites").doc(user.uid).collection("Connections").doc(otherUserId).delete().then(() => {
-                                                        setAccepted(true);
-                                                        //alert("Taste Bud Added");
-                                                        setTimeout(() => {
+                                                    setAccepted(true);
+                                                    props.updateStatus(props.person.id, 'accepted');
+                                                    setTimeout(() => {
+                                                        db.collection("User Invites").doc(user.uid).collection("Connections").doc(otherUserId).delete().then(() => {
+                                                            
+                                                            //alert("Taste Bud Added");
                                                             db.collection("User Invites").doc(user.uid).collection("Connections").doc(otherUserId).delete().then(() => {
                                                                 props.delete(props.person.id);
                                                             }).catch(() => {
                                                                 alert("Couldn't delete request, try again later.");
-                                                            }, 86400000);
-                                                        })
-                                                    });
+                                                            });
+                                                            
+                                                        });
+                                                    }, 86400000);
                                                 });
                                             });
                                         }).catch(() => {
@@ -89,7 +98,7 @@ const MessageList = props => {
                                 </>
                             ) : accepted ? (
                                 <TouchableOpacity onPress={() => alert("Open chat screen here")}>
-                                    <Ionicons name="chatbubble-ellipses-outline" size={35} color="#5db075" />
+                                    <Ionicons name="chatbubble-ellipses" size={35} color="#5db075" />
                                 </TouchableOpacity>
                             ): null}
                         </View>
@@ -102,17 +111,14 @@ const MessageList = props => {
 
 const styles = StyleSheet.create({
     outline: {
-        marginVertical: 5,
-        shadowColor: "transparent", // removed shadow
-        backgroundColor: "transparent", // removed background
+        marginVertical: 2,      // reduce vertical margin to 2 or 0
+        paddingVertical: 5,     // reduce vertical padding inside item to 5 or 0
+        shadowColor: "transparent",
+        backgroundColor: "transparent",
         borderRadius: 0,
-        paddingVertical: 10,
         shadowOpacity: 0.25,
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        elevation: 10
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 10,
     },
     head: {
         flexDirection: "row",
@@ -131,6 +137,8 @@ const styles = StyleSheet.create({
         height: 60,
         borderRadius: 30,
         marginRight: 12,
+        borderWidth: 1,
+        borderColor: 'black',
     },
     name: {
         marginRight: 10,
@@ -139,6 +147,7 @@ const styles = StyleSheet.create({
     textContainer: {
         flexShrink: 1,
         maxWidth: Dimensions.get('window').width * 0.55,
+        marginBottom: 2
     },
     username: {
         fontSize: 16,

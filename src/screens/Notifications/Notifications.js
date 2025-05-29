@@ -222,7 +222,7 @@ export default function (props) {
                 </View>
                 <View style={styles.avatarRow}>
                   {requests.slice(0, 3).map((req, index) => (
-                    <Image key={req.id || index} source={{ uri: req.profile}} style={styles.profilePic}/>
+                    <Image key={req.id || index} source={{ uri: req.profile}} style={[styles.profilePic, index === 0 && styles.firstProfilePic]}/>
                   ))}
                   <SmallText numberOfLines={1} ellipsizeMode="tail" style={styles.requestText}>
                     {requests.map((r) => r.username).join(", ")}
@@ -233,7 +233,7 @@ export default function (props) {
           }
           {recommendations.length !== 0 &&
             <View>
-              <MediumText> Recommendations </MediumText>
+              {/* <MediumText> Recommendations </MediumText> */}
               <FlatList
                 contentContainerStyle={styles.cards}
                 keyExtractor={(item) => item.id}
@@ -503,8 +503,14 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 25,
+    marginLeft: -20,
+    marginRight: 5,
+    borderWidth: 1,
+    borderColor: 'black'
+  },
+
+  firstProfilePic: {
     marginLeft: 25,
-    marginRight: 5
   },
 
   requestText:{

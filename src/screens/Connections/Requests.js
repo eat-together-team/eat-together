@@ -14,7 +14,7 @@ import { db } from "../../provider/Firebase";
 import firebase from "firebase/compat";
 import { formatDistanceToNow } from "date-fns";
 
-export default function ({ back, navigation }) {
+export default function ({ back, navigation}) {
     const user = firebase.auth().currentUser;
     const [requests, setRequests] = useState([]); // Requests
     const [loading, setLoading] = useState(true); // Loading state for the page
@@ -30,8 +30,11 @@ export default function ({ back, navigation }) {
                     name: data.name,
                     username: data.username,
                     profile: data.profile,
-                    timestamp: data.timestamp?.toDate() || new Date()
+                    timestamp: data.timestamp?.toDate ? data.timestamp.toDate() : new Date(),
+                    status: data.status || 'pending', 
+                    statusUpdatedAt: data.statusUpdatedAt?.toDate ? data.statusUpdatedAt.toDate() : null,
                 });
+                console.log(list);
             });
             setRequests(list);
             setLoading(false);
@@ -43,10 +46,47 @@ export default function ({ back, navigation }) {
         setRequests(newRequests);
     }
 
+    const updateStatus = (id, newStatus) => {
+        setRequests(prev =>
+            prev.map(r => (r.id === id ? { ...r, status: newStatus, statusUpdatedAt: new Date() } : r))
+        );
+        db.collection("User Invites").doc(user.uid).collection("Connections").doc(id).update({
+            status: newStatus,
+            statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(() => {
+            alert("Failed to update request status in database.");
+        });
+    };
+
+    const sortedRequests = [...requests].sort((a, b) => {
+        const statusOrder = { pending: 0, accepted: 1, declined: 2 };
+        if (statusOrder[a.status] !== statusOrder[b.status]) {
+            return statusOrder[a.status] - statusOrder[b.status];
+        }
+        if (a.statusUpdatedAt && b.statusUpdatedAt) {
+            return a.statusUpdatedAt - b.statusUpdatedAt;
+        }
+        return 0;
+    });
+
     return (
         <Layout>
             <View style={styles.navContainer}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
+                <TouchableOpacity onPress={() => {
+                    // Reset accepted/declined requests to pending before going back
+                    // For testing purpose
+                    // requests.forEach(request => {
+                    //     if(request.status === 'accepted' || request.status === 'declined') {
+                    //         db.collection("User Invites").doc(user.uid)
+                    //         .collection("Connections").doc(request.id)
+                    //         .update({
+                    //             status: 'pending',
+                    //             statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    //         });
+                    //     }
+                    // });
+                    navigation.goBack();
+                }}>
                     <Ionicons name="chevron-back" size={24} color="black" style = {styles.backButton}/>
                 </TouchableOpacity>
                 <MediumText style={styles.navTitle}>Friend Requests</MediumText>
@@ -55,7 +95,7 @@ export default function ({ back, navigation }) {
                 <LoadingView/>
             : requests.length > 0 ?
                 <FlatList contentContainerStyle={styles.invites} keyExtractor={item => item.id}
-                        data={requests} renderItem={({item}) =>
+                        data={sortedRequests} renderItem={({item}) =>
                     <MessageList person={item} 
                                 timestamp={formatDistanceToNow(item.timestamp, { addSuffix: true })}
                                 click={() => {
@@ -70,7 +110,10 @@ export default function ({ back, navigation }) {
                         }).catch(() => {
                             alert("This user seems to no longer exist :(");
                         });
-                    }} delete={deleteRequest}/>
+                    }} delete={deleteRequest} 
+                    updateStatus={updateStatus}
+                    accepted={item.status === 'accepted'}
+                    declined={item.status === 'declined'}/>
                 }/>
             :
                 <EmptyState title="No Requests" text="You look great today :)"/>
@@ -83,7 +126,8 @@ export default function ({ back, navigation }) {
 const styles = StyleSheet.create({
     invites: {
         alignItems: "center",
-        padding: 5,
+        paddingVertical: 0,
+        paddingHorizontal: 5,
     },
     submit: {
         position: 'absolute',
@@ -111,7 +155,7 @@ const styles = StyleSheet.create({
     navTitle: {
         fontSize: 30,
         fontWeight: 'bold',
-        marginLeft: 10,
+        marginLeft: 0,
         paddingTop: 20
     },
     backButton: {
