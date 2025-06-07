@@ -240,7 +240,7 @@ export default function ({ navigation }) {
         });
       });
     }
-    
+
   }, []);
 
   // For filters
@@ -248,7 +248,7 @@ export default function ({ navigation }) {
     setLoading(true);
     let newEvents = [...events];
     if (publicEvents) {
-      newEvents = newEvents.filter((e) => {e.type === "public"});
+      newEvents = newEvents.filter((e) => e.type === "public");
     }
 
     if (privateEvents) {
