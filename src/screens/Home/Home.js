@@ -43,10 +43,6 @@ export default function ({ navigation }) {
   const [hasRec, setHasRec] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
 
-  const [isPartner,setIsPartner] = useState(false);
-  const [partnerEvents, setPartnerEvents] = useState([]);
-
-
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filters
@@ -211,7 +207,6 @@ export default function ({ navigation }) {
       setEvents(partnerEvents);
       setFilteredEvents(partnerEvents);
       setFilteredSearchedEvents(partnerEvents);
-
     }
 
     if(user.uid === "rf5TFsAoVENXZtfx9ETDK3rLMXy2"){
@@ -222,7 +217,6 @@ export default function ({ navigation }) {
 
         setLoading(false);
       })
-
     }else{
       fetchEvents().then(() => {
         fetchRecs().then(() => {
@@ -235,13 +229,13 @@ export default function ({ navigation }) {
         });
       });
     }
-
   }, []);
 
   // For filters
   useEffect(() => {
     setLoading(true);
     let newEvents = [...events];
+
     if (publicEvents) {
       newEvents = newEvents.filter((e) => e.type === "public");
     }
@@ -261,6 +255,7 @@ export default function ({ navigation }) {
     if (friendsAttending) {
       newEvents = filterByFriendsAttending(newEvents);
     }
+
     setFilteredEvents(newEvents);
 
     const newSearchedEvents = search(newEvents, searchQuery);
