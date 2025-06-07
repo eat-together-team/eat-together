@@ -22,7 +22,7 @@ import IncomingRequests from "./IncomingRequests";
 
 import AvailabilitiesHome from "./Availabilities/AvailabilitiesHome";
 import Availabilities from "./Availabilities/Availabilities";
-import Colorpicker from "./ColorPicker";
+import ColorSelector from "./ColorSelector";
 import EventGallery from "../Home/EventGallery";
 
 const Stack = createStackNavigator();
@@ -63,7 +63,7 @@ export default function () {
 
       <Stack.Screen name="AvailabilitiesHome" component={AvailabilitiesHome} />
       <Stack.Screen name="Availabilities" component={Availabilities} />
-      <Stack.Screen name="ColorPicker" component={Colorpicker} />
+      <Stack.Screen name="ColorPicker" component={ColorSelector} />
 
       {/* Photo Gallery */}
       <Stack.Screen name="EventGallery" component={EventGallery} />
