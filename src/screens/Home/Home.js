@@ -202,11 +202,6 @@ export default function ({ navigation }) {
         return partnerWords.some(word => name.includes(word));
       });
 
-
-      const tetsing = matchingPrivateDocs.map(doc => ({
-        ...doc.data(),
-      }));
-
       const matchingDocs = [...matchingPublicDocs, ...matchingPrivateDocs];
       const partnerEvents = matchingDocs.map(doc => ({
         ...doc.data(),
@@ -219,7 +214,7 @@ export default function ({ navigation }) {
 
     }
 
-    if(user.uid = "rf5TFsAoVENXZtfx9ETDK3rLMXy2"){
+    if(user.uid === "rf5TFsAoVENXZtfx9ETDK3rLMXy2"){
       fetchPartnerEvents().then(() =>{
         db.collection("Users").doc(user.uid).update({
           verified: true
