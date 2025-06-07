@@ -203,13 +203,12 @@ export default function ({ navigation }) {
         ...doc.data(),
       }));
       
-      setIsPartner(true);
       setEvents(partnerEvents);
       setFilteredEvents(partnerEvents);
       setFilteredSearchedEvents(partnerEvents);
     }
 
-    if(user.uid === "rf5TFsAoVENXZtfx9ETDK3rLMXy2"){
+    if(user.uid === "rf5TFsAoVENXZtfx9ETDK3rLMXy2") {
       fetchPartnerEvents().then(() =>{
         db.collection("Users").doc(user.uid).update({
           verified: true
@@ -217,7 +216,7 @@ export default function ({ navigation }) {
 
         setLoading(false);
       })
-    }else{
+    } else {
       fetchEvents().then(() => {
         fetchRecs().then(() => {
           // Verify user when they log in for the first time
