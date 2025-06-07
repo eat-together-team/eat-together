@@ -1,4 +1,3 @@
-const partners = ['Shake & Stack',
-]
+const partners = ['Shake & Stack'];
 
 export default partners;
