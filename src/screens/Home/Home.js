@@ -41,10 +41,10 @@ export default function ({ navigation }) {
 
   // Get recommendations
   const [hasRec, setHasRec] = useState(false);
-  const [recommendations, setRecommendations] = useState([])
+  const [recommendations, setRecommendations] = useState([]);
 
   const [isPartner,setIsPartner] = useState(false);
-  const [partnerEvents, setPartnerEvents] = useState([])
+  const [partnerEvents, setPartnerEvents] = useState([]);
 
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -178,7 +178,6 @@ export default function ({ navigation }) {
         .replace(/[^a-z0-9\s]/g, '')
         .split(/\s+/))
 
-      console.log("partner words",partnerWords)
       
       const [publicSnapshot, privateSnapshot] = await Promise.all([
         db.collection("Private Events")
@@ -219,16 +218,14 @@ export default function ({ navigation }) {
       setFilteredSearchedEvents(partnerEvents);
 
     }
-    // replace logic with user.role.exists &&  
+
     if(user.uid = "rf5TFsAoVENXZtfx9ETDK3rLMXy2"){
       fetchPartnerEvents().then(() =>{
         db.collection("Users").doc(user.uid).update({
           verified: true
         });
 
-        setLoading(false); 
-        
-
+        setLoading(false);
       })
 
     }else{
@@ -243,13 +240,13 @@ export default function ({ navigation }) {
         });
       });
     }
+    
   }, []);
 
   // For filters
   useEffect(() => {
     setLoading(true);
     let newEvents = [...events];
-    // console.log(newEvents)
     if (publicEvents) {
       newEvents = newEvents.filter((e) => {e.type === "public"});
     }
@@ -269,7 +266,6 @@ export default function ({ navigation }) {
     if (friendsAttending) {
       newEvents = filterByFriendsAttending(newEvents);
     }
-    console.log("new EVents",newEvents)
     setFilteredEvents(newEvents);
 
     const newSearchedEvents = search(newEvents, searchQuery);
