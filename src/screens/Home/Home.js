@@ -25,7 +25,7 @@ import partners from "../../partners";
 import MediumText from "../../components/MediumText";
 import RecommendationsCard from "../../components/RecommendationsCard";
 
-import firebase from "firebase/compat";
+import { Timestamp } from "firebase/firestore";
 
 export default function ({ navigation }) {
   // Get current user
@@ -168,10 +168,10 @@ export default function ({ navigation }) {
     }
 
     async function fetchPartnerEvents(){ 
-      const now = firebase.firestore.Timestamp.now();
+      const now = Timestamp.now();
       const nextWeekDate = now.toDate();
       nextWeekDate.setDate(nextWeekDate.getDate() + 7);
-      const nextWeek = firebase.firestore.Timestamp.fromDate(nextWeekDate);
+      const nextWeek = Timestamp.fromDate(nextWeekDate);
 
       const partnerWords = partners
         .flatMap(name => name.toLowerCase()
