@@ -22,6 +22,7 @@ import { db, auth } from "../../provider/Firebase";
 import { AuthContext } from "../../provider/AuthProvider";
 import { compareDates } from "../../methods";
 import partners from "../../partners";
+import partnerLocations from "../../partnerLocations";
 import MediumText from "../../components/MediumText";
 import RecommendationsCard from "../../components/RecommendationsCard";
 
@@ -189,13 +190,18 @@ export default function ({ navigation }) {
       const matchingPrivateDocs = privateSnapshot.docs.filter(doc => {
         const data = doc.data();
         const name = (data.name || "").toLowerCase();
-        return partnerWords.some(word => name.includes(word));
+        if(partnerLocations.includes(location) || partnerWords.some(word => name.includes(word))) {
+          return partnerWords.some(word => name.includes(word));
+        }
       });
 
       const matchingPublicDocs = publicSnapshot.docs.filter(doc => {
         const data = doc.data();
         const name = (data.name || "").toLowerCase();
-        return partnerWords.some(word => name.includes(word));
+        const location = data.location
+        if(partnerLocations.includes(location) || partnerWords.some(word => name.includes(word))) {
+          return partnerWords.some(word => name.includes(word));
+        }
       });
 
       const matchingDocs = [...matchingPublicDocs, ...matchingPrivateDocs];
