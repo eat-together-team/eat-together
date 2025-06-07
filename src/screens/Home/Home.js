@@ -21,6 +21,7 @@ import Button from "../../components/Button"
 import { db, auth } from "../../provider/Firebase";
 import { AuthContext } from "../../provider/AuthProvider";
 import { compareDates } from "../../methods";
+import partners from "../../partners";
 import MediumText from "../../components/MediumText";
 import RecommendationsCard from "../../components/RecommendationsCard";
 
@@ -41,6 +42,10 @@ export default function ({ navigation }) {
   // Get recommendations
   const [hasRec, setHasRec] = useState(false);
   const [recommendations, setRecommendations] = useState([])
+
+  const [isPartner,setIsPartner] = useState(false);
+  const [partnerEvents, setPartnerEvents] = useState([])
+
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -152,7 +157,7 @@ export default function ({ navigation }) {
                   return compareDates(a, b);
                 });
 
-                setHasRec(true)
+                setHasRec(true);
                 setRecommendations(recEvents);
                 setLoading(false);
               }
@@ -167,51 +172,86 @@ export default function ({ navigation }) {
       const nextWeekDate = now.toDate();
       nextWeekDate.setDate(nextWeekDate.getDate() + 7);
       const nextWeek = firebase.firestore.Timestamp.fromDate(nextWeekDate);
+
+      const partnerWords = partners
+        .flatMap(name => name.toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .split(/\s+/))
+
+      console.log("partner words",partnerWords)
       
-      const partners = ["shake","stack"]
-
-      const snapshot = await db
-        .collection("Private Events")
+      const [publicSnapshot, privateSnapshot] = await Promise.all([
+        db.collection("Private Events")
         .where("startDate", ">=", now)
-        .where("startDate", "<=",nextWeek)
-        .get();
-            
+        .where("startDate", "<=", nextWeek)
+        .get(),
+        db.collection("Public Events")
+          .where("startDate", ">=", now)
+          .where("startDate", "<=", nextWeek)
+          .get()
+      ]);
 
-      const matchingDocs = snapshot.docs.filter(doc => {
+      const matchingPrivateDocs = privateSnapshot.docs.filter(doc => {
         const data = doc.data();
         const name = (data.name || "").toLowerCase();
-        return partners.some(word => name.includes(word));
+        return partnerWords.some(word => name.includes(word));
       });
 
-      
-      const results = matchingDocs.map(doc => ({
+      const matchingPublicDocs = publicSnapshot.docs.filter(doc => {
+        const data = doc.data();
+        const name = (data.name || "").toLowerCase();
+        return partnerWords.some(word => name.includes(word));
+      });
+
+
+      const tetsing = matchingPrivateDocs.map(doc => ({
+        ...doc.data(),
+      }));
+
+      const matchingDocs = [...matchingPublicDocs, ...matchingPrivateDocs];
+      const partnerEvents = matchingDocs.map(doc => ({
         ...doc.data(),
       }));
       
-      console.log(results);
+      setIsPartner(true);
+      setEvents(partnerEvents);
+      setFilteredEvents(partnerEvents);
+      setFilteredSearchedEvents(partnerEvents);
+
     }
-
-    fetchPartnerEvents()
-
-    fetchEvents().then(() => {
-      fetchRecs().then(() => {
-        // Verify user when they log in for the first time
+    // replace logic with user.role.exists &&  
+    if(user.uid = "rf5TFsAoVENXZtfx9ETDK3rLMXy2"){
+      fetchPartnerEvents().then(() =>{
         db.collection("Users").doc(user.uid).update({
           verified: true
         });
 
-        setLoading(false); // Stop showing loading screen
+        setLoading(false); 
+        
+
+      })
+
+    }else{
+      fetchEvents().then(() => {
+        fetchRecs().then(() => {
+          // Verify user when they log in for the first time
+          db.collection("Users").doc(user.uid).update({
+            verified: true
+          });
+
+          setLoading(false); // Stop showing loading screen
+        });
       });
-    });
+    }
   }, []);
 
   // For filters
   useEffect(() => {
     setLoading(true);
     let newEvents = [...events];
-
+    // console.log(newEvents)
     if (publicEvents) {
-      newEvents = newEvents.filter((e) => e.type === "public");
+      newEvents = newEvents.filter((e) => {e.type === "public"});
     }
 
     if (privateEvents) {
@@ -229,7 +269,7 @@ export default function ({ navigation }) {
     if (friendsAttending) {
       newEvents = filterByFriendsAttending(newEvents);
     }
-
+    console.log("new EVents",newEvents)
     setFilteredEvents(newEvents);
 
     const newSearchedEvents = search(newEvents, searchQuery);
