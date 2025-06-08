@@ -271,7 +271,8 @@ export default function ({ navigation }) {
                 image,
                 tags: tagsSelected,
                 chatID: chatID,
-                visibleTo: userFriends
+                visibleTo: userFriends,
+                type: "public"
             }).then(() => {
                 const storeID = {
                     type: "public",

@@ -69,8 +69,6 @@ const WhileYouEat = ({ route, navigation }) => {
 
   // Image Carousel
   const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);
-  const numColumns = 3;
-  const screenWidth = Dimensions.get("window").width;
 
   // Fetch meetup data on page load
   useEffect(() => {
@@ -104,7 +102,7 @@ const WhileYouEat = ({ route, navigation }) => {
             });
         }
       });
-  }, [event.eventGallery]);
+  }, [event]);
 
   // Creates a real time listener for the photo gallery preview
   useEffect(() => {
@@ -121,10 +119,6 @@ const WhileYouEat = ({ route, navigation }) => {
 
     return () => unsubscribe();
   }, [event.id]);
-
-
-
-
 
   // Checking group chat updates
   useEffect(() => {

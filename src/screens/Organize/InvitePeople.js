@@ -89,10 +89,11 @@ async function sendInvites(
       endDate: invite.endDate,
       additionalInfo: invite.additionalInfo,
       ice: icebreakers,
-      attendees: [user.id], //ONLY start by putting the current user as an attendee
+      attendees: [user.id], // ONLY start by putting the current user as an attendee
       hasImage: invite.hasImage,
       image,
-      chatID: chatID
+      chatID: chatID,
+      type: invite.type // public or private
     })
     .then(async (docRef) => {
       await Promise.all(attendees.map(async(attendee) => {
@@ -105,7 +106,7 @@ async function sendInvites(
       }));
 
       const storeID = {
-        type: invite.type, // There can be different private events
+        type: invite.type, // public or private
         id,
       };
 

@@ -176,7 +176,7 @@ export default function ({ navigation }) {
         .split(/\s+/))
 
       
-      const [publicSnapshot, privateSnapshot] = await Promise.all([
+      const [privateSnapshot, publicSnapshot] = await Promise.all([
         db.collection("Private Events")
         .where("startDate", ">=", now)
         .where("startDate", "<=", nextWeek)
@@ -197,6 +197,13 @@ export default function ({ navigation }) {
         }
       });
 
+      // Add type: "private" to each private event
+      matchingPrivateDocs.forEach(doc => {
+        const data = doc.data();
+        data.type = "private";
+        doc.data = () => data; // Update the data method to return the modified data
+      });
+
       const matchingPublicDocs = publicSnapshot.docs.filter(doc => {
         const data = doc.data();
         const name = (data.name || "").toLowerCase();
@@ -205,6 +212,13 @@ export default function ({ navigation }) {
         if (partnerLocations.includes(location) || partnerWords.some(word => name.includes(word))) {
           return partnerWords.some(word => name.includes(word));
         }
+      });
+
+      // Add type: "public" to each public event
+      matchingPublicDocs.forEach(doc => {
+        const data = doc.data();
+        data.type = "public";
+        doc.data = () => data; // Update the data method to return the modified data
       });
 
       const matchingDocs = [...matchingPublicDocs, ...matchingPrivateDocs];
