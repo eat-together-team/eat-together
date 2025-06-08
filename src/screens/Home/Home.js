@@ -164,7 +164,7 @@ export default function ({ navigation }) {
       });
     }
 
-    async function fetchPartnerEvents(){ 
+    async function fetchPartnerEvents() {
       const now = Timestamp.now();
       const nextWeekDate = now.toDate();
       nextWeekDate.setDate(nextWeekDate.getDate() + 7);
@@ -190,7 +190,9 @@ export default function ({ navigation }) {
       const matchingPrivateDocs = privateSnapshot.docs.filter(doc => {
         const data = doc.data();
         const name = (data.name || "").toLowerCase();
-        if(partnerLocations.includes(location) || partnerWords.some(word => name.includes(word))) {
+        const location = data.location;
+
+        if (partnerLocations.includes(location) || partnerWords.some(word => name.includes(word))) {
           return partnerWords.some(word => name.includes(word));
         }
       });
@@ -198,8 +200,9 @@ export default function ({ navigation }) {
       const matchingPublicDocs = publicSnapshot.docs.filter(doc => {
         const data = doc.data();
         const name = (data.name || "").toLowerCase();
-        const location = data.location
-        if(partnerLocations.includes(location) || partnerWords.some(word => name.includes(word))) {
+        const location = data.location;
+
+        if (partnerLocations.includes(location) || partnerWords.some(word => name.includes(word))) {
           return partnerWords.some(word => name.includes(word));
         }
       });
@@ -214,7 +217,7 @@ export default function ({ navigation }) {
       setFilteredSearchedEvents(partnerEvents);
     }
 
-    if(user.uid === "rf5TFsAoVENXZtfx9ETDK3rLMXy2") {
+    if (user.uid === "3jyrEOpcYNbY0ilqiNEdqQwSTX22") {
       fetchPartnerEvents().then(() =>{
         db.collection("Users").doc(user.uid).update({
           verified: true
@@ -582,10 +585,6 @@ export default function ({ navigation }) {
     return () => unsubscribe();
 
   }, []);
-
-  useEffect(() => {
-    console.log("recStep: ", recStep);
-  }, [recStep])
 
   if (!isDataFetched) return null; // Don't render anything if data hasn't been fetched
 
