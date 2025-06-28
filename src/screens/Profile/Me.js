@@ -21,7 +21,7 @@ import EventCard from "../../components/EventCard";
 // Add buddy button
 import { AntDesign } from '@expo/vector-icons';
 
-import { compareDates } from "../../methods";
+import { compareDates } from "../../utils/methods";
 
 export default function ({ navigation }) {
   const user = auth.currentUser;

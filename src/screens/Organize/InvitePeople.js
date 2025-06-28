@@ -15,9 +15,9 @@ import Searchbar from "../../components/Searchbar";
 import HorizontalRow from "../../components/HorizontalRow";
 import Filter from "../../components/Filter";
 
-import { sortBySimilarInterests, generateColor, isAvailable, randomize3 } from "../../methods";
+import { sortBySimilarInterests, generateColor, isAvailable, randomize3 } from "../../utils/methods";
 import { createNewChat } from "../Chat/Chats";
-import { tryoutId } from "../../constants";
+import { tryoutId } from "../../utils/constants";
 
 // Stores image in Firebase Storage
 const storeImage = async (uri, event_id) => {

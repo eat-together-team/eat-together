@@ -11,7 +11,7 @@ import NormalText from "../../../components/NormalText";
 import Button from "../../../components/Button";
 import Availability from "../../../components/Availability";
 
-import getTime from "../../../getTime";
+import getTime from "../../../utils/getTime";
 import moment from "moment";
 import { db } from "../../../provider/Firebase";
 

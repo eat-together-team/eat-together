@@ -27,7 +27,8 @@
         "MEDIA_LIBRARY",
         "MEDIA_LIBRARY_WRITE_ONLY"
       ],
-      "runtimeVersion": "1.0.0"
+      "runtimeVersion": "1.0.0",
+      "googleServicesFile": "./google-services.json"
     },
     "ios": {
       "supportsTablet": false,

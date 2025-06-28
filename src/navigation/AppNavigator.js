@@ -2,6 +2,7 @@
 //Sets up login permissions
 
 import React, { useState, useContext, useEffect } from "react";
+import { Alert, Linking } from "react-native";
 import "firebase/firestore";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -27,51 +28,25 @@ import { AuthContext } from "../provider/AuthProvider";
 import VerifyEmail from "../screens/VerifyEmail";
 import firebase from "firebase/compat";
 import { db, auth } from "../provider/Firebase";
-import { tryoutId } from "../constants";
+import { tryoutId } from "../utils/constants";
 
-//Push notifications functions and imports
-import * as NotificationFunctions from "expo-notifications";
+// Push notifications functions and imports
+import * as Notifications from "expo-notifications";
+import {
+  sendPushNotification,
+  registerForPushNotificationsAsync,
+  handleRegistrationError
+} from "../utils/notifs";
+import DeviceToken from "../utils/DeviceToken";
 
-import DeviceToken from "../screens/utils/DeviceToken";
-import {Alert, Linking} from "react-native";
-
-async function registerForPushNotificationsAsync() {
-  let token;
-
-  const { status: existingStatus } =
-    await NotificationFunctions.getPermissionsAsync();
-  let finalStatus = existingStatus;
-
-  if (existingStatus !== "granted") {
-    const { status } = await NotificationFunctions.requestPermissionsAsync();
-    finalStatus = status;
-  }
-
-  if (finalStatus !== "granted") {
-      Alert.alert(
-          "Push Notification Disabled",
-          "Push notifications for Eat Together have been disabled in Settings. Would you like to open settings and enable them now?",
-          [
-              {
-                  text: "Yes",
-                  onPress:() => {
-                      Linking.openSettings();
-                  },
-                  style: "cancel"
-              },
-              {
-                  text: "No",
-                  onPress: () => {}
-              }
-          ]
-      );
-    return;
-  }
-
-  token = (await NotificationFunctions.getExpoPushTokenAsync()).data;
-
-  return token;
-}
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 //The experience of logged in user!!
 const MainStack = createStackNavigator();
@@ -181,6 +156,7 @@ export default () => {
   async function getUser() {
     const token = await registerForPushNotificationsAsync();
     DeviceToken.setToken(token);
+    console.log("Push token:", token);
 
     if (
       currUser &&
@@ -194,15 +170,18 @@ export default () => {
         .update({
           verified: true,
           pushTokens: firebase.firestore.FieldValue.arrayUnion(token),
+          pushToken: token,
         });
     }
 
-    //Register the push token by storing it in firebase, so cloud functions can use it
+    // Register the push token by storing it in firebase,
+    // so cloud functions can use it
     await db
       .collection("Users")
       .doc(firebase.auth().currentUser.uid)
       .update({
         pushTokens: firebase.firestore.FieldValue.arrayUnion(token),
+        pushToken: token,
       });
   }
 

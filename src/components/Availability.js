@@ -2,7 +2,7 @@ import React from "react";
 import { View, TouchableOpacity } from "react-native";
 
 import NormalText from "./NormalText";
-import getTime from "../getTime";
+import getTime from "../utils/getTime";
 
 const Availability = props => {
     return (

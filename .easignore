@@ -1,7 +1,3 @@
-# Build folders
-/android
-/ios
-
 node_modules/**/*
 .expo/*
 npm-debug.*
@@ -19,11 +15,6 @@ web-build/
 # Env. variables
 .env
 .env.prod
-
-# For deployment
-eat-together-expo.json
-google-services.json
-eat-together-303ec-firebase-adminsdk-w9k2l-7516856eea.json
 
 package-lock.json
 yarn.lock
