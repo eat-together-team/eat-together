@@ -87,13 +87,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.eat.together'
+    namespace 'com.eat.together.android'
     defaultConfig {
-        applicationId 'com.eat.together'
+        applicationId 'com.eat.together.android'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 40
-        versionName "1.4.4"
+        versionCode 1
+        versionName "1.5.0"
     }
     signingConfigs {
         debug {

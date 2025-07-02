@@ -1,8 +1,8 @@
-//Controls navigation functionality which includes everything that involves switching screens
-//Sets up login permissions
+// Controls navigation functionality which includes everything that involves switching screens
+// Sets up login permissions
 
 import React, { useState, useContext, useEffect } from "react";
-import { Alert, Linking } from "react-native";
+import { Alert, Linking, Platform } from "react-native";
 import "firebase/firestore";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -11,7 +11,7 @@ import TabBarIcon from "../components/utils/TabBarIcon";
 import TabBarText from "../components/utils/TabBarText";
 import ProfilePic from "../components/ProfilePic";
 
-//Screens (Make sure to import if ever adding new screen!)
+// Screens (Make sure to import if ever adding new screen!)
 import OrganizeMain from "../screens/Organize/OrganizeMain";
 import ExploreMain from "../screens/Explore/ExploreMain";
 import HomeMain from "../screens/Home/HomeMain";
@@ -20,23 +20,19 @@ import ProfileMain from "../screens/Profile/ProfileMain";
 import NotificationsMain from "../screens/Notifications/NotificationsMain";
 import Loading from "../screens/utils/Loading";
 
-//Auth screens
+// Auth screens
 import Auth from "./Auth";
 import { AuthContext } from "../provider/AuthProvider";
 
-//Screen for if the user hasn't verified their email
+// Screen for if the user hasn't verified their email
 import VerifyEmail from "../screens/VerifyEmail";
 import firebase from "firebase/compat";
-import { db, auth } from "../provider/Firebase";
+import { db } from "../provider/Firebase";
 import { tryoutId } from "../utils/constants";
 
 // Push notifications functions and imports
 import * as Notifications from "expo-notifications";
-import {
-  sendPushNotification,
-  registerForPushNotificationsAsync,
-  handleRegistrationError
-} from "../utils/notifs";
+import { registerForPushNotificationsAsync } from "../utils/notifs";
 import DeviceToken from "../utils/DeviceToken";
 
 Notifications.setNotificationHandler({
@@ -64,12 +60,35 @@ const Main = () => {
   );
 };
 
-//Controls the screens connected to the bottom navigation bar
+// Controls the screens connected to the bottom navigation bar
 const Tabs = createBottomTabNavigator();
 const MainTabs = () => {
-  const profileImageUri = useContext(AuthContext).profileImageUri;
-  const hasNotif = useContext(AuthContext).hasNotif;
-  const user = auth.currentUser;
+  const auth_context = useContext(AuthContext);
+  const profileImageUri = auth_context.profileImageUri;
+  const hasNotif = auth_context.hasNotif;
+  const user = auth_context.currUser;
+  
+  // Get and register a push token for the user
+  async function setNotifs() {
+    const token = await registerForPushNotificationsAsync();
+    DeviceToken.setToken(token);
+
+    console.log("Push token:", token);
+
+    if (token) {
+      await db
+        .collection("Users")
+        .doc(user.uid)
+        .update({
+          pushTokens: firebase.firestore.FieldValue.arrayUnion(token)
+        });
+    }
+  }
+
+  // Prevent unecessary reloads of data
+  useEffect(() => {
+    setNotifs();
+  }, []);
 
   return (
     <Tabs.Navigator
@@ -152,43 +171,6 @@ export default () => {
   const auth_context = useContext(AuthContext);
   const user = auth_context.user;
   const currUser = auth_context.currUser;
-
-  async function getUser() {
-    const token = await registerForPushNotificationsAsync();
-    DeviceToken.setToken(token);
-    console.log("Push token:", token);
-
-    if (
-      currUser &&
-      (currUser.emailVerified ||
-        currUser.email === "rachelhu@uw.edu" ||
-        currUser.email === "argharib@uw.edu")
-    ) {
-      await db
-        .collection("Users")
-        .doc(currUser.uid)
-        .update({
-          verified: true,
-          pushTokens: firebase.firestore.FieldValue.arrayUnion(token),
-          pushToken: token,
-        });
-    }
-
-    // Register the push token by storing it in firebase,
-    // so cloud functions can use it
-    await db
-      .collection("Users")
-      .doc(firebase.auth().currentUser.uid)
-      .update({
-        pushTokens: firebase.firestore.FieldValue.arrayUnion(token),
-        pushToken: token,
-      });
-  }
-
-  // Prevent unecessary reloads of data
-  useEffect(() => {
-    getUser();
-  }, []);
 
   return (
     <NavigationContainer>

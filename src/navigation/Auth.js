@@ -176,7 +176,6 @@ const Auth = () => {
       metWith: [],
       metAt: [],
       settings: {
-        notifications: true,
         tabsTutorial: true,
         attendingTutorial: true,
         attendingEvent: false,
