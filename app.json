@@ -20,7 +20,7 @@
       "**/*"
     ],
     "android": {
-      "package": "com.eat.together.android",
+      "package": "com.eattogether.android",
       "versionCode": 1,
       "permissions": [
         "android.permission.RECORD_AUDIO",
@@ -33,7 +33,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "24",
+      "buildNumber": "25",
       "icon": {
         "light": "./assets/big_logo.png",
         "dark": "./assets/dark_logo.png",
