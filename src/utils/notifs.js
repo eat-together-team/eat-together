@@ -10,30 +10,6 @@ import DeviceToken from './DeviceToken';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /**
- * Sends a push notification using Expo's push notification service.
- * @param {string} expoPushToken - The Expo push token to send the notification to.
- */
-async function sendPushNotification(expoPushToken) {
-  const message = {
-    to: expoPushToken,
-    sound: 'default',
-    title: 'Original Title',
-    body: 'And here is the body!',
-    data: { someData: 'goes here' },
-  };
-
-  await fetch('https://exp.host/--/api/v2/push/send', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Accept-encoding': 'gzip, deflate',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(message),
-  });
-}
-
-/**
  * Handles errors during push notification registration.
  * @param {string} errorMessage - The error message to display.
  *
@@ -41,75 +17,6 @@ async function sendPushNotification(expoPushToken) {
 function handleRegistrationError(errorMessage) {
   alert(errorMessage);
   throw new Error(errorMessage);
-}
-
-/**
- * Registers the device for push notifications and retrieves the Expo push token.
- * @async
- * @returns {Promise<string>} - Returns a promise that resolves to the Expo push token string.
- * @throws Will throw an error if the device is not a physical device or if the project
- */
-async function registerForPushNotificationsAsync() {
-  if (Platform.OS === 'android') {
-    Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    });
-  }
-
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    if (finalStatus !== 'granted') {
-      Alert.alert(
-        "Push Notification Disabled",
-        "Push notifications for Eat Together have been disabled in Settings. Would you like to open settings and enable them now?",
-        [
-          {
-            text: "Yes",
-            onPress:() => {
-                Linking.openSettings();
-            },
-            style: "cancel"
-          },
-          {
-            text: "No",
-            onPress: () => {}
-          }
-        ]
-      );
-      return;
-    }
-
-    const projectId =
-      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-    
-    if (!projectId) {
-      handleRegistrationError('Project ID not found');
-    }
-
-    try {
-      const pushTokenString = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId,
-        })
-      ).data;
-      
-      return pushTokenString;
-    } catch (e) {
-      handleRegistrationError(`${e}`);
-    }
-  } else {
-    handleRegistrationError('Must use physical device for push notifications');
-  }
 }
 
 /**
@@ -145,31 +52,60 @@ const useNotificationSync = (userId) => {
     return () => subscription?.remove();
   }, [userId]);
 
-  // Function to sync notification settings with Firebase
+  /**
+   * Syncs notification settings with Firebase and requests permissions if needed.
+   * @param {*} userId - The ID of the user to sync notifications for.
+   */
   const syncNotificationSettings = async (userId) => {
-    try {
-      const { status } = await Notifications.getPermissionsAsync();
-      const previousStatus = await AsyncStorage.getItem(`notif_status_${userId}`);
-      
-      // Only update if status actually changed
-      if (status !== previousStatus) {
-        await AsyncStorage.setItem(`notif_status_${userId}`, status);
+    
+    
+    if (Device.isDevice) { // Check if the device is a physical device
+      try {
+        // Check current notification permissions
+        const { status } = await Notifications.getPermissionsAsync();
+        let finalStatus = status;
 
-        // If notifications are now enabled, get fresh token
-        if (status === 'granted') {
-          const token = await Notifications.getExpoPushTokenAsync();
-          DeviceToken.setToken(token.data);
+        // Fetch the current notification status
+        const previousStatus = await AsyncStorage.getItem(`notif_status_${userId}`);
 
-          await db
-            .collection("Users")
-            .doc(userId)
-            .update({
-              pushTokens: firebase.firestore.FieldValue.arrayUnion(token.data)
-            });
+        // Only run if status actually changed
+        if (status !== previousStatus) {
+          if (finalStatus !== 'granted') {
+            const { status: newStatus } = await Notifications.requestPermissionsAsync(); // Request permissions if not already granted
+            finalStatus = newStatus;
+          }
+
+          const projectId =
+            Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+
+          if (!projectId) {
+            handleRegistrationError('Project ID not found');
+          }
+        
+          await AsyncStorage.setItem(`notif_status_${userId}`, finalStatus);
+
+          // If notifications are now enabled, get fresh token
+          if (finalStatus === 'granted') {
+            const token = (
+              await Notifications.getExpoPushTokenAsync({
+                projectId,
+              })
+            ).data;
+            DeviceToken.setToken(token);
+
+            await db
+              .collection("Users")
+              .doc(userId)
+              .update({
+                pushTokens: firebase.firestore.FieldValue.arrayUnion(token)
+              });
+          }
         }
+      } catch (e) {
+        handleRegistrationError(`${e}`);
       }
-    } catch (error) {
-      console.error('Sync failed:', error);
+    } else {
+      handleRegistrationError('Must use physical device for push notifications');
     }
   };
 
@@ -177,8 +113,5 @@ const useNotificationSync = (userId) => {
 };
 
 export {
-  sendPushNotification,
-  registerForPushNotificationsAsync,
-  handleRegistrationError,
   useNotificationSync
 }

@@ -1,7 +1,8 @@
 // Controls navigation functionality which includes everything that involves switching screens
 // Sets up login permissions
 
-import { useContext } from "react";
+import { useEffect, useContext } from "react";
+import { Alert, Linking } from "react-native";
 import "firebase/firestore";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -65,28 +66,32 @@ const MainTabs = () => {
   const user = auth_context.currUser;
 
   const { syncNotificationSettings } = useNotificationSync(user.uid);
-  
-  // // Get and register a push token for the user
-  // async function setNotifs() {
-  //   const token = await registerForPushNotificationsAsync();
-  //   DeviceToken.setToken(token);
 
-  //   console.log("Push token:", token);
+  // Prevent unnecessary reloads of data
+  useEffect(async () => {
+    const { status } = await Notifications.getPermissionsAsync();
 
-  //   if (token) {
-  //     await db
-  //       .collection("Users")
-  //       .doc(user.uid)
-  //       .update({
-  //         pushTokens: firebase.firestore.FieldValue.arrayUnion(token)
-  //       });
-  //   }
-  // }
-
-  // // Prevent unnecessary reloads of data
-  // useEffect(() => {
-  //   setNotifs();
-  // }, []);
+    // Prompt user if permissions are still not granted
+    if (status === "denied") {
+      Alert.alert(
+        "Push Notification Disabled",
+        "Push notifications for Eat Together have been disabled in Settings. Would you like to open settings and enable them now?",
+        [
+          {
+            text: "Yes",
+            onPress: () => {
+                Linking.openSettings();
+            },
+            style: "cancel"
+          },
+          {
+            text: "No",
+            onPress: () => {}
+          }
+        ]
+      );
+    }
+  }, []);
 
   return (
     <Tabs.Navigator

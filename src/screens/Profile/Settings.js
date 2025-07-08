@@ -265,7 +265,7 @@ export default function ({ navigation }) {
                 }
                 leftAction={() => navigation.goBack()}
             />
-            <FlatList data={buttons} renderItem={renderButton} style={styles.flatlist} scrollEnabled={false}/>
+            <FlatList data={buttons} renderItem={renderButton} style={styles.flatlist}/>
         </Layout>
     );
 }
