@@ -68,29 +68,33 @@ const MainTabs = () => {
   const { syncNotificationSettings } = useNotificationSync(user.uid);
 
   // Prevent unnecessary reloads of data
-  useEffect(async () => {
-    const { status } = await Notifications.getPermissionsAsync();
+  useEffect(() => {
+    async function checkNotificationPermissions() {
+      const { status } = await Notifications.getPermissionsAsync();
 
-    // Prompt user if permissions are still not granted
-    if (status === "denied") {
-      Alert.alert(
-        "Push Notification Disabled",
-        "Push notifications for Eat Together have been disabled in Settings. Would you like to open settings and enable them now?",
-        [
-          {
-            text: "Yes",
-            onPress: () => {
-                Linking.openSettings();
+      // Prompt user if permissions are still not granted
+      if (status === "denied") {
+        Alert.alert(
+          "Push Notification Disabled",
+          "Push notifications for Eat Together have been disabled in Settings. Would you like to open settings and enable them now?",
+          [
+            {
+              text: "Yes",
+              onPress: () => {
+                  Linking.openSettings();
+              },
+              style: "cancel"
             },
-            style: "cancel"
-          },
-          {
-            text: "No",
-            onPress: () => {}
-          }
-        ]
-      );
+            {
+              text: "No",
+              onPress: () => {}
+            }
+          ]
+        );
+      }
     }
+
+    checkNotificationPermissions();
   }, []);
 
   return (

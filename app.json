@@ -4,7 +4,7 @@
     "owner": "eat-together-team",
     "slug": "eat-together",
     "description": "Connecting students through shared meals.",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "sdkVersion": "53.0.0",
     "orientation": "portrait",
     "icon": "./assets/big_logo.png",
@@ -21,7 +21,7 @@
     ],
     "android": {
       "package": "com.eattogether.android",
-      "versionCode": 1,
+      "versionCode": 2,
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "MEDIA_LIBRARY",
@@ -33,7 +33,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "25",
+      "buildNumber": "26",
       "icon": {
         "light": "./assets/big_logo.png",
         "dark": "./assets/dark_logo.png",

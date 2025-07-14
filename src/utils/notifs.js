@@ -57,8 +57,6 @@ const useNotificationSync = (userId) => {
    * @param {*} userId - The ID of the user to sync notifications for.
    */
   const syncNotificationSettings = async (userId) => {
-    
-    
     if (Device.isDevice) { // Check if the device is a physical device
       try {
         // Check current notification permissions
@@ -76,7 +74,7 @@ const useNotificationSync = (userId) => {
           }
 
           const projectId =
-            Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+            Constants?.expoConfig?.extra?.eas?.projectId ?? "605daf62-9a09-4742-8204-1f8dfb5e4363";
 
           if (!projectId) {
             handleRegistrationError('Project ID not found');
