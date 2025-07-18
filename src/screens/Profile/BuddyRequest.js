@@ -35,7 +35,7 @@ import {
 
 import { db, auth } from "../../provider/Firebase";
 import firebase from "firebase/compat";
-import { tryoutId } from "../../constants";
+import { tryoutId } from "../../utils/constants";
 
 // const blockPerson = (uid, navigation, back) => {
 //   Alert.alert("Block", "Are you sure you want to block this user? This can't be undone.", [

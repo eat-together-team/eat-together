@@ -28,7 +28,8 @@ const Button = props => {
             flexDirection: "row",
             justifyContent: "center",
             alignItems: "center",
-            marginBottom: props.marginBottom ? props.marginBottom :0,
+            marginBottom: props.marginBottom ? props.marginBottom : 
+                (props.marginVertical ? props.marginVertical : 0),
         }} onPress={props.onPress} disabled={props.disabled}>
             {props.icon && props.icon}
             <MediumText color={props.color ? props.color : "white"} center

@@ -9,7 +9,7 @@ import MediumText from "../../../components/MediumText";
 import Button from "../../../components/Button";
 import GoogleButton from "../../../components/GoogleButton";
 
-import { getFreeTimes } from "../../../methods";
+import { getFreeTimes } from "../../../utils/methods";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import {

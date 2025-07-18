@@ -22,7 +22,7 @@ import SelectButton from "../../../components/SelectButton";
 import Availability from "../../../components/Availability";
 import TextInput from "../../../components/TextInput";
 
-import getTime from "../../../getTime";
+import getTime from "../../../utils/getTime";
 import moment from "moment";
 
 const Availabilities = props => {

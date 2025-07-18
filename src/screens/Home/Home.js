@@ -20,9 +20,9 @@ import Button from "../../components/Button"
 
 import { db, auth } from "../../provider/Firebase";
 import { AuthContext } from "../../provider/AuthProvider";
-import { compareDates } from "../../methods";
-import partners from "../../partners";
-import partnerLocations from "../../partnerLocations";
+import { compareDates } from "../../utils/methods";
+import partners from "../../utils/partners";
+import partnerLocations from "../../utils/partnerLocations";
 import MediumText from "../../components/MediumText";
 import RecommendationsCard from "../../components/RecommendationsCard";
 
