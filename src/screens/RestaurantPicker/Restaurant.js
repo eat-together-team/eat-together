@@ -4,12 +4,13 @@ import { Layout, TopNav} from "react-native-rapi-ui";
 import MediumText from "../../components/MediumText";
 import { Ionicons } from "@expo/vector-icons";
 import CuisineCard from './CuisineCard';
-import DietaryPref from './DietaryPref';
+import DietaryPref from './DietaryCard';
 import CardCarousel from './CardCarousel';
 import PriceRangeCard from './PriceRangeCard';
 import StartCard from './StartCard';
 import DontWorryCard from './DontWorryCard';
 import SwipeDeck from './SwipeDeck';
+import Results from './Results';
 import restaurant from '../../restaurantFetch';
 
 export default function ({navigation}) {
@@ -24,7 +25,10 @@ export default function ({navigation}) {
   const [cardsLeft, setCardsLeft] = useState();
   const[userResults, setUserResults] = useState([]);
   const[loading, setLoading] = useState(true);
-  console.log(pressedFinished);
+  const [userSkipped, setUserSkipped] = useState(false);
+  const [pressedStart, setPressedStart] = useState(false);
+  const [swipingFinished, setSwipingFinished] = useState(false);
+
   //makes API call
   const findRestaurant = async() =>{
     //combine category params
@@ -65,7 +69,7 @@ export default function ({navigation}) {
 
   //make API request once user pressed "Finish" button
   useEffect(() => {
-    if (pressedFinished) {
+    if (pressedStart || userSkipped) {
       const fetchData = async() => {
         try{
           const response = await findRestaurant();
@@ -79,12 +83,16 @@ export default function ({navigation}) {
       }
       fetchData();
     }
-  }, [pressedFinished]);
+  }, [pressedStart, userSkipped]);
+
   //increment index for button to render next card in carousel
   const incrementIndex = () => {
-    if (index === cards.length - 2){
+    console.log("Current card index: " + index);
+
+    if (index === cards.length - 3){
       setPressedFinished(true);
       if(pressedFinished){ //if user presses start button when modal is up, increment index
+        setPressedStart(true);
         setIndex(Math.min(cards.length - 1, index + 1));
       }
     } else{
@@ -97,14 +105,34 @@ export default function ({navigation}) {
     setIndex(Math.max(0, index - 1)); //can't go above card.length - 1
   }
 
-  //card carousel
+  //Skip to explore function
+  const skipToSwiping = () => {
+    setIndex(5);
+    setUserSkipped(true);
+  }
+
+  //validation for user selection before allowing them to proceed
+  const validateSteps = () => {
+    console.log("Executed");
+    switch(index){
+      case 2:
+        return cuisineTagSelected.length === 0
+      case 3:
+        return false
+      case 4:
+        return !priceRange
+    }
+  }
+
+  //List of card componenets for carousel
   const cards = [
-    <StartCard incrementIndex = {incrementIndex}/>, 
+    <StartCard incrementIndex = {incrementIndex} skipToSwiping = {skipToSwiping}/>, 
     <DontWorryCard incrementIndex = {incrementIndex} decrementIndex = {decrementIndex}/>,
     <CuisineCard setCategoryAliases = {setCategoryAliases} categoryAliases = {categoryAliases} setCuisineTagSelected = {setCuisineTagSelected} cuisineTagSelected = {cuisineTagSelected}/>, 
     <DietaryPref setSelectedDietaryTags = {setSelectedDietaryTags} selectedDietaryTags = {selectedDietaryTags}/>, 
     <PriceRangeCard setPriceRange = {setPriceRange} priceRange = {priceRange}/>,
-    <SwipeDeck loading = {loading} userResults = {userResults} setUserResults = {setUserResults} cardsLeft = {cardsLeft} setCardsLeft = {setCardsLeft} result = {result}/>
+    <SwipeDeck swipingFinished = {swipingFinished} setSwipingFinished = {setSwipingFinished} loading = {loading} userResults = {userResults} setUserResults = {setUserResults} cardsLeft = {cardsLeft} setCardsLeft = {setCardsLeft} result = {result} incrementIndex= {incrementIndex}/>,
+    <Results userResults = {userResults}/>
   ];
 
   return (
@@ -122,6 +150,8 @@ export default function ({navigation}) {
           index = {index}
           pressedFinished = {pressedFinished}
           setPressedFinished = {setPressedFinished}
+          skipToSwiping = {skipToSwiping}
+          validateSteps= {validateSteps}
         />
       </View>
     </Layout>
@@ -139,5 +169,11 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     justifyContent:'center',
     padding:20,
-  }
+  },
+  buttonContainer:{
+        display:'flex',
+        flexDirection:'row',
+        justifyContent:'center',
+        padding:20,
+  },
 })

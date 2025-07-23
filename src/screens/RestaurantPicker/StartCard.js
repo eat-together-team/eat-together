@@ -3,7 +3,7 @@ import {StyleSheet, View} from "react-native";
 import RestaurantCard from '../../components/RestaurantCard';
 import Button from '../../components/Button';
 import LargeText from '../../components/LargeText';
-const StartCard = ({incrementIndex}) => {
+const StartCard = ({incrementIndex, skipToSwiping}) => {
   return (
     <View>
         <RestaurantCard>
@@ -14,7 +14,7 @@ const StartCard = ({incrementIndex}) => {
             </View>
             <View style = {styles.buttonContainer}>
                 <Button onPress={incrementIndex} fontSize={16} paddingHorizontal={25} paddingVertical={10}>Set Preferences First</Button>
-                <Button fontSize={16} paddingHorizontal={25} paddingVertical={10}>I'd rather explore any!</Button>
+                <Button onPress={skipToSwiping} fontSize={16} paddingHorizontal={25} paddingVertical={10}>I'd rather explore any!</Button>
             </View>
         </RestaurantCard>
     </View>
