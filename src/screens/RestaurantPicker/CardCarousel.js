@@ -6,7 +6,7 @@ import LargeText from '../../components/LargeText';
 import Button from '../../components/Button';
 import ProgressBar from './ProgressBar';
 
-const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished}) => {
+const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished, validateSteps }) => {
 
   return (
     <View>
@@ -48,7 +48,7 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                 </View>
             </View>
         </Modal>
-        {(index >= 2 && index <=4 )  &&
+        {(index >= 2 && index <= 4) &&
             <View style = {styles.buttonContainer}>
                 <Button
                     backgroundColor="white"
@@ -63,6 +63,7 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                 </Button>
                 <Button
                     onPress={incrementIndex}
+                    disabled = {validateSteps()}
                     fontSize={16}
                     paddingHorizontal={25}
                     paddingVertical={10}
@@ -72,11 +73,11 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                 </Button>
             </View>
         }
-        { (index >= 2 && index <=4) && <ProgressBar index = {index}/>}
+        { (index >= 2 && index <= 4) && <ProgressBar index = {index}/>}
         <View style = {styles.stepContainer}>
             {
-                (index >=2 && index <=4) && 
-                <SmallText size = {12}>Step {index - 1} of {cards.length - 3}</SmallText>
+                (index >= 2 && index <= 4) && 
+                <SmallText size = {12}>Step {index - 1} of {cards.length - 4}</SmallText>
             }
         </View>
   </View>

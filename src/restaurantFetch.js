@@ -16,8 +16,7 @@ const restaurant = async (categoryParams, priceRange) => {
   // Example user input
 
   // Check if user provided any categories
-
-  console.log(categories);
+  console.log(categoryParams);
 
   // Build query parameters object
   let params = {

@@ -40,7 +40,7 @@ const CuisineCard = ({setCategoryAliases, cuisineTagSelected, setCuisineTagSelec
                               setCuisineTagSelected([...cuisineTagSelected, item]);
                           }
                       }}
-                      onRemoveItem={(item, index) => {
+                      onRemoveItem={(index) => {
                           const newTags = cuisineTagSelected.filter((tag, i) => i !== index);
                           setCuisineTagSelected(newTags);
                       }}
