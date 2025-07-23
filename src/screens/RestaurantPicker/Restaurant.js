@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import {StyleSheet, View,} from "react-native";
+import {StyleSheet, View, ScrollView} from "react-native";
 import { Layout, TopNav} from "react-native-rapi-ui";
 import MediumText from "../../components/MediumText";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,6 +12,7 @@ import DontWorryCard from './DontWorryCard';
 import SwipeDeck from './SwipeDeck';
 import Results from './Results';
 import restaurant from '../../restaurantFetch';
+
 
 export default function ({navigation}) {
   //grab state of all user input to pass into Yelp params
@@ -27,8 +28,10 @@ export default function ({navigation}) {
   const[loading, setLoading] = useState(true);
   const [userSkipped, setUserSkipped] = useState(false);
   const [pressedStart, setPressedStart] = useState(false);
+  const [progress, setProgress] = useState(0.33);
   const [swipingFinished, setSwipingFinished] = useState(false);
 
+  console.log(progress);
   //makes API call
   const findRestaurant = async() =>{
     //combine category params
@@ -89,6 +92,10 @@ export default function ({navigation}) {
   const incrementIndex = () => {
     console.log("Current card index: " + index);
 
+    // only increase progress bar if on pref cards
+    if (index >= 2 && index <= 3){
+      setProgress(progress => progress + 0.34);
+    }
     if (index === cards.length - 3){
       setPressedFinished(true);
       if(pressedFinished){ //if user presses start button when modal is up, increment index
@@ -102,6 +109,9 @@ export default function ({navigation}) {
 
   //decrement index for button to go back to previous card in carousel
   const decrementIndex = () => {
+    if (index > 2 && index <= 4){
+      setProgress(progress => progress - 0.34);
+    }
     setIndex(Math.max(0, index - 1)); //can't go above card.length - 1
   }
 
@@ -142,6 +152,8 @@ export default function ({navigation}) {
         leftContent={<Ionicons name="chevron-back" size={20} />}
         leftAction={() => navigation.goBack()}
       />
+      <ScrollView 
+        keyboardShouldPersistTaps="handled"   >
       <View style = {styles.outerContainer}>
         <CardCarousel 
           cards = {cards} 
@@ -152,8 +164,11 @@ export default function ({navigation}) {
           setPressedFinished = {setPressedFinished}
           skipToSwiping = {skipToSwiping}
           validateSteps= {validateSteps}
+          progress = {progress}
+          setProgress = {setProgress}
         />
       </View>
+      </ScrollView>
     </Layout>
   )
 }

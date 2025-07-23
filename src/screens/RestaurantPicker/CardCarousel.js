@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
-import {View, StyleSheet, Modal} from 'react-native';
+import {View, StyleSheet, Modal, ScrollView} from 'react-native';
 import SmallText from '../../components/SmallText';
 import MediumText from '../../components/MediumText';
 import LargeText from '../../components/LargeText';
 import Button from '../../components/Button';
-import ProgressBar from './ProgressBar';
+import * as Progress from 'react-native-progress';
 
-const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished, validateSteps }) => {
+
+const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished, validateSteps, progress, setProgress}) => {
 
   return (
     <View>
@@ -73,7 +73,8 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                 </Button>
             </View>
         }
-        { (index >= 2 && index <= 4) && <ProgressBar index = {index}/>}
+        { (index >= 2 && index <= 4) && <Progress.Bar progress={progress} width={200} color="#5DB075" style ={{alignSelf: 'center'}}/>
+        }
         <View style = {styles.stepContainer}>
             {
                 (index >= 2 && index <= 4) && 

@@ -57,8 +57,8 @@ const SwipeDeck = ({ setSwipingFinished, swipingFinished, result, cardsLeft, use
             onSwipeRight={handleSwipeRight}
           />
         </View>
-        {/* Bottom: Card counter and button (Removed for demo) */}
-        {!expanded && <View style={{ alignItems: 'center', position:'absolute', bottom: -20, right: -90 }}>
+        Bottom: Card counter and button (Removed for demo)
+        {!expanded && <View style={{ alignItems: 'center' }}>
           <MediumText size={12} >
             {cardsLeft} Cards Left
           </MediumText>
