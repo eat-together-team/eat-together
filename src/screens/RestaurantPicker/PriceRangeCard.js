@@ -4,6 +4,7 @@ import RestaurantCard from "../../components/RestaurantCard";
 import MediumText from '../../components/MediumText';
 import PriceRangeButton from '../../components/PriceRangeButton';
 
+// Price range screen that allows users to set price range preferences
 const PriceRangeCard = ({setPriceRange, priceRange}) => {
 
   return (

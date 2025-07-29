@@ -6,13 +6,17 @@ import star from "../../../assets/star.png";
 import forward from "../../../assets/forward.png";
 import { useNavigation } from '@react-navigation/native';
 
+// Shows a list of restaurants user pressed "green" on 
 const Results = ({userResults, resultVisible, setResultVisible}) => {
-    const navigation = useNavigation();
     // redirect to profile page
+    const navigation = useNavigation();
+
     const handleFinishSeeingResults = () => {
         setResultVisible(false);
         navigation.navigate("Profile");
     }
+
+    // Renders each restaurant as an item for Flatlist
     const renderItem = ({item}) => (
         <View style={styles.itemContainer}>
             <View style = {styles.imageContainer}>

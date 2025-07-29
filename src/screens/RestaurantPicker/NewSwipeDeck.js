@@ -6,19 +6,32 @@ import RestaurantRec from '../../components/RestaurantRec';
 import GreenButton from '../../components/GreenButton';
 import RedButton from '../../components/RedButton';
 import LargeText from '../../components/LargeText';
+
+// "Swipe Deck" screen that renders each restaurant that is tailored to user preferences
 const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, incrementIndex, currentIndex, setCurrentIndex, setIndex, setUserSkipped, setPressedStart, setUserResults}) => {
-  const nextCard = () => {
+  
+  // store restaurant if green button is pressed
+  const storeRestaurant = () => {
     setCurrentIndex((prev) => (prev + 1));
     setUserResults(prev => [...prev, listOfRestaurants[currentIndex]]);
   };
 
+  // Ignore if red button is pressed
+  const ignoreRestaurant = () => {
+    setCurrentIndex((prev) => (prev + 1));
+  };
+  
+  console.log(listOfRestaurants);
   // Wait until API response loads
   if(!listOfRestaurants){
     return (
-      <MediumText>Loading...</MediumText>
+      <View style = {{marginTop: 300}}>
+        <MediumText>Loading...</MediumText>
+      </View>
     )
   }
 
+  // Renders each restaurant as a card
   const renderCard = (restaurant) => {
     return (
         <>
@@ -37,9 +50,9 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
               {listOfRestaurants.length - currentIndex} Cards Left
             </MediumText>
           <View style = {{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
-            <RedButton/>
+            <RedButton onPress ={ignoreRestaurant}/>
             <Button onPress ={()=> setSwipingFinished(true)} width = {100} height = {10} fontSize = {13} paddingVertical = {1} paddingHorizontal = {1}>Finish</Button>
-            <GreenButton onPress= {nextCard}/>
+            <GreenButton onPress= {storeRestaurant}/>
           </View>
         </View>}
         {/* Modal when finished button pressed*/}

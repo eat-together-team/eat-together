@@ -5,6 +5,7 @@ import TagsSection from '../../components/TagsSection';
 import foodTagsToYelpCategories from '../../yelpTags';
 import MediumText from '../../components/MediumText';
 
+// Cuisine screen tha allows users to select cuisine preferences
 const CuisineCard = ({setCategoryAliases, cuisineTagSelected, setCuisineTagSelected}) => {
   
   //Eat together's food tags

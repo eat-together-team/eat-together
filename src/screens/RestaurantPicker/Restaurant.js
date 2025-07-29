@@ -13,14 +13,14 @@ import SwipeDeck from './NewSwipeDeck';
 import Results from './Results';
 import restaurant from '../../restaurantFetch';
 
-
+// Renders card carousel and handles business logic 
 export default function ({navigation}) {
-  //grab state of all user input to pass into Yelp params
+
   const [categoryAliases, setCategoryAliases] = useState([]);
   const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
   const [priceRange, setPriceRange] = useState();
   const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
-  const [index, setIndex] = useState(0); // for 
+  const [index, setIndex] = useState(0); // Index for card carousel
   const [pressedFinished, setPressedFinished] = useState(false);
   const[result, setResult] = useState(null); 
   const[userResults, setUserResults] = useState([]);
@@ -29,51 +29,30 @@ export default function ({navigation}) {
   const [pressedStart, setPressedStart] = useState(false);
   const [progress, setProgress] = useState(0.33);
   const [swipingFinished, setSwipingFinished] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0); // for restaurant list
+  const [currentIndex, setCurrentIndex] = useState(0); // Index for list of restaurants
   const [resultVisible, setResultVisible] = useState(true);
 
-  console.log(currentIndex);
+  console.log("Current card index" + currentIndex);
   console.log("Pressed Start: " + pressedStart);
   console.log("User Skipped: " + userSkipped);
-  //makes API call
+
+  //Queries Yelp restaurant data
   const findRestaurant = async() =>{
+    
     //combine category params
     const categoryParams = categoryAliases.concat(selectedDietaryTags);
+    
     try{
       const result = await restaurant(categoryParams);
-      console.log(result);
-      // const formattedResponse = extractRestaurantInfo(result);
-
-      // return result;
+      
+      return result;
     }catch(err){
       console.log(err);
     }
   } 
 
-  //Format the response from Yelp API
-  // const extractRestaurantInfo = (businesses) => {
-  //   if (!businesses || businesses.length === 0) {
-  //     return [];
-  //   }
-  
-  //   return businesses.map(business => {
-  //     return {
-  //       id: business.id,
-  //       name: business.name,
-  //       rating: business.rating,
-  //       reviewCount: business.review_count,
-  //       price: business.price,
-  //       categories: business.categories.map(cat => cat.title).join(', '),
-  //       address: business.location.display_address.join(', '),
-  //       phone: business.display_phone,
-  //       distance: Math.round(business.distance), 
-  //       imageUrl: business.image_url,
-  //       url: business.url
-  //     };
-  //   });
-  // };
 
-  //make API request once user pressed "Finish" button
+  //make API request once user pressed "Finish" button in quiz or skipped straight to exploring
   useEffect(() => {
     if (pressedStart || userSkipped) {
       const fetchData = async() => {

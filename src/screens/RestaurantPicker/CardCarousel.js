@@ -1,4 +1,4 @@
-import {View, StyleSheet, Modal, ScrollView} from 'react-native';
+import {View, StyleSheet, Modal} from 'react-native';
 import SmallText from '../../components/SmallText';
 import MediumText from '../../components/MediumText';
 import LargeText from '../../components/LargeText';
@@ -7,6 +7,7 @@ import * as Progress from 'react-native-progress';
 import RedButton from '../../components/RedButton';
 import GreenButton from '../../components/GreenButton';
 
+// Carousel to display each card component for restaurant personalizer
 const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished, validateSteps, progress}) => {
 
   return (
