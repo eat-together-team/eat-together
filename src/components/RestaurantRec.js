@@ -7,7 +7,7 @@ import ExpandedButton from "./ExpandedButton";
 import Button from './Button';
 
 //Presents each restaurant result from YELP API Response
-const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart}) => {
+const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart, setResult}) => {
     const [expanded, setExpanded] = useState(false);
     
     const handleAddressEvent = async() => { 

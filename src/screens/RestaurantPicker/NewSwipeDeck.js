@@ -21,7 +21,6 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
     setCurrentIndex((prev) => (prev + 1));
   };
   
-  console.log(listOfRestaurants);
   // Wait until API response loads
   if(!listOfRestaurants){
     return (
