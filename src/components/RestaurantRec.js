@@ -9,7 +9,6 @@ import Button from './Button';
 //Presents each restaurant result from YELP API Response
 const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart}) => {
     const [expanded, setExpanded] = useState(false);
-
     //hard coded for test
     const hours = [
         { day: 'Mon', time: '11:00 AM - 11:00 PM' },
@@ -33,6 +32,7 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                     setUserSkipped(false);
                     setCurrentIndex(0);
                     setPressedStart(false);
+                    setResult(undefined);
                 }
                 }>
                 Back To Start
@@ -112,7 +112,8 @@ const styles = StyleSheet.create({
     },
     timeContainer:{
         marginTop: 20,
-        alignSelf: 'center'
+        alignSelf: 'center',
+        marginBottom: 20,
     }
 
 });

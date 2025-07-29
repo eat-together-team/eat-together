@@ -152,11 +152,13 @@ export default function ({navigation}) {
       setIndex = {setIndex}
       setUserSkipped = {setUserSkipped}
       setPressedStart = {setPressedStart}
+      setResult = {setResult}
     />,
     <Results 
       userResults = {userResults}
       resultVisible={resultVisible}
       setResultVisible = {setResultVisible}
+      setResult = {setResult}
     />
   ];
 
