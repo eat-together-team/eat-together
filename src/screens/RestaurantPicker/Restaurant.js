@@ -12,6 +12,7 @@ import DontWorryCard from './DontWorryCard';
 import SwipeDeck from './NewSwipeDeck';
 import Results from './Results';
 import restaurant from '../../restaurantFetch';
+import weighRestaurant from '../../restaurantSorting';
 
 // Renders card carousel and handles business logic 
 export default function ({navigation}) {
@@ -32,9 +33,12 @@ export default function ({navigation}) {
   const [currentIndex, setCurrentIndex] = useState(0); // Index for list of restaurants
   const [resultVisible, setResultVisible] = useState(true);
 
-  console.log("Current card index" + currentIndex);
-  console.log("Pressed Start: " + pressedStart);
-  console.log("User Skipped: " + userSkipped);
+  // console.log("Current card index" + currentIndex);
+  // console.log("Pressed Start: " + pressedStart);
+  // console.log("User Skipped: " + userSkipped);
+  console.log("Category Aliases: " + categoryAliases);
+  console.log("Dietary Tags: " + selectedDietaryTags);
+  console.log("Price range: " + priceRange);
 
   //Queries Yelp restaurant data
   const findRestaurant = async() =>{
@@ -44,8 +48,26 @@ export default function ({navigation}) {
     
     try{
       const result = await restaurant(categoryParams);
+
+      // get match scores (parallel to each restaurant in result)
+      const matchScores =  result.map(business => 
+        weighRestaurant({restaurant: business, cuisinePref: categoryAliases, dietaryPref: selectedDietaryTags, priceRange: priceRange}))
       
-      return result;
+        console.log("Match Scores: " + matchScores);
+      // 1. Pair restaurants with scores
+      const restaurantWithScores = result.map((restaurant, index) => ({
+        ...restaurant,
+        matchScore: matchScores[index]
+      }));
+      console.log(restaurantWithScores);
+      // 2. sort from highest to lowest
+      const sortedRestaurants = restaurantWithScores.sort(
+        (a, b) => b.matchScore - a.matchScore
+      );
+
+      console.log(sortedRestaurants);
+      return sortedRestaurants;
+
     }catch(err){
       console.log(err);
     }
@@ -58,7 +80,6 @@ export default function ({navigation}) {
       const fetchData = async() => {
         try{
           const response = await findRestaurant();
-          console.log(response);
 
           setResult(response);
           setLoading(false);
@@ -72,7 +93,6 @@ export default function ({navigation}) {
 
   //increment index for button to render next card in carousel
   const incrementIndex = () => {
-    console.log("Current card index: " + index);
 
     // only increase progress bar if on pref cards
     if (index >= 2 && index <= 3){
@@ -107,8 +127,6 @@ export default function ({navigation}) {
   const validateSteps = () => {
     console.log("Executed");
     switch(index){
-      case 2:
-        return cuisineTagSelected.length === 0
       case 3:
         return false
       case 4:

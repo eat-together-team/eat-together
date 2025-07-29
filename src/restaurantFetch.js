@@ -86,7 +86,6 @@ const restaurant = async (categoryParams, priceRange) => {
   const limit = 10;
   const radius = 10000;
   
-  console.log(categoryParams);
   
   let params = {
     categories: categories.join(','),
