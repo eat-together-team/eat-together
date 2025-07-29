@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, Text, View, StyleSheet, Linking } from "react-native";
+import { Image, Text, View, StyleSheet, Linking, Platform} from "react-native";
 import SmallText from "./SmallText";
 import MediumText from "./MediumText";
 import LargeText from './LargeText';
@@ -9,16 +9,31 @@ import Button from './Button';
 //Presents each restaurant result from YELP API Response
 const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart}) => {
     const [expanded, setExpanded] = useState(false);
-    //hard coded for test
-    const hours = [
-        { day: 'Mon', time: '11:00 AM - 11:00 PM' },
-        { day: 'Tues', time: '11:00 AM - 11:00 PM' },
-        { day: 'Wed', time: '11:00 AM - 11:00 PM' },
-        { day: 'Thu', time: '11:00 AM - 11:00 PM' },
-        { day: 'Fri', time: '11:00 AM - 12:00 AM' },
-        { day: 'Sat', time: '10:00 AM - 12:00 AM' },
-        { day: 'Sun', time: '11:00 AM - 11:00 PM' },
-    ];
+    
+    const handleAddressEvent = async() => { 
+        const encodedAddress = encodeURIComponent(restaurant.address);
+
+        const url = Platform.select({
+            ios: `maps://app?q=${encodedAddress}`,
+            android: `geo:0,0?q=${encodedAddress}`,
+            default: `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`
+        });
+        
+        console.log(url);
+        try {
+            const supported = await Linking.canOpenURL(url);
+            
+            if (supported) {
+                await Linking.openURL(url);
+            } else {
+                // Fallback to Google Maps web
+                const webUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                await Linking.openURL(webUrl);
+            }
+        } catch (error) {
+            console.error('Error opening maps:', error);
+        }
+    }
 
     if (!restaurant){
         return (
@@ -65,7 +80,7 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                         <MediumText center color = "#5DB075">
                             Location & Hours
                         </MediumText>
-                        <MediumText size = {13} center style = {{marginTop: 7}}>{restaurant.address}</MediumText>
+                        <MediumText onPress ={handleAddressEvent}size = {13} center style = {{marginTop: 7, textDecorationLine: 'underline'}}>{restaurant.address}</MediumText>
                     </View>
                     <View style={styles.timeContainer}>
                         {Object.entries(restaurant.hours).map(([day, time]) => (

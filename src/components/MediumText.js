@@ -7,7 +7,7 @@ const MediumText = props => {
 
     if (!fontsLoaded) {
         return (
-            <Text style={{
+            <Text onPress ={props.onPress} style={{
                 fontSize: props.size ? props.size : 20,
                 fontFamily: Platform.os === 'ios' ? 'AppleSDGothicNeo-Medium' : 'sans-serif-medium',
                 color: props.color ? props.color : "black",
@@ -20,7 +20,7 @@ const MediumText = props => {
         );
     }
     return (
-        <Text style={[{
+        <Text onPress = {props.onPress} style={[{
             fontSize: props.size ? props.size : 20,
             fontFamily: 'Inter_700Bold',
             color: props.color ? props.color : "black",
