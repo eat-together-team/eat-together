@@ -4,7 +4,8 @@ import RestaurantCard from "../../components/RestaurantCard";
 import TagsSection from '../../components/TagsSection';
 import MediumText from '../../components/MediumText';
 
-const DietaryPref = () => {
+// Dietary screen that allows users to select dietary preferences
+const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
 
   //dietary tags (approved category aliases) from Yelp
   const dietaryTags = ["vegan","vegetarian","gluten_free","halal","kosher"];

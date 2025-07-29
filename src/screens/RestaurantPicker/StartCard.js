@@ -3,6 +3,8 @@ import {StyleSheet, View} from "react-native";
 import RestaurantCard from '../../components/RestaurantCard';
 import Button from '../../components/Button';
 import LargeText from '../../components/LargeText';
+
+// Explore screen where user can start setting preferences or go straight into exploring restaurants
 const StartCard = ({incrementIndex, skipToSwiping}) => {
   return (
     <View>
