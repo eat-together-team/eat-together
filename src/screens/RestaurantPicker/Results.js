@@ -4,20 +4,27 @@ import MediumText from "../../components/MediumText";
 import Button from "../../components/Button";
 import star from "../../../assets/star.png";
 import forward from "../../../assets/forward.png";
+import { useNavigation } from '@react-navigation/native';
 
-const Results = ({userResults}) => {
+const Results = ({userResults, resultVisible, setResultVisible}) => {
+    const navigation = useNavigation();
+    // redirect to profile page
+    const handleFinishSeeingResults = () => {
+        setResultVisible(false);
+        navigation.navigate("Profile");
+    }
     const renderItem = ({item}) => (
         <View style={styles.itemContainer}>
             <View style = {styles.imageContainer}>
                 <Image         
-                    source={{ uri: item.imageUrl }}
+                    source={{ uri: item.image }}
                     style={styles.image}
                 />
             </View>
             <View style = {styles.textContainer}>
                 <MediumText style = {{lineHeight: 13, paddingBottom: 5,}} size = {13}>{item?.name}</MediumText>
                 <MediumText color = "#5DB075" size ={11} style ={{lineHeight: 12}}>
-                    {item?.categories.substring(0, item?.categories.indexOf(","))}
+                    {item?.categoryAliases[0].charAt(0).toUpperCase() + item?.categoryAliases[0].substring(1)}
                 </MediumText>
                 <View style = {styles.ratingAndPriceContainer}>
                     <MediumText paddingHorizontal = {2} color = "#5DB075" size = {11}>
@@ -38,7 +45,7 @@ const Results = ({userResults}) => {
     );
 
     return (
-        <Modal visible={true} transparent={true}>
+        <Modal visible={resultVisible} transparent={true}>
             <View style={styles.overlay}>
                 <View style={styles.prefContainer}>
                     <View style={styles.headerContainer}>
@@ -60,7 +67,7 @@ const Results = ({userResults}) => {
                         />
                     </View>
                     <View style = {{display:'flex', alignItems:'center', bottom: 20,}}>
-                        <Button width = {100} fontSize = {15} paddingHorizontal = {20}>
+                        <Button onPress={handleFinishSeeingResults} width = {100} fontSize = {15} paddingHorizontal = {20}>
                             Finish
                         </Button>
                     </View>

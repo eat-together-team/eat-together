@@ -8,7 +8,7 @@ import LargeText from "../../components/LargeText";
 import { Swiper } from 'rn-swiper-list';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-const SwipeDeck = ({ setSwipingFinished, swipingFinished, result, cardsLeft, userResults, setCardsLeft, setUserResults, loading, incrementIndex }) => {
+const SwipeDeck = ({ setSwipingFinished, swipingFinished, result, cardsLeft, setCardsLeft, setUserResults, loading, incrementIndex }) => {
   console.log(swipingFinished)
   //loading if component renders before response
   if (loading) {
@@ -57,7 +57,6 @@ const SwipeDeck = ({ setSwipingFinished, swipingFinished, result, cardsLeft, use
             onSwipeRight={handleSwipeRight}
           />
         </View>
-        Bottom: Card counter and button (Removed for demo)
         {!expanded && <View style={{ alignItems: 'center' }}>
           <MediumText size={12} >
             {cardsLeft} Cards Left

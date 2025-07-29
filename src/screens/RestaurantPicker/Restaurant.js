@@ -9,7 +9,7 @@ import CardCarousel from './CardCarousel';
 import PriceRangeCard from './PriceRangeCard';
 import StartCard from './StartCard';
 import DontWorryCard from './DontWorryCard';
-import SwipeDeck from './SwipeDeck';
+import SwipeDeck from './NewSwipeDeck';
 import Results from './Results';
 import restaurant from '../../restaurantFetch';
 
@@ -20,55 +20,58 @@ export default function ({navigation}) {
   const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
   const [priceRange, setPriceRange] = useState();
   const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(0); // for 
   const [pressedFinished, setPressedFinished] = useState(false);
-  const[result, setResult] = useState(null);
-  const [cardsLeft, setCardsLeft] = useState();
+  const[result, setResult] = useState(null); 
   const[userResults, setUserResults] = useState([]);
-  const[loading, setLoading] = useState(true);
+  const[loading, setLoading] = useState(true); 
   const [userSkipped, setUserSkipped] = useState(false);
   const [pressedStart, setPressedStart] = useState(false);
   const [progress, setProgress] = useState(0.33);
   const [swipingFinished, setSwipingFinished] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0); // for restaurant list
+  const [resultVisible, setResultVisible] = useState(true);
 
-  console.log(progress);
+  console.log(currentIndex);
+  console.log("Pressed Start: " + pressedStart);
+  console.log("User Skipped: " + userSkipped);
   //makes API call
   const findRestaurant = async() =>{
     //combine category params
     const categoryParams = categoryAliases.concat(selectedDietaryTags);
     try{
       const result = await restaurant(categoryParams);
+      console.log(result);
+      // const formattedResponse = extractRestaurantInfo(result);
 
-      const formattedResponse = extractRestaurantInfo(result);
-
-      return formattedResponse;
+      // return result;
     }catch(err){
       console.log(err);
     }
   } 
 
   //Format the response from Yelp API
-  const extractRestaurantInfo = (businesses) => {
-    if (!businesses || businesses.length === 0) {
-      return [];
-    }
+  // const extractRestaurantInfo = (businesses) => {
+  //   if (!businesses || businesses.length === 0) {
+  //     return [];
+  //   }
   
-    return businesses.map(business => {
-      return {
-        id: business.id,
-        name: business.name,
-        rating: business.rating,
-        reviewCount: business.review_count,
-        price: business.price,
-        categories: business.categories.map(cat => cat.title).join(', '),
-        address: business.location.display_address.join(', '),
-        phone: business.display_phone,
-        distance: Math.round(business.distance), 
-        imageUrl: business.image_url,
-        url: business.url
-      };
-    });
-  };
+  //   return businesses.map(business => {
+  //     return {
+  //       id: business.id,
+  //       name: business.name,
+  //       rating: business.rating,
+  //       reviewCount: business.review_count,
+  //       price: business.price,
+  //       categories: business.categories.map(cat => cat.title).join(', '),
+  //       address: business.location.display_address.join(', '),
+  //       phone: business.display_phone,
+  //       distance: Math.round(business.distance), 
+  //       imageUrl: business.image_url,
+  //       url: business.url
+  //     };
+  //   });
+  // };
 
   //make API request once user pressed "Finish" button
   useEffect(() => {
@@ -136,13 +139,46 @@ export default function ({navigation}) {
 
   //List of card componenets for carousel
   const cards = [
-    <StartCard incrementIndex = {incrementIndex} skipToSwiping = {skipToSwiping}/>, 
-    <DontWorryCard incrementIndex = {incrementIndex} decrementIndex = {decrementIndex}/>,
-    <CuisineCard setCategoryAliases = {setCategoryAliases} categoryAliases = {categoryAliases} setCuisineTagSelected = {setCuisineTagSelected} cuisineTagSelected = {cuisineTagSelected}/>, 
-    <DietaryPref setSelectedDietaryTags = {setSelectedDietaryTags} selectedDietaryTags = {selectedDietaryTags}/>, 
-    <PriceRangeCard setPriceRange = {setPriceRange} priceRange = {priceRange}/>,
-    <SwipeDeck swipingFinished = {swipingFinished} setSwipingFinished = {setSwipingFinished} loading = {loading} userResults = {userResults} setUserResults = {setUserResults} cardsLeft = {cardsLeft} setCardsLeft = {setCardsLeft} result = {result} incrementIndex= {incrementIndex}/>,
-    <Results userResults = {userResults}/>
+    <StartCard 
+      incrementIndex = {incrementIndex} 
+      skipToSwiping = {skipToSwiping}
+    />, 
+    <DontWorryCard 
+      incrementIndex = {incrementIndex} 
+      decrementIndex = {decrementIndex}
+    />,
+    <CuisineCard 
+      setCategoryAliases = {setCategoryAliases} 
+      categoryAliases = {categoryAliases} 
+      setCuisineTagSelected = {setCuisineTagSelected} 
+      cuisineTagSelected = {cuisineTagSelected}
+    />, 
+    <DietaryPref 
+      setSelectedDietaryTags = {setSelectedDietaryTags} 
+      selectedDietaryTags = {selectedDietaryTags}
+    />, 
+    <PriceRangeCard 
+      setPriceRange = {setPriceRange} 
+      priceRange = {priceRange}
+    />,
+    <SwipeDeck 
+      listOfRestaurants = {result} 
+      setSwipingFinished ={setSwipingFinished} 
+      swipingFinished = {swipingFinished} 
+      userResults = {userResults} 
+      setUserResults = {setUserResults} 
+      incrementIndex = {incrementIndex} 
+      currentIndex = {currentIndex}
+      setCurrentIndex = {setCurrentIndex}
+      setIndex = {setIndex}
+      setUserSkipped = {setUserSkipped}
+      setPressedStart = {setPressedStart}
+    />,
+    <Results 
+      userResults = {userResults}
+      resultVisible={resultVisible}
+      setResultVisible = {setResultVisible}
+    />
   ];
 
   return (
@@ -153,7 +189,8 @@ export default function ({navigation}) {
         leftAction={() => navigation.goBack()}
       />
       <ScrollView 
-        keyboardShouldPersistTaps="handled"   >
+        keyboardShouldPersistTaps="handled"
+        >
       <View style = {styles.outerContainer}>
         <CardCarousel 
           cards = {cards} 
