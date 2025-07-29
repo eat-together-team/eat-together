@@ -8,7 +8,7 @@ import RedButton from '../../components/RedButton';
 import LargeText from '../../components/LargeText';
 
 // "Swipe Deck" screen that renders each restaurant that is tailored to user preferences
-const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, incrementIndex, currentIndex, setCurrentIndex, setIndex, setUserSkipped, setPressedStart, setUserResults}) => {
+const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, incrementIndex, currentIndex, setCurrentIndex, setIndex, setUserSkipped, setPressedStart, setUserResults, setResult}) => {
   
   // store restaurant if green button is pressed
   const storeRestaurant = () => {
@@ -35,7 +35,7 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
   const renderCard = (restaurant) => {
     return (
         <>
-            <RestaurantRec restaurant = {restaurant} setIndex = {setIndex} setUserSkipped = {setUserSkipped} setCurrentIndex = {setCurrentIndex} setPressedStart = {setPressedStart}>
+            <RestaurantRec restaurant = {restaurant} setIndex = {setIndex} setUserSkipped = {setUserSkipped} setCurrentIndex = {setCurrentIndex} setPressedStart = {setPressedStart} setResult = {setResult}>
             </RestaurantRec>  
         </>
     );
