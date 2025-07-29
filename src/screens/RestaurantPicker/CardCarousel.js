@@ -4,9 +4,10 @@ import MediumText from '../../components/MediumText';
 import LargeText from '../../components/LargeText';
 import Button from '../../components/Button';
 import * as Progress from 'react-native-progress';
+import RedButton from '../../components/RedButton';
+import GreenButton from '../../components/GreenButton';
 
-
-const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished, validateSteps, progress, setProgress}) => {
+const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished, validateSteps, progress}) => {
 
   return (
     <View>
@@ -16,8 +17,11 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                 <View style = {styles.prefContainer}>
                     <MediumText color = "#00000080" center = "center" style = {{marginTop:30 }}>Preferences are set!</MediumText>
                     <LargeText  size = {30} center = {true} marginBottom = {30} style = {{marginTop:20}}>Ready to Swipe?</LargeText>
-                    <MediumText size = {25} center = {true}>Swipe <SmallText weight = {800} size = {25} color = "#5DB075">LEFT</SmallText> to skip.</MediumText>
-                    <MediumText size = {25} center = {true} >Swipe <SmallText weight = {800} size = {25} color = "#5DB075">RIGHT</SmallText> to save.</MediumText>
+                    <SmallText paddin size = {25} center = {true}>
+                         Press the <GreenButton disabled = {true} style = {{width: 40, height: undefined, aspectRatio: 1, marginRight: 5}}/>
+                        to skip.</SmallText>
+                    <SmallText size = {25} center = {true} >
+                        Press the <RedButton style = {{width: 40, height: 38, marginRight: 5, marginTop: 5}}/> to save.</SmallText>
                     <View style = {[styles.buttonContainer, {marginTop:30}]}>
                         <Button
                             backgroundColor="white"

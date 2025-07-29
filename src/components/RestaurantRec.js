@@ -1,7 +1,16 @@
-import React from "react";
-import { Image, Text, View, StyleSheet, TouchableOpacity, Linking, ScrollView } from "react-native";
+import React, { useState } from 'react';
+import { Image, Text, View, StyleSheet, Linking } from "react-native";
+import SmallText from "./SmallText";
+import MediumText from "./MediumText";
+import LargeText from './LargeText';
+import ExpandedButton from "./ExpandedButton";
+import Button from './Button';
 
-const RestaurantRec = ({ expanded, setExpanded, restaurant }) => {
+//Presents each restaurant result from YELP API Response
+const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart}) => {
+    const [expanded, setExpanded] = useState(false);
+
+    //hard coded for test
     const hours = [
         { day: 'Mon', time: '11:00 AM - 11:00 PM' },
         { day: 'Tues', time: '11:00 AM - 11:00 PM' },
@@ -12,45 +21,57 @@ const RestaurantRec = ({ expanded, setExpanded, restaurant }) => {
         { day: 'Sun', time: '11:00 AM - 11:00 PM' },
     ];
 
+    if (!restaurant){
+        return (
+        <View style = {{width: 400, height: 600, justifyContent:'center', alignItems:'center'}}>
+            <MediumText center = {true} marginBottom = {20}>
+                No Cards Left
+            </MediumText>
+            <Button onPress = {()=> 
+                {
+                    setIndex(0);
+                    setUserSkipped(false);
+                    setCurrentIndex(0);
+                    setPressedStart(false);
+                }
+                }>
+                Back To Start
+            </Button>
+        </View>
+        )
+    }
+
     return (
-        <View>
-            <TouchableOpacity
-                style={styles.expandButton}
-                onPress={() => setExpanded(!expanded)}
-                activeOpacity={0.7}
-            >
-                <Text style={styles.expandArrow}>↔</Text>
-            </TouchableOpacity>
+        <View style = {styles.container}>
             <Image
-                source={{ uri: restaurant.imageUrl }}
+                source={{ uri: restaurant.image }}
                 style={styles.image}
             />
-            <Text style={styles.title}>{restaurant.name}</Text>
-            <Text style={[styles.description, styles.centerText]}>
-                A healthy, plant-based restaurant with a focus on fresh, locally sourced ingredients.
-            </Text>
-            <View style={styles.row}>
-                <View style={styles.leftColumn}>
-                    <Text style={styles.rowText}>American</Text>
-                    <Text style={styles.ratingText}>{restaurant.price}  {restaurant.rating} ★</Text>
+            <ExpandedButton setExpanded = {setExpanded} expanded = {expanded}/>
+            <View style = {styles.ratingAndCategoryContainer}>
+                <View>
+                    <MediumText size = {13} >{restaurant.categoryAliases[0]?.charAt(0).toUpperCase() + restaurant.categoryAliases[0]?.substring(1)}</MediumText>
+                    <MediumText size = {13}>{restaurant.price}  {restaurant.rating}★</MediumText>
                 </View>
-                <Text style={styles.rowTextRight}>{restaurant.categories}</Text>
+                <MediumText style = {{marginRight: 10}} size = {13}>{restaurant.categoryAliases[1]?.charAt(0).toUpperCase() + restaurant.categoryAliases[1]?.substring(1)}</MediumText>
+            </View>
+            <LargeText style = {{marginLeft: 30, marginBottom: 20}} marginBottom ={15} color = "#5DB075">{restaurant.name}</LargeText>
+            <View style = {styles.reviewContainer}>
+                <MediumText size = {13} weight = {600} >"{restaurant.reviewExcerpt}"</MediumText>
             </View>
             {expanded && (
-                <View style={styles.extraInfo}>
-                    <Text style={[styles.extraTitle, styles.centerText]}>Location & Hours</Text>
-                    <Text
-                        style={[styles.description, styles.centerText, {textDecorationLine: 'underline' }]}
-                        onPress={() => Linking.openURL('https://maps.google.com/?q=2634+NE+University+Village+St,+Seattle,+WA+98105')}
-                    >
-                        {restaurant.address}
-                    </Text>
-                    <View style={styles.timetable}>
-                        {hours.map(({ day, time }) => (
-                            <View style={styles.timeRow} key={day}>
-                                <Text style={styles.timeDay}>{day}</Text>
-                                <Text style={styles.timeHours}>{time}</Text>
-                            </View>
+                <View>
+                    <View style = {styles.locationContainer}>
+                        <MediumText center color = "#5DB075">
+                            Location & Hours
+                        </MediumText>
+                        <MediumText size = {13} center style = {{marginTop: 7}}>{restaurant.address}</MediumText>
+                    </View>
+                    <View style={styles.timeContainer}>
+                        {Object.entries(restaurant.hours).map(([day, time]) => (
+                            <MediumText key={day} size={13} style={{marginBottom: 5}}>
+                                {day}:  {time}
+                            </MediumText>
                         ))}
                     </View>
                 </View>
@@ -60,123 +81,40 @@ const RestaurantRec = ({ expanded, setExpanded, restaurant }) => {
 };
 
 const styles = StyleSheet.create({
+    container: {
+        alignSelf:'center',
+        width: 315,
+        marginTop: 40,
+        borderWidth: 0.2,
+        borderRadius: 40,
+    },
     image: {
-        width: 311,
+        width: 315,
         height: 290,
         borderTopLeftRadius: 40,
         borderTopRightRadius: 40,
     },
-    title: {
-        fontFamily: 'Inter',
-        fontWeight: '700',
-        fontSize: 30,
-        color: '#5DB075',
-        textAlign: 'left',
-        padding: 20,
+    reviewContainer:{
+        width: 240,
+        alignSelf:'center',
+        marginRight: 20
     },
-    description: {
-        paddingHorizontal: 20,
-        fontFamily: 'Inter',
-        fontWeight: '600',
-        fontSize: 13,
-        color: '#000000',
+    ratingAndCategoryContainer:{
+        display:'flex',
+        flexDirection:'row',
+        justifyContent:'space-between',
+        marginTop: 15,
+        marginBottom: 20,
+        marginLeft: 30,
     },
-    centerText: {
-        textAlign: 'center',
+    locationContainer:{
+        marginTop: 20
     },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
+    timeContainer:{
         marginTop: 20,
-        paddingLeft: 10,
-    },
-    leftColumn: {
-        flex: 1,
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        paddingLeft: 13,
-    },
-    rowText: {
-        fontFamily: 'Inter',
-        fontWeight: '600',
-        fontSize: 13,
-        color: '#000',
-        textAlign: 'left',
-    },
-    ratingText: {
-        fontFamily: 'Inter',
-        fontWeight: '600',
-        fontSize: 13,
-        color: '#000',
-        marginTop: 2,
-    },
-    rowTextRight: {
-        fontFamily: 'Inter',
-        fontWeight: '600',
-        fontSize: 13,
-        color: '#000',
-        flex: 1,
-        textAlign: 'right',
-        paddingRight: 20,
-    },
-    expandButton: {
-        position: 'absolute',
-        top: 15,
-        right: 15,
-        zIndex: 2,
-        backgroundColor: '#fff',
-        borderRadius: 20,
-        width: 36,
-        height: 36,
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    expandArrow: {
-        color: '#5DB075',
-        fontSize: 22,
-        fontWeight: 'bold',
-    },
-    extraInfo: {
-        marginTop: 20,
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-    },
-    extraTitle: {
-        fontFamily: 'Inter',
-        fontWeight: '700',
-        fontSize: 24,
-        color: '#5DB075',
-        marginBottom: 8,
-    },
-    timetable: {
-        marginTop: 10,
-    },
-    timeRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginVertical: 2,
-    },
-    timeDay: {
-        fontFamily: 'Inter',
-        fontWeight: '600',
-        fontSize: 16,
-        color: '#000',
-        width: 60,
-    },
-    timeHours: {
-        fontFamily: 'Inter',
-        fontWeight: '400',
-        fontSize: 16,
-        color: '#000',
-        textAlign: 'right',
-        flex: 1,
-    },
+        alignSelf: 'center'
+    }
+
 });
 
 export default RestaurantRec
