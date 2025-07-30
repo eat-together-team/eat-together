@@ -9,7 +9,10 @@ import Button from './Button';
 //Presents each restaurant result from YELP API Response
 const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart, setResult}) => {
     const [expanded, setExpanded] = useState(false);
-    
+
+    const listOfCategories = restaurant.categories.split(', ');
+    console.log(listOfCategories);
+
     const handleAddressEvent = async() => { 
         const encodedAddress = encodeURIComponent(restaurant.address);
 
@@ -59,35 +62,36 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
     return (
         <View style = {styles.container}>
             <Image
-                source={{ uri: restaurant.image }}
+                source={{ uri: restaurant.imageUrl }}
                 style={styles.image}
             />
             <ExpandedButton setExpanded = {setExpanded} expanded = {expanded}/>
             <View style = {styles.ratingAndCategoryContainer}>
                 <View>
-                    <MediumText size = {13} >{restaurant.categoryAliases[0]?.charAt(0).toUpperCase() + restaurant.categoryAliases[0]?.substring(1)}</MediumText>
+                    <MediumText size = {13} lineHeight = {15}>{listOfCategories[0]}</MediumText>
                     <MediumText size = {13}>{restaurant.price}  {restaurant.rating}★</MediumText>
                 </View>
-                <MediumText style = {{marginRight: 10}} size = {13}>{restaurant.categoryAliases[1]?.charAt(0).toUpperCase() + restaurant.categoryAliases[1]?.substring(1)}</MediumText>
+                {listOfCategories[1] && <MediumText size = {13} lineHeight = {15} style = {{marginRight: 15}}>{listOfCategories[1]}</MediumText>}
             </View>
             <LargeText style = {{marginLeft: 30, marginBottom: 20}} marginBottom ={15} color = "#5DB075">{restaurant.name}</LargeText>
             <View style = {styles.reviewContainer}>
-                <MediumText size = {13} weight = {600} >"{restaurant.reviewExcerpt}"</MediumText>
+                <MediumText marginBottom = {20}lineHeight = {20} size = {13} weight = {600}>{restaurant.url}</MediumText>
             </View>
             {expanded && (
                 <View>
                     <View style = {styles.locationContainer}>
                         <MediumText center color = "#5DB075">
-                            Location & Hours
+                            Location
                         </MediumText>
                         <MediumText onPress ={handleAddressEvent}size = {13} center style = {{marginTop: 7, textDecorationLine: 'underline'}}>{restaurant.address}</MediumText>
                     </View>
-                    <View style={styles.timeContainer}>
-                        {Object.entries(restaurant.hours).map(([day, time]) => (
-                            <MediumText key={day} size={13} style={{marginBottom: 5}}>
-                                {day}:  {time}
-                            </MediumText>
-                        ))}
+                    <View style = {styles.phoneNumberContainer}>
+                        <MediumText center color = "#5DB075">Phone Number</MediumText>
+                        <MediumText center size = {13} style = {{marginTop: 7}}>{restaurant.phone}</MediumText>
+                    </View>
+                    <View style = {styles.servicesContainer}>
+                        <MediumText center color = "#5DB075">Types of Services</MediumText>
+                        <MediumText center size = {13} style = {{marginTop: 7}}>{restaurant.serviceOptions}</MediumText>
                     </View>
                 </View>
             )}
@@ -123,14 +127,15 @@ const styles = StyleSheet.create({
         marginLeft: 30,
     },
     locationContainer:{
-        marginTop: 20
+        marginTop: 10
     },
-    timeContainer:{
-        marginTop: 20,
-        alignSelf: 'center',
+    phoneNumberContainer:{
+        marginTop: 10,
+    },
+    servicesContainer:{
+        marginTop: 10,
         marginBottom: 20,
     }
-
 });
 
 export default RestaurantRec

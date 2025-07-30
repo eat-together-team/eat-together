@@ -31,7 +31,7 @@ const SwipeDeck = ({ setSwipingFinished, swipingFinished, result, cardsLeft, set
 
   const handleSwipeRight = useCallback((index) => {
     setCardsLeft(prev => prev - 1);
-    setUserResults(prev => [...prev, result[index]]);
+    p
   }, [setCardsLeft, setUserResults]);
 
   return (
