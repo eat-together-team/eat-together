@@ -19,24 +19,25 @@ const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
 
     // Renders each restaurant as an item for Flatlist
     const renderItem = ({item}) => (
+        
         <View style={styles.itemContainer}>
             <View style = {styles.imageContainer}>
                 <Image         
-                    source={{ uri: item.image }}
+                    source={{ uri: item.imageUrl }}
                     style={styles.image}
                 />
             </View>
             <View style = {styles.textContainer}>
-                <MediumText style = {{lineHeight: 13, paddingBottom: 5,}} size = {13}>{item?.name}</MediumText>
+                <MediumText style = {{lineHeight: 13, paddingBottom: 5,}} size = {13}>{item.name}</MediumText>
                 <MediumText color = "#5DB075" size ={11} style ={{lineHeight: 12}}>
-                    {item?.categoryAliases[0].charAt(0).toUpperCase() + item?.categoryAliases[0].substring(1)}
+                    {item.categories.substring(0, item.categories?.indexOf(','))}
                 </MediumText>
                 <View style = {styles.ratingAndPriceContainer}>
                     <MediumText paddingHorizontal = {2} color = "#5DB075" size = {11}>
-                        {item?.price}
+                        {item.price}
                     </MediumText>
                     <MediumText color = "#5DB075" size = {11}>
-                        {item?.rating}
+                        {item.rating}
                     </MediumText>
                 </View>
             </View>

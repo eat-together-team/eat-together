@@ -11,8 +11,18 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
     const [expanded, setExpanded] = useState(false);
 
     const listOfCategories = restaurant.categories.split(', ');
-    console.log(listOfCategories);
+    
+    // Opens Yelp app (or browser)
+    const handleOpeningURL = async() =>{
+        await Linking.openURL(restaurant.url);
+    }
 
+    // Opens native phone app
+    const handleOpeningPhoneNum = async() =>{
+        await Linking.openURL(`tel:${restaurant.phone}`);
+    }
+
+    // Opens address on maps (Google, apple, web as fallback)
     const handleAddressEvent = async() => { 
         const encodedAddress = encodeURIComponent(restaurant.address);
 
@@ -75,7 +85,7 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
             </View>
             <LargeText style = {{marginLeft: 30, marginBottom: 20}} marginBottom ={15} color = "#5DB075">{restaurant.name}</LargeText>
             <View style = {styles.reviewContainer}>
-                <MediumText marginBottom = {20}lineHeight = {20} size = {13} weight = {600}>{restaurant.url}</MediumText>
+                <MediumText onPress = {handleOpeningURL} marginBottom = {20} lineHeight = {20} size = {13} weight = {600} style = {{textDecorationLine: 'underline'}}>{restaurant.url}</MediumText>
             </View>
             {expanded && (
                 <View>
@@ -87,7 +97,7 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                     </View>
                     <View style = {styles.phoneNumberContainer}>
                         <MediumText center color = "#5DB075">Phone Number</MediumText>
-                        <MediumText center size = {13} style = {{marginTop: 7}}>{restaurant.phone}</MediumText>
+                        <MediumText onPress = {handleOpeningPhoneNum} center size = {13} style = {{marginTop: 7, textDecorationLine: 'underline'}}>{restaurant.phone}</MediumText>
                     </View>
                     <View style = {styles.servicesContainer}>
                         <MediumText center color = "#5DB075">Types of Services</MediumText>
