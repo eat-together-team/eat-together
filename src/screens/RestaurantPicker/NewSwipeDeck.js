@@ -9,7 +9,6 @@ import LargeText from '../../components/LargeText';
 
 // "Swipe Deck" screen that renders each restaurant that is tailored to user preferences
 const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, incrementIndex, currentIndex, setCurrentIndex, setIndex, setUserSkipped, setPressedStart, setUserResults, setResult}) => {
-  
   // store restaurant if green button is pressed
   const storeRestaurant = () => {
     setCurrentIndex((prev) => (prev + 1));

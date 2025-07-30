@@ -47,20 +47,24 @@ export default function ({navigation}) {
     const categoryParams = categoryAliases.concat(selectedDietaryTags);
     
     try{
+
+      // 1. fetch restaurants based on user categories
       const result = await restaurant(categoryParams);
 
-      // get match scores (parallel to each restaurant in result)
+      // 2. get match scores (parallel to each restaurant in result)
       const matchScores =  result.map(business => 
         weighRestaurant({restaurant: business, cuisinePref: categoryAliases, dietaryPref: selectedDietaryTags, priceRange: priceRange}))
       
         console.log("Match Scores: " + matchScores);
-      // 1. Pair restaurants with scores
+    
+      // 3. Pair restaurants with scores
       const restaurantWithScores = result.map((restaurant, index) => ({
         ...restaurant,
         matchScore: matchScores[index]
       }));
       console.log(restaurantWithScores);
-      // 2. sort from highest to lowest
+
+      // 4. sort from highest to lowest
       const sortedRestaurants = restaurantWithScores.sort(
         (a, b) => b.matchScore - a.matchScore
       );
@@ -72,7 +76,6 @@ export default function ({navigation}) {
       console.log(err);
     }
   } 
-
 
   //make API request once user pressed "Finish" button in quiz or skipped straight to exploring
   useEffect(() => {
