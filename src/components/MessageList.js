@@ -11,6 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 import MediumText from "./MediumText";
+import TagsList from "../components/TagsList";
 
 import firebase from "firebase/compat";
 import { auth, db } from "../provider/Firebase";
@@ -20,6 +21,7 @@ const MessageList = props => {
     const user = auth.currentUser;
     const [accepted, setAccepted] = useState(false);
     const [declined, setDeclined] = useState(false);
+    
 
     useEffect(() => {
         setAccepted(props.accepted || false);
@@ -37,9 +39,13 @@ const MessageList = props => {
                     <View style={styles.headleft}>
                         <Image style={styles.image} source={{uri: props.person.profile}}/>
                         <View style={styles.textContainer}>
+                            {accepted ? (
+                                <MediumText style={styles.username}>Friend request accepted!</MediumText>
+                            ) : (
                             <MediumText style={styles.username}>{props.person.username}</MediumText>
+                            )}
                         </View>
-                        {/* Tags for school: will come back to this later */}
+                        {/* <Tag text="Math" type="school"></Tag> */}
                     </View>
                     
                     <View style={styles.actionColumn}>

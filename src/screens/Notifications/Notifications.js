@@ -97,6 +97,7 @@ export default function (props) {
             id: doc.id,
             username: data.username,
             profile: data.profile,
+            status: data.status || 'pending',
           });
         });
         setRequests(list.reverse());

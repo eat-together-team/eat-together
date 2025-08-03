@@ -25,12 +25,13 @@ export default function ({ back, navigation}) {
             const list = [];
             query.forEach((doc) => {
                 let data = doc.data();
+                const timestamp = data.timestamp?.toDate ? data.timestamp.toDate() : new Date();  // ignore for now              
                 list.push({
                     id: doc.id,
                     name: data.name,
                     username: data.username,
                     profile: data.profile,
-                    timestamp: data.timestamp?.toDate ? data.timestamp.toDate() : new Date(),
+                    timestamp: timestamp, // ignore for now
                     status: data.status || 'pending', 
                     statusUpdatedAt: data.statusUpdatedAt?.toDate ? data.statusUpdatedAt.toDate() : null,
                 });
@@ -75,16 +76,16 @@ export default function ({ back, navigation}) {
                 <TouchableOpacity onPress={() => {
                     // Reset accepted/declined requests to pending before going back
                     // For testing purpose
-                    // requests.forEach(request => {
-                    //     if(request.status === 'accepted' || request.status === 'declined') {
-                    //         db.collection("User Invites").doc(user.uid)
-                    //         .collection("Connections").doc(request.id)
-                    //         .update({
-                    //             status: 'pending',
-                    //             statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    //         });
-                    //     }
-                    // });
+                    requests.forEach(request => {
+                        if(request.status === 'accepted' || request.status === 'declined') {
+                            db.collection("User Invites").doc(user.uid)
+                            .collection("Connections").doc(request.id)
+                            .update({
+                                status: 'pending',
+                                statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        }
+                    });
                     navigation.goBack();
                 }}>
                     <Ionicons name="chevron-back" size={24} color="black" style = {styles.backButton}/>
