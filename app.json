@@ -4,8 +4,7 @@
     "owner": "eat-together-team",
     "slug": "eat-together",
     "description": "Connecting students through shared meals.",
-    "version": "1.5.2",
-    "sdkVersion": "53.0.0",
+    "version": "1.5.3",
     "orientation": "portrait",
     "icon": "./assets/big_logo.png",
     "scheme": "com.eat.together",
@@ -21,29 +20,27 @@
     ],
     "android": {
       "package": "com.eattogether.android",
-      "versionCode": 3,
+      "versionCode": 4,
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "MEDIA_LIBRARY",
-        "MEDIA_LIBRARY_WRITE_ONLY"
+        "android.permission.MEDIA_LIBRARY",
+        "android.permission.MEDIA_LIBRARY_WRITE_ONLY"
       ],
-      "runtimeVersion": "1.0.0",
       "googleServicesFile": "./google-services.json"
     },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "27",
-      "icon": {
-        "light": "./assets/big_logo.png",
-        "dark": "./assets/dark_logo.png",
-        "tinted": "./assets/dark_logo.png"
+      "buildNumber": "28",
+      "icon": "./assets/big_logo.png",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "web": {
       "favicon": "./assets/big_logo.png"
     },
-    "runtimeVersion": "1.0.0",
+    "runtimeVersion": "1.0.1",
     "userInterfaceStyle": "automatic",
     "plugins": [
       [
@@ -57,7 +54,7 @@
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "1.9.25"
+            "kotlinVersion": "2.1.21"
           }
         }
       ],
@@ -67,6 +64,9 @@
       "eas": {
         "projectId": "605daf62-9a09-4742-8204-1f8dfb5e4363"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/605daf62-9a09-4742-8204-1f8dfb5e4363"
     }
   }
 }
