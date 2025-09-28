@@ -1,4 +1,4 @@
-{
+module.exports = {
   "expo": {
     "name": "Eat Together!",
     "owner": "eat-together-team",
