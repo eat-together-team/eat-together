@@ -45,7 +45,7 @@ export default function () {
       <Stack.Screen name="BuddyPage" component={BuddyPage} />
       <Stack.Screen name="BuddyNotif" component={BuddyNotif} />
       <Stack.Screen name="IncomingRequests" component={IncomingRequests} />
-      
+
       {/* For settings */}
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="FullCard" component={FullCard} />

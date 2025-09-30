@@ -19,6 +19,7 @@ import TryOut from "../screens/TryOut";
 import ProfileMain from "../screens/Profile/ProfileMain";
 import NotificationsMain from "../screens/Notifications/NotificationsMain";
 import Loading from "../screens/utils/Loading";
+import SendBuddyRequest from "../screens/SendBuddyRequest";
 
 // Auth screens
 import Auth from "./Auth";
@@ -43,6 +44,19 @@ Notifications.setNotificationHandler({
 
 //The experience of logged in user!!
 const MainStack = createStackNavigator();
+// const Main = () => {
+//   return (
+//     <MainStack.Navigator
+//       screenOptions={{
+//         headerShown: false,
+//         animationEnabled: true,
+//       }}
+//     >
+//       <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
+//       <MainStack.Screen name="Notifications" component={NotificationsMain} />
+//     </MainStack.Navigator>
+//   );
+// };
 const Main = () => {
   return (
     <MainStack.Navigator
@@ -53,11 +67,13 @@ const Main = () => {
     >
       <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
       <MainStack.Screen name="Notifications" component={NotificationsMain} />
+      <MainStack.Screen name="SendBuddyRequest" component={SendBuddyRequest} />
     </MainStack.Navigator>
   );
 };
 
-// Controls the screens connected to the bottom navigation bar
+
+//Controls the screens connected to the bottom navigation bar
 const Tabs = createBottomTabNavigator();
 const MainTabs = () => {
   const auth_context = useContext(AuthContext);

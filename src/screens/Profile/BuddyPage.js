@@ -5,7 +5,7 @@ import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
 import Searchbar from "../../components/Searchbar";
-import ProfileBubble from "../../components/ProfileBubble";
+import BuddyProfileBubble from "../../components/BuddyProfileBubble";
 import Header from "../../components/Header";
 import HorizontalRow from "../../components/HorizontalRow";
 import HorizontalSwitch from "../../components/HorizontalSwitch";
@@ -18,6 +18,7 @@ import { generateColor, randomize3, getCommonTags } from "../../utils/methods";
 import { db, auth } from "../../provider/Firebase";
 import { sortBySimilarInterests } from "../../utils/methods";
 import { tryoutId } from "../../utils/constants";
+import NormalText from "../../components/NormalText";
 
 export default function ({ navigation }) {
   // Fetch current user
@@ -164,7 +165,17 @@ export default function ({ navigation }) {
 
   return (
     <Layout>
-      <Header name="Choose a Buddy" navigation={navigation} hasNotif={unread} buddy/>
+      <Ionicons
+        name="arrow-back"
+        size={30}
+        style={{ marginLeft: 10, marginTop: 10 }}
+        onPress={() => {
+          navigation.navigate("Me", {
+            user: userInfo,
+          });
+        }}
+      ></Ionicons>
+      <Header name="Find a Buddy" navigation={navigation} hasNotif={unread} buddy/>
 
       <View style={{ paddingHorizontal: 20 }}>
         <Searchbar
@@ -186,6 +197,7 @@ export default function ({ navigation }) {
           />
         </HorizontalRow>}
         <MediumText use700> Recommendations </MediumText>
+        <NormalText style={{alignSelf: "flex-end"}}>Click to see profile</NormalText>
       </View>
 
       <View style={{ flex: 1, alignItems: "center" }}>
@@ -197,13 +209,10 @@ export default function ({ navigation }) {
             keyExtractor={(item) => item.id}
             data={filteredSearchedPeople}
             renderItem={({ item }) => (
-              <ProfileBubble
+              <BuddyProfileBubble
                 person={item}
-                click={() => {
-                  navigation.navigate("BuddyRequest", {
-                    person: item,
-                  });
-                }}
+                navigation={navigation} // Pass navigation down
+                onPress={() => navigation.navigate("BuddyRequest", { person: item })}
               />
             )}
           />
