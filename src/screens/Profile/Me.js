@@ -25,7 +25,7 @@ import Link from "../../components/Link";
 import SmallButton from "../../components/SmallButton";
 import { AntDesign } from '@expo/vector-icons';
 
-import { compareDates } from "../../methods";
+import { compareDates } from "../../utils/methods";
 
 export default function ({ navigation }) {
   const user = auth.currentUser;
@@ -268,6 +268,7 @@ export default function ({ navigation }) {
             <Feather name="edit-2" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Edit Profile</NormalText>
           </TouchableOpacity>
+
         </View>
 
         <View style={styles.name}>

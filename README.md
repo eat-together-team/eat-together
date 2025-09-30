@@ -1,4 +1,4 @@
-# About
+# About 
 
 Connecting students through shared meals. Our app allows you to create and join food meetups with ease.
 

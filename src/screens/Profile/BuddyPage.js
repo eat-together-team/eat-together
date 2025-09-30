@@ -14,10 +14,10 @@ import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
 import MediumText from "../../components/MediumText";
 
-import { generateColor, randomize3, getCommonTags } from "../../methods";
+import { generateColor, randomize3, getCommonTags } from "../../utils/methods";
 import { db, auth } from "../../provider/Firebase";
-import { sortBySimilarInterests } from "../../methods";
-import { tryoutId } from "../../constants";
+import { sortBySimilarInterests } from "../../utils/methods";
+import { tryoutId } from "../../utils/constants";
 import NormalText from "../../components/NormalText";
 
 export default function ({ navigation }) {

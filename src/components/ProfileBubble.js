@@ -18,7 +18,7 @@ const ProfileBubble = props => {
     }
 
     return (
-        <View style={[styles.card, {}]}>
+        <View style={styles.card}>
             <TouchableOpacity onPress={props.click}>
                 <MediumText size={18}>
                     {props.person.firstName + " " + props.person.lastName.substring(0, 1) + "."}
@@ -37,6 +37,7 @@ const ProfileBubble = props => {
                             </View>
                         </ScrollView>
                     </View>)}
+                    
                     {getCommonHobbyFoodTags(props.person.inCommon).length !== 0 && (<View style={styles.commonRow}>
                         <NormalText>Enjoyment:</NormalText>
                         <ScrollView horizontal={true}>
