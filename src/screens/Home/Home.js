@@ -17,7 +17,6 @@ import TutorialMessage from "../../components/TutorialMessage";
 import RecTutorialMessage from "../../components/RecTutorialMessage";
 import Link from "../../components/Link";
 import Button from "../../components/Button"
-import Gallery from "./Gallery";
 
 import { db, auth } from "../../provider/Firebase";
 import { AuthContext } from "../../provider/AuthProvider";

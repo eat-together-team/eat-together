@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Linking } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
-import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
+import { Ionicons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
@@ -41,9 +41,7 @@ const Recommendation = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true); // Loading state for the button
 
   const [recSteps, setRecSteps] =  useState(0); // Tutorial steps for recommendations
-
   const [attendingTutorial, setAttendingTutorial] = useState(true);  // State to see if we should show the attending an event tutorial
-  const [isDataFetched, setIsDataFetched] = useState(false);  // State to track whether data has been fetched
 
   const showTimeFilterRef = useRef();
   const [monday, setMonday] = useState(false);
@@ -53,10 +51,12 @@ const Recommendation = ({ route, navigation }) => {
   const [dayChosen, setDayChosen] = useState(false);
   const [startDate,setStartDate] = useState(route.params.event.startDate.toDate());
   const [endDate, setEndDate] = useState(route.params.event.endDate.toDate());
-  const [mondayVote , setMondayVote] = useState(0);
-  const [tuesdayVote , setTuesdayVote] = useState(0);
-  const [wednesdayVote , setWednesdayVote] = useState(0);
-  const [thursdayVote , setThursdayVote] = useState(0);
+  const [mondayVote, setMondayVote] = useState(0);
+  const [tuesdayVote, setTuesdayVote] = useState(0);
+  const [wednesdayVote, setWednesdayVote] = useState(0);
+  const [thursdayVote, setThursdayVote] = useState(0);
+  const [votesChanged, setVotesChanged] = useState(false); // State to track whether votes have changed
+
   useEffect(() => {
     let existingTags = {}; // To avoid duplicates
     // Loads the tags of all the attendees
@@ -116,7 +116,27 @@ const Recommendation = ({ route, navigation }) => {
           setGroupChat(group);
         });
     }
-  }, [])
+  }, []);
+
+  // Date voting updates
+  useEffect(() => {
+    db.collection("Private Events").doc(route.params.event.id).onSnapshot((doc) => {
+      const voteCount = doc.data().voteCount;
+      setMondayVote(voteCount.mondayCount);
+      setTuesdayVote(voteCount.tuesdayCount);
+      setWednesdayVote(voteCount.wednesdayCount);
+      setThursdayVote(voteCount.thursdayCount);
+
+      const previousVotes = getPreviousVotes(doc.data(), user.uid);
+      if (previousVotes) {
+        setMonday(previousVotes.monday);
+        setTuesday(previousVotes.tuesday);
+        setWednesday(previousVotes.wednesday);
+        setThursday(previousVotes.thursday);
+        setDayChosen(true);
+      }
+    });
+  }, []);
 
   // Confirm attendance to recommended meetup
   const attend = () => {
@@ -125,7 +145,6 @@ const Recommendation = ({ route, navigation }) => {
       type: "recommendation",
       id: route.params.event.id
     };
-
 
     db.collection("Private Events").doc(route.params.event.id).update({
       attendees: firebase.firestore.FieldValue.arrayUnion(user.uid),
@@ -184,6 +203,9 @@ const Recommendation = ({ route, navigation }) => {
   };
 
   useEffect(() => {
+    if (!votesChanged) return; // Only run if votes have changed
+
+    // Listen for changes in the event document
     const unsubscribe = db.collection("Private Events").doc(route.params.event.id).onSnapshot((eventDoc) => {
 
       const eventData = eventDoc.data();
@@ -260,59 +282,61 @@ const Recommendation = ({ route, navigation }) => {
     });
   
     return () => unsubscribe(); // Cleanup listener on unmount
-  }, []); 
-        
-
+  }, [votesChanged]); 
 
   const updateAvailabilities = async (monday,tuesday,wednesday,thursday) => {
-      const eventRef = db.collection("Private Events").doc(route.params.event.id);
-      const eventDoc = await eventRef.get();
-      const eventData = eventDoc.data();
-      const userId = route.params.userData.id; 
-      let previousVotes = eventData.userVotes?.[userId] || {}; 
-      let voteUpdates = {};
+    const eventRef = db.collection("Private Events").doc(route.params.event.id);
+    const eventDoc = await eventRef.get();
+    const eventData = eventDoc.data();
+    const userId = route.params.userData.id; 
+    let previousVotes = getPreviousVotes(eventData, userId);
+    let voteUpdates = {};
 
-      // Modifying updates
-      if (previousVotes.monday && !monday) {
-        voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(-1);
-      } else {
-        voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(0);
-      }
-      if (previousVotes.tuesday && !tuesday) {
-        voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(-1);
-      } else {
-        voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(0);
-      }
-      if (previousVotes.wednesday && !wednesday) {
-        voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(-1);
-      } else {
-        voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(0);
-      }
-      if (previousVotes.thursday && !thursday) {
-        voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(-1);
-      } else {
-        voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(0);
-      }
-      // New User
-      if (!previousVotes.monday && monday) {
-        voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(1);
-      }
-      if (!previousVotes.tuesday && tuesday) {
-        voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(1);
-      }
-      if (!previousVotes.wednesday && wednesday) {
-        voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(1);
-      }
-      if (!previousVotes.thursday && thursday) {
-        voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(1);
-      }
-      voteUpdates[`userVotes.${userId}`] = { monday, tuesday, wednesday, thursday };
-  
-      await eventRef.update(voteUpdates);    
-      showTimeFilterRef.current.close()
-  } 
+    // Modifying updates
+    if (previousVotes.monday && !monday) {
+      voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(-1);
+    } else {
+      voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(0);
+    }
+    if (previousVotes.tuesday && !tuesday) {
+      voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(-1);
+    } else {
+      voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(0);
+    }
+    if (previousVotes.wednesday && !wednesday) {
+      voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(-1);
+    } else {
+      voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(0);
+    }
+    if (previousVotes.thursday && !thursday) {
+      voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(-1);
+    } else {
+      voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(0);
+    }
+    // New User
+    if (!previousVotes.monday && monday) {
+      voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(1);
+    }
+    if (!previousVotes.tuesday && tuesday) {
+      voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(1);
+    }
+    if (!previousVotes.wednesday && wednesday) {
+      voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(1);
+    }
+    if (!previousVotes.thursday && thursday) {
+      voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(1);
+    }
+    voteUpdates[`userVotes.${userId}`] = { monday, tuesday, wednesday, thursday };
 
+    await eventRef.update(voteUpdates);    
+    showTimeFilterRef.current.close();
+    setVotesChanged(true); // Set the votes changed state to true
+  }
 
+  // Fetch previous date votes for a user
+  const getPreviousVotes = (eventData, userId) => {
+    return eventData.userVotes?.[userId] || {};
+  }
 
   // Fetch data from Firestore to see if the user has seen the tutorial before or not
   useEffect(() => {
@@ -330,7 +354,6 @@ const Recommendation = ({ route, navigation }) => {
       } else {
         console.log('No such document!');
       }
-      setIsDataFetched(true); // Set the fetched state to true after fetching is complete
     };
 
     fetchData();
@@ -459,7 +482,7 @@ const Recommendation = ({ route, navigation }) => {
                     {dayChosen ? getDate(moment(startDate).toDate())  : <Link onPress={() => {
                       showTimeFilterRef.current.open(),
                       setDayChosen(true)
-                    }}> Choose an available day! </Link> }
+                    }}>Choose an available day!</Link> }
                 </NormalText>
               </View>
               <RBSheet
@@ -514,49 +537,45 @@ const Recommendation = ({ route, navigation }) => {
                   <MediumText>{thursdayVote} Votes </MediumText>
                 </View>
                 <Button onPress = {() => updateAvailabilities(monday,tuesday,wednesday,thursday)}>
-                  change availabilities
+                  Set Availabilities
                 </Button>
             </RBSheet> 
-
-
-
 
               <View style={styles.row}>
                 <Ionicons name="time-outline" size={20} />
                 <NormalText paddingHorizontal={10} color="black">
-                    {route.params.event.startDate ? getTime(moment(startDate).toDate()) : getTime(route.params.event.date.toDate())}
-                    {route.params.event.endDate && " - ".concat(getTime(moment(endDate).toDate()))}
+                  {route.params.event.startDate ? getTime(moment(startDate).toDate()) : getTime(route.params.event.date.toDate())}
+                  {route.params.event.endDate && " - ".concat(getTime(moment(endDate).toDate()))}
                 </NormalText>
               </View>
 
               <View style={styles.row}>
-                <Ionicons name="time-outline" size={20}/>
+                <MaterialCommunityIcons name="hand-pointing-right" size={20}/>
                 <Link onPress={() => {showTimeFilterRef.current.open()}} paddingHorizontal={10}>
-                    Modify availabilities
+                  Modify availabilities
                 </Link>
               </View>
 
               <View style={{...styles.row, marginTop: 10}}>
                 <Ionicons name="star-outline" size={20} />
                 <NormalText paddingHorizontal={10} color="black">
-                    Rating: {route.params.event.rating} stars
+                  Rating: {route.params.event.rating} stars
                 </NormalText>
               </View>
 
               <View style={styles.row}>
                 <FontAwesome5 name="comment-dollar" size={20} />
                 <NormalText paddingHorizontal={10} color="black">
-                    Pricing: {route.params.event.price}
+                  Pricing: {route.params.event.price}
                 </NormalText>
               </View>
 
               <View style={styles.row}>
                 <FontAwesome5 name="external-link-alt" size={20}/>
                 <Link onPress={() => Linking.openURL(route.params.event.url)} paddingHorizontal={10}>
-                    More info
+                  More info
                 </Link>
               </View>
-
             </View>
 
             {route.params.event.menu && <View>
