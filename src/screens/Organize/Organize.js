@@ -13,15 +13,15 @@ import {
 } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
-import eventTags from "../../eventTags";
+import eventTags from "../../utils/eventTags";
 
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import RBSheet from "react-native-raw-bottom-sheet";
 import TagsSection from "../../components/TagsSection";
 
 import Header from "../../components/Header";
-import getDate from "../../getDate";
-import getTime from "../../getTime";
+import getDate from "../../utils/getDate";
+import getTime from "../../utils/getTime";
 import Button from "../../components/Button";
 import NormalText from "../../components/NormalText";
 import Link from "../../components/Link";
@@ -32,12 +32,12 @@ import { db, auth, storage } from "../../provider/Firebase";
 import _, { cloneDeep } from "lodash";
 import { createNewChat } from "../Chat/Chats";
 import moment from "moment";
-import { checkProfanity } from "../../methods";
+import { checkProfanity } from "../../utils/methods";
 
 import Checkbox from "../../components/Checkbox";
 import TextInput from "../../components/TextInput";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
-import icebreakerList from "../../icebreakerList";
+import icebreakerList from "../../utils/icebreakerList";
 import TypeAheadTextInput from "../../components/TypeAheadTextInput";
 import { yelpSearch } from "../../provider/Search";
 
@@ -271,7 +271,8 @@ export default function ({ navigation }) {
                 image,
                 tags: tagsSelected,
                 chatID: chatID,
-                visibleTo: userFriends
+                visibleTo: userFriends,
+                type: "public"
             }).then(() => {
                 const storeID = {
                     type: "public",
