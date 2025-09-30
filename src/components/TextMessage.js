@@ -3,11 +3,8 @@ import { View, StyleSheet, Image, TouchableOpacity, Modal } from "react-native";
 import firebase from "firebase/compat";
 import NormalText from "./NormalText";
 import moment from "moment";
-import getDate from "../getDate";
-import getTime from "../getTime";
-import { TopNav, Layout } from "react-native-rapi-ui";
-import MediumText from "./MediumText";
-import { Ionicons } from "@expo/vector-icons";
+import getDate from "../utils/getDate";
+import getTime from "../utils/getTime";
 
 const TextMessage = (props) => {
   const user = firebase.auth().currentUser;

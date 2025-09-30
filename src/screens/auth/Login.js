@@ -21,7 +21,7 @@ import Button from "../../components/Button";
 import TextInput from "../../components/TextInput";
 import LargeText from "../../components/LargeText";
 import NormalText from "../../components/NormalText";
-import DeviceToken from "../utils/DeviceToken";
+import DeviceToken from "../../utils/DeviceToken";
 
 export default function ({ navigation }) {
   const [email, setEmail] = useState("");
