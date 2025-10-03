@@ -11,7 +11,7 @@ const StartCard = ({incrementIndex, skipToSwiping}) => {
         <RestaurantCard>
             <View style = {styles.questionContainer}>
                 <View style = {styles.textWrapper}>
-                    <RestaurantQuestion size = {30} text = "Any thoughts on where to grab food?"/>
+                    <LargeText color = "#5DB075" size = {30} center = "center">Any thoughts on where to grab food?</LargeText>
                 </View>
             </View>
             <View style = {styles.buttonContainer}>

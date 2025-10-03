@@ -188,7 +188,7 @@ export default function ({navigation}) {
       <TopNav
         middleContent={<MediumText size = {17}>Discover Places To Eat</MediumText>}
         leftContent={<Ionicons name="chevron-back" size={20} />}
-        onPress= {() => navigation.goBack()}
+        leftAction={() => navigation.goBack()}
       />
       <ScrollView 
         keyboardShouldPersistTaps="handled"
@@ -231,4 +231,3 @@ const styles = StyleSheet.create({
         padding:20,
   },
 })
-export default Restaurant

@@ -9,6 +9,7 @@ import ReportPerson from "../Explore/People/ReportPerson";
 import ReportEvent from "../Home/ReportEvent";
 import AvailabilitiesStatic from "./People/AvailabilitiesStatic";
 import RestaurantMain from "../RestaurantPicker/RestaurantMain";
+import RestaurantMain from "../RestaurantPicker/RestaurantMain";
 
 const Stack = createStackNavigator();
 
@@ -33,7 +34,7 @@ export default function () {
       <Stack.Screen name="ReportEvent" component={ReportEvent}/>
       <Stack.Screen name="AvailabilitiesStatic" component={AvailabilitiesStatic}/>
       <Stack.Screen name="Restaurant" component={RestaurantMain} screenOptions={{
-        animationEnabled: false,
+        animationEnabled: true,
       }} />
     </Stack.Navigator>
   );
