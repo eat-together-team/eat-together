@@ -9,7 +9,6 @@ import ReportPerson from "../Explore/People/ReportPerson";
 import ReportEvent from "../Home/ReportEvent";
 import AvailabilitiesStatic from "./People/AvailabilitiesStatic";
 import RestaurantMain from "../RestaurantPicker/RestaurantMain";
-import RestaurantMain from "../RestaurantPicker/RestaurantMain";
 
 const Stack = createStackNavigator();
 

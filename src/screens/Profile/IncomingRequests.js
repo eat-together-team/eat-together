@@ -17,7 +17,7 @@ import Link from "../../components/Link";
 import ProfileBubble from "../../components/ProfileBubble";
 import NameBubble from "../../components/NameBubble";
 
-import { getTimeOfDay, isAvailable, compareDates, getCommonTags, generateColor, randomize3 } from "../../utils/methods";
+import { getTimeOfDay, isAvailable, compareDates, getCommonTags, generateColor, randomize3 } from "../../methods";
 import { auth, db } from "../../provider/Firebase";
 
 export default function({ navigation }) {

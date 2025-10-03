@@ -20,13 +20,9 @@ import Button from "../../components/Button"
 
 import { db, auth } from "../../provider/Firebase";
 import { AuthContext } from "../../provider/AuthProvider";
-import { compareDates } from "../../utils/methods";
-import partners from "../../utils/partners";
-import partnerLocations from "../../utils/partnerLocations";
+import { compareDates } from "../../methods";
 import MediumText from "../../components/MediumText";
 import RecommendationsCard from "../../components/RecommendationsCard";
-
-import { Timestamp } from "firebase/firestore";
 
 export default function ({ navigation }) {
   // Get current user
@@ -42,7 +38,7 @@ export default function ({ navigation }) {
 
   // Get recommendations
   const [hasRec, setHasRec] = useState(false);
-  const [recommendations, setRecommendations] = useState([]);
+  const [recommendations, setRecommendations] = useState([])
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -154,7 +150,7 @@ export default function ({ navigation }) {
                   return compareDates(a, b);
                 });
 
-                setHasRec(true);
+                setHasRec(true)
                 setRecommendations(recEvents);
                 setLoading(false);
               }
@@ -164,93 +160,16 @@ export default function ({ navigation }) {
       });
     }
 
-    async function fetchPartnerEvents() {
-      const now = Timestamp.now();
-      const nextWeekDate = now.toDate();
-      nextWeekDate.setDate(nextWeekDate.getDate() + 7);
-      const nextWeek = Timestamp.fromDate(nextWeekDate);
-
-      const partnerWords = partners
-        .flatMap(name => name.toLowerCase()
-        .replace(/[^a-z0-9\s]/g, '')
-        .split(/\s+/))
-
-      
-      const [privateSnapshot, publicSnapshot] = await Promise.all([
-        db.collection("Private Events")
-        .where("startDate", ">=", now)
-        .where("startDate", "<=", nextWeek)
-        .get(),
-        db.collection("Public Events")
-          .where("startDate", ">=", now)
-          .where("startDate", "<=", nextWeek)
-          .get()
-      ]);
-
-      const matchingPrivateDocs = privateSnapshot.docs.filter(doc => {
-        const data = doc.data();
-        const name = (data.name || "").toLowerCase();
-        const location = data.location;
-
-        if (partnerLocations.includes(location) || partnerWords.some(word => name.includes(word))) {
-          return partnerWords.some(word => name.includes(word));
-        }
-      });
-
-      // Add type: "private" to each private event
-      matchingPrivateDocs.forEach(doc => {
-        const data = doc.data();
-        data.type = "private";
-        doc.data = () => data; // Update the data method to return the modified data
-      });
-
-      const matchingPublicDocs = publicSnapshot.docs.filter(doc => {
-        const data = doc.data();
-        const name = (data.name || "").toLowerCase();
-        const location = data.location;
-
-        if (partnerLocations.includes(location) || partnerWords.some(word => name.includes(word))) {
-          return partnerWords.some(word => name.includes(word));
-        }
-      });
-
-      // Add type: "public" to each public event
-      matchingPublicDocs.forEach(doc => {
-        const data = doc.data();
-        data.type = "public";
-        doc.data = () => data; // Update the data method to return the modified data
-      });
-
-      const matchingDocs = [...matchingPublicDocs, ...matchingPrivateDocs];
-      const partnerEvents = matchingDocs.map(doc => ({
-        ...doc.data(),
-      }));
-      
-      setEvents(partnerEvents);
-      setFilteredEvents(partnerEvents);
-      setFilteredSearchedEvents(partnerEvents);
-    }
-
-    if (user.uid === "3jyrEOpcYNbY0ilqiNEdqQwSTX22") {
-      fetchPartnerEvents().then(() =>{
+    fetchEvents().then(() => {
+      fetchRecs().then(() => {
+        // Verify user when they log in for the first time
         db.collection("Users").doc(user.uid).update({
           verified: true
         });
 
-        setLoading(false);
-      })
-    } else {
-      fetchEvents().then(() => {
-        fetchRecs().then(() => {
-          // Verify user when they log in for the first time
-          db.collection("Users").doc(user.uid).update({
-            verified: true
-          });
-
-          setLoading(false); // Stop showing loading screen
-        });
+        setLoading(false); // Stop showing loading screen
       });
-    }
+    });
   }, []);
 
   // For filters
@@ -599,6 +518,10 @@ export default function ({ navigation }) {
     return () => unsubscribe();
 
   }, []);
+
+  useEffect(() => {
+    console.log("recStep: ", recStep);
+  }, [recStep])
 
   if (!isDataFetched) return null; // Don't render anything if data hasn't been fetched
 

@@ -21,8 +21,8 @@ import TagsList from "../../components/TagsList";
 import Link from "../../components/Link";
 import Toggle from "../../components/Toggle";
 
-import getDate from "../../utils/getDate";
-import getTime from "../../utils/getTime";
+import getDate from "../../getDate";
+import getTime from "../../getTime";
 
 import { auth } from "../../provider/Firebase";
 import openMap from "react-native-open-maps";
