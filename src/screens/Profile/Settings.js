@@ -15,8 +15,7 @@ import "firebase/firestore"
 
 import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
-import DeviceToken from "../../utils/DeviceToken";
-import { Link } from "@react-navigation/native";
+import DeviceToken from "../utils/DeviceToken";
 
 export default function ({ navigation }) {
     const user = auth.currentUser;
@@ -42,7 +41,36 @@ export default function ({ navigation }) {
 
     // Changes if user gets notifications or not
     function changeNotifSettings() {
-        Linking.openSettings();
+        Alert.alert(
+            "Update Notification Settings",
+            "Would you like to receive push notifications from Eat Together?",
+            [
+                {
+                    text: "Yes",
+                    onPress: async () => {
+                        if (notifs) return; //Don't display a "changed" animation and alert if nothing changed
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.notifications": true
+                        });
+
+                        setNotifs(true);
+                        alert("Notification preference updated!");
+                    }
+                },
+                {
+                    text: "No",
+                    onPress: async () => {
+                        if (!notifs) return; //Don't display a "changed" animation and alert if nothing changed
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.notifications": false
+                        });
+
+                        setNotifs(false);
+                        alert("Notification preference updated!");
+                    }
+                }
+            ]
+        );
     }
 
     // Changes if user's acount is private or not
@@ -189,7 +217,7 @@ export default function ({ navigation }) {
 
     const buttons = [
         {
-            name: " Notification Preferences",
+            name: " Notification Preferences" + (notifs ? " (ON)" : " (OFF)"),
             icon: "notifications",
             func: () => changeNotifSettings()
         },
@@ -265,7 +293,7 @@ export default function ({ navigation }) {
                 }
                 leftAction={() => navigation.goBack()}
             />
-            <FlatList data={buttons} renderItem={renderButton} style={styles.flatlist}/>
+            <FlatList data={buttons} renderItem={renderButton} style={styles.flatlist} scrollEnabled={false}/>
         </Layout>
     );
 }

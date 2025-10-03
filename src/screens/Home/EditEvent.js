@@ -14,14 +14,14 @@ import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import TextInput from "../../components/TextInput";
 import { TopNav, Layout } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
-import eventTags from "../../utils/eventTags";
+import eventTags from "../../eventTags";
 
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import RBSheet from "react-native-raw-bottom-sheet";
 import TagsSection from "../../components/TagsSection";
 
-import getDate from "../../utils/getDate";
-import getTime from "../../utils/getTime";
+import getDate from "../../getDate";
+import getTime from "../../getTime";
 import Button from "../../components/Button";
 
 import MediumText from "../../components/MediumText";
@@ -29,7 +29,7 @@ import NormalText from "../../components/NormalText";
 
 import * as ImagePicker from "expo-image-picker";
 import { db, storage } from "../../provider/Firebase";
-import { checkProfanity } from "../../utils/methods";
+import { checkProfanity } from "../../methods";
 import { cloneDeep } from "lodash";
 import moment from "moment";
 

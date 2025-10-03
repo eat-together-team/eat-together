@@ -1,4 +1,4 @@
-import getTime from '../../utils/getTime'
+import getTime from '../../getTime'
 describe('getTime.js tests', () => {
     it('should format the date correctly', () => {
         // create a new Date object to test with
