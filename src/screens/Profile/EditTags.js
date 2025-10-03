@@ -215,7 +215,6 @@ const EditTags = props => {
                             alert("You can only select up to 4 tags.");
                         } else {
                             setHobbyTagsSelected([...hobbyTagsSelected, item]);
-                            
                         }
                     }}
                     onRemoveItem={(item, index) => {
