@@ -10,7 +10,7 @@ import Searchbar from "../../components/Searchbar";
 import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
 
-import { compareDates } from "../../methods";
+import { compareDates } from "../../utils/methods";
 import { db } from "../../provider/Firebase";
 import Button from "../../components/Button";
 
