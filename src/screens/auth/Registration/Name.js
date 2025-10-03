@@ -14,8 +14,8 @@ import SuggestSelection from "../../../components/SuggestSelection";
 import KeyboardAvoidingWrapper from "../../../components/KeyboardAvoidingWrapper";
 import NormalText from "../../../components/NormalText";
 
-import { checkProfanity } from "../../../utils/methods";
-import pronounTags from "../../../utils/pronounTags";
+import { checkProfanity } from "../../../methods";
+import pronounTags from "../../../pronounTags";
 
 import { cloneDeep } from "lodash";
 
