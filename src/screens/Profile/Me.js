@@ -21,7 +21,7 @@ import EventCard from "../../components/EventCard";
 // Add buddy button
 import { AntDesign } from '@expo/vector-icons';
 
-import { compareDates } from "../../methods";
+import { compareDates } from "../../utils/methods";
 
 export default function ({ navigation }) {
   const user = auth.currentUser;
@@ -247,18 +247,7 @@ export default function ({ navigation }) {
             <Feather name="edit-2" size={20} color="#4C6FB1" />
             <NormalText color="#4C6FB1"> Edit Profile</NormalText>
           </TouchableOpacity>
-          {/* <TouchableOpacity
-            style={styles.link}
-            onPress={() => {
-              navigation.navigate("AvailabilitiesHome", {
-                user: userInfo,
-                updateAvailabilities,
-              });
-            }}
-          >
-            <Ionicons name="time" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Eating Times</NormalText>
-          </TouchableOpacity> */}
+
 
         </View>
 

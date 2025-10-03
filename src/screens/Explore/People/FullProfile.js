@@ -30,7 +30,7 @@ import {
 
 import { db, auth } from "../../../provider/Firebase";
 import firebase from "firebase/compat";
-import { tryoutId } from "../../../constants";
+import { tryoutId } from "../../../utils/constants";
 
 const blockPerson = (uid, navigation, back) => {
   Alert.alert("Block", "Are you sure you want to block this user? This can't be undone.", [
@@ -344,17 +344,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
                 {status}
               </Button>
 
-              {/* <TouchableOpacity
-                style={styles.link}
-                onPress={() => {
-                  navigation.navigate("AvailabilitiesStatic", {
-                    user: route.params.person
-                  });
-                }}
-              >
-                <Ionicons name="time" size={20} color="#4C6FB1" />
-                <NormalText color="#4C6FB1"> Eating Times</NormalText>
-              </TouchableOpacity> */}
+
             </View>
           )}
         </View>

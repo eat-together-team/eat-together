@@ -18,7 +18,7 @@ import Link from "../../components/Link";
 import Button from "../../components/Button";
 import discoverPhoto from "../../../assets/group.png";
 
-import { getTimeOfDay, isAvailable, compareDates } from "../../methods";
+import { getTimeOfDay, isAvailable, compareDates } from "../../utils/methods";
 import { auth, db } from "../../provider/Firebase";
 
 export default function({ navigation }) {
