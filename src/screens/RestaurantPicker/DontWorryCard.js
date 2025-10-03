@@ -1,10 +1,10 @@
-import React from 'react'
 import {StyleSheet, View} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
 import Button from '../../components/Button';
 import MediumText from '../../components/MediumText';
 import LargeText from '../../components/LargeText';
 
+// Starting screen before user sets food preferences
 const DontWorryCard = ({incrementIndex, decrementIndex}) => {
   return (
     <View>

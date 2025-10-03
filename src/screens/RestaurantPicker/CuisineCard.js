@@ -5,6 +5,7 @@ import TagsSection from '../../components/TagsSection';
 import foodTagsToYelpCategories from '../../yelpTags';
 import MediumText from '../../components/MediumText';
 
+// Cuisine screen tha allows users to select cuisine preferences
 const CuisineCard = ({setCategoryAliases, cuisineTagSelected, setCuisineTagSelected}) => {
   
   //Eat together's food tags
@@ -40,7 +41,7 @@ const CuisineCard = ({setCategoryAliases, cuisineTagSelected, setCuisineTagSelec
                               setCuisineTagSelected([...cuisineTagSelected, item]);
                           }
                       }}
-                      onRemoveItem={(item, index) => {
+                      onRemoveItem={(tag, index) => {
                           const newTags = cuisineTagSelected.filter((tag, i) => i !== index);
                           setCuisineTagSelected(newTags);
                       }}
@@ -86,6 +87,9 @@ const styles = StyleSheet.create({
     },
     textInputContainer:{
       alignItems:'center',
+      width:"90%",
+      marginLeft: 'auto',
+      marginRight:'auto',
     }
   })
 export default CuisineCard
