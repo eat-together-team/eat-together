@@ -339,5 +339,3 @@ export const convertToFutureDate = (date) => {
 
     return date;
 }
-
-// Yelp restaurant function

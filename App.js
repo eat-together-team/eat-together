@@ -5,12 +5,9 @@ import { ThemeProvider } from "react-native-rapi-ui";
 import { MenuProvider } from "react-native-popup-menu";
 import { LogBox } from "react-native";
 import * as Network from 'expo-network';
-import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
+
 import 'react-native-reanimated';
-configureReanimatedLogger({
-  level: ReanimatedLogLevel.error, // or ReanimatedLogLevel.none if available
-  strict: false
-});
+
 export default function App() {
   LogBox.ignoreAllLogs(); // Disables annoying warning in terminal, feel free to uncomment if needed
 
