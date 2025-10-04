@@ -146,4 +146,9 @@ Error: EMFILE: too many open files, watch
 Once the simulator boots up, immediately quit the simulator app. Run `npm start` or `yarn start` again from the project directory, and open the simulator. It should then be resolved.
 - If you ever get a "giant red screen of death" (you'll know what it looks like when you see it), try running `npx expo start -c` or `yarn start -c` to clear the cache. This will often fix the problem.
 - If you get an error saying that a certain library is not installed, try running `npm install` or `yarn install` again. If that doesn't work, try deleting the `node_modules` folder and running `npm install` or `yarn install` again.
-- ENSURE THAT THE NETWORK USED BY YOUR LAPTOP AND PHONE IS THE EXACT SAME! Otherwise, the app won't load. If this fails, you can also try the tunnel connection using `npx expo start --tunnel` or `yarn start --tunnel`.
+- ENSURE THAT THE NETWORK USED BY YOUR LAPTOP AND PHONE IS THE EXACT SAME! Otherwise, the app won't load. If this fails, you can also try the tunnel connection using `npx expo start --tunnel` or `yarn start --tunnel`.]
+
+
+# End of Documentation
+
+--------
