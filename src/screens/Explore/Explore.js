@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { StyleSheet, FlatList, View } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import RBSheet from "react-native-raw-bottom-sheet";
+import { Ionicons } from '@expo/vector-icons';
 
 import EventCard from "../../components/EventCard";
 import Header from "../../components/Header";
@@ -14,6 +15,8 @@ import Filter from "../../components/Filter";
 import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
 import Link from "../../components/Link";
+import Button from "../../components/Button";
+import discoverPhoto from "../../../assets/group.png";
 
 import { getTimeOfDay, isAvailable, compareDates } from "../../methods";
 import { auth, db } from "../../provider/Firebase";
@@ -327,6 +330,13 @@ export default function({ navigation }) {
           <EmptyState title="No Meals" text="Organize your own, or start making new friends!"/>
         }
       </View>
+      <View style={styles.button}>
+        <Button icon={(
+          <Ionicons name="copy-outline" color="white" size={20}/>
+        )} onPress={() => navigation.navigate("Restaurant")}>
+          Discover
+        </Button>
+      </View>
     </Layout>
   );
 }
@@ -337,4 +347,10 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 20,
   },
+  button: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    zIndex: 1,
+  }
 });
