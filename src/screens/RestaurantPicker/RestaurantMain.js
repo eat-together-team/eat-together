@@ -8,7 +8,7 @@ const Stack = createStackNavigator();
 export default function () {
   return (
     <Stack.Navigator
-      initialRouteName="Home"
+      initialRouteName="Restaurant"
       screenOptions={{
         headerShown: false,
         animationEnabled: true,

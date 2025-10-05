@@ -1,20 +1,23 @@
 import React from 'react'
-import {StyleSheet, View, TextInput, Text, TouchableOpacity} from "react-native";
+import {StyleSheet, View} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
-import RestaurantQuestion from "../../components/RestaurantQuestion";
-import PriceRangeButton from './PriceRangeButton';
-const PriceRangeCard = () => {
+import MediumText from '../../components/MediumText';
+import PriceRangeButton from '../../components/PriceRangeButton';
+
+// Price range screen that allows users to set price range preferences
+const PriceRangeCard = ({setPriceRange, priceRange}) => {
+
   return (
     <View>
         <RestaurantCard>
             <View style = {styles.questionContainer}>
-                <RestaurantQuestion text = "What is your price range?"/>
+              <MediumText center = "center" color = "#5DB075">What is your price {'\n'}range?</MediumText>
             </View>
             <View style = {styles.buttonContainer}>
-              <PriceRangeButton dollars="$" text="(Under $10)"/>
-              <PriceRangeButton dollars="$$" text="($11-$30)"/>
-              <PriceRangeButton dollars="$$$" text="($31-$60)"/>
-              <PriceRangeButton dollars="$$$" text="(Above $61)"/>
+              <PriceRangeButton dollars="$" text="(Under $10)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+              <PriceRangeButton dollars="$$" text="($11-$30)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+              <PriceRangeButton dollars="$$$" text="($31-$60)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+              <PriceRangeButton dollars="$$$$" text="(Above $61)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
             </View>
         </RestaurantCard>
     </View>
