@@ -12,7 +12,7 @@ import MediumText from "../../components/MediumText";
 
 import { db } from "../../provider/Firebase";
 import firebase from "firebase/compat";
-import { formatDistanceToNow } from "date-fns";
+
 
 export default function ({ back, navigation}) {
     const user = firebase.auth().currentUser;
@@ -25,13 +25,12 @@ export default function ({ back, navigation}) {
             const list = [];
             query.forEach((doc) => {
                 let data = doc.data();
-                const timestamp = data.timestamp?.toDate ? data.timestamp.toDate() : new Date();  // ignore for now              
                 list.push({
                     id: doc.id,
                     name: data.name,
                     username: data.username,
                     profile: data.profile,
-                    timestamp: timestamp, // ignore for now
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     status: data.status || 'pending', 
                     statusUpdatedAt: data.statusUpdatedAt?.toDate ? data.statusUpdatedAt.toDate() : null,
                 });
@@ -95,27 +94,42 @@ export default function ({ back, navigation}) {
             {loading ?
                 <LoadingView/>
             : requests.length > 0 ?
-                <FlatList contentContainerStyle={styles.invites} keyExtractor={item => item.id}
-                        data={sortedRequests} renderItem={({item}) =>
-                    <MessageList person={item} 
-                                timestamp={formatDistanceToNow(item.timestamp, { addSuffix: true })}
-                                click={() => {
-                        db.collection("Users").doc(item.id).get().then((doc) => {
-                            if (doc.data()) {
-                                navigation.navigate("FullProfile", {
-                                    person: doc.data()
-                                });
-                            } else {
-                                alert("This user seems to no longer exist :(");
-                            }
-                        }).catch(() => {
+                <FlatList
+    contentContainerStyle={styles.invites}
+    keyExtractor={item => item.id}
+    data={sortedRequests}
+    renderItem={({ item }) => (
+        <View>
+            {/* {item.status === 'pending' && item.timestamp && (
+                <MediumText style={styles.timestamp}>
+                    {formatDistanceToNow(item.statusUpdatedAt, { addSuffix: true })}
+                </MediumText>
+            )} */}
+
+            <MessageList
+                person={item}
+                click={() => {
+                    db.collection("Users").doc(item.id).get().then((doc) => {
+                        if (doc.data()) {
+                            navigation.navigate("FullProfile", {
+                                person: doc.data()
+                            });
+                        } else {
                             alert("This user seems to no longer exist :(");
-                        });
-                    }} delete={deleteRequest} 
-                    updateStatus={updateStatus}
-                    accepted={item.status === 'accepted'}
-                    declined={item.status === 'declined'}/>
-                }/>
+                        }
+                    }).catch(() => {
+                        alert("This user seems to no longer exist :(");
+                    });
+                }}
+                delete={deleteRequest}
+                updateStatus={updateStatus}
+                accepted={item.status === 'accepted'}
+                declined={item.status === 'declined'}
+            />
+        </View>
+    )}
+/>
+
             :
                 <EmptyState title="No Requests" text="You look great today :)"/>
             }

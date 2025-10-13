@@ -15,7 +15,7 @@ import TagsList from "../components/TagsList";
 
 import firebase from "firebase/compat";
 import { auth, db } from "../provider/Firebase";
-import SmallText from './SmallText';
+import { formatDistanceToNow } from "date-fns";
 
 const MessageList = props => {
     const user = auth.currentUser;
@@ -49,7 +49,13 @@ const MessageList = props => {
                     </View>
                     
                     <View style={styles.actionColumn}>
-                        <SmallText style={styles.timestamp}>{props.timestamp}</SmallText>
+                        {props.person.status === 'pending' && props.person.statusUpdatedAt && (
+                            <MediumText
+                                style={styles.time}
+                            >
+                                {formatDistanceToNow(props.person.statusUpdatedAt, { addSuffix: true })}
+                            </MediumText>
+                        )}
                         <View style={styles.response}>
                             {!accepted && !declined ?(
                                 <>
@@ -195,6 +201,13 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         minHeight: 70,
     },
+    time: { 
+        fontSize: 12,
+        color: 'gray',
+        alignSelf: 'flex-end',
+        marginRight: 0,
+        marginBottom: -5,
+    }
 })
 
 export default MessageList;
