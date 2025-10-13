@@ -225,8 +225,16 @@ export default function (props) {
                   {requests.slice(0, 3).map((req, index) => (
                     <Image key={req.id || index} source={{ uri: req.profile}} style={[styles.profilePic, index === 0 && styles.firstProfilePic]}/>
                   ))}
-                  <SmallText numberOfLines={1} ellipsizeMode="tail" style={styles.requestText}>
-                    {requests.map((r) => r.username).join(", ")}
+                  <SmallText
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={styles.requestText}
+                  >
+                    {requests
+                      .slice(0, 3)
+                      .map((r) => r.username)
+                      .join(", ")}
+                    {requests.length > 3 ? "..." : ""}
                   </SmallText>
                 </View>
               </TouchableOpacity>
