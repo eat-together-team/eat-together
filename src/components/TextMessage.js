@@ -5,6 +5,7 @@ import NormalText from "./NormalText";
 import moment from "moment";
 import getDate from "../utils/getDate";
 import getTime from "../utils/getTime";
+import { TopNav } from "react-native-rapi-ui";
 
 const TextMessage = (props) => {
   const user = firebase.auth().currentUser;
