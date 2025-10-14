@@ -41,7 +41,6 @@ export default function ({ route, navigation }) {
   const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState({});
   
-  // const [userInfo, setUserInfo] = useState(null);
   const messageRef = db.collection("Groups").doc(group.groupID);
 
   // Keep track of tutorial state
@@ -60,7 +59,6 @@ export default function ({ route, navigation }) {
 
         const otherUsers = doc.data().uids.filter(u => u !== user.uid)
         setOtherUser(otherUsers[0])
-
 
         let temp = [];
         doc.data().messages.forEach((message, index) => {
@@ -289,8 +287,7 @@ export default function ({ route, navigation }) {
             />
             <MediumText>{group.name}</MediumText>
             </View>
-            
-        </TouchableOpacity>
+          </TouchableOpacity>
         }
         leftContent={<Ionicons name="chevron-back" size={20} />}
         leftAction={() => {
