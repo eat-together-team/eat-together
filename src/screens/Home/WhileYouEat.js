@@ -29,8 +29,8 @@ import Toggle from "../../components/Toggle";
 import Button from "../../components/Button";
 import GalleryPreview from "../../components/GalleryPreview";
 
-import getDate from "../../getDate";
-import getTime from "../../getTime";
+import getDate from "../../utils/getDate";
+import getTime from "../../utils/getTime";
 import { db, auth } from "../../provider/Firebase";
 import * as firebase from "firebase/compat";
 import {
@@ -69,8 +69,6 @@ const WhileYouEat = ({ route, navigation }) => {
 
   // Image Carousel
   const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);
-  const numColumns = 3;
-  const screenWidth = Dimensions.get("window").width;
 
   // Fetch meetup data on page load
   useEffect(() => {
@@ -104,7 +102,7 @@ const WhileYouEat = ({ route, navigation }) => {
             });
         }
       });
-  }, [event.eventGallery]);
+  }, [event]);
 
   // Creates a real time listener for the photo gallery preview
   useEffect(() => {
@@ -121,10 +119,6 @@ const WhileYouEat = ({ route, navigation }) => {
 
     return () => unsubscribe();
   }, [event.id]);
-
-
-
-
 
   // Checking group chat updates
   useEffect(() => {
@@ -161,12 +155,17 @@ const WhileYouEat = ({ route, navigation }) => {
 
   // Adds event to Google Calendar
   const addToCalendar = async () => {
+    // Replace '&' with '%26' in the event name and additional info
+    const name = encodeURIComponent(event.name.trim());
+    const additionalInfo = encodeURIComponent(event.additionalInfo.trim());
+    const location = encodeURIComponent(event.location.trim());
+
     const details = {
       start: event.startDate.toDate().toISOString().replace(/[:\-]|\.\d{3}/g, ''),
       end: event.endDate.toDate().toISOString().replace(/[:\-]|\.\d{3}/g, ''),
-      name: event.name,
-      location: event.location,
-      additionalInfo: event.additionalInfo
+      name: name,
+      location: location,
+      additionalInfo: additionalInfo
     };
 
     const calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=
