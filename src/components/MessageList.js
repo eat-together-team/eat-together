@@ -19,18 +19,22 @@ const MessageList = props => {
     return (
         <View style={styles.outline}>
             <TouchableOpacity onPress={props.click}>
+
                 <View style={[styles.head, {
                     backgroundColor: props.color,
                     width: props.width ? props.width : Dimensions.get('screen').width - 40
                 }]}>
+                    
                     <View style={styles.headleft}>
                         <Image style={styles.image} source={{uri: props.person.profile}}/>
                         <MediumText>
-                            {props.person.name.length > 10
-                            ? props.person.name.substring(0, 10) + "..."
-                            : props.person.name}
+                            {props.person.username.length > 10
+                            ? props.person.username.substring(0, 10) + "..."
+                            : props.person.username}
                         </MediumText>
                     </View>
+
+                    
                 
                     <View style={styles.response}>
                         <TouchableOpacity onPress={() => {
@@ -40,7 +44,7 @@ const MessageList = props => {
                                 alert("Couldn't delete request, try again later.");
                             });
                         }}>
-                            <Ionicons name={"close-circle-outline"} size={40}/>
+                            <Ionicons name="close-circle-outline" size={40} color="#EA3323" style={styles.boldIcon} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => {
                             const user = firebase.auth().currentUser;
@@ -64,10 +68,12 @@ const MessageList = props => {
                                 alert("This user seems to no longer exist :(");
                             })
                         }}>
-                            <Ionicons name={"checkmark-circle-outline"} size={40}/>
+                            <Ionicons name={"checkmark-circle-outline"} size={40} color="#5DB075" marginRight={-20}/>
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                
             </TouchableOpacity>
         </View>
     );
@@ -76,16 +82,13 @@ const MessageList = props => {
 const styles = StyleSheet.create({
     outline: {
         marginVertical: 5,
-        shadowColor: "#000000",
-        backgroundColor: "white",
-        borderRadius: 15,
-        paddingVertical: 10,
+        paddingVertical: 5,
         shadowOpacity: 0.25,
         shadowOffset: {
             width: 0,
             height: 4,
         },
-        elevation: 10
+        elevation: 10,
     },
     head: {
         flexDirection: "row",
@@ -98,11 +101,13 @@ const styles = StyleSheet.create({
         flexWrap: "wrap"
     },
     image: {
-        width: 50,
-        height: 50,
+        width: 60,
+        height: 60,
         borderRadius: 50,
-        marginLeft: 15,
-        marginRight: 10
+        marginLeft: 5,
+        marginRight: 10,
+        borderWidth: 1.5,
+        borderColor: "black",
     },
     name: {
         marginRight: 20,
@@ -110,7 +115,15 @@ const styles = StyleSheet.create({
     response: {
         marginRight: 25,
         flexDirection: "row"
+    },
+    time: { 
+        fontSize: 12,
+        color: 'gray',
+        alignSelf: 'flex-end',
+        marginRight: 0,
+        marginBottom: -5,
     }
+
 })
 
 export default MessageList;
