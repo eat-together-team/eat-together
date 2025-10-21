@@ -31,7 +31,6 @@ export default function ({ back, navigation }) {
                     profile: data.profile,
                 });
             });
-            console.log(list)
             setRequests(list);
             setLoading(false);
         });
