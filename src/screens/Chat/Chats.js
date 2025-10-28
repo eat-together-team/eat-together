@@ -286,13 +286,6 @@ export default function ({ navigation }) {
               placeholder: "Search for connections",
             }}
           />
-          <CustomButton
-            height={50}
-            paddingHorizontal={10}
-            onPress={(val) => navigation.navigate("GroupChat")}
-          >
-            <NormalText color="white">New Chat</NormalText>
-          </CustomButton>
         </View>
         {loading ?
           <View style={styles.noChatsView}>
