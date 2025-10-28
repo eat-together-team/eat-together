@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import * as ImagePicker from 'expo-image-picker';
-
 import { Ionicons } from "@expo/vector-icons";
 
 import { KeyboardAvoidingView } from "react-native";

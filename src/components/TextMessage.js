@@ -6,6 +6,8 @@ import moment from "moment";
 import getDate from "../utils/getDate";
 import getTime from "../utils/getTime";
 import { TopNav } from "react-native-rapi-ui";
+import MediumText from "./MediumText";
+import { Ionicons } from "@expo/vector-icons";
 
 const TextMessage = (props) => {
   const user = firebase.auth().currentUser;
