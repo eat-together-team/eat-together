@@ -43,19 +43,6 @@ Notifications.setNotificationHandler({
 
 //The experience of logged in user!!
 const MainStack = createStackNavigator();
-// const Main = () => {
-//   return (
-//     <MainStack.Navigator
-//       screenOptions={{
-//         headerShown: false,
-//         animationEnabled: true,
-//       }}
-//     >
-//       <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
-//       <MainStack.Screen name="Notifications" component={NotificationsMain} />
-//     </MainStack.Navigator>
-//   );
-// };
 const Main = () => {
   return (
     <MainStack.Navigator
