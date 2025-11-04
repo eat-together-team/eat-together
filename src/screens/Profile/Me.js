@@ -18,7 +18,6 @@ import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 import TagsList from "../../components/TagsList";
 import EventCard from "../../components/EventCard";
-// Add buddy button
 import Button from "../../components/Button";
 import SmallText from "../../components/SmallText";
 import Link from "../../components/Link";
@@ -34,7 +33,6 @@ export default function ({ navigation }) {
   const [banner, setBanner] = useState({});
   const [mealsAttended, setMealsAttended] = useState(0);
   const [mealsSignedUp, setMealsSignedUp] = useState(0);
-  const [modalVisible, setModalVisible] = useState(0); // added modal for buddy card
 
   const [events, setEvents] = useState([]);
 
@@ -244,17 +242,6 @@ export default function ({ navigation }) {
             <NormalText color="#4C6FB1"> Connections</NormalText>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.link}
-            onPress={() => {
-              navigation.navigate("BuddyPage", {
-                user: userInfo,
-              });
-            }}
-          >
-            <Ionicons name="person-add-sharp" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
-          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.link}
@@ -280,23 +267,6 @@ export default function ({ navigation }) {
           <NormalText marginBottom={5}>🏫 {userInfo.school ? userInfo.school : "UW-Seattle"}</NormalText>
         </View>
 
-        {/*<View style = {styles.link}>
-          <TouchableOpacity
-            style ={styles.link}
-            onPress={() => {
-              navigation.navigate("BuddyPage");
-            }}>
-            <NormalText>You do not have a buddy</NormalText>
-              <AntDesign name="adduser" size={24} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Find a Buddy</NormalText>
-          </TouchableOpacity>
-        </View>*/}
-
-        <SmallButton
-          onPress={() => navigation.navigate("SendBuddyRequest", { user: userInfo })}
-        >
-          Connect
-        </SmallButton>
 
         <TagsList tags={userInfo.tags ? userInfo.tags : []} />
         <MediumText center>{userInfo.bio}</MediumText>

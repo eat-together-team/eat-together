@@ -19,7 +19,6 @@ import TryOut from "../screens/TryOut";
 import ProfileMain from "../screens/Profile/ProfileMain";
 import NotificationsMain from "../screens/Notifications/NotificationsMain";
 import Loading from "../screens/utils/Loading";
-import SendBuddyRequest from "../screens/SendBuddyRequest";
 
 // Auth screens
 import Auth from "./Auth";
@@ -67,7 +66,6 @@ const Main = () => {
     >
       <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
       <MainStack.Screen name="Notifications" component={NotificationsMain} />
-      <MainStack.Screen name="SendBuddyRequest" component={SendBuddyRequest} />
     </MainStack.Navigator>
   );
 };

@@ -12,12 +12,6 @@ import ReportBug from "./ReportBug";
 import SuggestIdea from "./SuggestIdea";
 import FullProfile from "../Explore/People/FullProfile";
 import ReportPerson from "../Explore/People/ReportPerson";
-// Buddy Page import
-import BuddyPage from "./BuddyPage";
-import BuddyRequest from "./BuddyRequest";
-
-import BuddyNotif from "./BuddyNotif";
-import IncomingRequests from "./IncomingRequests";
 import ColorSelector from "./ColorSelector";
 import EventGallery from "../Home/EventGallery";
 
@@ -41,10 +35,6 @@ export default function () {
         {props => <Requests {...props} back="Me" />}
       </Stack.Screen>
 
-      {/* Buddy pages */}
-      <Stack.Screen name="BuddyPage" component={BuddyPage} />
-      <Stack.Screen name="BuddyNotif" component={BuddyNotif} />
-      <Stack.Screen name="IncomingRequests" component={IncomingRequests} />
 
       {/* For settings */}
       <Stack.Screen name="Settings" component={Settings} />
