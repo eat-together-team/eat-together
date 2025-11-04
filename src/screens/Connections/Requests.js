@@ -28,10 +28,9 @@ export default function ({ back, navigation }) {
                     id: doc.id,
                     name: data.name,
                     username: data.username,
-                    profile: data.profile
+                    profile: data.profile,
                 });
             });
-
             setRequests(list);
             setLoading(false);
         });
@@ -46,7 +45,7 @@ export default function ({ back, navigation }) {
         <Layout>
             <TopNav
                 middleContent={
-                    <MediumText center>Requests</MediumText>
+                    <MediumText center>Friend Requests</MediumText>
                 }
                 leftContent={
                     <Ionicons
@@ -62,7 +61,7 @@ export default function ({ back, navigation }) {
             : requests.length > 0 ?
                 <FlatList contentContainerStyle={styles.invites} keyExtractor={item => item.id}
                         data={requests} renderItem={({item}) =>
-                    <MessageList person={item} click={() => {
+                    <MessageList person={item} styles={styles.profile} click={() => {
                         db.collection("Users").doc(item.id).get().then((doc) => {
                             if (doc.data()) {
                                 navigation.navigate("FullProfile", {
@@ -87,7 +86,9 @@ export default function ({ back, navigation }) {
 const styles = StyleSheet.create({
     invites: {
         alignItems: "center",
-        padding: 30
+        padding: 10,
+        width: "100%"
+        
     },
     submit: {
         position: 'absolute',
@@ -100,6 +101,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    }
+    },
+    
 });
 
