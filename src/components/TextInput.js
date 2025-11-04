@@ -1,5 +1,5 @@
 import { useFonts, Inter_600SemiBold, Inter_400Regular } from "@expo-google-fonts/inter";
-import { StyleSheet, TextInput as ReactNativeTextInput, Platform, View, TouchableOpacity } from "react-native"
+import { StyleSheet, TextInput as ReactNativeTextInput, Platform, View, TouchableOpacity, Text } from "react-native"
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 
 function TextInput(props) {
@@ -33,7 +33,7 @@ function TextInput(props) {
         backgroundColor = "white",
         borderColor = "lightgrey",
         borderWidth = 1,
-        height =42,
+        height = 42,
         width = "30%",
         marginTop = "0%",
         marginBottom = "0%",
