@@ -10,6 +10,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		8924F837623580FC83EC767A /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E07774AE47BA6B04787E19 /* ExpoModulesProvider.swift */; };
+		B4614CA28BBBC29F8478D26B /* Pods_EatTogether.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F18413A139AA16D23A487ECC /* Pods_EatTogether.framework */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		DBD5881F6C7621A2A65AC950 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 47C31F2955B9DD4377D77CFE /* PrivacyInfo.xcprivacy */; };
 		EA8ABDE2C7EC7E6BFA15D2FD /* Pods_EatTogether.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7201C4BC1663DB19360C70DE /* Pods_EatTogether.framework */; };
@@ -30,6 +31,7 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = EatTogether/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* EatTogether-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "EatTogether-Bridging-Header.h"; path = "EatTogether/EatTogether-Bridging-Header.h"; sourceTree = "<group>"; };
+		F18413A139AA16D23A487ECC /* Pods_EatTogether.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EatTogether.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

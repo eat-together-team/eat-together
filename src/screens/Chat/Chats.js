@@ -105,7 +105,7 @@ export default function ({ navigation }) {
     let currUserName = userInfo.firstName + " " + userInfo.lastName
     if(allUIDs.length >= 2) {
       name = name.replace(currUserName + ", ", "");
-      
+
       if (name.endsWith(", " + currUserName)) {
         name = name.slice(0, -1 * (currUserName.length + 2));
       }
@@ -195,7 +195,7 @@ export default function ({ navigation }) {
               }
             });
         });
-        
+
         setLoading(false);
 
         // prepare the list of all connections for searchbar
@@ -286,29 +286,13 @@ export default function ({ navigation }) {
               placeholder: "Search for connections",
             }}
           />
-          <CustomButton
-            height={50}
-            paddingHorizontal={10}
-            disabled={selectedUsers.length == 0}
-            onPress={() => {
-              if (checkChatExists()) {
-                alert("Chat already exists!");
-              } else {
-                createNewChatDefault();
-              }
-              
-              setSelectedUsers([]);
-            }}
-          >
-            <NormalText color="white">New Chat</NormalText>
-          </CustomButton>
         </View>
-        {loading ? 
+        {loading ?
           <View style={styles.noChatsView}>
             <ActivityIndicator size={100} color="#5DB075" />
             <MediumText>Hang tight ...</MediumText>
           </View>
-        : groups.length > 0 ? 
+        : groups.length > 0 ?
           <FlatList
             contentContainerStyle={styles.chats}
             keyExtractor={(item) => item.id}
