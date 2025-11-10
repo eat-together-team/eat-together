@@ -18,19 +18,26 @@ export default function ({ back, navigation }) {
     const [requests, setRequests] = useState([]); // Requests
     const [loading, setLoading] = useState(true); // Loading state for the page
 
-    useEffect(() => { // updates stuff right after React makes changes to the DOM
+    useEffect(() => {
         const ref = db.collection("User Invites").doc(user.uid).collection("Connections");
-        ref.onSnapshot((query) => {
-            const list = [];
-            query.forEach((doc) => {
-                let data = doc.data();
-                list.push({
+
+        ref.onSnapshot(async (query) => {
+            const list = await Promise.all(
+            query.docs.map(async (doc) => {
+                const data = doc.data();
+                const userDoc = await db.collection("Users").doc(doc.id).get();
+                const userData = userDoc.exists ? userDoc.data() : {};
+
+                return {
                     id: doc.id,
                     name: data.name,
                     username: data.username,
                     profile: data.profile,
-                });
-            });
+                    tags: userData.tags || []
+                };
+            })
+            );
+
             setRequests(list);
             setLoading(false);
         });
