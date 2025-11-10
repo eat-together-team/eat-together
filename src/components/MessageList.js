@@ -25,11 +25,8 @@ const MessageList = props => {
           backgroundColor: props.color,
           width: props.width ? props.width : Dimensions.get('screen').width - 40
         }]}>
-
-          {/* avatar */}
           <Image style={styles.image} source={{ uri: person.profile }} />
 
-          {/* left block: username (takes remaining space) */}
           <View style={styles.headleft}>
             <MediumText style={styles.username}>
               {person.username
@@ -40,11 +37,7 @@ const MessageList = props => {
                 <TagsList tags={Array.isArray(person.tags) ? person.tags.slice(0, 3) : []} left={true} />
             </View>
           </View>
-
-          {/* tags as a sibling (constrained so it doesn't overlap icons) */}
           
-
-          {/* actions */}
           <View style={styles.response}>
             <TouchableOpacity onPress={() => {
               db.collection("User Invites").doc(user.uid).collection("Connections").doc(person.id).delete().then(() => {
@@ -88,14 +81,6 @@ const MessageList = props => {
 }
 
 const styles = StyleSheet.create({
-    // outline: {
-    //     marginVertical: 5,
-    //     paddingVertical: 5,
-    //     shadowOpacity: 0.25,
-    //     shadowOffset: { width: 0, height: 4 },
-    //     elevation: 10,
-    //     borderRadius: 8,
-    // },
     head: {
         flexDirection: "row",
         
@@ -125,14 +110,14 @@ const styles = StyleSheet.create({
     },
     tags: {
         position: "absolute",
-        left: -5,           // 👈 always 50px from left edge
+        left: -5,
         transform: [{ scale: 0.55 }],
         transformOrigin: "left",
         marginTop: 10
     },
     response: {
         position: "absolute",
-        right: 5,        // 👈 always 10px from the right wall
+        right: 5,
         flexDirection: "row",
         alignItems: "center",
         marginTop: 10,
