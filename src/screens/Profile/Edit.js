@@ -165,7 +165,7 @@ export default function edit({ route, navigation }) {
     }
 
     // Update tags after editing them
-    const updateTags = (schoolTags, hobbyTags, foodTags) => {
+    const updateTags = (schoolTags, hobbyTags, foodTags, goalTags) => {
         schoolTags = schoolTags.map(tag => {
             return {
                 tag: tag,
@@ -184,9 +184,15 @@ export default function edit({ route, navigation }) {
                 type: "food"
             }
         });
+        goalTags = goalTags.map(tag => {
+            return {
+                tag: tag,
+                type: "goal"
+            }
+        });
 
-        setTags([...schoolTags, ...hobbyTags, ...foodTags]);
-        setTagText(displayTags([...schoolTags, ...hobbyTags, ...foodTags]));
+        setTags([...schoolTags, ...hobbyTags, ...foodTags, ...goalTags]);
+        setTagText(displayTags([...schoolTags, ...hobbyTags, ...foodTags,...goalTags]));
     }
 
     return (
@@ -370,6 +376,7 @@ export default function edit({ route, navigation }) {
                                 schoolTags: tags.filter(tag => tag.type === "school").map(tag => tag.tag),
                                 hobbyTags: tags.filter(tag => tag.type === "hobby").map(tag => tag.tag),
                                 foodTags: tags.filter(tag => tag.type === "food").map(tag => tag.tag),
+                                goalTags: tags.filter(tag => tag.type === "goal").map(tag => tag.tag),
                                 updateTags
                             })}>
                                 <View pointerEvents="none">
