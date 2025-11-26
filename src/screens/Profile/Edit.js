@@ -9,15 +9,14 @@ import { db, storage } from "../../provider/Firebase";
 import TextInput from "../../components/TextInput";
 import Button from "../../components/Button";
 import MediumText from "../../components/MediumText";
-import DeviceToken from "../utils/DeviceToken";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import SuggestSelection from "../../components/SuggestSelection";
 
-import pronounTags from "../../pronounTags";
-import schools from "../../schools";
+import pronounTags from "../../utils/pronounTags";
+import schools from "../../utils/schools";
 
 import { AuthContext } from "../../provider/AuthProvider";
-import { checkProfanity } from "../../methods";
+import { checkProfanity } from "../../utils/methods";
 import { cloneDeep } from "lodash";
 import NormalText from "../../components/NormalText";
 
