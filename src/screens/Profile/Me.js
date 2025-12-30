@@ -18,7 +18,6 @@ import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 import TagsList from "../../components/TagsList";
 import EventCard from "../../components/EventCard";
-import Button from "../../components/Button";
 import { AntDesign } from '@expo/vector-icons';
 
 import { compareDates } from "../../utils/methods";
