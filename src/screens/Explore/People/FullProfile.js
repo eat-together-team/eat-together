@@ -1,6 +1,7 @@
 //Functionality TDB, most likely to be used to implement ice-breaker games
 
 import React, { useEffect, useState } from "react";
+import { serverTimestamp } from "firebase/firestore";
 import {
   View,
   StyleSheet,
@@ -30,7 +31,7 @@ import {
 
 import { db, auth } from "../../../provider/Firebase";
 import firebase from "firebase/compat";
-import { tryoutId } from "../../../utils/constants";
+import { tryoutId } from "../../../constants";
 
 const blockPerson = (uid, navigation, back) => {
   Alert.alert("Block", "Are you sure you want to block this user? This can't be undone.", [
@@ -61,7 +62,7 @@ const databaseStoreBlockAction = (uid, navigation, back) => {
       blockedIDs: firebase.firestore.FieldValue.arrayUnion(user.uid),
       friendIDs: firebase.firestore.FieldValue.arrayRemove(user.uid),
     });
-  
+
   // Remove all chats with this user
   db.collection("Groups")
     .where("uids", "array-contains", user.uid)
@@ -74,14 +75,14 @@ const databaseStoreBlockAction = (uid, navigation, back) => {
             .update({
               groupIDs: firebase.firestore.FieldValue.arrayRemove(doc.id),
             });
-          
+
           if (doc.data().uids.length === 2) { // If it's just a 1:1 chat, delete it
             db.collection("Users")
               .doc(uid)
               .update({
                 groupIDs: firebase.firestore.FieldValue.arrayRemove(doc.id),
               });
-  
+
             db.collection("Groups").doc(doc.id).delete();
           } else {
             db.collection("Groups")
@@ -93,7 +94,7 @@ const databaseStoreBlockAction = (uid, navigation, back) => {
         }
       });
     });
-  
+
   navigation.navigate(back);
   /*
   Other places this effects:
@@ -129,12 +130,25 @@ function databaseRemoveFriend(uid, navigation) {
           friendIDs: firebase.firestore.FieldValue.arrayRemove(user.uid)
         })
   });
-  
+
   navigation.goBack();
 }
 
 const FullProfile = ({ blockBack, route, navigation }) => {
   const user = auth.currentUser; // Current user
+
+  // Safely destructure person with fallbacks
+  const person = route?.params?.person || {};
+
+  person.attendedEventIDs = person.attendedEventIDs || [];
+  person.archivedEventIDs = person.archivedEventIDs || [];
+  person.attendingEventIDs = person.attendingEventIDs || [];
+  person.settings = person.settings || { banner: "#5DB075" };
+  person.bio = person.bio || "";
+  person.tags = person.tags || [];
+  person.school = person.school || "UW-Seattle";
+  person.pronouns = person.pronouns || "";
+
 
   const [status, setStatus] = useState("Loading"); // Status of connection
   const [disabled, setDisabled] = useState(true); // Disable button if already connected
@@ -146,7 +160,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
 
   const reportPerson = () => {
     navigation.navigate("ReportPerson", {
-      user: route.params.person,
+      user: person,
     });
   };
 
@@ -163,7 +177,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           setInviterImage(thisData.image);
         }
 
-        let requestedUser = db.collection("Users").doc(route.params.person.id);
+        let requestedUser = db.collection("Users").doc(person.id);
 
         requestedUser.get().then((doc) => {
           let data = doc.data();
@@ -213,13 +227,13 @@ const FullProfile = ({ blockBack, route, navigation }) => {
         db.collection("Public Events").onSnapshot((query) => {
           query.forEach((doc) => {
             if (
-              doc.data().hostID === route.params.person.id &&
+              doc.data().hostID === person.id &&
               (doc.data().endDate ? doc.data().endDate.toDate() : doc.data().date.toDate() > new Date() > new Date())
             ) {
               list.push(doc.data());
             }
           });
-          
+
           list.reverse();
           setEvents(list);
         });
@@ -230,7 +244,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
   const connect = () => {
     let requestedUser = db
       .collection("Usernames")
-      .doc(route.params.person.username);
+      .doc(person.username);
     requestedUser.get().then((doc) => {
       let data = doc.data();
       db.collection("Users")
@@ -246,6 +260,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               name: userData.firstName + " " + userData.lastName,
               username: userData.username,
               profile: inviterImage,
+              sentAt: Date.now()
             })
             .then(() => {
               setStatus("Request Sent");
@@ -274,13 +289,13 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               </MenuTrigger>
               <MenuOptions>
                 { status == "Connections" &&
-                    <MenuOption onSelect={() => removeFriend(route.params.person.id, navigation)}>
+                    <MenuOption onSelect={() => removeFriend(person.id, navigation)}>
                       <NormalText size={18}>
                         Remove Friend
                       </NormalText>
                     </MenuOption>
                 }
-                <MenuOption onSelect={() => blockPerson(route.params.person.id, navigation, blockBack)}>
+                <MenuOption onSelect={() => blockPerson(person.id, navigation, blockBack)}>
                   <NormalText size={18} color={"red"}>
                     Block
                   </NormalText>
@@ -298,39 +313,39 @@ const FullProfile = ({ blockBack, route, navigation }) => {
 
       <ScrollView contentContainerStyle={styles.page}>
         <View style={[styles.background, {
-          backgroundColor: route.params.person.settings.banner ? route.params.person.settings.banner : "#5DB075"
+          backgroundColor: person.settings.banner ? person.settings.banner : "#5DB075"
         }]} />
 
         <View style={styles.badge}>
           <WithBadge
-            mealsAttended={route.params.person.attendedEventIDs.length}
-            mealsSignedUp={route.params.person.archivedEventIDs.length +
-              route.params.person.attendingEventIDs.length}/>
+            mealsAttended={person.attendedEventIDs.length}
+            mealsSignedUp={person.archivedEventIDs.length +
+              person.attendingEventIDs.length}/>
         </View>
 
         <Image
           style={styles.image}
           source={
-            route.params.person.hasImage
-              ? { uri: route.params.person.image }
+            person.hasImage
+              ? { uri: person.image }
               : require("../../../../assets/logo.png")
           }
         />
 
         <View style={styles.name}>
           <LargeText size={24}>
-            {route.params.person.firstName + " " + route.params.person.lastName + " (" + route.params.person.pronouns + ")"}
+            {person.firstName + " " + person.lastName + " (" + person.pronouns + ")"}
           </LargeText>
-          <NormalText marginBottom={5}>🏫 {route.params.person.school ? route.params.person.school : "UW-Seattle"}</NormalText>
+          <NormalText marginBottom={5}>🏫 {person.school ? person.school : "UW-Seattle"}</NormalText>
           <NormalText>
-            🍽️ {route.params.person.attendedEventIDs.length +
+            🍽️ {person.attendedEventIDs.length +
               "/" +
-              (route.params.person.archivedEventIDs.length +
-                route.params.person.attendingEventIDs.length) +
+              (person.archivedEventIDs.length +
+                person.attendingEventIDs.length) +
               " meals attended"}
           </NormalText>
-          <MediumText>@{route.params.person.username}</MediumText>
-          
+          <MediumText>@{person.username}</MediumText>
+
           {tryoutId != user.uid && (
             <View style={{  marginVertical: 10 }}>
               <Button
@@ -344,13 +359,23 @@ const FullProfile = ({ blockBack, route, navigation }) => {
                 {status}
               </Button>
 
-
+              {/* <TouchableOpacity
+                style={styles.link}
+                onPress={() => {
+                  navigation.navigate("AvailabilitiesStatic", {
+                    user: route.params.person
+                  });
+                }}
+              >
+                <Ionicons name="time" size={20} color="#4C6FB1" />
+                <NormalText color="#4C6FB1"> Eating Times</NormalText>
+              </TouchableOpacity> */}
             </View>
           )}
         </View>
 
-        <TagsList tags={route.params.person.tags} />
-        <MediumText center>{route.params.person.bio}</MediumText>
+        <TagsList tags={person.tags} />
+        <MediumText center>{person.bio}</MediumText>
         <View style={styles.cards}>
           {events.map((event) => (
             <EventCard

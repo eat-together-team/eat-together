@@ -11,13 +11,8 @@ import FullCard from "./FullCard";
 import ReportBug from "./ReportBug";
 import SuggestIdea from "./SuggestIdea";
 import FullProfile from "../Explore/People/FullProfile";
+import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
 import ReportPerson from "../Explore/People/ReportPerson";
-// Buddy Page import
-import BuddyPage from "./BuddyPage";
-import BuddyRequest from "./BuddyRequest";
-
-import BuddyNotif from "./BuddyNotif";
-import IncomingRequests from "./IncomingRequests";
 import ColorSelector from "./ColorSelector";
 import EventGallery from "../Home/EventGallery";
 
@@ -41,11 +36,7 @@ export default function () {
         {props => <Requests {...props} back="Me" />}
       </Stack.Screen>
 
-      {/* Buddy pages */}
-      <Stack.Screen name="BuddyPage" component={BuddyPage} />
-      <Stack.Screen name="BuddyNotif" component={BuddyNotif} />
-      <Stack.Screen name="IncomingRequests" component={IncomingRequests} />
-      
+
       {/* For settings */}
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="FullCard" component={FullCard} />
@@ -54,8 +45,12 @@ export default function () {
       <Stack.Screen name="FullProfile">
         {props => <FullProfile {...props} blockBack="Me" />}
       </Stack.Screen>
+      <Stack.Screen name="AvailabilitiesStatic" component={AvailabilitiesStatic} />
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
-      <Stack.Screen name="ColorPicker" component={ColorSelector} />
+
+      <Stack.Screen name="AvailabilitiesHome" component={AvailabilitiesHome} />
+      <Stack.Screen name="Availabilities" component={Availabilities} />
+      <Stack.Screen name="ColorPicker" component={Colorpicker} />
 
       {/* Photo Gallery */}
       <Stack.Screen name="EventGallery" component={EventGallery} />

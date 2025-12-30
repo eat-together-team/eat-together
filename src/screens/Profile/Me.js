@@ -21,10 +21,11 @@ import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 import TagsList from "../../components/TagsList";
 import EventCard from "../../components/EventCard";
-// Add buddy button
 import { AntDesign } from '@expo/vector-icons';
 
 import { compareDates } from "../../utils/methods";
+import ArchiveList from "../../components/ArchiveList";
+import GalleryList from "../../components/GalleryList";
 
 export default function ({ navigation }) {
   const user = auth.currentUser;
@@ -115,7 +116,7 @@ export default function ({ navigation }) {
                 }
               }).catch(e => {
                 // Still activates after logout for some accounts, commented for now
-                //alert("There was an error fetching some of your meals :( try again later");
+                // alert("There was an error fetching some of your meals :( try again later");
 
                 eventsLength--;
                 newEvents = newEvents.sort((a, b) => {
@@ -231,44 +232,109 @@ export default function ({ navigation }) {
             }}
           />
         </View>
-        <Image
-          style={styles.image}
-          source={
-            userInfo.hasImage
-              ? { uri: userInfo.image }
-              : require("../../../assets/logo.png")
-          }
-        />
-
-        <View style={styles.links}>
-          <TouchableOpacity
-            style={styles.link}
-            onPress={() => {
-              navigation.navigate("Connections", {
-                user: userInfo,
-                image: userInfo.image,
-                updateInfo,
-              });
+        <View
+          style={[
+            styles.rowInfoBlock,
+            {
+              justifyContent: 'center',
+              marginTop: 32,
+              marginBottom: 12,
+            },
+          ]}
+        >
+          <View
+            style={{
+              position: "relative",
+              width: 100,
+              height: 100,
+              marginRight: 29,
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            <Ionicons name="list-circle" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Connections</NormalText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.link}
-            onPress={() => {
-              navigation.navigate("Edit", {
-                user: userInfo,
-                updateInfo,
-              });
-            }}
-          >
-            <Feather name="edit-2" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Edit Profile</NormalText>
-          </TouchableOpacity>
-
-
+            <Image
+              style={styles.image}
+              source={avatarSource}
+            />
+          </View>
+          <View style={styles.infoBlock}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'flex-end',
+                marginBottom: 2,
+                minWidth: 0,
+              }}
+            >
+              <LargeText
+                style={styles.name}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                size={nameFontSize}
+              >
+                {userInfo.firstName + " " + userInfo.lastName}
+              </LargeText>
+              {userInfo.pronouns ? (
+                <NormalText
+                  style={{
+                    color: 'white',
+                    marginLeft: 8,
+                    fontWeight: '400',
+                    textAlign: 'left',
+                    lineHeight: 30,
+                    flexShrink: 0,
+                  }}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  size={pronounFontSize}
+                >
+                  {userInfo.pronouns}
+                </NormalText>
+              ) : null}
+            </View>
+            <NormalText
+              size={16}
+              style={{
+                color: 'white',
+                textAlign: 'left',
+              }}
+            >
+              @{userInfo.username}
+            </NormalText>
+            <NormalText
+              marginBottom={2}
+              style={{
+                color: 'white',
+                textAlign: 'left',
+              }}
+            >
+              🏫 {userInfo.school ? userInfo.school : "UW-Seattle"}
+            </NormalText>
+            <NormalText
+              style={{
+                color: 'white',
+                textAlign: 'left',
+                marginBottom: 8,
+              }}
+            >
+              🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
+            </NormalText>
+            <Button
+              style={[
+                styles.baseOutlineButton,
+                { paddingHorizontal: 22, alignSelf: 'flex-start', marginTop: 2 },
+              ]}
+              fontSize={14}
+              onPress={() => {
+                navigation.navigate("Edit", {
+                  user: userInfo,
+                  updateInfo,
+                });
+              }}
+            >
+              Edit Profile
+            </Button>
+          </View>
         </View>
         <LargeText
           style={[styles.name, { left: 18 }]}
@@ -419,6 +485,7 @@ export default function ({ navigation }) {
     </ImageBackground>
   );
 }
+
 const styles = StyleSheet.create({
   image: {
     width: 120,
@@ -448,10 +515,39 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
 
-  buddy: {
-
+  palette: {
+    position: "absolute",
+    left: 20,
+    top: 20,
+    alignItems: "center",
   },
 
+  badge: {
+    position: "absolute",
+    left: 20,
+    top: 70,
+    marginTop: 10,
+  },
+
+  settings: {
+    position: "absolute",
+    right: 20,
+    top: 20,
+    alignItems: "center",
+  },
+
+  baseOutlineButton: {
+    paddingVertical: 0,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#FFFFFF",
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    alignItems: "center",
+    flexShrink: 0,
+    flexDirection: "row",
+  },
+  
   rowInfoBlock: {
     flexDirection: 'row',
     alignItems: 'center',

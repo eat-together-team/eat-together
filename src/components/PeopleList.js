@@ -16,7 +16,7 @@ const PeopleList = props => {
         }
     }, []);
     return (
-        <View style={styles.outline}>
+        <View style={[styles.outline, { backgroundColor: props.color }]}>
             <TouchableOpacity onPress={props.click}>
                 <View style={[styles.head, {
                     backgroundColor: props.color,
@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
     outline: {
         marginVertical: 5,
         shadowColor: "#000000",
-        backgroundColor: "white",
         borderRadius: 15,
         paddingVertical: 10,
         shadowOpacity: 0.25,

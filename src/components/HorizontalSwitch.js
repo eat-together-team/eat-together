@@ -14,26 +14,24 @@ const HorizontalSwitch = props => {
         style_left = styles.current;
         style_right = styles.other;
         action_right = props.press;
-        left_color = "white";
+        left_color = "#5db075";
         right_color = "black";
     } else {
         style_left = styles.other;
         style_right = styles.current;
         action_left = props.press;
         left_color = "black";
-        right_color = "white";
+        right_color = "#5db075";
     }
     return (
         <View style={styles.container}>
-            <View style={styles.switchcontainer}>
-                <TouchableOpacity style={style_left} onPress={action_left}>
-                    <MediumText center color={left_color} size={14}>{props.left}</MediumText>
-                </TouchableOpacity>
-                <TouchableOpacity style={style_right} onPress={action_right}>
-                    <MediumText center color={right_color} size={14}>{props.right}</MediumText>
-                    {props.pingRight && <View style={styles.unread}/>}
-                </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={style_left} onPress={action_left}>
+                <MediumText center color={left_color} size={14}>{props.left}</MediumText>
+            </TouchableOpacity>
+            <TouchableOpacity style={style_right} onPress={action_right}>
+                <MediumText center color={right_color} size={14}>{props.right}</MediumText>
+                {props.pingRight && <View style={styles.unread}/>}
+            </TouchableOpacity>
         </View>
     );
 }
@@ -45,26 +43,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: 60,
         paddingBottom: 20,
         alignItems: "center",
-        justifyContent: "center", 
-    },
-
-    switchcontainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        width: 353,
-        height: 46,
-        borderRadius: 200,
-        backgroundColor: "#EDEDED"
+        justifyContent: "center"
     },
 
     current: {
-        height: "80%",
+        height: 40,
         flex: 1,
-        justifyContent: "center",
+        borderBottomColor: "#5db075",
+        borderBottomWidth: 2,
         alignItems: "center",
-        marginHorizontal: 10,
-        backgroundColor: "#5db075",
-        borderRadius: 200
+        justifyContent: "center",
+        marginHorizontal: 10
     },
 
     other: {

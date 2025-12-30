@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
 import MediumText from "./MediumText";
 import NormalText from './NormalText';
 
@@ -17,7 +18,7 @@ const ProfileBubble = props => {
     }
 
     return (
-        <View style={styles.card}>
+        <View style={[styles.card, {}]}>
             <TouchableOpacity onPress={props.click}>
                 <MediumText size={18}>
                     {props.person.firstName + " " + props.person.lastName.substring(0, 1) + "."}
@@ -25,10 +26,10 @@ const ProfileBubble = props => {
                 <MediumText size={14}>
                     🗯️ "{props.person.bio}"
                 </MediumText>
-                
+
                 {props.person.inCommon.length > 0 && (<View style={styles.common}>
                     {getCommonSchoolTags(props.person.inCommon).length !== 0 && (<View style={styles.commonRow}>
-                        <NormalText>🏫 You both are: </NormalText>
+                        <NormalText>This person is:</NormalText>
                         <ScrollView horizontal={true}>
                             <View onStartShouldSetResponder={() => true} style={{ flexDirection: "row" }}>
                                 {getCommonSchoolTags(props.person.inCommon).map(tag =>
@@ -36,9 +37,8 @@ const ProfileBubble = props => {
                             </View>
                         </ScrollView>
                     </View>)}
-                    
                     {getCommonHobbyFoodTags(props.person.inCommon).length !== 0 && (<View style={styles.commonRow}>
-                        <NormalText>🤩 You both enjoy: </NormalText>
+                        <NormalText>Enjoyment:</NormalText>
                         <ScrollView horizontal={true}>
                             <View onStartShouldSetResponder={() => true} style={{ flexDirection: "row" }}>
                                 {getCommonHobbyFoodTags(props.person.inCommon).map(tag =>
@@ -47,6 +47,7 @@ const ProfileBubble = props => {
                         </ScrollView>
                     </View>)}
                 </View>)}
+
             </TouchableOpacity>
         </View>
     );
@@ -77,6 +78,17 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         flexWrap: "wrap"
+    },
+
+    greenButton: {
+        backgroundColor: "#5DB075",
+        flexDirection: "row",
+        justifyContent: "center",
+        alignSelf: "center",
+        borderRadius: 8,
+        marginTop: 15,
+        width: "90%",
+        padding: 10
     }
 })
 

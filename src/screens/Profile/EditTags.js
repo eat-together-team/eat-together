@@ -13,9 +13,10 @@ import NormalText from "../../components/NormalText";
 import TagsSection from "../../components/TagsSection";
 import Button from "../../components/Button";
 
-import schoolTags from "../../utils/schoolTags";
-import hobbyTags from "../../utils/hobbyTags";
-import foodTags from "../../utils/foodTags";
+import schoolTags from "../../schoolTags";
+import hobbyTags from "../../hobbyTags";
+import foodTags from "../../foodTags";
+import goalTags from "../../goalTags";
 import { cloneDeep } from "lodash";
 
 const EditTags = props => {
@@ -23,7 +24,6 @@ const EditTags = props => {
   const [goalTagsSelected, setGoalTagsSelected] = useState(props.route.params.goalTags || [""]);
   const [hobbyTagsSelected, setHobbyTagsSelected] = useState(props.route.params.hobbyTags);
   const [foodTagsSelected, setFoodTagsSelected] = useState(props.route.params.foodTags);
-
 
   const [school, setSchool] = useState(false);
   const [hobby, setHobby] = useState(false);
@@ -91,6 +91,87 @@ const EditTags = props => {
             </View>
 
             {/*about me*/}
+            <View style={styles.tagSection}>
+                <NormalText left marginBottom={5}>
+                    About Me
+                </NormalText>
+                <NormalText left marginBottom={5}>Select what represents you</NormalText>
+
+                {/* Wrap tags and add button in a row container */}
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ paddingRight: 8 }}
+                    >
+                        {schoolTagsSelected.map((tag, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                style={styles.chip}
+                                onPress={() => {
+                                    const newTags = schoolTagsSelected.filter((_, i) => i !== index);
+                                    setSchoolTagsSelected(newTags);
+                                }}
+                                >
+                                <NormalText color="white">{tag}</NormalText>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+
+                    <TouchableOpacity
+                        onPress={() => {
+                            setSchool(true);
+                            setFood(false);
+                            setHobby(false);
+                            setGoal(false);
+                            refRBSheet.current.open();
+                        }}
+                        style={[styles.addTagButton, { marginLeft: 8 }]} 
+                    >
+                        <Ionicons name="add-circle-outline" size={24} color="#5DB075" />
+                        <SmallText color="#5DB075">Add</SmallText>
+                    </TouchableOpacity>
+                </View>
+             </View>
+
+            {/*goals*/}
+            <View style={styles.tagSection}>
+                <NormalText left marginBottom={10}> 
+                    Hobbies
+                </NormalText>
+                <NormalText left marginBottom={5}>Select your hobbies</NormalText>
+                <View style={styles.tagsContainer}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        {hobbyTagsSelected.map((tag, index) => (
+                        <TouchableOpacity 
+                            key={index} 
+                            style={styles.chip}
+                            onPress={() => {
+                                const newTags = hobbyTagsSelected.filter((_, i) => i !== index);
+                                setHobbyTagsSelected(newTags);
+                            }}
+                        >
+                            <NormalText color="white">{tag}</NormalText>
+                        </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+
+                    <TouchableOpacity
+                        onPress={() => {
+                            setSchool(false);
+                            setFood(false);
+                            setHobby(true);
+                            setGoal(false);
+                            refRBSheet.current.open();
+                        }}
+                        style={styles.addTagButton}
+                    >
+                        <Ionicons name="add-circle-outline" size={24} color="#5DB075" />
+                        <SmallText color="#5DB075">Add</SmallText>
+                    </TouchableOpacity>
+                </View>
+            </View>
+
             <View style={styles.tagSection}>
                 <NormalText left marginBottom={5}>
                     About Me
@@ -293,6 +374,7 @@ const EditTags = props => {
                             alert("You can only select up to 4 tags.");
                         } else {
                             setHobbyTagsSelected([...hobbyTagsSelected, item]);
+                            
                         }
                     }}
                     onRemoveItem={(item, index) => {
@@ -429,3 +511,284 @@ const styles = StyleSheet.create({
 });
 
 export default EditTags;
+
+// // Specify availabilities for days of the week
+// import React, { useState, useEffect, useRef } from "react";
+// import { View, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from "react-native";
+// import { Layout } from "react-native-rapi-ui";
+// import RBSheet from "react-native-raw-bottom-sheet";
+
+// import LargeText from "../../components/LargeText";
+// import MediumText from "../../components/MediumText";
+// import NormalText from "../../components/NormalText";
+
+// import TextInput from "../../components/TextInput";
+// import TagsSection from "../../components/TagsSection";
+// import Button from "../../components/Button";
+
+// import schoolTags from "../../schoolTags";
+// import hobbyTags from "../../hobbyTags";
+// import foodTags from "../../foodTags";
+// import { cloneDeep } from "lodash";
+
+// const EditTags = props => {
+//   // Tags
+//   const [schoolTagsSelected, setSchoolTagsSelected] = useState(props.route.params.schoolTags);
+//   const [hobbyTagsSelected, setHobbyTagsSelected] = useState(props.route.params.hobbyTags);
+//   const [foodTagsSelected, setFoodTagsSelected] = useState(props.route.params.foodTags);
+//   const [schoolTagsValue, setSchoolTagsValue] = useState("");
+//   const [hobbyTagsValue, setHobbyTagsValue] = useState("");
+//   const [foodTagsValue, setFoodTagsValue] = useState("");
+
+//   // Determine which category is open in the drawer
+//   const [school, setSchool] = useState(false);
+//   const [hobby, setHobby] = useState(false);
+//   const [food, setFood] = useState(false);
+
+//   const refRBSheet = useRef(); // To toggle the bottom drawer on/off
+
+//   // Determines text to display for tags
+//   useEffect(() => {
+//       let tags = "";
+//       if (schoolTagsSelected.length > 0) {
+//           tags += schoolTagsSelected[0];
+//       }
+
+//       for (let i = 1; i < schoolTagsSelected.length; i++) {
+//           tags += ", " + schoolTagsSelected[i];
+//       }
+
+//       setSchoolTagsValue(tags);
+//   }, [schoolTagsSelected]);
+
+//   useEffect(() => {
+//       let tags = "";
+//       if (hobbyTagsSelected.length > 0) {
+//           tags += hobbyTagsSelected[0];
+//       }
+
+//       for (let i = 1; i < hobbyTagsSelected.length; i++) {
+//           tags += ", " + hobbyTagsSelected[i];
+//       }
+
+//       setHobbyTagsValue(tags);
+//   }, [hobbyTagsSelected]);
+
+//   useEffect(() => {
+//       let tags = "";
+//       if (foodTagsSelected.length > 0) {
+//           tags += foodTagsSelected[0];
+//       }
+
+//       for (let i = 1; i < foodTagsSelected.length; i++) {
+//           tags += ", " + foodTagsSelected[i];
+//       }
+
+//       setFoodTagsValue(tags);
+//   }, [foodTagsSelected]);
+
+//   return (
+//     <Layout style={styles.page}>
+
+//         <ScrollView contentContainerStyle={{ alignItems: "center" }}>
+//             <LargeText center marginBottom={20}>Edit Tags</LargeText>
+
+//             <NormalText center size={12}>Note: each of the 3 categories below must contain:</NormalText>
+//             <MediumText center size={12} marginBottom={20}>Minimum 1 tag, maximum 4 tags</MediumText>
+
+//             <View style={styles.tagSection}>
+//                 <MediumText center marginBottom={5}>School</MediumText>
+//                 <NormalText center marginBottom={5}>E.g. year, major</NormalText>
+//                 <TouchableOpacity onPress={() => {
+//                     setHobby(false);
+//                     setFood(false);
+//                     setSchool(true);
+//                     refRBSheet.current.open();
+//                 }}>
+//                     <View pointerEvents="none">
+//                         <TextInput
+//                             width="100%"
+//                             placeholder="Tags"
+//                             value={schoolTagsValue}
+//                             iconLeft="pricetags-outline"
+//                             editable={false}
+//                             required
+//                         />
+//                     </View>
+//                 </TouchableOpacity>
+//             </View>
+
+//             <View style={styles.tagSection}>
+//                 <MediumText center marginBottom={5}>Hobbies</MediumText>
+//                 <NormalText center marginBottom={5}>E.g. sports, reading</NormalText>
+//                 <TouchableOpacity onPress={() => {
+//                     setSchool(false);
+//                     setFood(false);
+//                     setHobby(true);
+//                     refRBSheet.current.open();
+//                 }}>
+//                     <View pointerEvents="none">
+//                         <TextInput
+//                             width="100%"
+//                             placeholder="Tags"
+//                             value={hobbyTagsValue}
+//                             iconLeft="pricetags-outline"
+//                             editable={false}
+//                             required
+//                         />
+//                     </View>
+//                 </TouchableOpacity>
+//             </View>
+
+//             <View style={styles.tagSection}>
+//                 <MediumText center marginBottom={5}>Food-related</MediumText>
+//                 <NormalText center marginBottom={5}>E.g. favorite dishes, favorite cuisine</NormalText>
+//                 <TouchableOpacity onPress={() => {
+//                     setSchool(false);
+//                     setHobby(false);
+//                     setFood(true);
+//                     refRBSheet.current.open();
+//                 }}>
+//                     <View pointerEvents="none">
+//                         <TextInput
+//                             width="100%"
+//                             placeholder="Tags"
+//                             value={foodTagsValue}
+//                             iconLeft="pricetags-outline"
+//                             editable={false}
+//                             required
+//                         />
+//                     </View>
+//                 </TouchableOpacity>
+//             </View>
+
+//             <View style={styles.buttons}>
+//                 <Button onPress={() => props.navigation.goBack()}
+//                     marginHorizontal={10}>Cancel</Button>
+//                 <Button onPress={() => {
+//                     props.route.params.updateTags(schoolTagsSelected, hobbyTagsSelected, foodTagsSelected);
+//                     props.navigation.goBack();
+//                     alert("Tags saved! Click on 'Update Profile' to update your profile.");
+//                 }}
+//                 disabled={schoolTagsSelected.length < 1 || schoolTagsSelected.length > 4 || hobbyTagsSelected.length < 1
+//                     || hobbyTagsSelected.length > 4 || foodTagsSelected.length < 1 || foodTagsSelected.length > 4}
+//                 marginHorizontal={10}>Save</Button>
+//             </View>
+//         </ScrollView>
+
+//         <RBSheet
+//             height={400}
+//             ref={refRBSheet}
+//             closeOnDragDown={true}
+//             closeOnPressMask={true}
+//             customStyles={{
+//                 wrapper: {
+//                     backgroundColor: "rgba(0,0,0,0.5)",
+//                 },
+//                 draggableIcon: {
+//                     backgroundColor: "#5DB075"
+//                 },
+//                 container: {
+//                     borderTopLeftRadius: 20,
+//                     borderTopRightRadius: 20,
+//                     padding: 10
+//                 }
+//             }}>
+//             {school ? (
+//             <View>
+//                 <MediumText center marginBottom={5}>School</MediumText>
+//                 <NormalText center marginBottom={5}>E.g. year, major</NormalText>
+//                 <TagsSection
+//                     multi={true}
+//                     selectedItems={schoolTagsSelected}
+//                     onItemSelect={(item) => {
+//                         if (schoolTagsSelected.length >= 4) {
+//                             alert("You can only select up to 4 tags.");
+//                         } else {
+//                             setSchoolTagsSelected([...schoolTagsSelected, item]);
+//                         }
+//                     }}
+//                     onRemoveItem={(item, index) => {
+//                         const newTags = schoolTagsSelected.filter((tag, i) => i !== index);
+//                         setSchoolTagsSelected(newTags);
+//                     }}
+//                     items={cloneDeep(schoolTags)}
+//                     chip={true}
+//                     resetValue={false}
+//                 />
+//             </View>
+//             ) : hobby ? (
+//             <View>
+//                 <MediumText center marginBottom={5}>Hobbies</MediumText>
+//                 <NormalText center marginBottom={5}>E.g. sports, reading</NormalText>
+//                 <TagsSection
+//                     multi={true}
+//                     selectedItems={hobbyTagsSelected}
+//                     onItemSelect={(item) => {
+//                         if (hobbyTagsSelected.length >= 4) {
+//                             alert("You can only select up to 4 tags.");
+//                         } else {
+//                             setHobbyTagsSelected([...hobbyTagsSelected, item]);
+//                         }
+//                     }}
+//                     onRemoveItem={(item, index) => {
+//                         const newTags = hobbyTagsSelected.filter((tag, i) => i !== index);
+//                         setHobbyTagsSelected(newTags);
+//                     }}
+//                     items={cloneDeep(hobbyTags)}
+//                     chip={true}
+//                     resetValue={false}
+//                 />
+//             </View>
+//             ) : (
+//             <View>
+//                 <MediumText center marginBottom={5}>Food-related</MediumText>
+//                 <NormalText center marginBottom={5}>E.g. favorite dishes, favorite cuisine</NormalText>
+//                 <TagsSection
+//                     multi={true}
+//                     selectedItems={foodTagsSelected}
+//                     onItemSelect={(item) => {
+//                         if (foodTagsSelected.length >= 4) {
+//                             alert("You can only select up to 4 tags.");
+//                         } else {
+//                             setFoodTagsSelected([...foodTagsSelected, item]);
+//                         }
+//                     }}
+//                     onRemoveItem={(item, index) => {
+//                         const newTags = foodTagsSelected.filter((tag, i) => i !== index);
+//                         setFoodTagsSelected(newTags);
+//                     }}
+//                     items={cloneDeep(foodTags)}
+//                     chip={true}
+//                     resetValue={false}
+//                 />
+//             </View>
+//             )}
+//         </RBSheet>
+//     </Layout>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   page: {
+//     alignItems: "center",
+//     width: Dimensions.get('screen').width,
+//     paddingHorizontal: 10,
+//     paddingVertical: 30
+//   },
+
+//   tagSection: {
+//     marginBottom: 20,
+//     width: "90%",
+//     justifyContent: "center"
+//   },
+
+//   buttons: {
+//     display: "flex",
+//     flexDirection: "row",
+//     justifyContent: "center",
+//     marginTop: 40
+//   }  
+// });
+
+// export default EditTags;

@@ -1,12 +1,12 @@
 import { useFonts, Inter_600SemiBold, Inter_400Regular } from "@expo-google-fonts/inter";
-import { StyleSheet, TextInput as ReactNativeTextInput, Platform, View, TouchableOpacity } from "react-native"
+import { StyleSheet, TextInput as ReactNativeTextInput, Platform, View, TouchableOpacity, Text } from "react-native"
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 
 function TextInput(props) {
-    
+
     // Destructure all props and set default values
     const {
-        
+
         // Affects the TextInput
         bold = false,
         value = "",
@@ -19,7 +19,7 @@ function TextInput(props) {
         editable=true,
         keyboardType="default",
         scrollEnabled = true,
-        
+
         textInputStyle = {},
         textInputProps={},
         onEndEditing = () => {},
@@ -27,13 +27,13 @@ function TextInput(props) {
         onSubmitEditing = () => {},
         onBlur = () => {},
         onFocus = () => {},
-        
-        
+
+
         // Affects the container
         backgroundColor = "white",
         borderColor = "lightgrey",
         borderWidth = 1,
-        height =42,
+        height = 42,
         width = "30%",
         marginTop = "0%",
         marginBottom = "0%",
@@ -41,7 +41,7 @@ function TextInput(props) {
         marginLeft = "0%",
         multiline = false,
         mainContainerStyle = {},
-        
+
         // Affects icons
         iconRightType = "Ionicons",
         iconLeftType = "Ionicons",
@@ -54,14 +54,14 @@ function TextInput(props) {
         displayLeftIcon = iconLeft !== "" ? "flex" : "none",
         displayRightIcon = iconRight !== "" ? "flex" : "none",
         iconLeftOnPress = () => {},
-        iconRightOnPress = () => {},        
+        iconRightOnPress = () => {},
         leftContainerStyle = {},
         rightContainerStyle = {},
         required = false,
 
         ...restOfProps
     } = props;
-    
+
 
     // Loads appropriate font
     let [fontsLoaded] = useFonts({ Inter_600SemiBold, Inter_400Regular });
@@ -83,7 +83,7 @@ function TextInput(props) {
         mainContainer: {
             flexDirection: 'row',
             height: Platform.OS === "ios" ? 34 : height,
-            width: width, 
+            width: width,
             backgroundColor: backgroundColor,
             borderRadius: 10,
             borderColor: borderColor,
@@ -109,24 +109,25 @@ function TextInput(props) {
             display: props.required ? "flex" : displayRightIcon,
             flexDirection: "row",
             alignItems: "center",
+
             marginRight: "3%",
             justifyContent: "center",
 
             ...rightContainerStyle
         },
     });
-  
+
     return (
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, props.style]}>
             <TouchableOpacity onPress={iconLeftOnPress} style={styles.leftContainer}>
-                {iconLeftType === "Ionicons" && 
+                {iconLeftType === "Ionicons" &&
                 <Ionicons size={iconFontSize} name={iconLeft} color={iconLeftColor}/>}
-                
-                {iconLeftType === "FontAwesome" && 
+
+                {iconLeftType === "FontAwesome" &&
                 <FontAwesome size={iconFontSize} name={iconLeft} color={iconLeftColor}/>}
             </TouchableOpacity>
 
-            <ReactNativeTextInput 
+            <ReactNativeTextInput
                 style={styles.textInput}
                 onChangeText={onChangeText}
                 placeholder={placeholder}
@@ -147,14 +148,14 @@ function TextInput(props) {
 
                 {...textInputProps}
             />
-                
+
             <TouchableOpacity disabled={iconRightDisabled} onPress={iconRightOnPress} style={styles.rightContainer}>
-                {iconRightType === "Ionicons" && 
+                {iconRightType === "Ionicons" &&
                 <Ionicons size={iconFontSize} name={iconRight} color={iconRightColor}/>}
 
-                {iconRightType === "FontAwesome" && 
+                {iconRightType === "FontAwesome" &&
                 <FontAwesome size={iconFontSize} name={iconRight} color={iconRightColor}/>}
-                
+
                 {props.required && <FontAwesome size={8} name={"asterisk"} color={"red"} style={{ marginHorizontal: 2 }}/>}
             </TouchableOpacity>
         </View>
@@ -162,4 +163,3 @@ function TextInput(props) {
   }
 
   export default TextInput;
-  
