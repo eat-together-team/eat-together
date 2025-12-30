@@ -31,8 +31,6 @@ const MediumText = props => {
             paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
             marginBottom: props.marginBottom ? props.marginBottom : 0,
             lineHeight: props.lineHeight ? props.lineHeight: 24,
-            numberOfLines: props.numberOfLines ? props.numberOfLines : null,
-            ellipsizeMode: props.ellipsizeMode ? props.ellipsizeMode : 'tail',
 
         }, props.style]}
         numberOfLines={props.numberOfLines}
