@@ -89,7 +89,6 @@ const Main = () => {
   );
 };
 
-
 //Controls the screens connected to the bottom navigation bar
 const Tabs = createBottomTabNavigator();
 const MainTabs = () => {

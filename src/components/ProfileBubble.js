@@ -47,6 +47,7 @@ const ProfileBubble = props => {
                         </ScrollView>
                     </View>)}
                 </View>)}
+
             </TouchableOpacity>
         </View>
     );

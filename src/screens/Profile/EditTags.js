@@ -15,6 +15,7 @@ import Button from "../../components/Button";
 import schoolTags from "../../schoolTags";
 import hobbyTags from "../../hobbyTags";
 import foodTags from "../../foodTags";
+import goalTags from "../../goalTags";
 import { cloneDeep } from "lodash";
 
 const EditTags = props => {
