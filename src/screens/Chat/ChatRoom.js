@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
+  Dimensions,
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
@@ -52,17 +53,11 @@ export default function ({ route, navigation }) {
         setUsers(doc.data().uids); // Users in group
 
         let temp = [];
-        doc.data().messages.forEach((message, index) => {
-          let messageObj = {
-            ...message,
-            nextMessage: doc.data().messages[index + 1] || null // fetches the next message
-          }
-
+        doc.data().messages.forEach((message) => {
           // insert message at beginning of array
-          temp.unshift(messageObj);
+          temp.unshift(message);
         });
 
-        // console.log(temp);
         setMessages(temp);
         setRead(temp);
         setLoading(false);
@@ -70,13 +65,42 @@ export default function ({ route, navigation }) {
     });
   }, []);
 
-  useEffect(() => {
-    if (message.length > 0) {
-      
-    } else {
+  const handleUploadImage = async () => {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+      });
 
+      if (!result.cancelled) {
+        const source = { uri: result.assets[0].uri };
+
+        const response = await fetch(source.uri);
+        const blob = await response.blob();
+        const filename = source.uri.substring(source.uri.lastIndexOf('/') + 1);
+
+        // Upload to this group's folder
+        var ref = storage.ref().child('groups/' + group.groupID + "/" + filename).put(blob, {
+          contentType: 'image/jpeg'
+        });
+
+        try {
+          await ref;
+          const downloadURL = await ref.snapshot.ref.getDownloadURL();
+          onSend(downloadURL);
+          alert("Image Sent!");
+        } catch (e) {
+          console.log(e);
+          alert("Failed to upload image.");
+        }
+        onSend();
+      }
+    } catch (error) {
+      console.log(error);
+      // Alert.alert("Error picking image.");
     }
-  }, [message])
+  };
 
   // For selecting a photo
   const handleChoosePhoto = async () => {
@@ -97,52 +121,31 @@ export default function ({ route, navigation }) {
   // For selecting a photo from gallery
   const galleryImageSelector = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      quality: 1,
-    });
-    if (!result.cancelled) {
-      await uploadImageToStorage(result.assets[0].uri);
-    }
-  };
-  
-  // For selecting a photo by capturing an image with camera
-  const cameraImageSelector = async () => {
-    try {
-      await ImagePicker.requestCameraPermissionsAsync({});
-      let result = await ImagePicker.launchCameraAsync({
-        cameraType: ImagePicker.CameraType.back,
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         quality: 1,
-      });
-      if (!result.cancelled) {
-        await uploadImageToStorage(result.assets[0].uri);
+    });
+    if (!result.cancelled) {
+        onSend(result.assets[0].uri);
+    }
+  };
+
+  // For selecting a photo by capturing an image with camera
+  const cameraImageSelector = async () => {
+      try {
+          await ImagePicker.requestCameraPermissionsAsync({});
+          let result = await ImagePicker.launchCameraAsync({
+              cameraType: ImagePicker.CameraType.back,
+              allowsEditing: true,
+              quality: 1,
+          });
+          if (!result.cancelled) {
+              onSend(result.assets[0].uri);
+          }
+      } catch (error) {
+          alert("Error uploading message: " + error.message);
       }
-    } catch (error) {
-      Alert.alert("Error", "Failed to take photo: " + error.message);
-    }
   };
-  
-  const uploadImageToStorage = async (uri) => {
-    try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const filename = uri.substring(uri.lastIndexOf('/') + 1);
-  
-      const ref = storage.ref().child('groups/' + group.groupID + '/' + filename);
-      const uploadTask = await ref.put(blob, {
-        contentType: 'image/jpeg',
-      });
-  
-      const downloadURL = await uploadTask.ref.getDownloadURL();
-      onSend(downloadURL);
-      Alert.alert("Success", "Image Sent!");
-    } catch (e) {
-      console.error("Upload failed:", e);
-      Alert.alert("Error", "Failed to upload image.");
-    }
-  };
-  
 
   // Set all messages to read
   const setRead = (messages) => {
@@ -276,8 +279,8 @@ export default function ({ route, navigation }) {
         </View>
       :
         <KeyboardAvoidingView 
-          style={{ flex: 1 , marginBottom:Platform.OS === "ios" ? -34 : 0}}
-          behavior={Platform.OS === "ios" ? "height" : ""}
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : ""}
         >
           <FlatList
             data={messages}
@@ -287,8 +290,6 @@ export default function ({ route, navigation }) {
             inverted={true}
             keyExtractor={(item) => item.sentAt.toString()}
           />
-          {/* message bar */}
-          {/* add another view and wrap textInput */}
           <TextInput
             style={styles.textInput}
             placeholder="Send Message"
@@ -297,7 +298,7 @@ export default function ({ route, navigation }) {
             onChangeText={setMessage}
             iconLeft="camera-outline"
             iconRight="send"
-            iconRightColor= {message.length > 0 ? "black" : "#A9A9A9"}
+            iconRightColor="#D3D3D3"
             iconRightFontSize={20}
             iconRightDisabled={message.length === 0}
             iconLeftOnPress={handleChoosePhoto}
@@ -317,4 +318,16 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
 
+  page: {
+    paddingTop: 30,
+    alignItems: "center",
+    paddingHorizontal: 10,
+  },
+
+  background: {
+    position: "absolute",
+    width: Dimensions.get("screen").width,
+    height: 100,
+    backgroundColor: "#5DB075",
+  }
 });

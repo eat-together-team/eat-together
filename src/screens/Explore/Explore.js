@@ -15,7 +15,7 @@ import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
 import Link from "../../components/Link";
 
-import { getTimeOfDay, isAvailable, compareDates } from "../../utils/methods";
+import { getTimeOfDay, isAvailable, compareDates } from "../../methods";
 import { auth, db } from "../../provider/Firebase";
 
 export default function({ navigation }) {

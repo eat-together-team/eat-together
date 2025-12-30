@@ -13,9 +13,10 @@ import NormalText from "../../components/NormalText";
 import TagsSection from "../../components/TagsSection";
 import Button from "../../components/Button";
 
-import schoolTags from "../../utils/schoolTags";
-import hobbyTags from "../../utils/hobbyTags";
-import foodTags from "../../utils/foodTags";
+import schoolTags from "../../schoolTags";
+import hobbyTags from "../../hobbyTags";
+import foodTags from "../../foodTags";
+import goalTags from "../../goalTags";
 import { cloneDeep } from "lodash";
 
 const EditTags = props => {

@@ -7,7 +7,7 @@ import MediumText from "../../components/MediumText";
 import PeopleList from "../../components/PeopleList";
 
 import { db, auth } from "../../provider/Firebase";
-import { checkProfanity, generateColor } from "../../utils/methods";
+import { checkProfanity, generateColor } from "../../methods";
 
 export default function ({route, navigation}) {
     let group = route.params.group;
