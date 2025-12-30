@@ -86,7 +86,7 @@ export default function ({ route, navigation }) {
         setOtherImage(doc.data().image);
       })
     }
-  }, [otherUser])
+  }, [otherUser]);
 
   // For selecting a photo
   const handleChoosePhoto = async () => {
