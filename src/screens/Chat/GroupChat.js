@@ -8,7 +8,6 @@ import EmptyState from '../../components/EmptyState';
 import Searchbar from "../../components/Searchbar";
 import SmallText from '../../components/SmallText';
 import Button from "../../components/Button";
-import { createNewChat } from "../Chat/Chats";
 
 import { db } from "../../provider/Firebase";
 import firebase from "firebase/compat";
@@ -327,11 +326,9 @@ export default function ({ navigation, route })  {
       />
       <Button disabled={disabled} onPress={() => {                        
         if(checkChatExists()) {
-          console.log('chat exists')
           alert("Chat already exists!");
         } else {
-          console.log('creating chat')
-          // handleCreateChat();
+          handleCreateChat();
         }
       }}>
         Create Group
