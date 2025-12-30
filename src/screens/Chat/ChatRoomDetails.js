@@ -39,7 +39,7 @@ export default function ({route, navigation}) {
                 middleContent={<MediumText>View Group Details</MediumText>}
                 leftContent={<Ionicons name="chevron-back" size={20} />}
                 leftAction={() => {
-                    navigation.goBack();
+                    navigation.navigate("Chats");
                 }}
             />
             <View style={styles.chatName}>
