@@ -20,7 +20,6 @@ import TagsList from "../../components/TagsList";
 import EventCard from "../../components/EventCard";
 import Button from "../../components/Button";
 import SmallText from "../../components/SmallText";
-import Link from "../../components/Link";
 import { AntDesign } from '@expo/vector-icons';
 
 import { compareDates } from "../../utils/methods";
