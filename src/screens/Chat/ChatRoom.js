@@ -88,14 +88,6 @@ export default function ({ route, navigation }) {
     }
   }, [otherUser])
 
-  useEffect(() => {
-    if (message.length > 0) {
-      
-    } else {
-
-    }
-  }, [message])
-
   // For selecting a photo
   const handleChoosePhoto = async () => {
       Alert.alert (
@@ -278,20 +270,25 @@ export default function ({ route, navigation }) {
             group: group
           })}>
             <View style={styles.title}>
-            <Image style={styles.image}
-              source={ otherImage
-              ? { uri: otherImage }
-              : require("../../../assets/logo.png")
-              }
-            />
-            <MediumText>{group.name}</MediumText>
+              <Image style={styles.image}
+                source={ otherImage
+                ? { uri: otherImage }
+                : require("../../../assets/logo.png")
+                }
+              />
+                <MediumText
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {group.name}
+                </MediumText>
             </View>
           </TouchableOpacity>
         }
         leftContent={<Ionicons name="chevron-back" size={20} />}
         leftAction={() => {
           // Temporary fix with invalid chat preview, to be fixed in the future for better speed.
-          navigation.goBack();
+          navigation.navigate("Chats");
         }}
       />
       {loading ?
@@ -343,8 +340,8 @@ const styles = StyleSheet.create({
   },
   image: {
     marginRight: 15,
-    width: 45,
-    height: 45,
+    width: Platform.OS === "ios"? 45 : 35,
+    height: Platform.OS === "ios"? 45 : 35,
     borderColor: "white",
     borderWidth: 0,
     borderRadius: 100,
@@ -353,8 +350,9 @@ const styles = StyleSheet.create({
   title: {
     flexDirection: "row", 
     alignItems: "center",
-    position: "absolute", 
-    left: -150,
-    top: -25
+    // position: "absolute", 
+    flex: 1,
+    // left: Platform.OS === "ios"? -150 : -125,
+    // top: -25
   }
 });
