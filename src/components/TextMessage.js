@@ -22,7 +22,8 @@ const TextMessage = (props) => {
     prevMessageDate = moment.unix(props.prevMessage.sentAt).toDate();
   }
 
-  // console.log("here is the next msg date", nextMessageDate)
+  
+  // console.log("here is the next msg dat", nextMessageDate)
   // console.log("here is the next msg", props.nextMessage)
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
   modalImage: {
     width: "50%",
     height: "50%",
-    aspectRatio: 1,
+    aspectRatio: 1
   },
 });
 
