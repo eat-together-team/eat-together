@@ -358,7 +358,7 @@ export default function (props) {
                 <MediumText>Read</MediumText>
                 <Link onPress={deleteAlert}>Clear Notifications</Link>
               </View>
-
+              
               <FlatList
                 contentContainerStyle={styles.cards}
                 keyExtractor={(item, index) => item.id || index.toString()}

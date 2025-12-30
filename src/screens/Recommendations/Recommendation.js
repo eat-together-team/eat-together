@@ -18,13 +18,13 @@ import Toggle from "../../components/Toggle";
 import CircularButton from "../../components/CircularButton";
 import RecTutorialMessage from "../../components/RecTutorialMessage";  // Tutorial message for recommendations
 
-import getDate from "../../utils/getDate";
-import getTime from "../../utils/getTime";
+import getDate from "../../getDate";
+import getTime from "../../getTime";
 
 import {db, auth} from "../../provider/Firebase";
 import * as firebase from "firebase/compat";
 import openMap from "react-native-open-maps";
-import { getCommonTags, convertToFutureDate } from "../../utils/methods";
+import { getCommonTags, convertToFutureDate } from "../../methods";
 import moment from 'moment';
 
 import RBSheet from "react-native-raw-bottom-sheet";

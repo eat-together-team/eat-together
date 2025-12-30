@@ -11,6 +11,7 @@ import FullCard from "./FullCard";
 import ReportBug from "./ReportBug";
 import SuggestIdea from "./SuggestIdea";
 import FullProfile from "../Explore/People/FullProfile";
+import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ColorSelector from "./ColorSelector";
 import EventGallery from "../Home/EventGallery";
@@ -44,8 +45,12 @@ export default function () {
       <Stack.Screen name="FullProfile">
         {props => <FullProfile {...props} blockBack="Me" />}
       </Stack.Screen>
+      <Stack.Screen name="AvailabilitiesStatic" component={AvailabilitiesStatic} />
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
-      <Stack.Screen name="ColorPicker" component={ColorSelector} />
+
+      <Stack.Screen name="AvailabilitiesHome" component={AvailabilitiesHome} />
+      <Stack.Screen name="Availabilities" component={Availabilities} />
+      <Stack.Screen name="ColorPicker" component={Colorpicker} />
 
       {/* Photo Gallery */}
       <Stack.Screen name="EventGallery" component={EventGallery} />

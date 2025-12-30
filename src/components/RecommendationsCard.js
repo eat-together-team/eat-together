@@ -10,8 +10,8 @@ import { Section, SectionContent, SectionImage } from "react-native-rapi-ui";
 import MediumText from "./MediumText";
 import SmallText from "./SmallText";
 
-import getDate from "../utils/getDate";
-import getTime from "../utils/getTime";
+import getDate from "../getDate";
+import getTime from "../getTime";
 
 const RecommendationsCard = (props) => {
     return (

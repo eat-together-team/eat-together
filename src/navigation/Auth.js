@@ -15,12 +15,14 @@ import Email from "../screens/auth/Registration/Email";
 import Tags from "../screens/auth/Registration/Tags";
 import Password from "../screens/auth/Registration/Password";
 
+import AvailabilitiesHome from "../screens/auth/Registration/AvailabilitiesHome";
+import Availabilities from "../screens/auth/Registration/Availabilities";
 import Day from "../screens/auth/Registration/Day";
 
 import Experiment from "../screens/Experiment";
 
 import { db, auth, storage } from "../provider/Firebase";
-
+import moment from "moment";
 import ExploreCopy from "../screens/Experiment/ExploreCopy";
 
 const Stack = createStackNavigator();
@@ -41,6 +43,15 @@ const Auth = () => {
 
   // Email.js
   const [email, setEmail] = useState("");
+
+  // Days
+  const [monday, setMonday] = useState([]);
+  const [tuesday, setTuesday] = useState([]);
+  const [wednesday, setWednesday] = useState([]);
+  const [thursday, setThursday] = useState([]);
+  const [friday, setFriday] = useState([]);
+  const [saturday, setSaturday] = useState([]);
+  const [sunday, setSunday] = useState([]);
 
   // Password
   const [username, setUsername] = useState("");
@@ -128,6 +139,8 @@ const Auth = () => {
       });
     });
 
+    const newTimes = convertToDate([monday, tuesday, wednesday, thursday, friday, saturday, sunday]);
+
     // Initialize user data
     const userData = {
       id: uid,
@@ -150,10 +163,20 @@ const Auth = () => {
       buddy: [], // field for buddies 
       friendIDs: [],
       groupIDs: [],
+      availabilities: {
+        monday: newTimes[0],
+        tuesday: newTimes[1],
+        wednesday: newTimes[2],
+        thursday: newTimes[3],
+        friday: newTimes[4],
+        saturday: newTimes[5],
+        sunday: newTimes[6],
+      },
       notifications: [],
       metWith: [],
       metAt: [],
       settings: {
+        notifications: true,
         tabsTutorial: true,
         attendingTutorial: true,
         attendingEvent: false,
@@ -172,6 +195,23 @@ const Auth = () => {
     });
   };
   
+  // Convert from moment to firebase timestamp
+  const convertToDate = (days) => {
+    let newList = [];
+    days.forEach(list => {
+      let newDay = [];
+      list.forEach(time => {
+        newDay.push({
+          startTime: moment(time.startTime).toDate(),
+          endTime: moment(time.endTime).toDate()
+        });
+      });
+
+      newList.push(newDay);
+    });
+
+    return newList;
+  }
 
   // Stores image in Firebase Storage
   const storeImage = async (uri, id) => {
@@ -243,7 +283,19 @@ const Auth = () => {
           />}
       </Stack.Screen>
 
-
+      <Stack.Screen
+        name="AvailabilitiesHome"
+        options={{ headerShown: false }}
+        component={AvailabilitiesHome}
+      />
+      <Stack.Screen
+        name="Availabilities"
+        options={{ headerShown: false }}
+      >
+        {(props) => <Availabilities {...props} monday={monday} setMonday={setMonday} tuesday={tuesday} setTuesday={setTuesday}
+          wednesday={wednesday} setWednesday={setWednesday} thursday={thursday} setThursday={setThursday}
+          friday={friday} setFriday={setFriday} saturday={saturday} setSaturday={setSaturday} sunday={sunday} setSunday={setSunday} />}
+      </Stack.Screen>
       <Stack.Screen name="Day" options={{ headerShown: false }} component={Day}/>
         
       <Stack.Screen name="Password" options={{ headerShown: false }}>

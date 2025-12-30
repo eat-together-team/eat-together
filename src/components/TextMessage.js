@@ -108,7 +108,6 @@ const styles = StyleSheet.create({
   other: {
     backgroundColor: "#FFFFFF", 
     borderRadius: 20,
-    borderTopLeftRadius: 0,
     marginHorizontal: 30,
     marginVertical: 3,
     paddingHorizontal: 20,
