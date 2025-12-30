@@ -60,8 +60,6 @@ export default function ({ navigation }) {
 
   const [loading, setLoading] = useState(true); // Loading state for the page
 
-  const isFocused = useIsFocused(); //OMG THIS IS A LIFESAVING HACK
-
   const createNewChatDefault = () => {
     // Generate group id using the concatenation of all the selected usernames
     let allUsernames = [];
@@ -222,26 +220,6 @@ export default function ({ navigation }) {
     });
   }, []);
 
-  // Check if creating a new chat will override an existing one or not
-  const checkChatExists = () => {
-    return groups.some((group) => {
-      if (group.uids.length != selectedUsers.length + 1) {
-        return false;
-      }
-
-      // Comparing the two uid arrays
-      const groupIDs = group.uids.filter((uid) => uid != user.uid).sort();
-      const selectedIDs = selectedUsers.map((user) => user.id).sort();
-
-      for (let i = 0; i < groupIDs.length; i++) {
-        if (groupIDs[i] != selectedIDs[i]) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }
 
   return (
     <Layout>
@@ -261,7 +239,7 @@ export default function ({ navigation }) {
             onItemSelect={(item) => {
               setSelectedUsers([...selectedUsers, item]);
             }}
-            containerStyle={{ padding: 0, width: "70%" }}
+            containerStyle={{ padding: 0, width: "100%" }}
             onRemoveItem={(item) => {
               const items = selectedUsers.filter(
                 (sitem) => sitem.id !== item.id

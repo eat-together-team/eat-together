@@ -258,7 +258,7 @@ export default function ({ route, navigation }) {
   ];
 
   return (
-    <Layout style={{flex: 1}}>
+    <Layout>
 
     {attendingTutorial &&
         <>
