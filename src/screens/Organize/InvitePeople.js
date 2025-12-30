@@ -1,7 +1,7 @@
 //Display upcoming events to join
 
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList, Dimensions, ActivityIndicator } from "react-native";
+import { View, StyleSheet, FlatList, ActivityIndicator,Platform} from "react-native";
 
 import { db, auth, storage } from "../../provider/Firebase";
 import { TopNav, Layout } from "react-native-rapi-ui";
@@ -15,9 +15,9 @@ import Searchbar from "../../components/Searchbar";
 import HorizontalRow from "../../components/HorizontalRow";
 import Filter from "../../components/Filter";
 
-import { sortBySimilarInterests, generateColor, isAvailable, randomize3 } from "../../methods";
+import { sortBySimilarInterests, randomize3 } from "../../utils/methods";
 import { createNewChat } from "../Chat/Chats";
-import { tryoutId } from "../../constants";
+import { tryoutId } from "../../utils/constants";
 
 // Stores image in Firebase Storage
 const storeImage = async (uri, event_id) => {
@@ -89,10 +89,11 @@ async function sendInvites(
       endDate: invite.endDate,
       additionalInfo: invite.additionalInfo,
       ice: icebreakers,
-      attendees: [user.id], //ONLY start by putting the current user as an attendee
+      attendees: [user.id], // ONLY start by putting the current user as an attendee
       hasImage: invite.hasImage,
       image,
-      chatID: chatID
+      chatID: chatID,
+      type: invite.type // public or private
     })
     .then(async (docRef) => {
       await Promise.all(attendees.map(async(attendee) => {
@@ -105,7 +106,7 @@ async function sendInvites(
       }));
 
       const storeID = {
-        type: invite.type, // There can be different private events
+        type: invite.type, // public or private
         id,
       };
 
@@ -170,7 +171,6 @@ export default function ({ route, navigation }) {
 
   // Filters
   const [curSearch, setCurSearch] = useState("");
-  const [available, setAvailable] = useState(false);
   const [friendsOnly, setFriendsOnly] = useState(false);
   const [similarInterests, setSimilarInterests] = useState(false);
   const [mutualFriends, setMutualFriends] = useState(false);
@@ -218,7 +218,6 @@ export default function ({ route, navigation }) {
               && !data.blockedIDs.includes(user.uid)
               && (!data.settings.privateAccount || currUser.friendIDs.includes(data.id))) { // Only show verified + unblocked + nonprivate users
             data.invited = false;
-            data.color = generateColor();
             data.selectedTags = randomize3(data.tags);
             list.push(data);
           }
@@ -242,10 +241,6 @@ export default function ({ route, navigation }) {
         newUsers = await sortBySimilarInterests(userInfo, newUsers);
       }
 
-      if (available) {
-        newUsers = filterByAvailability(newUsers);
-      }
-
       if (friendsOnly) {
         newUsers = filterByFriendsOnly(newUsers);
       }
@@ -264,7 +259,7 @@ export default function ({ route, navigation }) {
     filter().then(() => {
       setLoadingScreen(false);
     });
-  }, [similarInterests, available, friendsOnly, mutualFriends]);
+  }, [similarInterests, friendsOnly, mutualFriends]);
 
   // Disabling/undisabling the invite button
   useEffect(() => {
@@ -303,11 +298,6 @@ export default function ({ route, navigation }) {
     return newUsers.filter((e) => isMatch(e, text));
   };
 
-   // Filtering by people who are available to the event or not
-   const filterByAvailability = (newUsers) => {
-    return newUsers.filter(u => isAvailable(u, route.params));
-  }
-
   // Display friends only
   const filterByFriendsOnly = (newUsers) => {
     return newUsers.filter(u => userInfo.friendIDs.includes(u.id));
@@ -338,11 +328,6 @@ export default function ({ route, navigation }) {
             checked={friendsOnly}
             onPress={() => setFriendsOnly(!friendsOnly)}
             text="Friends only"
-          />
-          <Filter
-            checked={available}
-            onPress={() => setAvailable(!available)}
-            text="Is available"
           />
           <Filter
             checked={similarInterests}
@@ -432,7 +417,10 @@ export default function ({ route, navigation }) {
             }
           }
         }}
-      >{loading ? "Sending ..." : "Send Invites"}</Button>
+        marginBottom={Platform.OS === "ios"? -34 : 0}
+      >
+       {loading ? "Sending ..." : "Send Invites"}
+      </Button>
     </Layout>
   );
 }
@@ -440,21 +428,5 @@ export default function ({ route, navigation }) {
 const styles = StyleSheet.create({
   invites: {
     alignItems: "center",
-  },
-  submit: {
-    position: "absolute",
-    bottom: 0,
-  },
-  tagInput: {
-    width: "100%",
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    marginVertical: 10,
-  },
-
-  input: {
-    width: Dimensions.get("screen").width / 1.5,
-    marginRight: 10,
   },
 });

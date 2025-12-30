@@ -4,7 +4,7 @@ import { Ionicons, Octicons, AntDesign } from "@expo/vector-icons";
 import { auth} from "../provider/Firebase";
 import LargeText from "./LargeText";
 import NotifIcon from "./NotifIcon";
-import {tryoutId} from "../constants";
+import {tryoutId} from "../utils/constants";
 
 const Header = (props) => {
   const user = auth.currentUser;

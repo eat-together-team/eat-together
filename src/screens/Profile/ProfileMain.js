@@ -13,8 +13,8 @@ import SuggestIdea from "./SuggestIdea";
 import FullProfile from "../Explore/People/FullProfile";
 import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
 import ReportPerson from "../Explore/People/ReportPerson";
-import ColorSelector from "./ColorSelector";
 import EventGallery from "../Home/EventGallery";
+import Colorpicker from "./ColorPicker";
 
 const Stack = createStackNavigator();
 

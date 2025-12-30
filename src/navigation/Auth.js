@@ -15,8 +15,6 @@ import Email from "../screens/auth/Registration/Email";
 import Tags from "../screens/auth/Registration/Tags";
 import Password from "../screens/auth/Registration/Password";
 
-import AvailabilitiesHome from "../screens/auth/Registration/AvailabilitiesHome";
-import Availabilities from "../screens/auth/Registration/Availabilities";
 import Day from "../screens/auth/Registration/Day";
 
 import Experiment from "../screens/Experiment";

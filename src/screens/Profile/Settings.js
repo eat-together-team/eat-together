@@ -15,7 +15,7 @@ import "firebase/firestore"
 
 import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
-import DeviceToken from "../utils/DeviceToken";
+import DeviceToken from "../../utils/DeviceToken";
 
 export default function ({ navigation }) {
     const user = auth.currentUser;

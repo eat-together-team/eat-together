@@ -24,8 +24,8 @@ import PeopleList from '../../components/PeopleList';
 
 import firebase from "firebase/compat";
 import { db, auth } from "../../provider/Firebase";
-import getDate from '../../getDate';
-import getTime from '../../getTime';
+import getDate from '../../utils/getDate';
+import getTime from '../../utils/getTime';
 import openMap from "react-native-open-maps";
 
 export default function ({ route, navigation }) {

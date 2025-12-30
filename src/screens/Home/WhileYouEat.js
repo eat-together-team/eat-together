@@ -29,8 +29,8 @@ import Toggle from "../../components/Toggle";
 import Button from "../../components/Button";
 import GalleryPreview from "../../components/GalleryPreview";
 
-import getDate from "../../getDate";
-import getTime from "../../getTime";
+import getDate from "../../utils/getDate";
+import getTime from "../../utils/getTime";
 import { db, auth } from "../../provider/Firebase";
 import * as firebase from "firebase/compat";
 import {

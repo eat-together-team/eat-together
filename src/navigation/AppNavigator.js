@@ -17,7 +17,7 @@ import HomeMain from "../screens/Home/HomeMain";
 import TryOut from "../screens/TryOut";
 import ProfileMain from "../screens/Profile/ProfileMain";
 import NotificationsMain from "../screens/Notifications/NotificationsMain";
-import Loading from "../screens/utils/Loading";
+import Loading from "../utils/Loading";
 
 //Auth screens
 import Auth from "./Auth";
@@ -27,12 +27,12 @@ import { AuthContext } from "../provider/AuthProvider";
 import VerifyEmail from "../screens/VerifyEmail";
 import firebase from "firebase/compat";
 import { db, auth } from "../provider/Firebase";
-import { tryoutId } from "../constants";
+import { tryoutId } from "../utils/constants";
 
 //Push notifications functions and imports
 import * as NotificationFunctions from "expo-notifications";
 
-import DeviceToken from "../screens/utils/DeviceToken";
+import DeviceToken from "../utils/DeviceToken";
 import {Alert, Linking} from "react-native";
 
 async function registerForPushNotificationsAsync() {

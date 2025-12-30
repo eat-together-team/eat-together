@@ -20,7 +20,7 @@ import Button from "../../components/Button"
 
 import { db, auth } from "../../provider/Firebase";
 import { AuthContext } from "../../provider/AuthProvider";
-import { compareDates } from "../../methods";
+import { compareDates } from "../../utils/methods";
 import MediumText from "../../components/MediumText";
 import RecommendationsCard from "../../components/RecommendationsCard";
 
