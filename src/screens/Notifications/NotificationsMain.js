@@ -9,7 +9,6 @@ import ChatRoom from "../Chat/ChatRoom";
 
 import FullCard from "../Profile/FullCard";
 import FullProfile from "../Explore/People/FullProfile";
-import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
 import Recommendation from "../Recommendations/Recommendation";
 
 const Stack = createStackNavigator();
@@ -29,7 +28,6 @@ export default function ({ route }) {
       <Stack.Screen name="NotificationFull" component={NotificationFull} />
       <Stack.Screen name="FullCard" component={FullCard} />
       <Stack.Screen name="FullProfile" component={FullProfile} />
-      <Stack.Screen name="AvailabilitiesStatic" component={AvailabilitiesStatic} />
       <Stack.Screen name="Recommendation" component={Recommendation} />
       
       <Stack.Screen name="ReportInvite" component={ReportInvite} />
