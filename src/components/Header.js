@@ -22,7 +22,7 @@ const Header = (props) => {
           <TouchableOpacity onPress={() => {
             props.navigation.navigate("GroupChat");
           }}>
-            <Ionicons name="mail-unread-outline" size={30} color="black" style={{ marginRight: 5 }}/>
+            <Ionicons name="pencil" size={30} color="black" style={{ marginRight: 5 }}/>
           </TouchableOpacity>
         )}
         {props.notifs && props.navigation && (
