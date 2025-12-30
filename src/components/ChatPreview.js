@@ -28,16 +28,22 @@ const ChatPreview = (props) => {
       <View style={styles.head}>
         {props.group.unread && <View style={styles.unread}/>}
 
+        <View style={styles.time}>
+          {props.group.time !== "" && <SmallText size={13}>{time}</SmallText>}
+        </View>
+
         <View style={styles.headleft}>
           <Image style={styles.image} source={{ uri: image }} />
           <View style={styles.textContainer}>
-            <MediumText>{props.group.name}</MediumText>
-            {props.group.message !== "" &&
-              <SmallText weight={props.group.unread ? "bold" : "normal"}>{props.group.message}</SmallText>}
+            <View style={styles.nametimeframe}>
+              <MediumText size={18}>{props.group.name}</MediumText>
+            </View>
+            <View>
+              {props.group.message !== "" &&
+                <SmallText size={15} weight={props.group.unread ? "bold" : "normal"} fontFamily={'Inter_900Black'} >"{props.group.message}"</SmallText>}
+            </View>
           </View>
         </View>
-
-        {props.group.time !== "" && <SmallText>{time}</SmallText>}
       </View>
     </TouchableOpacity>
   );
@@ -46,14 +52,12 @@ const ChatPreview = (props) => {
 const styles = StyleSheet.create({
   outline: {
     padding: 10,
-    alignItems: "center"
+    alignItems: "center",
   },
-  
+
   head: {
-    width: Dimensions.get('window').width * 0.95,
+    width: Dimensions.get('window').width,
     height: 80,
-    backgroundColor: "white",
-    borderRadius: 15,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -64,12 +68,12 @@ const styles = StyleSheet.create({
   headleft: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    maxWidth: 200,
+    justifyContent: "space-between"
   },
 
   textContainer: {
-    flexDirection: "column",
-    maxWidth: 200,
+    flexDirection: "column"
   },
 
   image: {
@@ -82,7 +86,7 @@ const styles = StyleSheet.create({
   },
 
   name: {
-    marginRight: 20,
+    marginRight: 20
   },
 
   unread: {
@@ -92,8 +96,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#5DB075",
     position: "absolute",
     top: 35,
-    right: 10
+    left: 5
+  },
+
+  time: {
+    position: "absolute",
+    top: 5,
+    right: 25
+  },
+
+  nametimeframe: {
+    marginBottom: 5
   }
+
 });
 
 export default ChatPreview;

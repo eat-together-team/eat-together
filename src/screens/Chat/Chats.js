@@ -60,8 +60,6 @@ export default function ({ navigation }) {
 
   const [loading, setLoading] = useState(true); // Loading state for the page
 
-  const isFocused = useIsFocused(); //OMG THIS IS A LIFESAVING HACK
-
   const createNewChatDefault = () => {
     // Generate group id using the concatenation of all the selected usernames
     let allUsernames = [];
@@ -105,7 +103,7 @@ export default function ({ navigation }) {
     let currUserName = userInfo.firstName + " " + userInfo.lastName
     if(allUIDs.length >= 2) {
       name = name.replace(currUserName + ", ", "");
-      
+
       if (name.endsWith(", " + currUserName)) {
         name = name.slice(0, -1 * (currUserName.length + 2));
       }
@@ -195,7 +193,7 @@ export default function ({ navigation }) {
               }
             });
         });
-        
+
         setLoading(false);
 
         // prepare the list of all connections for searchbar
@@ -222,26 +220,6 @@ export default function ({ navigation }) {
     });
   }, []);
 
-  // Check if creating a new chat will override an existing one or not
-  const checkChatExists = () => {
-    return groups.some((group) => {
-      if (group.uids.length != selectedUsers.length + 1) {
-        return false;
-      }
-
-      // Comparing the two uid arrays
-      const groupIDs = group.uids.filter((uid) => uid != user.uid).sort();
-      const selectedIDs = selectedUsers.map((user) => user.id).sort();
-
-      for (let i = 0; i < groupIDs.length; i++) {
-        if (groupIDs[i] != selectedIDs[i]) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }
 
   return (
     <Layout>
@@ -261,7 +239,7 @@ export default function ({ navigation }) {
             onItemSelect={(item) => {
               setSelectedUsers([...selectedUsers, item]);
             }}
-            containerStyle={{ padding: 0, width: "70%" }}
+            containerStyle={{ padding: 0, width: "100%" }}
             onRemoveItem={(item) => {
               const items = selectedUsers.filter(
                 (sitem) => sitem.id !== item.id
@@ -286,29 +264,13 @@ export default function ({ navigation }) {
               placeholder: "Search for connections",
             }}
           />
-          <CustomButton
-            height={50}
-            paddingHorizontal={10}
-            disabled={selectedUsers.length == 0}
-            onPress={() => {
-              if (checkChatExists()) {
-                alert("Chat already exists!");
-              } else {
-                createNewChatDefault();
-              }
-              
-              setSelectedUsers([]);
-            }}
-          >
-            <NormalText color="white">New Chat</NormalText>
-          </CustomButton>
         </View>
-        {loading ? 
+        {loading ?
           <View style={styles.noChatsView}>
             <ActivityIndicator size={100} color="#5DB075" />
             <MediumText>Hang tight ...</MediumText>
           </View>
-        : groups.length > 0 ? 
+        : groups.length > 0 ?
           <FlatList
             contentContainerStyle={styles.chats}
             keyExtractor={(item) => item.id}
