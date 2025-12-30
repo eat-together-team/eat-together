@@ -7,7 +7,7 @@ import MediumText from "../../components/MediumText";
 import PeopleList from "../../components/PeopleList";
 
 import { db, auth } from "../../provider/Firebase";
-import { checkProfanity, generateColor } from "../../utils/methods";
+import { checkProfanity, generateColor } from "../../methods";
 
 export default function ({route, navigation}) {
     let group = route.params.group;
@@ -39,7 +39,7 @@ export default function ({route, navigation}) {
                 middleContent={<MediumText>View Group Details</MediumText>}
                 leftContent={<Ionicons name="chevron-back" size={20} />}
                 leftAction={() => {
-                    navigation.goBack();
+                    navigation.navigate("Chats");
                 }}
             />
             <View style={styles.chatName}>

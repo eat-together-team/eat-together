@@ -11,7 +11,7 @@ import MediumText from "../../../components/MediumText";
 import Button from "../../../components/Button";
 import NormalText from "../../../components/NormalText";
 
-import schools from "../../../utils/schools";
+import schools from "../../../schools";
 import { cloneDeep } from "lodash";
 import KeyboardAvoidingWrapper from "../../../components/KeyboardAvoidingWrapper";
 

@@ -5,12 +5,13 @@ import Chats from "./Chats";
 import ChatRoom from "./ChatRoom";
 import ChatRoomDetails from "./ChatRoomDetails";
 import FullProfile from "../Explore/People/FullProfile";
-
+import AvailabilitiesStatic from "../Explore/People/AvailabilitiesStatic";
 
 import Requests from "../Connections/Requests";
 import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ReportEvent from "../Home/ReportEvent";
+import GroupChat from "./GroupChat";
 
 const Stack = createStackNavigator();
 
@@ -29,12 +30,13 @@ export default function () {
       <Stack.Screen name="FullProfile">
         {props => <FullProfile {...props} blockBack="Chats" />}
       </Stack.Screen>
-
+      <Stack.Screen name="AvailabilitiesStatic" component={AvailabilitiesStatic}/>
 
       <Stack.Screen name="Requests">
         {props => <Requests {...props} back="Chats"/>}
       </Stack.Screen>
       <Stack.Screen name="FullCard" component={FullCard}/>
+      <Stack.Screen name="GroupChat" component={GroupChat}/>
       <Stack.Screen name="ReportPerson" component={ReportPerson}/>
       <Stack.Screen name="ReportEvent" component={ReportEvent}/>
     </Stack.Navigator>

@@ -4,11 +4,11 @@ import { Ionicons, Octicons, AntDesign } from "@expo/vector-icons";
 import { auth} from "../provider/Firebase";
 import LargeText from "./LargeText";
 import NotifIcon from "./NotifIcon";
-import {tryoutId} from "../utils/constants";
+import {tryoutId} from "../constants";
 
 const Header = (props) => {
   const user = auth.currentUser;
-
+  
   return (
     <View style={styles.header}>
       {props.back && (
@@ -20,9 +20,9 @@ const Header = (props) => {
       <View style={styles.icons}>
         {props.connections && props.navigation && (
           <TouchableOpacity onPress={() => {
-            props.navigation.navigate("ConnectionRequests");
+            props.navigation.navigate("GroupChat");
           }}>
-            <Ionicons name="mail-unread-outline" size={30} color="black" style={{ marginRight: 5 }}/>
+            <Ionicons name="pencil" size={30} color="black" style={{ marginRight: 5 }}/>
           </TouchableOpacity>
         )}
         {props.notifs && props.navigation && (

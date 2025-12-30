@@ -13,10 +13,10 @@ import Filter from "../../../components/Filter";
 import EmptyState from "../../../components/EmptyState";
 import LoadingView from "../../../components/LoadingView";
 
-import { generateColor, randomize3, getCommonTags } from "../../../utils/methods";
+import { generateColor, randomize3, getCommonTags } from "../../../methods";
 import { db, auth } from "../../../provider/Firebase";
-import { sortBySimilarInterests } from "../../../utils/methods";
-import { tryoutId } from "../../../utils/constants";
+import { sortBySimilarInterests } from "../../../methods";
+import { tryoutId } from "../../../constants";
 
 export default function ({ navigation }) {
   // Fetch current user

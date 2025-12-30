@@ -24,14 +24,14 @@ import TagsList from "../../components/TagsList";
 import Link from "../../components/Link";
 import PeopleList from "../../components/PeopleList";
 
-import getDate from "../../utils/getDate";
-import getTime from "../../utils/getTime";
+import getDate from "../../getDate";
+import getTime from "../../getTime";
 
 import { db, auth } from "../../provider/Firebase";
 import * as firebase from "firebase/compat";
 import openMap from "react-native-open-maps";
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu";
-import { tryoutId } from "../../utils/constants";
+import { tryoutId } from "../../constants";
 
 const FullCard = ({ route, navigation }) => {
   const user = auth.currentUser;

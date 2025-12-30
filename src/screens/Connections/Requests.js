@@ -18,19 +18,25 @@ export default function ({ back, navigation }) {
     const [requests, setRequests] = useState([]); // Requests
     const [loading, setLoading] = useState(true); // Loading state for the page
 
-    useEffect(() => { // updates stuff right after React makes changes to the DOM
+    useEffect(() => {
         const ref = db.collection("User Invites").doc(user.uid).collection("Connections");
-        ref.onSnapshot((query) => {
-            const list = [];
-            query.forEach((doc) => {
-                let data = doc.data();
-                list.push({
+
+        ref.onSnapshot(async (query) => {
+            const list = await Promise.all(
+            query.docs.map(async (doc) => {
+                const data = doc.data();
+                const userDoc = await db.collection("Users").doc(doc.id).get();
+                const userData = userDoc.exists ? userDoc.data() : {};
+
+                return {
                     id: doc.id,
                     name: data.name,
                     username: data.username,
-                    profile: data.profile
-                });
-            });
+                    profile: data.profile,
+                    tags: userData.tags || []
+                };
+            })
+            );
 
             setRequests(list);
             setLoading(false);
@@ -46,7 +52,7 @@ export default function ({ back, navigation }) {
         <Layout>
             <TopNav
                 middleContent={
-                    <MediumText center>Requests</MediumText>
+                    <MediumText center>Friend Requests</MediumText>
                 }
                 leftContent={
                     <Ionicons
@@ -62,7 +68,7 @@ export default function ({ back, navigation }) {
             : requests.length > 0 ?
                 <FlatList contentContainerStyle={styles.invites} keyExtractor={item => item.id}
                         data={requests} renderItem={({item}) =>
-                    <MessageList person={item} click={() => {
+                    <MessageList person={item} styles={styles.profile} click={() => {
                         db.collection("Users").doc(item.id).get().then((doc) => {
                             if (doc.data()) {
                                 navigation.navigate("FullProfile", {
@@ -87,7 +93,9 @@ export default function ({ back, navigation }) {
 const styles = StyleSheet.create({
     invites: {
         alignItems: "center",
-        padding: 30
+        padding: 10,
+        width: "100%"
+        
     },
     submit: {
         position: 'absolute',
@@ -100,6 +108,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    }
+    },
+    
 });
 

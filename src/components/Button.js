@@ -6,31 +6,37 @@ import { Ionicons } from '@expo/vector-icons';
 
 const Button = props => {
     return (
-        <TouchableOpacity style={{
-            backgroundColor: props.backgroundColor ? props.backgroundColor : "#5DB075",
-            borderRadius: 10,
-            paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 40,
-            paddingVertical: props.paddingVertical ? props.paddingVertical : 15,
-            opacity: props.disabled ? 0.7 : 1,
-            width: props.width ? props.width : "auto",
-            marginHorizontal: props.marginHorizontal ? props.marginHorizontal : 0,
-            marginVertical: props.marginVertical ? props.marginVertical : 0,
-            elevation: 10, // modified
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 3,
+        <TouchableOpacity style={[
+            {
+                backgroundColor: props.backgroundColor ?? "#5DB075",
+                borderRadius: 10,
+                paddingHorizontal: props.paddingHorizontal ?? 40,
+                paddingVertical: props.paddingVertical ?? 15,
+                opacity: props.disabled ? 0.7 : 1,
+                width: props.width ?? "auto",
+                marginHorizontal: props.marginHorizontal ?? 0,
+                marginVertical: props.marginVertical ?? 0,
+                elevation: 10,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 3 },
+                shadowOpacity: 0.27,
+                shadowRadius: 4.65,
+                zIndex: props.zIndex ?? 10,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                shadowOpacity: 0.27,
+                shadowRadius: 4.65,
+                zIndex: props.zIndex ? props.zIndex : 10,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: props.marginBottom ? props.marginBottom : 
+                    (props.marginVertical ? props.marginVertical : 0),
             },
-            shadowOpacity: 0.27,
-            shadowRadius: 4.65,
-            zIndex: props.zIndex ? props.zIndex : 10,
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            marginBottom: props.marginBottom ? props.marginBottom : 
-                (props.marginVertical ? props.marginVertical : 0),
-        }} onPress={props.onPress} disabled={props.disabled}>
+        ]} onPress={props.onPress} disabled={props.disabled}>
             {props.icon && props.icon}
             <MediumText color={props.color ? props.color : "white"} center
                 size={props.fontSize ? props.fontSize : 20}>

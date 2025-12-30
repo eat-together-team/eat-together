@@ -7,28 +7,36 @@ const MediumText = props => {
 
     if (!fontsLoaded) {
         return (
-            <Text style={{
+            <Text onPress ={props.onPress} style={{
                 fontSize: props.size ? props.size : 20,
                 fontFamily: Platform.os === 'ios' ? 'AppleSDGothicNeo-Medium' : 'sans-serif-medium',
                 color: props.color ? props.color : "black",
                 textAlign: props.center ? "center" : "auto",
                 paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
-                marginBottom: props.marginBottom ? props.marginBottom : 0
-            }}>
+                marginBottom: props.marginBottom ? props.marginBottom : 0,
+            }}
+            numberOfLines={props.numberOfLines}
+            ellipsizeMode={props.ellipsizeMode || "tail"}
+>
                 {props.children}
             </Text>
         );
     }
     return (
-        <Text style={[{
+        <Text onPress = {props.onPress} style={[{
             fontSize: props.size ? props.size : 20,
             fontFamily: 'Inter_700Bold',
             color: props.color ? props.color : "black",
             textAlign: props.center ? "center" : "auto",
             paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
             marginBottom: props.marginBottom ? props.marginBottom : 0,
-            lineHeight: 24
-        }, props.style]}>
+            lineHeight: props.lineHeight ? props.lineHeight: 24,
+
+        }, props.style]}
+        numberOfLines={props.numberOfLines}
+        ellipsizeMode={props.ellipsizeMode || "tail"}
+
+        >
             {props.children}
         </Text>
     );

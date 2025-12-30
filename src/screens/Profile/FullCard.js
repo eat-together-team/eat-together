@@ -21,8 +21,8 @@ import TagsList from "../../components/TagsList";
 import Link from "../../components/Link";
 import Toggle from "../../components/Toggle";
 
-import getDate from "../../utils/getDate";
-import getTime from "../../utils/getTime";
+import getDate from "../../getDate";
+import getTime from "../../getTime";
 
 import { auth } from "../../provider/Firebase";
 import openMap from "react-native-open-maps";
@@ -144,7 +144,7 @@ const FullCard = ({ route, navigation }) => {
           <LargeText size={24} marginBottom={10}>
             {route.params.event.name}
           </LargeText>
-          
+
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Image source={route.params.event.hasHostImage ? { uri: route.params.event.hostImage}
               : require("../../../assets/logo.png")} style={styles.profileImg}/>

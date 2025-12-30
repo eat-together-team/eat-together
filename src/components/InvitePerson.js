@@ -13,60 +13,80 @@ const InvitePerson = props => {
         if (props.person.hasImage) {
             setImage(props.person.image)
         }
-        if (props.person.bio.length >= 35) {
-            setBio(props.person.bio.substr(0, 35) + "...");
+        if (props.person.bio.length >= 30) {
+            setBio(props.person.bio.substr(0, 27) + "...");
         } else {
             setBio(props.person.bio);
         }
     });
 
     return (
-        <TouchableOpacity onPress={() => {
-                props.navigation.navigate("FullProfile", {
-                    person: props.person
-                });
-            }} style={styles.card}>
-            <MediumText>{props.person.firstName + " " + props.person.lastName.substring(0, 1) + "."}</MediumText>
-
-            <View style={styles.checkbox}>
-                <Checkbox
-                    checked={props.person.invited}
-                    onPress={() => props.toggleInvite(props.person.id)}
-                    color="black"
-                />
+        <View style={styles.outline}>
+            <View style={styles.head}>
+                <TouchableOpacity onPress={() => {
+                    props.navigation.navigate("FullProfile", {
+                        person: props.person
+                    });
+                }}>
+                    <View style={styles.headleft}>
+                        <Image style={styles.image} source={require("../../assets/logo.png")}/>
+                        <MediumText>{props.person.firstName + " " + props.person.lastName.substring(0, 1) + "."}</MediumText>
+                    </View>
+                </TouchableOpacity>
+                <View style={styles.checkbox}>
+                    <Checkbox
+                        checked={props.person.invited}
+                        onPress = {() => props.toggleInvite(props.person.id)}
+                        color="white"
+                    />
+                </View>
             </View>
-
-            <MediumText size={14}>{bio}</MediumText>
-            <TagsList tags={props.person.selectedTags} left/>
-        </TouchableOpacity>
+            <View style={[styles.body, {backgroundColor: props.person.color}]}>
+                <MediumText>{bio}</MediumText>
+                <TagsList tags={props.person.selectedTags} left/>
+            </View>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    card: {
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        width: Dimensions.get('screen').width - 40,
-        borderRadius: 10,
-        marginVertical: 5,
-        backgroundColor: "white",
-        shadowColor: "#000000",
-        shadowOpacity: 0.25,
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        elevation: 10
+    outline: {
+        width: Dimensions.get("window").width - 20,
+        padding: 10
     },
-
+    head: {
+        height: 80,
+        backgroundColor: "grey",
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between"
+    },
+    body: {
+        backgroundColor: "red",
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        padding: 20,
+    },
+    headleft: {
+        flexDirection: "row",
+        alignItems: "center"
+    },
+    image: {
+        width: 60,
+        height: 60,
+        borderRadius: 90,
+        borderColor: "white",
+        borderWidth: 2,
+        marginLeft: 25,
+        marginRight: 20
+    },
     name: {
         marginRight: 20,
     },
-
     checkbox: {
-        position: "absolute",
-        right: 0,
-        top: 10,
+       marginRight: 25
     }
 })
 
