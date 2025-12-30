@@ -1,6 +1,7 @@
 //Functionality TDB, most likely to be used to implement ice-breaker games
 
 import React, { useEffect, useState } from "react";
+import { serverTimestamp } from "firebase/firestore";
 import {
   View,
   StyleSheet,
@@ -259,6 +260,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               name: userData.firstName + " " + userData.lastName,
               username: userData.username,
               profile: inviterImage,
+              sentAt: Date.now()
             })
             .then(() => {
               setStatus("Request Sent");
