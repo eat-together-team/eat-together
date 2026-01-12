@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { View, StyleSheet, TouchableOpacity, ScrollView, StatusBar } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ScrollView, StatusBar,Dimensions } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import RBSheet from "react-native-raw-bottom-sheet";
 
