@@ -25,17 +25,9 @@ const Button = props => {
                 display: "flex",
                 flexDirection: "row",
                 justifyContent: "center",
-                alignItems: "center",
-                shadowOpacity: 0.27,
-                shadowRadius: 4.65,
-                zIndex: props.zIndex ? props.zIndex : 10,
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: props.marginBottom ? props.marginBottom : 
-                    (props.marginVertical ? props.marginVertical : 0),
+                alignItems: "center"
             },
+            props.style // allow using different style
         ]} onPress={props.onPress} disabled={props.disabled}>
             {props.icon && props.icon}
             <MediumText color={props.color ? props.color : "white"} center

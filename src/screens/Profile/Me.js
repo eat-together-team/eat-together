@@ -21,6 +21,7 @@ import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 import TagsList from "../../components/TagsList";
 import EventCard from "../../components/EventCard";
+// Add buddy button
 import { AntDesign } from '@expo/vector-icons';
 
 import { compareDates } from "../../utils/methods";
@@ -39,8 +40,8 @@ export default function ({ navigation }) {
   const [friends, setFriends] = useState([]);
 
   const screenWidth = Dimensions.get('window').width;
-  const nameFontSize = screenWidth > 350 ? 24 : 20;
-  const pronounFontSize = screenWidth > 350 ? 18 : 15;
+  const nameFontSize = 20;
+  const pronounFontSize = 10;
 
   useEffect(() => {
     async function fetchData() {
@@ -116,7 +117,7 @@ export default function ({ navigation }) {
                 }
               }).catch(e => {
                 // Still activates after logout for some accounts, commented for now
-                // alert("There was an error fetching some of your meals :( try again later");
+                //alert("There was an error fetching some of your meals :( try again later");
 
                 eventsLength--;
                 newEvents = newEvents.sort((a, b) => {
@@ -266,15 +267,15 @@ export default function ({ navigation }) {
                 minWidth: 0,
               }}
             >
-              <LargeText
+              {/* <LargeText
                 style={styles.name}
                 numberOfLines={1}
                 ellipsizeMode="tail"
                 size={nameFontSize}
               >
                 {userInfo.firstName + " " + userInfo.lastName}
-              </LargeText>
-              {userInfo.pronouns ? (
+              </LargeText> */}
+              {/* {userInfo.pronouns ? (
                 <NormalText
                   style={{
                     color: 'white',
@@ -290,7 +291,7 @@ export default function ({ navigation }) {
                 >
                   {userInfo.pronouns}
                 </NormalText>
-              ) : null}
+              ) : null} */}
             </View>
             <NormalText
               size={16}
@@ -336,14 +337,40 @@ export default function ({ navigation }) {
             </Button>
           </View>
         </View>
-        <LargeText
-          style={[styles.name, { left: 18 }]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          size={nameFontSize}
-        >
-          {userInfo.firstName + " " + userInfo.lastName}
-        </LargeText>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'flex-end',
+                marginBottom: 2,
+                minWidth: 0,
+              }}
+            >
+              <LargeText
+                style={[styles.name, { left: 18 }]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                size={nameFontSize}
+              >
+                {userInfo.firstName + " " + userInfo.lastName}
+              </LargeText>
+              {userInfo.pronouns ? (
+                <NormalText
+                  style={{
+                    color: 'white',
+                    marginLeft: 8,
+                    fontWeight: '400',
+                    textAlign: 'left',
+                    lineHeight: 30,
+                    flexShrink: 0,
+                  }}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  size={pronounFontSize}
+                >
+                  {userInfo.pronouns}
+                </NormalText>
+              ) : null}
+            </View>
 
         {userInfo.bio ? (
           <NormalText style={styles.bio}>
@@ -485,7 +512,6 @@ export default function ({ navigation }) {
     </ImageBackground>
   );
 }
-
 const styles = StyleSheet.create({
   image: {
     width: 120,
@@ -496,31 +522,11 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
 
-  name: {
-    width: "100%",
-    marginVertical: 20,
-    alignItems: "center",
-  },
-
-  palette: {
-    position: "absolute",
-    left: 20,
-    top: 20,
-    alignItems: "center",
-  },
-
-  badge: {
-    position: "absolute",
-    left: 20,
-    top: 70,
-    marginTop: 10,
-  },
-
   settings: {
     position: "absolute",
-    right: 20,
-    top: 20,
-    alignItems: "center",
+    right: 18,
+    top: 10,
+    zIndex: 10,
   },
 
   baseOutlineButton: {
@@ -534,7 +540,11 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     flexDirection: "row",
   },
-  
+
+  buddy: {
+
+  },
+
   rowInfoBlock: {
     flexDirection: 'row',
     alignItems: 'center',
