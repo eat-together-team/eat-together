@@ -3,7 +3,6 @@ import { Image, Text, View, StyleSheet, Linking, Platform} from "react-native";
 import SmallText from "./SmallText";
 import MediumText from "./MediumText";
 import LargeText from './LargeText';
-import ExpandedButton from "./ExpandedButton";
 import Button from './Button';
 
 //Presents each restaurant result from YELP API Response
@@ -75,7 +74,6 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                 source={{ uri: restaurant.imageUrl }}
                 style={styles.image}
             />
-            <ExpandedButton setExpanded = {setExpanded} expanded = {expanded}/>
             <View style = {styles.ratingAndCategoryContainer}>
                 <View>
                     <MediumText size = {13} lineHeight = {15}>{listOfCategories[0]}</MediumText>
