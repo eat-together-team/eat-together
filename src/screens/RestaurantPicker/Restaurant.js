@@ -36,9 +36,9 @@ export default function ({navigation}) {
   // console.log("Current card index" + currentIndex);
   // console.log("Pressed Start: " + pressedStart);
   // console.log("User Skipped: " + userSkipped);
-  console.log("Category Aliases: " + categoryAliases);
-  console.log("Dietary Tags: " + selectedDietaryTags);
-  console.log("Price range: " + priceRange);
+  // console.log("Category Aliases: " + categoryAliases);
+  // console.log("Dietary Tags: " + selectedDietaryTags);
+  // console.log("Price range: " + priceRange);
 
   //Queries Yelp restaurant data
   const findRestaurant = async() =>{
@@ -54,22 +54,17 @@ export default function ({navigation}) {
       // 2. get match scores (parallel to each restaurant in result)
       const matchScores =  result.map(business => 
         weighRestaurant({restaurant: business, cuisinePref: categoryAliases, dietaryPref: selectedDietaryTags, priceRange: priceRange}))
-      
-        console.log("Match Scores: " + matchScores);
-    
       // 3. Pair restaurants with scores
       const restaurantWithScores = result.map((restaurant, index) => ({
         ...restaurant,
         matchScore: matchScores[index]
       }));
-      console.log(restaurantWithScores);
 
       // 4. sort from highest to lowest
       const sortedRestaurants = restaurantWithScores.sort(
         (a, b) => b.matchScore - a.matchScore
       );
 
-      console.log(sortedRestaurants);
       return sortedRestaurants;
 
     }catch(err){
