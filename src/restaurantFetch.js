@@ -67,9 +67,8 @@ const restaurant = async (categoryParams, priceRange) => {
     console.log(error);
   });
 
-  console.log(businesses);
   const formattedBusinesses = await extractRestaurantInfo(businesses);
-
+  console.log("Formatted Businesses: " + formattedBusinesses.length);
   return formattedBusinesses;
 }
 

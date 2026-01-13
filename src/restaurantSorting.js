@@ -7,7 +7,7 @@ const weighRestaurant = ({ restaurant, dietaryPref, cuisinePref, priceRange }) =
         cuisine: 0.3
     };
 
-    const restaurantCategories = restaurant.categoryAliases || []; 
+    const restaurantCategories = restaurant.categories || []; 
 
     // 1. Check if any dietary tag matches
     const hasDietaryTag = dietaryPref?.some(tag => restaurantCategories.includes(tag));
