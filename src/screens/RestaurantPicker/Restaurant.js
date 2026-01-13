@@ -33,13 +33,6 @@ export default function ({navigation}) {
   const [currentIndex, setCurrentIndex] = useState(0); // Index for list of restaurants
   const [resultVisible, setResultVisible] = useState(true);
 
-  // console.log("Current card index" + currentIndex);
-  // console.log("Pressed Start: " + pressedStart);
-  // console.log("User Skipped: " + userSkipped);
-  // console.log("Category Aliases: " + categoryAliases);
-  // console.log("Dietary Tags: " + selectedDietaryTags);
-  // console.log("Price range: " + priceRange);
-
   //Queries Yelp restaurant data
   const findRestaurant = async() =>{
     
@@ -123,7 +116,6 @@ export default function ({navigation}) {
 
   //validation for user selection before allowing them to proceed
   const validateSteps = () => {
-    console.log("Executed");
     switch(index){
       case 3:
         return false
