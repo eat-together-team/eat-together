@@ -1,6 +1,5 @@
 import {View, StyleSheet, Modal, TouchableOpacity} from 'react-native';
 import SmallText from '../../components/SmallText';
-import MediumText from '../../components/MediumText';
 import LargeText from '../../components/LargeText';
 import Button from '../../components/Button';
 import * as Progress from 'react-native-progress';
