@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Image, Text, View, StyleSheet, Linking, Platform} from "react-native";
-import SmallText from "./SmallText";
 import MediumText from "./MediumText";
 import LargeText from './LargeText';
 import Button from './Button';
