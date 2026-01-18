@@ -220,10 +220,4 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     padding:20,
   },
-  buttonContainer:{
-        display:'flex',
-        flexDirection:'row',
-        justifyContent:'center',
-        padding:20,
-  },
 })
