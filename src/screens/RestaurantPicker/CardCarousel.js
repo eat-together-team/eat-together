@@ -1,11 +1,11 @@
-import {View, StyleSheet, Modal} from 'react-native';
+import {View, StyleSheet, Modal, TouchableOpacity} from 'react-native';
 import SmallText from '../../components/SmallText';
 import MediumText from '../../components/MediumText';
 import LargeText from '../../components/LargeText';
 import Button from '../../components/Button';
 import * as Progress from 'react-native-progress';
-import RedButton from '../../components/RedButton';
-import GreenButton from '../../components/GreenButton';
+import CustomButton from '../../components/CustomButton';
+import { Ionicons } from '@expo/vector-icons';
 
 // Carousel to display each card component for restaurant personalizer
 const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished, validateSteps, progress}) => {
@@ -14,44 +14,79 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
     <View>
         {cards[index]}
         <Modal visible={pressedFinished} transparent={true}>
-            <View style = {styles.overlay}>
-                <View style = {styles.prefContainer}>
-                    <MediumText color = "#00000080" center = "center" style = {{marginTop:30 }}>Preferences are set!</MediumText>
-                    <LargeText  size = {30} center = {true} marginBottom = {30} style = {{marginTop:20}}>Ready to Swipe?</LargeText>
-                    <SmallText paddin size = {25} center = {true}>
-                         Press the <GreenButton disabled = {true} style = {{width: 40, height: undefined, aspectRatio: 1, marginRight: 5}}/>
-                        to skip.</SmallText>
-                    <SmallText size = {25} center = {true} >
-                        Press the <RedButton style = {{width: 40, height: 38, marginRight: 5, marginTop: 5}}/> to save.</SmallText>
-                    <View style = {[styles.buttonContainer, {marginTop:30}]}>
-                        <Button
-                            backgroundColor="white"
-                            color="#5DB075"
-                            onPress={() => {
-                                setPressedFinished(false);
-                            }}
-                            fontSize={16}
-                            paddingHorizontal={25}
-                            paddingVertical={10}
-                            marginHorizontal={10}
-                        >
-                            Back
-                        </Button>
-                        <Button
-                            fontSize={16}
-                            paddingHorizontal={25}
-                            paddingVertical={10}
-                            marginHorizontal={10}
-                            onPress = {()=> {
-                                incrementIndex();
-                                setPressedFinished(false);
-                            }}
-                        >
-                            Start
-                        </Button>
+            <TouchableOpacity style = {styles.overlay} onPress={() => setPressedFinished(false)}>
+                    <View style = {styles.prefContainer}>
+                        <LargeText  size = {30} center = {true} marginBottom = {30} style = {{marginTop:20}}>Ready to explore?</LargeText>
+                        <View>
+                            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+                                <SmallText size={25}>Press the </SmallText>
+
+                                <CustomButton
+                                disabled
+                                width={30}
+                                height={30}
+                                borderRadius={50}
+                                backgroundColor="#F8AEAE"
+                                style={{
+                                    aspectRatio: 1,
+                                    marginHorizontal: 5,
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
+                                >
+                                <Ionicons name="close" size={18} />
+                                </CustomButton>
+
+                                <SmallText size={25}> to skip.</SmallText>
+                            </View>
+
+                            <View
+                                style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                marginTop: 40,
+                                }}
+                            >
+                                <SmallText size={25}>Press the </SmallText>
+
+                                <CustomButton
+                                disabled
+                                width={30}
+                                height={30}
+                                borderRadius={50}
+                                paddingVertical={0}
+                                paddingHorizontal={0}
+                                elevation={0}
+                                style={{
+                                    aspectRatio: 1,
+                                    marginHorizontal: 5,
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
+                                >
+                                <Ionicons name="checkmark" size={18} />
+                                </CustomButton>
+
+                                <SmallText size={25}> to save.</SmallText>
+                            </View>
+                        </View>
+                        <View style = {[{marginTop:30}]}>
+                            <Button
+                                fontSize={16}
+                                paddingHorizontal={25}
+                                paddingVertical={10}
+                                marginHorizontal={15}
+                                onPress = {()=> {
+                                    incrementIndex();
+                                    setPressedFinished(false);
+                                }}
+                            >
+                                Let's Go
+                            </Button>
+                        </View>
                     </View>
-                </View>
-            </View>
+            </TouchableOpacity>
         </Modal>
         {(index >= 2 && index <= 4) &&
             <View style = {styles.buttonContainer}>
@@ -145,7 +180,7 @@ const styles = StyleSheet.create({
         display:'flex',
         backgroundColor:"#F7F7F7",
         borderRadius:20,
-        height:360,
+        height:289,
         width:315,
     },
 })
