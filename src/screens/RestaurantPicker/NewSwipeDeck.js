@@ -21,7 +21,6 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
   };
 
   const checkLimit = () => {
-    console.log(currentIndex,"Current Index" )
     if (currentIndex >= 9) {
       setSwipingFinished(true);
     }else{

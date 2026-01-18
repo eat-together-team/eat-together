@@ -11,7 +11,7 @@ const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
 
     const handleFinishSeeingResults = () => {
         setResultVisible(false);
-        navigation.navigate("Profile");
+        navigation.goBack();
         setResult(undefined);
     }
 

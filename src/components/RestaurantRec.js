@@ -9,7 +9,7 @@ import ExpandedButton from "./ExpandedButton";
 //Presents each restaurant result from YELP API Response
 const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart, setResult}) => {
     const [expanded, setExpanded] = useState(false);
-    console.log("Rendering restaurant: " + JSON.stringify(restaurant, null, 2));
+    // console.log("Rendering restaurant: " + JSON.stringify(restaurant, null, 2));
     const listOfCategories = restaurant.categories.split(', ');
     
     // Opens Yelp app (or browser)
