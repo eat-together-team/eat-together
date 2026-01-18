@@ -1,6 +1,5 @@
 import { View, Modal, StyleSheet } from 'react-native';
 import MediumText from '../../components/MediumText';
-import SmallText from '../../components/SmallText';
 import Button from '../../components/Button';
 import RestaurantRec from '../../components/RestaurantRec';
 import LargeText from '../../components/LargeText';
