@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import {StyleSheet, View, ScrollView} from "react-native";
+import {StyleSheet, View, ScrollView, Alert} from "react-native";
 import { Layout, TopNav} from "react-native-rapi-ui";
 import MediumText from "../../components/MediumText";
 import { Ionicons } from "@expo/vector-icons";
@@ -61,7 +61,15 @@ export default function ({navigation}) {
       return sortedRestaurants;
 
     }catch(err){
-      console.log(err);
+      if(err.message === 'Cannot read property \'length\' of undefined'){
+        Alert.alert('No restaurants found. Please try different preferences.');
+        return
+      }
+      else{
+        console.log(err);
+        Alert.alert('An Error Occurred. Please try again later.');
+        return
+      }
     }
   } 
 
@@ -204,6 +212,7 @@ const styles = StyleSheet.create({
     flex:1,
     justifyContent:'center',
     alignItems:'center',
+    marginTop:-20,
   },
   buttonContainer:{
     display:'flex',
