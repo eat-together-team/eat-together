@@ -35,12 +35,10 @@ const restaurant = async (categoryParams, priceRange) => {
   const limit = 10;
   const radius = 10000;  // 1 km radius
 
-  // Example user input
-
   // Check if user provided any categories
 
-  console.log(categories);
-  console.log(categoryParams);
+  // console.log(categories);
+  // console.log(categoryParams);
 
   // Build query parameters object
   let params = {
@@ -68,7 +66,6 @@ const restaurant = async (categoryParams, priceRange) => {
   });
 
   const formattedBusinesses = await extractRestaurantInfo(businesses);
-  console.log("Formatted Businesses: " + formattedBusinesses.length);
   return formattedBusinesses;
 }
 
