@@ -4,6 +4,7 @@ import SmallText from "./SmallText";
 import MediumText from "./MediumText";
 import LargeText from './LargeText';
 import Button from './Button';
+import ExpandedButton from "./ExpandedButton";
 
 //Presents each restaurant result from YELP API Response
 const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart, setResult}) => {
@@ -74,7 +75,8 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                 source={{ uri: restaurant.imageUrl }}
                 style={styles.image}
             />
-                <LargeText style = {{marginLeft: 30, marginBottom: 20, marginTop: 30, marginRight: 30,}} color = "#5DB075" numberOfLines={2} ellipsizeMode="tail">{restaurant.name}</LargeText>
+            <LargeText style = {{marginLeft: 30, marginBottom: 20, marginTop: 30, marginRight: 30,}} color = "#5DB075" numberOfLines={2} ellipsizeMode="tail">{restaurant.name}</LargeText>
+            <ExpandedButton setExpanded = {setExpanded} expanded = {expanded}/>
             <View style = {styles.ratingAndCategoryContainer}>
                 <View>
                     <MediumText size = {13} lineHeight = {15}>{[listOfCategories[0]]}</MediumText>
@@ -82,7 +84,7 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                 </View>
                 {listOfCategories[1] && <MediumText size = {13} lineHeight = {15} style = {{marginRight: 15}}>{listOfCategories[1]}</MediumText>}
             </View>
-            {/* {expanded && ( */}
+            {expanded && (
                 <View>
                     <View style = {styles.locationContainer}>
                         <MediumText center color = "#5DB075">
@@ -99,7 +101,7 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                         <MediumText center size = {13} style = {{marginTop: 7}}>{restaurant.serviceOptions}</MediumText>
                     </View>            
                 </View>
-            {/* )} */}
+            )}
                 <View>
                     <MediumText center onPress = {handleOpeningURL} marginBottom = {20} lineHeight = {15} size = {13} weight = {600} style = {{textDecorationLine: 'underline'}}>Check it out on Yelp!</MediumText>
                 </View>
@@ -111,7 +113,7 @@ const styles = StyleSheet.create({
     container: {
         alignSelf:'center',
         width: 315,
-        height:512,
+        height: 'auto', // Changed from fixed height to auto to fit content dynamically
         marginTop: 40,
         borderWidth: 0.2,
         borderRadius: 40,
