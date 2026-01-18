@@ -3,9 +3,9 @@ import MediumText from '../../components/MediumText';
 import SmallText from '../../components/SmallText';
 import Button from '../../components/Button';
 import RestaurantRec from '../../components/RestaurantRec';
-import GreenButton from '../../components/GreenButton';
-import RedButton from '../../components/RedButton';
 import LargeText from '../../components/LargeText';
+import CustomButton from '../../components/CustomButton';
+import { Ionicons } from '@expo/vector-icons';
 
 // "Swipe Deck" screen that renders each restaurant that is tailored to user preferences
 const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, incrementIndex, currentIndex, setCurrentIndex, setIndex, setUserSkipped, setPressedStart, setUserResults, setResult}) => {
@@ -19,7 +19,16 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
   const ignoreRestaurant = () => {
     setCurrentIndex((prev) => (prev + 1));
   };
-  
+
+  const checkLimit = () => {
+    console.log(currentIndex,"Current Index" )
+    if (currentIndex >= 9) {
+      setSwipingFinished(true);
+    }else{
+      storeRestaurant();
+    }
+  };
+
   // Wait until API response loads
   if(!listOfRestaurants){
     return (
@@ -43,15 +52,14 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
     <View>
         {renderCard(listOfRestaurants[currentIndex])}
         
-        {currentIndex < 10 && <View>
-            <MediumText center = {true} marginBottom = {12} style = {{marginTop:20}} >
-              {listOfRestaurants.length - currentIndex} Cards Left
-            </MediumText>
-          <View style = {{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
-            <RedButton onPress ={ignoreRestaurant}/>
-            <Button onPress ={()=> setSwipingFinished(true)} width = {100} height = {10} fontSize = {13} paddingVertical = {1} paddingHorizontal = {1}>Finish</Button>
-            <GreenButton onPress= {storeRestaurant}/>
-          </View>
+        {currentIndex <= 9 && <View style = {{marginTop:20}}>
+            <View>
+              <View style = {{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems: "center",}}>
+                <CustomButton width={67} height={67} borderRadius={50} backgroundColor="#F8AEAE" onPress ={ignoreRestaurant}><Ionicons name="close" size={50} /></CustomButton>
+                <Button onPress ={()=> setSwipingFinished(true)} marginHorizontal={15} backgroundColor="white" color='grey'>I'm Done</Button>
+                <CustomButton width={67} height={67} borderRadius={50} onPress={checkLimit}><Ionicons name="checkmark" size={50} /></CustomButton>
+              </View>
+            </View>
         </View>}
         {/* Modal when finished button pressed*/}
         <Modal visible={swipingFinished} transparent={true}>
