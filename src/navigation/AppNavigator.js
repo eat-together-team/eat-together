@@ -57,7 +57,8 @@ const Main = () => {
   );
 };
 
-// Controls the screens connected to the bottom navigation bar
+
+//Controls the screens connected to the bottom navigation bar
 const Tabs = createBottomTabNavigator();
 const MainTabs = () => {
   const auth_context = useContext(AuthContext);

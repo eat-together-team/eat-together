@@ -13,8 +13,11 @@ const MediumText = props => {
                 color: props.color ? props.color : "black",
                 textAlign: props.center ? "center" : "auto",
                 paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
-                marginBottom: props.marginBottom ? props.marginBottom : 0
-            }}>
+                marginBottom: props.marginBottom ? props.marginBottom : 0,
+            }}
+            numberOfLines={props.numberOfLines}
+            ellipsizeMode={props.ellipsizeMode || "tail"}
+>
                 {props.children}
             </Text>
         );
@@ -27,8 +30,13 @@ const MediumText = props => {
             textAlign: props.center ? "center" : "auto",
             paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
             marginBottom: props.marginBottom ? props.marginBottom : 0,
-            lineHeight: props.lineHeight ? props.lineHeight: 24
-        }, props.style]}>
+            lineHeight: props.lineHeight ? props.lineHeight: 24,
+
+        }, props.style]}
+        numberOfLines={props.numberOfLines}
+        ellipsizeMode={props.ellipsizeMode || "tail"}
+
+        >
             {props.children}
         </Text>
     );

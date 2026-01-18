@@ -29,9 +29,9 @@ yarn install
 
 4. To link this project with Firebase, download the `.env` file from our Google Drive. Simply put it in the root directory. Download links are below!
 
-Core team link: [https://drive.google.com/file/d/1rv-9lrnczpkuq2ZjpwXydzQVsgvxNBbQ/view?usp=drive_link](https://drive.google.com/file/d/1rv-9lrnczpkuq2ZjpwXydzQVsgvxNBbQ/view?usp=drive_link)
+Core team link: [https://drive.google.com/file/d/1U9SEh9laM0gwOMCvxbNlQRBf37pIJd6_/view?usp=drive_link](https://drive.google.com/file/d/1U9SEh9laM0gwOMCvxbNlQRBf37pIJd6_/view?usp=drive_link)
 
-Cohort members link: [https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing](https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing)
+Cohort members link: **Currently Old Env, contact Navneeth to get the new one** [https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing](https://drive.google.com/file/d/1EryzSbUqeC-95YNhzT7ZIMjvOL-uMjb-/view?usp=sharing)
 
 Ensure that the file is named "**.env**", not "env" (i.e. don't forget the starting period)!
 

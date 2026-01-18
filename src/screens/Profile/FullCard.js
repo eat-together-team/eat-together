@@ -144,7 +144,7 @@ const FullCard = ({ route, navigation }) => {
           <LargeText size={24} marginBottom={10}>
             {route.params.event.name}
           </LargeText>
-          
+
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Image source={route.params.event.hasHostImage ? { uri: route.params.event.hostImage}
               : require("../../../assets/logo.png")} style={styles.profileImg}/>
