@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { Image, Text, View, StyleSheet, Linking, Platform} from "react-native";
-import SmallText from "./SmallText";
 import MediumText from "./MediumText";
 import LargeText from './LargeText';
-import ExpandedButton from "./ExpandedButton";
 import Button from './Button';
+import ExpandedButton from "./ExpandedButton";
 
 //Presents each restaurant result from YELP API Response
 const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart, setResult}) => {
     const [expanded, setExpanded] = useState(false);
-
+    // console.log("Rendering restaurant: " + JSON.stringify(restaurant, null, 2));
     const listOfCategories = restaurant.categories.split(', ');
     
     // Opens Yelp app (or browser)
@@ -75,17 +74,14 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                 source={{ uri: restaurant.imageUrl }}
                 style={styles.image}
             />
+            <LargeText style = {{marginLeft: 30, marginBottom: 20, marginTop: 30, marginRight: 30,}} color = "#5DB075" numberOfLines={2} ellipsizeMode="tail">{restaurant.name}</LargeText>
             <ExpandedButton setExpanded = {setExpanded} expanded = {expanded}/>
             <View style = {styles.ratingAndCategoryContainer}>
                 <View>
-                    <MediumText size = {13} lineHeight = {15}>{listOfCategories[0]}</MediumText>
+                    <MediumText size = {13} lineHeight = {15}>{[listOfCategories[0]]}</MediumText>
                     <MediumText size = {13}>{restaurant.price}  {restaurant.rating}★</MediumText>
                 </View>
                 {listOfCategories[1] && <MediumText size = {13} lineHeight = {15} style = {{marginRight: 15}}>{listOfCategories[1]}</MediumText>}
-            </View>
-            <LargeText style = {{marginLeft: 30, marginBottom: 20}} marginBottom ={15} color = "#5DB075">{restaurant.name}</LargeText>
-            <View style = {styles.reviewContainer}>
-                <MediumText onPress = {handleOpeningURL} marginBottom = {20} lineHeight = {20} size = {13} weight = {600} style = {{textDecorationLine: 'underline'}}>{restaurant.url}</MediumText>
             </View>
             {expanded && (
                 <View>
@@ -102,9 +98,12 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                     <View style = {styles.servicesContainer}>
                         <MediumText center color = "#5DB075">Types of Services</MediumText>
                         <MediumText center size = {13} style = {{marginTop: 7}}>{restaurant.serviceOptions}</MediumText>
-                    </View>
+                    </View>            
                 </View>
             )}
+                <View>
+                    <MediumText center onPress = {handleOpeningURL} marginBottom = {20} lineHeight = {15} size = {13} weight = {600} style = {{textDecorationLine: 'underline'}}>Check it out on Yelp!</MediumText>
+                </View>
         </View>
     );
 };
@@ -113,6 +112,7 @@ const styles = StyleSheet.create({
     container: {
         alignSelf:'center',
         width: 315,
+        height: 'auto', // Changed from fixed height to auto to fit content dynamically
         marginTop: 40,
         borderWidth: 0.2,
         borderRadius: 40,
@@ -123,28 +123,23 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 40,
         borderTopRightRadius: 40,
     },
-    reviewContainer:{
-        width: 240,
-        alignSelf:'center',
-        marginRight: 20
-    },
     ratingAndCategoryContainer:{
         display:'flex',
         flexDirection:'row',
         justifyContent:'space-between',
         marginTop: 15,
-        marginBottom: 20,
+        marginBottom: 5,
         marginLeft: 30,
     },
     locationContainer:{
-        marginTop: 10
+        marginTop: 5
     },
     phoneNumberContainer:{
-        marginTop: 10,
+        marginTop: 5,
     },
     servicesContainer:{
-        marginTop: 10,
-        marginBottom: 20,
+        marginTop: 5,
+        marginBottom: 5,
     }
 });
 

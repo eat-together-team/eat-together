@@ -2,8 +2,6 @@ import {View, Modal, StyleSheet, FlatList, Image} from "react-native";
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
 import Button from "../../components/Button";
-import star from "../../../assets/star.png";
-import forward from "../../../assets/forward.png";
 import { useNavigation } from '@react-navigation/native';
 
 // Shows a list of restaurants user pressed "green" on 
@@ -13,7 +11,7 @@ const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
 
     const handleFinishSeeingResults = () => {
         setResultVisible(false);
-        navigation.navigate("Profile");
+        navigation.goBack();
         setResult(undefined);
     }
 
@@ -41,12 +39,6 @@ const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
                     </MediumText>
                 </View>
             </View>
-            <View style = {{position:'absolute', right: 5, top: 25}}>
-                <Image source = {star} style = {{width: 17, height: 15}}/>
-            </View>
-            <View style = {{position:'absolute', right: 5, top: 50}}>
-                <Image source = {forward} style = {{width: 17, height: 15}}/>
-            </View>
         </View>
     );
 
@@ -59,7 +51,7 @@ const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
                             Results
                         </LargeText>
                         <MediumText size = {13} weight = "bold" center = {true} style = {{lineHeight: 20,}}>
-                            Star the places that are your favorite to save under your profile
+                            These are the places you have shortlisted, Have a great time!
                         </MediumText>
                     </View>
                     <View style={styles.flatListContainer}>
@@ -72,8 +64,8 @@ const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
                             ItemSeparatorComponent={() => <View style={styles.separator} />}
                         />
                     </View>
-                    <View style = {{display:'flex', alignItems:'center', bottom: 20,}}>
-                        <Button onPress={handleFinishSeeingResults} width = {100} fontSize = {15} paddingHorizontal = {20}>
+                    <View style = {{display:'flex', alignItems:'center', bottom: 5,}}>
+                        <Button onPress={handleFinishSeeingResults}  >
                             Finish
                         </Button>
                     </View>

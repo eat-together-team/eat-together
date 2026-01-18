@@ -14,7 +14,10 @@ const LargeText = props => {
                 textAlign: props.center ? "center" : "auto",
                 paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
                 marginBottom: props.marginBottom ? props.marginBottom : 0
-            }}>
+            }}
+                numberOfLines={props.numberOfLines}
+                ellipsizeMode={props.ellipsizeMode ? props.ellipsizeMode : 'tail'}
+            >
                 {props.children}
             </Text>
         );
@@ -28,7 +31,12 @@ const LargeText = props => {
             textAlign: props.center ? "center" : "auto",
             paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
             marginBottom: props.marginBottom ? props.marginBottom : 0
-        }, props.style]}>
+        }, props.style]}
+
+            numberOfLines={props.numberOfLines}
+            ellipsizeMode={props.ellipsizeMode ? props.ellipsizeMode : 'tail'}
+
+        >
             {props.children}
         </Text>
     );

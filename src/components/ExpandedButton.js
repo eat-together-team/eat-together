@@ -1,5 +1,6 @@
 import { TouchableOpacity } from "react-native"
 import MediumText from "./MediumText"
+import {Ionicons} from '@expo/vector-icons';
 
 const ExpandedButton = ({expanded = false, setExpanded}) => {
     
@@ -27,7 +28,9 @@ const ExpandedButton = ({expanded = false, setExpanded}) => {
                     fontWeight: 'bold',
                     padding: 3,
                     
-                    }}>↔</MediumText>
+                    }}>
+                        <Ionicons name={"chevron-expand"} size={22} color="#5DB075" />
+                </MediumText>
             </TouchableOpacity>
   )
 }

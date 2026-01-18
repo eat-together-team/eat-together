@@ -31,16 +31,14 @@ const restaurant = async (categoryParams, priceRange) => {
   const search_endpoint = 'https://api.yelp.com/v3/businesses/search';
 
   let categories = categoryParams ? categoryParams : ['coffee', 'restaurant', 'food'];
-  const location = 'The Ave, Seattle, WA'
+  const location = 'The Ave, Seattle, WA';
   const limit = 10;
   const radius = 10000;  // 1 km radius
 
-  // Example user input
-
   // Check if user provided any categories
 
-  console.log(categories);
-  console.log(categoryParams);
+  // console.log(categories);
+  // console.log(categoryParams);
 
   // Build query parameters object
   let params = {
@@ -67,9 +65,7 @@ const restaurant = async (categoryParams, priceRange) => {
     console.log(error);
   });
 
-  console.log(businesses);
   const formattedBusinesses = await extractRestaurantInfo(businesses);
-
   return formattedBusinesses;
 }
 

@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import {StyleSheet, View, ScrollView} from "react-native";
+import {StyleSheet, View, ScrollView, Alert} from "react-native";
 import { Layout, TopNav} from "react-native-rapi-ui";
 import MediumText from "../../components/MediumText";
 import { Ionicons } from "@expo/vector-icons";
@@ -33,13 +33,6 @@ export default function ({navigation}) {
   const [currentIndex, setCurrentIndex] = useState(0); // Index for list of restaurants
   const [resultVisible, setResultVisible] = useState(true);
 
-  // console.log("Current card index" + currentIndex);
-  // console.log("Pressed Start: " + pressedStart);
-  // console.log("User Skipped: " + userSkipped);
-  console.log("Category Aliases: " + categoryAliases);
-  console.log("Dietary Tags: " + selectedDietaryTags);
-  console.log("Price range: " + priceRange);
-
   //Queries Yelp restaurant data
   const findRestaurant = async() =>{
     
@@ -54,26 +47,29 @@ export default function ({navigation}) {
       // 2. get match scores (parallel to each restaurant in result)
       const matchScores =  result.map(business => 
         weighRestaurant({restaurant: business, cuisinePref: categoryAliases, dietaryPref: selectedDietaryTags, priceRange: priceRange}))
-      
-        console.log("Match Scores: " + matchScores);
-    
       // 3. Pair restaurants with scores
       const restaurantWithScores = result.map((restaurant, index) => ({
         ...restaurant,
         matchScore: matchScores[index]
       }));
-      console.log(restaurantWithScores);
 
       // 4. sort from highest to lowest
       const sortedRestaurants = restaurantWithScores.sort(
         (a, b) => b.matchScore - a.matchScore
       );
 
-      console.log(sortedRestaurants);
       return sortedRestaurants;
 
     }catch(err){
-      console.log(err);
+      if(err.message === 'Cannot read property \'length\' of undefined'){
+        Alert.alert('No restaurants found. Please try different preferences.');
+        return
+      }
+      else{
+        console.log(err);
+        Alert.alert('An Error Occurred. Please try again later.');
+        return
+      }
     }
   } 
 
@@ -128,7 +124,6 @@ export default function ({navigation}) {
 
   //validation for user selection before allowing them to proceed
   const validateSteps = () => {
-    console.log("Executed");
     switch(index){
       case 3:
         return false
@@ -217,17 +212,12 @@ const styles = StyleSheet.create({
     flex:1,
     justifyContent:'center',
     alignItems:'center',
+    marginTop:-20,
   },
   buttonContainer:{
     display:'flex',
     flexDirection:'row',
     justifyContent:'center',
     padding:20,
-  },
-  buttonContainer:{
-        display:'flex',
-        flexDirection:'row',
-        justifyContent:'center',
-        padding:20,
   },
 })
