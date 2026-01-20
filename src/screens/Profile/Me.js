@@ -190,7 +190,7 @@ export default function ({ navigation }) {
               });
             }}
           ></Ionicons>
-          <NormalText style={{color: "white"}}>Background</NormalText>
+          {/* <NormalText style={{color: "white"}}>Background</NormalText> */}
         </View>
 
         <View style={styles.badge}>
@@ -199,8 +199,8 @@ export default function ({ navigation }) {
 
         <View style={styles.settings}>
           <Ionicons
-            name="settings-sharp"
-            size={40}
+            name="settings-outline"
+            size={24}
             color="white"
             onPress={() => {
               navigation.navigate("Settings", {
@@ -210,7 +210,7 @@ export default function ({ navigation }) {
               });
             }}
           ></Ionicons>
-          <NormalText style={{color: "white"}}>Settings</NormalText>
+          {/* <NormalText style={{color: "white"}}>Settings</NormalText> */}
         </View>
         <Image
           style={styles.image}
@@ -224,6 +224,47 @@ export default function ({ navigation }) {
         <View style={styles.links}>
 
           {/* add back connections when navigation succcessfully configured */}
+          {/* <TouchableOpacity
+            style={styles.link}
+            onPress={() => {
+              navigation.navigate("Connections", {
+                user: userInfo,
+                image: userInfo.image,
+                updateInfo,
+              });
+            }}
+          >
+            {/* <Ionicons name="list-circle" size={20} color="#4C6FB1" />
+            <NormalText color="#4C6FB1"> Connections</NormalText>
+          </TouchableOpacity> */}
+
+
+          {/* <TouchableOpacity
+            style={styles.link}
+            onPress={() => {
+              navigation.navigate("Edit", {
+                user: userInfo,
+                updateInfo,
+              });
+            }}
+          >
+            {/* <Feather name="edit-2" size={20} color="#4C6FB1" />
+            <NormalText color="#4C6FB1"> Edit Profile</NormalText>
+          </TouchableOpacity> */}
+
+        </View>
+
+        <View style={styles.name}>
+          <LargeText size={24}>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
+          <MediumText>@{userInfo.username}</MediumText>
+          <NormalText marginBottom={5}>🏫 {userInfo.school ? userInfo.school : "UW Seattle"}</NormalText>
+          <NormalText>
+            🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
+          </NormalText>
+          <NormalText>Joined in {userInfo.join ? userInfo.join : "June 2024"}</NormalText>
+        </View>
+
+        <View>
           <TouchableOpacity
             style={styles.link}
             onPress={() => {
@@ -234,11 +275,12 @@ export default function ({ navigation }) {
               });
             }}
           >
-            <Ionicons name="list-circle" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Connections</NormalText>
+            {/* <Ionicons name="list-circle" size={20} color="#4C6FB1" /> */}
+            <NormalText color="white">{userInfo.connections} Connections</NormalText>
           </TouchableOpacity>
+        </View>
 
-
+        <View style={styles.profile}>
           <TouchableOpacity
             style={styles.link}
             onPress={() => {
@@ -248,19 +290,9 @@ export default function ({ navigation }) {
               });
             }}
           >
-            <Feather name="edit-2" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Edit Profile</NormalText>
+            {/* <Feather name="edit-2" size={20} color="#4C6FB1" /> */}
+            <NormalText color="white"> Edit Profile</NormalText>
           </TouchableOpacity>
-
-        </View>
-
-        <View style={styles.name}>
-          <LargeText size={24}>{userInfo.firstName + " " + userInfo.lastName + " (" + userInfo.pronouns + ")"}</LargeText>
-          <MediumText>@{userInfo.username}</MediumText>
-          <NormalText>
-            🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
-          </NormalText>
-          <NormalText marginBottom={5}>🏫 {userInfo.school ? userInfo.school : "UW-Seattle"}</NormalText>
         </View>
 
 
@@ -309,7 +341,7 @@ const styles = StyleSheet.create({
   background: {
     position: "absolute",
     width: Dimensions.get("screen").width,
-    height: 150,
+    height: 300,
   },
 
   image: {
@@ -324,7 +356,18 @@ const styles = StyleSheet.create({
   name: {
     width: "100%",
     marginVertical: 20,
-    alignItems: "center",
+    alignItems: "left",
+  },
+
+  profile: {
+    fontSize: 13,
+    borderColor: "white",
+    borderWidth: 2,
+    borderRadius: 10,
+    paddingBottom: 12,
+    paddingTop: 12,
+    paddingRight: 64,
+    paddingLeft: 64,
   },
 
   palette: {
