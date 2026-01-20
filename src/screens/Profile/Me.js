@@ -178,7 +178,7 @@ export default function ({ navigation }) {
     <Layout>
       <ScrollView contentContainerStyle={styles.page}>
         <View style={[styles.background, {backgroundColor: banner}]} />
-        <View style={styles.palette}>
+        {/* <View style={styles.palette}>
           <Ionicons
             name="aperture"
             size={40}
@@ -190,8 +190,8 @@ export default function ({ navigation }) {
               });
             }}
           ></Ionicons>
-          {/* <NormalText style={{color: "white"}}>Background</NormalText> */}
-        </View>
+          {/* <NormalText style={{color: "white"}}>Background</NormalText>
+        </View> */}
 
         <View style={styles.badge}>
           <WithBadge mealsAttended={mealsAttended} mealsSignedUp={mealsSignedUp}/>
@@ -212,77 +212,62 @@ export default function ({ navigation }) {
           ></Ionicons>
           {/* <NormalText style={{color: "white"}}>Settings</NormalText> */}
         </View>
-        <Image
-          style={styles.image}
-          source={
-            userInfo.hasImage
-              ? { uri: userInfo.image }
-              : require("../../../assets/logo.png")
-          }
-        />
+
+        <View style={styles.header}>
+          <View style={styles.name}>
+            <LargeText color="white" marginTop={4} size={24}>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
+            <NormalText color="white">@{userInfo.username}</NormalText>
+            <NormalText color="white" marginBottom={2}>🏫 {userInfo.school ? userInfo.school : "UW Seattle"}</NormalText>
+            <NormalText color="white" marginBottom={2}>
+              🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
+            </NormalText>
+            <NormalText color="white">Joined in {userInfo.join ? userInfo.join : "June 2024"}</NormalText>
+
+            <TouchableOpacity
+              style={styles.link}
+              onPress={() => {
+                navigation.navigate("Connections", {
+                  user: userInfo,
+                  image: userInfo.image,
+                  updateInfo,
+                });
+              }}
+            >
+              {/* <Ionicons name="list-circle" size={20} color="#4C6FB1" /> */}
+              <NormalText color="white" align="left" weight="bold" marginTop={24}>{userInfo.connections} Connections</NormalText>
+            </TouchableOpacity>
+          </View>
+
+          <Image
+            style={styles.image}
+            source={
+              userInfo.hasImage
+                ? { uri: userInfo.image }
+                : require("../../../assets/logo.png")
+            }
+          />
+        </View>
+
+        {/* add back connections when navigation succcessfully configured */}
+        <View style={styles.links}>
+          {/* <TouchableOpacity
+            style={styles.link}
+            onPress={() => {
+              navigation.navigate("Connections", {
+                user: userInfo,
+                image: userInfo.image,
+                updateInfo,
+              });
+            }}
+          >
+            {/* <Ionicons name="list-circle" size={20} color="#4C6FB1" /> 
+            <NormalText color="white" align="left" weight="bold" marginBottom={20}>{userInfo.connections} Connections</NormalText>
+          </TouchableOpacity> */}
+        </View>
 
         <View style={styles.links}>
-
-          {/* add back connections when navigation succcessfully configured */}
-          {/* <TouchableOpacity
-            style={styles.link}
-            onPress={() => {
-              navigation.navigate("Connections", {
-                user: userInfo,
-                image: userInfo.image,
-                updateInfo,
-              });
-            }}
-          >
-            {/* <Ionicons name="list-circle" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Connections</NormalText>
-          </TouchableOpacity> */}
-
-
-          {/* <TouchableOpacity
-            style={styles.link}
-            onPress={() => {
-              navigation.navigate("Edit", {
-                user: userInfo,
-                updateInfo,
-              });
-            }}
-          >
-            {/* <Feather name="edit-2" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Edit Profile</NormalText>
-          </TouchableOpacity> */}
-
-        </View>
-
-        <View style={styles.name}>
-          <LargeText size={24}>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
-          <MediumText>@{userInfo.username}</MediumText>
-          <NormalText marginBottom={5}>🏫 {userInfo.school ? userInfo.school : "UW Seattle"}</NormalText>
-          <NormalText>
-            🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
-          </NormalText>
-          <NormalText>Joined in {userInfo.join ? userInfo.join : "June 2024"}</NormalText>
-        </View>
-
-        <View>
           <TouchableOpacity
-            style={styles.link}
-            onPress={() => {
-              navigation.navigate("Connections", {
-                user: userInfo,
-                image: userInfo.image,
-                updateInfo,
-              });
-            }}
-          >
-            {/* <Ionicons name="list-circle" size={20} color="#4C6FB1" /> */}
-            <NormalText color="white">{userInfo.connections} Connections</NormalText>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.profile}>
-          <TouchableOpacity
-            style={styles.link}
+            style={styles.profile}
             onPress={() => {
               navigation.navigate("Edit", {
                 user: userInfo,
@@ -291,7 +276,7 @@ export default function ({ navigation }) {
             }}
           >
             {/* <Feather name="edit-2" size={20} color="#4C6FB1" /> */}
-            <NormalText color="white"> Edit Profile</NormalText>
+            <NormalText color="white" center weight="bold"> Edit profile</NormalText>
           </TouchableOpacity>
         </View>
 
@@ -345,18 +330,27 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    width: 175,
-    height: 175,
+    width: 150,
+    height: 150,
     borderColor: "white",
     borderWidth: 3,
     borderRadius: 100,
     backgroundColor: "white",
+    // marginTop: 24,
+  },
+
+  header: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
   },
 
   name: {
-    width: "100%",
+    flex: 1,
+    marginRight: 20,
     marginVertical: 20,
-    alignItems: "left",
+    alignItems: "flex-start",
   },
 
   profile: {
@@ -366,8 +360,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingBottom: 12,
     paddingTop: 12,
-    paddingRight: 64,
-    paddingLeft: 64,
+    width: "95%",
   },
 
   palette: {
@@ -401,8 +394,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-evenly",
+    justifyContent: "flex-start",
     width: "100%",
+    paddingHorizontal: 20,
   },
 
   link: {
