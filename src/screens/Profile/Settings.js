@@ -17,6 +17,7 @@ import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 import DeviceToken from "../../utils/DeviceToken";
 import { Link } from "@react-navigation/native";
+import Switch from "../../components/Switch";
 
 export default function ({ navigation }) {
     const user = auth.currentUser;
@@ -47,37 +48,21 @@ export default function ({ navigation }) {
 
     // Changes if user's acount is private or not
     function changePrivacySettings() {
-        Alert.alert(
-            "Update Account Status",
-            "Would you like to make your account private? This will prevent your profile from matching with other users on the Explore page; however, you will still be able to be found if a user searches your exact username.",
-            [
-                {
-                    text: "Yes",
-                    onPress: async () => {
-                        if (privAcct) return; //Don't display a "changed" animation and alert if nothing changed
-                        await db.collection("Users").doc(user.uid).update({
-                            "settings.privateAccount": true
-                        });
+        if (privAcct) {
+            db.collection("Users").doc(user.uid).update({
+                "settings.privateAccount": false
+            });
+            setPrivAcct(false);
 
-                        setPrivAcct(true);
-                        alert("Account status updated!");
-                    }
-                },
-                {
-                    text: "No",
-                    onPress: async () => {
-                        if (!privAcct) return; //Don't display a "changed" animation and alert if nothing changed
-                        await db.collection("Users").doc(user.uid).update({
-                            "settings.privateAccount": false
-                        });
+        } else {
+            db.collection("Users").doc(user.uid).update({
+                "settings.privateAccount": true
+            });
+            setPrivAcct(true);
 
-                        setPrivAcct(false);
-                        alert("Account status updated!");
-                    }
-                }
-            ]
-        );
-    }
+        }
+    }    
+            
 
     // Changes if user gets recommendations or not
     function changeRecommendationSettings() {
@@ -113,7 +98,7 @@ export default function ({ navigation }) {
         );
     }
 
-    async function signOut () {
+    async function signOut() {
         if (!logoutDisabled) {
             setLogoutDisabled(true);
             if (DeviceToken.getToken()) await db.collection("Users").doc(user.uid).update({
@@ -124,14 +109,14 @@ export default function ({ navigation }) {
         }
     }
 
-    function deleteAccount () {
+    function deleteAccount() {
         Alert.alert(
             "Are you sure?",
             "Deleting your account cannot be reversed. Are you sure you want to continue?",
             [
                 {
                     text: "No",
-                    onPress: () => {},
+                    onPress: () => { },
                     style: "cancel"
                 },
                 {
@@ -189,70 +174,143 @@ export default function ({ navigation }) {
 
     const buttons = [
         {
-            name: " Notification Preferences",
-            icon: "notifications",
+            name: "Notifications",
+            section: "General",
+            description: "These include chat messages, meetup recommendations, and event updates",
+            toggleState: notifs,
             func: () => changeNotifSettings()
         },
         {
-            name: " Private Account" + (privAcct ? " (ON)" : " (OFF)"),
-            icon: "shield",
+            name: "Private account",
+            section: "General",
+            description: "Prevent your profile from being discovered in public search and recommendations",
+            toggleState: privAcct,
             func: () => changePrivacySettings()
         },
         {
-            name: " Recommendations" + (getRecommendations ? " (ON)" : " (OFF)"),
-            icon: "heart",
+            name: "Recommendations",
+            section: "General",
+            description: "Receive personalized suggestions for meetups happening around you",
+            toggleState: getRecommendations,
             func: () => changeRecommendationSettings()
         },
         {
-            name: " Privacy Policy",
-            icon: "hand-left",
-            func: () => {Linking.openURL("https://www.eat-together.org/privacy-policy")}
+            name: "Launch tutorial",
+            section: "General",
+            description: "Learn about the core features of the app and how to get the most out of them",
+            icon: "return-up-forward-outline",
+            func: () => changeTutorialSettings()
         },
         {
-            name: " Terms of Service",
-            icon: "hand-left",
-            func: () => {Linking.openURL("https://www.eat-together.org/terms-and-conditions")}
+            name: "Privacy Policy",
+            section: "Support",
+            icon: "shield-outline",
+            func: () => { Linking.openURL("https://www.eat-together.org/privacy-policy") }
         },
         {
-            name: " Report a Bug",
-            icon: "bug",
-            func: () => {navigation.navigate("Report Bug")}
+            name: "Suggest an Idea",
+            section: "Support",
+            icon: "bulb-outline",
+            func: () => { navigation.navigate("Suggest Idea") }
         },
         {
-            name: " Suggest an Idea",
-            icon: "bulb",
-            func: () => {navigation.navigate("Suggest Idea")}
-        },
-        {   
-            name: " Tutorial",
-            icon: "book",
-            func: () => changeTutorialSettings()           
+            name: "Report a Bug",
+            section: "Support",
+            icon: "bug-outline",
+            func: () => { navigation.navigate("Report Bug") }
         },
         {
-            name: " Log Out",
-            icon: "log-out",
+            name: "Log out",
+            section: "Account",
             func: () => signOut()
         },
         {
-            name: " Delete Account",
-            icon: "trash",
+            name: "Delete account",
+            section: "Account",
             func: () => deleteAccount()
         }
-    ]
+    ];
 
-    const renderButton = ({ item }) => (
-        <TouchableOpacity onPress={item.func} key={item.name}>
-            <View style={styles.listView}>
-                <Ionicons name = {item.icon} size = {25}
-                    color={item.name.toLowerCase().includes("delete") ? "red" : "black"}/>
-                <NormalText size={16} color={item.name.toLowerCase().includes("delete") ? "red" : "black"}>
-                    {item.name}
-                </NormalText>
-            </View>
-        </TouchableOpacity>
-    )
-    return(
-        <Layout>
+    const renderButton = ({ item }) => {
+        if (item.section === "General") {
+            return (
+                <TouchableOpacity onPress={item.func} key={item.name}>
+                    <View style={styles.listView}>
+                        <View style={styles.textContainer}>
+                            <NormalText size={13} color="black">
+                                {item.name}
+                            </NormalText>
+                            {item.description && (
+                                <NormalText size={12} color="gray" style={styles.descriptionText}>
+                                    {item.description}
+                                </NormalText>
+                            )}
+                        </View>
+                        <View style={styles.actionContainer}>
+                            {item.toggleState !== undefined ? (
+                                <Switch value={item.toggleState} onValueChange={item.func} />
+                            ) : (
+                                item.icon && (
+                                    <Ionicons
+                                        name={item.icon}
+                                        size={20}
+                                        color={item.name.toLowerCase().includes("delete") ? "red" : "black"}
+                                    />
+                                )
+                            )}
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            );
+        }
+        if (item.section === "Support") {
+            return (
+                <TouchableOpacity onPress={item.func} key={item.name}>
+                    <View style={styles.listView}>
+                        <View style={styles.textContainer}>
+                            <NormalText size={13} color="black">
+                                {item.name}
+                            </NormalText>
+                            {item.description && (
+                                <NormalText size={12} color="gray" style={styles.descriptionText}>
+                                    {item.description}
+                                </NormalText>
+                            )}
+                        </View>
+                        <View style={styles.actionContainer}>
+                            {item.toggleState !== undefined ? (
+                                <Switch value={item.toggleState} onValueChange={item.func} />
+                            ) : (
+                                item.icon && (
+                                    <Ionicons
+                                        name={item.icon}
+                                        size={20}
+                                        color={item.name.toLowerCase().includes("delete") ? "red" : "black"}
+                                    />
+                                )
+                            )}
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            );
+        }
+        if (item.section === "Account") {
+            return (
+                <TouchableOpacity onPress={item.func} key={item.name}>
+                    <View style={[styles.accountListView, { borderColor: item.name === "Delete account" ? "red" : "#5DB075" }]}>
+                        <View style={styles.textContainer}>
+                            <MediumText size={13} color={item.name === "Delete account" ? "red" : "#5DB075"}>
+                                {item.name}
+                            </MediumText>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            );
+        } 
+        
+    }
+    return (
+        <Layout>    
             <TopNav
                 middleContent={
                     <MediumText center>Settings</MediumText>
@@ -265,19 +323,61 @@ export default function ({ navigation }) {
                 }
                 leftAction={() => navigation.goBack()}
             />
-            <FlatList data={buttons} renderItem={renderButton} style={styles.flatlist}/>
+            <FlatList 
+                data={buttons} 
+                renderItem={renderButton} 
+                style={styles.flatlist}
+                contentContainerStyle={styles.flatListContent}
+                keyExtractor={(item, index) => item.name + index}
+            />
         </Layout>
     );
 }
 const styles = StyleSheet.create({
     flatlist: {
-        marginVertical: 10,
-        marginHorizontal: 10
+        flex: 1,
+    },
+    flatListContent: {
+        paddingVertical: 8,
+        paddingHorizontal: 18
     },
 
     listView: {
         flexDirection: "row",
-        paddingVertical: 15,
         alignItems: "center",
+        backgroundColor: "#80808021",
+        borderRadius: 12,
+        paddingVertical: 13,
+        paddingHorizontal: 16,
+        marginBottom: 9
+    },
+    accountListView: {
+        flexDirection: "column",
+        alignItems: "center",
+        borderRadius: 10,
+        borderWidth: 2,
+        paddingVertical: 6,
+        marginBottom: 9
+    },
+    iconContainer: {
+        marginRight: 18
+    },
+    textContainer: {
+        flex: 1,
+        flexDirection: "column",
+        paddingRight: 16,
+        paddingLeft: 16,
+        justifyContent: "center",
+    },
+    actionContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        minWidth: 44,
+        paddingLeft: 4,
+    },
+    titleText: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#000"
     }
 });
