@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
     View,
+    ScrollView,
     StyleSheet,
     TouchableOpacity,
-    FlatList,
     Alert, Linking
 } from 'react-native';
 import { Layout, TopNav } from "react-native-rapi-ui";
@@ -61,8 +61,8 @@ export default function ({ navigation }) {
             setPrivAcct(true);
 
         }
-    }    
-            
+    }
+
 
     // Changes if user gets recommendations or not
     function changeRecommendationSettings() {
@@ -231,11 +231,23 @@ export default function ({ navigation }) {
         }
     ];
 
+    const sections = [
+        { title: "General", data: buttons.filter(b => b.section === "General") },
+        { title: "Support", data: buttons.filter(b => b.section === "Support") },
+        { title: "Account", data: buttons.filter(b => b.section === "Account") },
+    ];
+
     const renderButton = ({ item }) => {
         if (item.section === "General") {
+            const isToggle = item.toggleState !== undefined;
+            const toggleActive = isToggle && !!item.toggleState;
+            const listViewStyle = [
+                styles.generalListView,
+                toggleActive ? { backgroundColor: "#5DB07521" } : null
+            ];
             return (
                 <TouchableOpacity onPress={item.func} key={item.name}>
-                    <View style={styles.listView}>
+                    <View style={listViewStyle}>
                         <View style={styles.textContainer}>
                             <NormalText size={13} color="black">
                                 {item.name}
@@ -247,7 +259,7 @@ export default function ({ navigation }) {
                             )}
                         </View>
                         <View style={styles.actionContainer}>
-                            {item.toggleState !== undefined ? (
+                            {isToggle ? (
                                 <Switch value={item.toggleState} onValueChange={item.func} />
                             ) : (
                                 item.icon && (
@@ -266,7 +278,7 @@ export default function ({ navigation }) {
         if (item.section === "Support") {
             return (
                 <TouchableOpacity onPress={item.func} key={item.name}>
-                    <View style={styles.listView}>
+                    <View style={styles.supportListView}>
                         <View style={styles.textContainer}>
                             <NormalText size={13} color="black">
                                 {item.name}
@@ -298,7 +310,7 @@ export default function ({ navigation }) {
             return (
                 <TouchableOpacity onPress={item.func} key={item.name}>
                     <View style={[styles.accountListView, { borderColor: item.name === "Delete account" ? "red" : "#5DB075" }]}>
-                        <View style={styles.textContainer}>
+                        <View style={styles.accountTextContainer}>
                             <MediumText size={13} color={item.name === "Delete account" ? "red" : "#5DB075"}>
                                 {item.name}
                             </MediumText>
@@ -306,11 +318,11 @@ export default function ({ navigation }) {
                     </View>
                 </TouchableOpacity>
             );
-        } 
-        
+        }
+
     }
     return (
-        <Layout>    
+        <Layout>
             <TopNav
                 middleContent={
                     <MediumText center>Settings</MediumText>
@@ -323,41 +335,60 @@ export default function ({ navigation }) {
                 }
                 leftAction={() => navigation.goBack()}
             />
-            <FlatList 
-                data={buttons} 
-                renderItem={renderButton} 
+            <ScrollView
                 style={styles.flatlist}
                 contentContainerStyle={styles.flatListContent}
-                keyExtractor={(item, index) => item.name + index}
-            />
+            >
+                {sections.map((section) => (
+                    <View key={section.title}>
+                        {section.title === "Account" ? (
+                            <View style={{ borderBottomWidth: 0, marginVertical: 4 }} />
+                        ) : (
+                            <NormalText style={styles.sectionHeader}>{section.title}</NormalText>
+                        )}
+                        {section.data.map((item, index) => (
+                            <View key={item.name + index}>
+                                {renderButton({ item })}
+                            </View>
+                        ))}
+                    </View>
+                ))}
+            </ScrollView>
         </Layout>
     );
 }
 const styles = StyleSheet.create({
     flatlist: {
-        flex: 1,
     },
     flatListContent: {
         paddingVertical: 8,
-        paddingHorizontal: 18
+        paddingHorizontal: 18,
+        paddingBottom: 20
     },
 
-    listView: {
+    generalListView: {
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "#80808021",
         borderRadius: 12,
-        paddingVertical: 13,
-        paddingHorizontal: 16,
-        marginBottom: 9
+        marginBottom: 9,
+        maxHeight: 75
+    },
+    supportListView: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#80808021",
+        borderRadius: 12,
+        marginBottom: 9,
+        maxHeight: 55
     },
     accountListView: {
         flexDirection: "column",
         alignItems: "center",
         borderRadius: 10,
         borderWidth: 2,
-        paddingVertical: 6,
-        marginBottom: 9
+        marginBottom: 9,
+        maxHeight: 41
     },
     iconContainer: {
         marginRight: 18
@@ -365,19 +396,33 @@ const styles = StyleSheet.create({
     textContainer: {
         flex: 1,
         flexDirection: "column",
-        paddingRight: 16,
-        paddingLeft: 16,
-        justifyContent: "center",
+        paddingHorizontal: 16,  
+        paddingVertical: 13,
+        justifyContent: "center"
     },
     actionContainer: {
         alignItems: "center",
         justifyContent: "center",
         minWidth: 44,
-        paddingLeft: 4,
+        paddingRight: 16,
+    },
+    accountTextContainer: {
+        paddingHorizontal: 65,  
+        paddingVertical: 5,
+        justifyContent: "center"
     },
     titleText: {
         fontSize: 13,
         fontWeight: "600",
         color: "#000"
+    },
+    sectionHeader: {
+        color: "#000",
+        fontWeight: "700",
+        fontSize: 11,
+        opacity: 0.5,
+        marginTop: 11,
+        marginBottom: 7,
+        paddingHorizontal: 2
     }
 });
