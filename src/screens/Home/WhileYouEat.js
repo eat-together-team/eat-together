@@ -537,7 +537,7 @@ const WhileYouEat = ({ route, navigation }) => {
                     <NormalText size={18}>Invite People</NormalText>
                   </MenuOption>
                 )}
-                {(event.hostID === user.uid || event.type === "recommendation") && (
+                {(event.hostID === user.uid) && (
                   <MenuOption
                     onSelect={() =>
                       navigation.navigate("EditEvent", {
