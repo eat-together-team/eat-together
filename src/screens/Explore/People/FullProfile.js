@@ -32,6 +32,7 @@ import {
 import { db, auth } from "../../../provider/Firebase";
 import firebase from "firebase/compat";
 import { tryoutId } from "../../../utils/constants";
+import { removeFriend } from "../../../utils/methods";
 
 const blockPerson = (uid, navigation, back) => {
   Alert.alert("Block", "Are you sure you want to block this user? This can't be undone.", [
@@ -106,33 +107,33 @@ const databaseStoreBlockAction = (uid, navigation, back) => {
 };
 
 //Remove a friend, if we are already connected with them
-function removeFriend(uid, navigation) {
-  Alert.alert("Remove Friend", "Are you sure you want to remove this friend?", [
-    {
-      text: "Cancel",
-      style: "cancel",
-    },
-    { text: "Yes", style: "destructive" ,onPress: () => databaseRemoveFriend(uid, navigation) },
-  ]);
-}
+// function removeFriend(uid, navigation) {
+//   Alert.alert("Remove Friend", "Are you sure you want to remove this friend?", [
+//     {
+//       text: "Cancel",
+//       style: "cancel",
+//     },
+//     { text: "Yes", style: "destructive" ,onPress: () => databaseRemoveFriend(uid, navigation) },
+//   ]);
+// }
 
-function databaseRemoveFriend(uid, navigation) {
-  alert("Friend removed.");
-  const user = auth.currentUser;
+// function databaseRemoveFriend(uid, navigation) {
+//   alert("Friend removed.");
+//   const user = auth.currentUser;
 
-  // update user's blacklist & remove from friends
-  db.collection("Users")
-      .doc(user.uid)
-      .update({
-        friendIDs: firebase.firestore.FieldValue.arrayRemove(uid)
-      }).then(() => {
-        db.collection("Users").doc(uid).update({
-          friendIDs: firebase.firestore.FieldValue.arrayRemove(user.uid)
-        })
-  });
+//   // update user's blacklist & remove from friends
+//   db.collection("Users")
+//       .doc(user.uid)
+//       .update({
+//         friendIDs: firebase.firestore.FieldValue.arrayRemove(uid)
+//       }).then(() => {
+//         db.collection("Users").doc(uid).update({
+//           friendIDs: firebase.firestore.FieldValue.arrayRemove(user.uid)
+//         })
+//   });
 
-  navigation.goBack();
-}
+//   navigation.goBack();
+// }
 
 const FullProfile = ({ blockBack, route, navigation }) => {
   const user = auth.currentUser; // Current user

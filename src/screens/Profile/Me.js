@@ -178,20 +178,16 @@ export default function ({ navigation }) {
     <Layout>
       <ScrollView contentContainerStyle={styles.page}>
         <View style={[styles.background, {backgroundColor: banner}]} />
-        {/* <View style={styles.palette}>
+        <View style={styles.palette}>
           <Ionicons
-            name="aperture"
-            size={40}
+            name="arrow-back-sharp"
+            size={24}
             color="white"
             onPress={() => {
-              navigation.navigate("ColorPicker", {
-                oldbanner: banner,
-                updateBanner,
-              });
+              navigation.navigate("Home");
             }}
           ></Ionicons>
-          {/* <NormalText style={{color: "white"}}>Background</NormalText>
-        </View> */}
+        </View>
 
         <View style={styles.badge}>
           <WithBadge mealsAttended={mealsAttended} mealsSignedUp={mealsSignedUp}/>
@@ -216,12 +212,24 @@ export default function ({ navigation }) {
         <View style={styles.header}>
           <View style={styles.name}>
             <LargeText color="white" marginTop={4} size={24}>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
-            <NormalText color="white">@{userInfo.username}</NormalText>
-            <NormalText color="white" marginBottom={2}>🏫 {userInfo.school ? userInfo.school : "UW Seattle"}</NormalText>
-            <NormalText color="white" marginBottom={2}>
-              🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
-            </NormalText>
-            <NormalText color="white">Joined in {userInfo.join ? userInfo.join : "June 2024"}</NormalText>
+            <NormalText color="white" weight="bold" marginBottom={10}>@{userInfo.username}</NormalText>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="school-outline" size={16} color="white" style={styles.infoIcon} />
+              <NormalText color="white" marginBottom={2}>{userInfo.school ? userInfo.school : "UW Seattle"}</NormalText>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="restaurant-outline" size={16} color="white" style={styles.infoIcon} />
+              <NormalText color="white" marginBottom={2}>
+                {mealsAttended + "/" + mealsSignedUp + " meals attended"}
+              </NormalText>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="calendar-outline" size={16} color="white" style={styles.infoIcon} />
+              <NormalText color="white">Joined in {userInfo.join ? userInfo.join : "June 2024"}</NormalText>
+            </View>
 
             <TouchableOpacity
               style={styles.link}
@@ -233,8 +241,8 @@ export default function ({ navigation }) {
                 });
               }}
             >
-              {/* <Ionicons name="list-circle" size={20} color="#4C6FB1" /> */}
-              <NormalText color="white" align="left" weight="bold" marginTop={24}>{userInfo.connections} Connections</NormalText>
+            
+            <NormalText color="white" align="left" weight="bold" marginTop={24}>{userInfo.connections} Connections</NormalText>
             </TouchableOpacity>
           </View>
 
@@ -248,23 +256,6 @@ export default function ({ navigation }) {
           />
         </View>
 
-        {/* add back connections when navigation succcessfully configured */}
-        <View style={styles.links}>
-          {/* <TouchableOpacity
-            style={styles.link}
-            onPress={() => {
-              navigation.navigate("Connections", {
-                user: userInfo,
-                image: userInfo.image,
-                updateInfo,
-              });
-            }}
-          >
-            {/* <Ionicons name="list-circle" size={20} color="#4C6FB1" /> 
-            <NormalText color="white" align="left" weight="bold" marginBottom={20}>{userInfo.connections} Connections</NormalText>
-          </TouchableOpacity> */}
-        </View>
-
         <View style={styles.links}>
           <TouchableOpacity
             style={styles.profile}
@@ -275,14 +266,19 @@ export default function ({ navigation }) {
               });
             }}
           >
-            {/* <Feather name="edit-2" size={20} color="#4C6FB1" /> */}
-            <NormalText color="white" center weight="bold"> Edit profile</NormalText>
+          
+          <NormalText color="white" center weight="bold"> Edit profile</NormalText>
           </TouchableOpacity>
         </View>
 
 
+        {/* break down tags list */}
         <TagsList tags={userInfo.tags ? userInfo.tags : []} />
+
+        {/* separate the fun fact into a section */}
         <MediumText center>{userInfo.bio}</MediumText>
+
+        {/* events */}
         {events.length > 0 && <View style={styles.eventRecordBackground}>
           <LargeText>Archives</LargeText>
           <View style={styles.cards}>
@@ -402,5 +398,16 @@ const styles = StyleSheet.create({
   link: {
     flexDirection: "row",
     alignItems: "center",
+  },
+
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 2,
+    // opacity: "70",
+  },
+
+  infoIcon: {
+    marginRight: 6,
   },
 });
