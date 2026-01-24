@@ -6,13 +6,17 @@ import {
   View,
   StyleSheet,
   Image,
+  ImageBackground,
   Dimensions,
   ScrollView,
   Alert,
-  TouchableOpacity
+  TouchableOpacity,
+  StatusBar,
+  Platform
 } from "react-native";
 import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
+import Constants from 'expo-constants';
 
 import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
@@ -158,6 +162,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
   const [inviterImage, setInviterImage] = useState(
     "https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png"
   );
+  const [personData, setPersonData] = useState(person);
 
   const reportPerson = () => {
     navigation.navigate("ReportPerson", {
@@ -182,6 +187,13 @@ const FullProfile = ({ blockBack, route, navigation }) => {
 
         requestedUser.get().then((doc) => {
           let data = doc.data();
+          // Update personData with fetched data including hasImage and image
+          setPersonData(prev => ({
+            ...prev,
+            ...data,
+            hasImage: data.hasImage || false,
+            image: data.image || ""
+          }));
 
           if (thisData.friendIDs.includes(data.id)) {
             setDisabled(true);
@@ -214,7 +226,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
                   } else {
                     // STEP 4: Set to default
                     setDisabled(false);
-                    setStatus("Add Connection");
+                    setStatus("Follow");
                     setColor("#5DB075");
                   }
                 });
@@ -272,8 +284,11 @@ const FullProfile = ({ blockBack, route, navigation }) => {
     });
   };
 
+  const statusBarHeight = Constants.statusBarHeight || (Platform.OS === 'ios' ? 44 : 24);
+
   return (
-    <Layout>
+    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <TopNav
         middleContent={<MediumText center>View Profile</MediumText>}
         leftContent={<Ionicons name="chevron-back" size={20} />}
@@ -312,10 +327,31 @@ const FullProfile = ({ blockBack, route, navigation }) => {
         }
       />
 
-      <ScrollView contentContainerStyle={styles.page}>
-        <View style={[styles.background, {
-          backgroundColor: person.settings.banner ? person.settings.banner : "#5DB075"
-        }]} />
+      {personData.hasImage && personData.image ? (
+        <ImageBackground
+          source={{ uri: personData.image }}
+          style={[styles.background, { top: -statusBarHeight, height: 360 + statusBarHeight }]}
+          imageStyle={styles.backgroundImage}
+          blurRadius={20}
+        />
+      ) : (
+        <View style={[styles.background, {backgroundColor: '#5DB075', top: -statusBarHeight, height: 400 + statusBarHeight}]} />
+      )}
+      <ScrollView 
+        contentContainerStyle={[styles.page, { paddingTop: statusBarHeight + 30 }]}
+        style={{ flex: 1, zIndex: 1 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.palette}>
+          <Ionicons
+            name="arrow-back-sharp"
+            size={24}
+            color="white"
+            onPress={() => {
+              navigation.goBack();
+            }}
+          ></Ionicons>
+        </View>
 
         <View style={styles.badge}>
           <WithBadge
@@ -324,46 +360,83 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               person.attendingEventIDs.length}/>
         </View>
 
-        <Image
-          style={styles.image}
-          source={
-            person.hasImage
-              ? { uri: person.image }
-              : require("../../../../assets/logo.png")
-          }
-        />
-
-        <View style={styles.name}>
-          <LargeText size={24}>
-            {person.firstName + " " + person.lastName + " (" + person.pronouns + ")"}
-          </LargeText>
-          <NormalText marginBottom={5}>🏫 {person.school ? person.school : "UW-Seattle"}</NormalText>
-          <NormalText>
-            🍽️ {person.attendedEventIDs.length +
-              "/" +
-              (person.archivedEventIDs.length +
-                person.attendingEventIDs.length) +
-              " meals attended"}
-          </NormalText>
-          <MediumText>@{person.username}</MediumText>
-
-          {tryoutId != user.uid && (
-            <View style={{  marginVertical: 10 }}>
-              <Button
-                disabled={disabled}
-                onPress={connect}
-                backgroundColor={color}
-                paddingVertical={5}
-                paddingHorizontal={15}
-                fontSize={14}
-              >
-                {status}
-              </Button>
-
-
-            </View>
-          )}
+        <View style={styles.settings}>
+          <Menu>
+            <MenuTrigger>
+              <Ionicons
+                name="ellipsis-horizontal"
+                color={"white"}
+                size={24}
+              />
+            </MenuTrigger>
+            <MenuOptions>
+              { status == "Connections" &&
+                  <MenuOption onSelect={() => removeFriend(person.id, navigation)}>
+                    <NormalText size={18}>
+                      Remove Friend
+                    </NormalText>
+                  </MenuOption>
+              }
+              <MenuOption onSelect={() => blockPerson(person.id, navigation, blockBack)}>
+                <NormalText size={18} color={"red"}>
+                  Block
+                </NormalText>
+              </MenuOption>
+              <MenuOption onSelect={() => reportPerson()}>
+                <NormalText size={18} color={"red"}>
+                  Report
+                </NormalText>
+              </MenuOption>
+            </MenuOptions>
+          </Menu>
         </View>
+
+        <View style={styles.header}>
+          <View style={styles.name}>
+            <LargeText color="white" marginTop={4} size={24}>
+              {person.firstName + " " + person.lastName}
+            </LargeText>
+            <NormalText color="white" weight="bold" marginBottom={10}>@{person.username}</NormalText>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="school-outline" size={16} color="white" style={styles.infoIcon} />
+              <NormalText color="white" marginBottom={2}>{person.school ? person.school : "UW-Seattle"}</NormalText>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="restaurant-outline" size={16} color="white" style={styles.infoIcon} />
+              <NormalText color="white" marginBottom={2}>
+                {person.attendedEventIDs.length + "/" + (person.archivedEventIDs.length + person.attendingEventIDs.length) + " meals attended"}
+              </NormalText>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="calendar-outline" size={16} color="white" style={styles.infoIcon} />
+              <NormalText color="white">Joined {person.join || "June 2024"}</NormalText>
+            </View>
+          </View>
+
+          <Image
+            style={styles.image}
+            source={
+              person.hasImage
+                ? { uri: person.image }
+                : require("../../../../assets/logo.png")
+            }
+          />
+        </View>
+
+        {tryoutId != user.uid && (
+          <View style={styles.links}>
+            <TouchableOpacity
+              style={[styles.followButton, { backgroundColor: "white", opacity: disabled ? 0.7 : 1 }]}
+              onPress={connect}
+              disabled={disabled}
+            >
+              <NormalText color="black" center weight="bold">{status}</NormalText>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <TagsList tags={person.tags} />
         <MediumText center>{person.bio}</MediumText>
@@ -381,42 +454,79 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           ))}
         </View>
       </ScrollView>
-    </Layout>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 30,
     alignItems: "center",
     paddingHorizontal: 10,
   },
 
   background: {
     position: "absolute",
-    width: Dimensions.get("screen").width,
-    height: 100
+    width: Dimensions.get("window").width,
+    left: 0,
+    right: 0,
+    zIndex: 0,
+  },
+  backgroundImage: {
+    resizeMode: "cover",
   },
 
   image: {
-    width: 125,
-    height: 125,
+    width: 150,
+    height: 150,
     borderColor: "white",
     borderWidth: 3,
-    borderRadius: 125,
+    borderRadius: 100,
     backgroundColor: "white",
+  },
+
+  header: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginTop: -40,
+  },
+
+  palette: {
+    position: "absolute",
+    left: 20,
+    alignItems: "center",
   },
 
   badge: {
     position: "absolute",
     left: 20,
-    top: 20,
+    top: 80,
+    marginTop: 10,
+  },
+
+  settings: {
+    position: "absolute",
+    right: 20,
+    alignItems: "center",
   },
 
   name: {
+    flex: 1,
+    marginRight: 20,
+    marginTop: 0,
+    marginBottom: 20,
+    alignItems: "flex-start",
+  },
+
+  infoRow: {
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 20,
-    marginBottom: 10,
+    marginBottom: 2,
+  },
+
+  infoIcon: {
+    marginRight: 6,
   },
 
   cards: {
@@ -431,7 +541,35 @@ const styles = StyleSheet.create({
     marginTop: 5,
     alignItems: "center",
     justifyContent: "center"
-  }
+  },
+
+  links: {
+    marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    width: "100%",
+    paddingHorizontal: 20,
+  },
+
+  profile: {
+    fontSize: 13,
+    borderColor: "white",
+    borderWidth: 2,
+    borderRadius: 10,
+    paddingBottom: 12,
+    paddingTop: 12,
+    width: "95%",
+  },
+
+  followButton: {
+    borderRadius: 10,
+    paddingBottom: 12,
+    paddingTop: 12,
+    width: "95%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
 
 export default FullProfile;

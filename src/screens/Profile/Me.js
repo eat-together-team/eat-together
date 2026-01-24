@@ -34,11 +34,23 @@ export default function ({ navigation }) {
   const [banner, setBanner] = useState({});
   const [mealsAttended, setMealsAttended] = useState(0);
   const [mealsSignedUp, setMealsSignedUp] = useState(0);
+  const [joinDate, setJoinDate] = useState(null);
 
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
+      try {
+        if (user && user.metadata && user.metadata.creationTime) {
+          const creationDate = new Date(user.metadata.creationTime);
+          const month = creationDate.toLocaleString('default', { month: 'long' });
+          const year = creationDate.getFullYear();
+          setJoinDate(`${month} ${year}`);
+        }
+      } catch (error) {
+        console.log("Error getting join date:", error);
+      }
+
       await db
         .collection("Users")
         .doc(user.uid)
@@ -227,7 +239,6 @@ export default function ({ navigation }) {
               });
             }}
           ></Ionicons>
-          {/* <NormalText style={{color: "white"}}>Settings</NormalText> */}
         </View>
 
         <View style={styles.header}>
@@ -249,22 +260,8 @@ export default function ({ navigation }) {
 
             <View style={styles.infoRow}>
               <Ionicons name="calendar-outline" size={16} color="white" style={styles.infoIcon} />
-              <NormalText color="white">Joined in {userInfo.join ? userInfo.join : "June 2024"}</NormalText>
+              <NormalText color="white">Joined {joinDate || userInfo.join || "June 2024"}</NormalText>
             </View>
-
-            <TouchableOpacity
-              style={styles.link}
-              onPress={() => {
-                navigation.navigate("Connections", {
-                  user: userInfo,
-                  image: userInfo.image,
-                  updateInfo,
-                });
-              }}
-            >
-            
-            <NormalText color="white" align="left" weight="bold" marginTop={24}>{userInfo.connections} Connections</NormalText>
-            </TouchableOpacity>
           </View>
 
           <Image
@@ -275,6 +272,21 @@ export default function ({ navigation }) {
                 : require("../../../assets/logo.png")
             }
           />
+        </View>
+
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.connections}
+            onPress={() => {
+              navigation.navigate("Connections", {
+                user: userInfo,
+                image: userInfo.image,
+                updateInfo,
+              });
+            }}
+          >
+            <NormalText color="white" align="left" weight="bold" marginTop={8} marginBottom={8}>{userInfo.friendIDs ? userInfo.friendIDs.length : 0} Connections</NormalText>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.links}>
@@ -358,7 +370,6 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderRadius: 100,
     backgroundColor: "white",
-    // marginTop: 24,
   },
 
   header: {
@@ -366,6 +377,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
+    paddingTop: 10,
   },
 
   name: {
@@ -390,13 +402,6 @@ const styles = StyleSheet.create({
     left: 20,
     top: 64,
     alignItems: "center",
-  },
-
-  badge: {
-    position: "absolute",
-    left: 20,
-    top: 100,
-    marginTop: 10,
   },
 
   settings: {
@@ -435,5 +440,9 @@ const styles = StyleSheet.create({
 
   infoIcon: {
     marginRight: 6,
+  },
+
+  connections: {
+    alignItems: "flex-start",
   },
 });
