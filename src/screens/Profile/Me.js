@@ -3,13 +3,17 @@ import {
   View,
   StyleSheet,
   Image,
+  ImageBackground,
   Dimensions,
   ScrollView,
   TouchableOpacity,
-  Alert
+  Alert,
+  StatusBar,
+  Platform
 } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import { Ionicons, Feather } from "@expo/vector-icons";
+import Constants from 'expo-constants';
 import { db, auth } from "../../provider/Firebase";
 
 import WithBadge from "../../components/WithBadge";
@@ -21,6 +25,7 @@ import EventCard from "../../components/EventCard";
 import { AntDesign } from '@expo/vector-icons';
 
 import { compareDates } from "../../utils/methods";
+import SmallText from "../../components/SmallText";
 
 export default function ({ navigation }) {
   const user = auth.currentUser;
@@ -174,10 +179,26 @@ export default function ({ navigation }) {
     }));
   }
 
+  const statusBarHeight = Constants.statusBarHeight || (Platform.OS === 'ios' ? 44 : 24);
+  
   return (
-    <Layout>
-      <ScrollView contentContainerStyle={styles.page}>
-        <View style={[styles.background, {backgroundColor: banner}]} />
+    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      {userInfo.hasImage ? (
+        <ImageBackground
+          source={{ uri: userInfo.image }}
+          style={[styles.background, { top: -statusBarHeight, height: 360 + statusBarHeight }]}
+          imageStyle={styles.backgroundImage}
+          blurRadius={20}
+        />
+      ) : (
+        <View style={[styles.background, {backgroundColor: '#5DB075', top: -statusBarHeight, height: 400 + statusBarHeight}]} />
+      )}
+      <ScrollView 
+        contentContainerStyle={[styles.page, { paddingTop: statusBarHeight + 30 }]}
+        style={{ flex: 1, zIndex: 1 }}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.palette}>
           <Ionicons
             name="arrow-back-sharp"
@@ -280,7 +301,7 @@ export default function ({ navigation }) {
 
         {/* events */}
         {events.length > 0 && <View style={styles.eventRecordBackground}>
-          <LargeText>Archives</LargeText>
+          <MediumText>Past Meetups</MediumText>
           <View style={styles.cards}>
             {
               events.map((event) => (
@@ -295,7 +316,7 @@ export default function ({ navigation }) {
           </View>
         </View>}
       </ScrollView>
-    </Layout>
+    </View>
   );
 }
 
@@ -314,15 +335,20 @@ const styles = StyleSheet.create({
   },
 
   page: {
-    paddingTop: 30,
+    paddingTop: Constants.statusBarHeight + 30,
     alignItems: "center",
     paddingHorizontal: 10,
   },
 
   background: {
     position: "absolute",
-    width: Dimensions.get("screen").width,
-    height: 300,
+    width: Dimensions.get("window").width,
+    left: 0,
+    right: 0,
+    zIndex: 0,
+  },
+  backgroundImage: {
+    resizeMode: "cover",
   },
 
   image: {
@@ -362,21 +388,21 @@ const styles = StyleSheet.create({
   palette: {
     position: "absolute",
     left: 20,
-    top: 20,
+    top: 64,
     alignItems: "center",
   },
 
   badge: {
     position: "absolute",
     left: 20,
-    top: 70,
+    top: 100,
     marginTop: 10,
   },
 
   settings: {
     position: "absolute",
     right: 20,
-    top: 20,
+    top: 64,
     alignItems: "center",
   },
 
