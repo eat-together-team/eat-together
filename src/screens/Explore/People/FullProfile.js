@@ -26,13 +26,6 @@ import EventCard from "../../../components/EventCard";
 import NormalText from "../../../components/NormalText";
 import WithBadge from "../../../components/WithBadge";
 
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-} from "react-native-popup-menu";
-
 import { db, auth } from "../../../provider/Firebase";
 import firebase from "firebase/compat";
 import { tryoutId } from "../../../utils/constants";
@@ -293,40 +286,10 @@ const FullProfile = ({ blockBack, route, navigation }) => {
         middleContent={<MediumText center>View Profile</MediumText>}
         leftContent={<Ionicons name="chevron-back" size={20} />}
         leftAction={() => navigation.goBack()}
-        rightContent={user.uid !== tryoutId &&
-          <View>
-            <Menu>
-              <MenuTrigger>
-                <Ionicons
-                  name="ellipsis-horizontal"
-                  color={"black"}
-                  size={20}
-                />
-              </MenuTrigger>
-              <MenuOptions>
-                { status == "Connections" &&
-                    <MenuOption onSelect={() => removeFriend(person.id, navigation)}>
-                      <NormalText size={18}>
-                        Remove Friend
-                      </NormalText>
-                    </MenuOption>
-                }
-                <MenuOption onSelect={() => blockPerson(person.id, navigation, blockBack)}>
-                  <NormalText size={18} color={"red"}>
-                    Block
-                  </NormalText>
-                </MenuOption>
-                <MenuOption onSelect={() => reportPerson()}>
-                  <NormalText size={18} color={"red"}>
-                    Report
-                  </NormalText>
-                </MenuOption>
-              </MenuOptions>
-            </Menu>
-          </View>
-        }
       />
 
+      {/* if a user has a set profile picture, blur it and set it as their background
+      if they don't set their background to the default eat together green*/}
       {personData.hasImage && personData.image ? (
         <ImageBackground
           source={{ uri: personData.image }}
@@ -335,7 +298,8 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           blurRadius={20}
         />
       ) : (
-        <View style={[styles.background, {backgroundColor: '#5DB075', top: -statusBarHeight, height: 400 + statusBarHeight}]} />
+        <View style={[styles.background, {backgroundColor: '#5DB075', top: -statusBarHeight, 
+          height: 400 + statusBarHeight}]} />
       )}
       <ScrollView 
         contentContainerStyle={[styles.page, { paddingTop: statusBarHeight + 30 }]}
@@ -360,40 +324,9 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               person.attendingEventIDs.length}/>
         </View>
 
-        <View style={styles.settings}>
-          <Menu>
-            <MenuTrigger>
-              <Ionicons
-                name="ellipsis-horizontal"
-                color={"white"}
-                size={24}
-              />
-            </MenuTrigger>
-            <MenuOptions>
-              { status == "Connections" &&
-                  <MenuOption onSelect={() => removeFriend(person.id, navigation)}>
-                    <NormalText size={18}>
-                      Remove Friend
-                    </NormalText>
-                  </MenuOption>
-              }
-              <MenuOption onSelect={() => blockPerson(person.id, navigation, blockBack)}>
-                <NormalText size={18} color={"red"}>
-                  Block
-                </NormalText>
-              </MenuOption>
-              <MenuOption onSelect={() => reportPerson()}>
-                <NormalText size={18} color={"red"}>
-                  Report
-                </NormalText>
-              </MenuOption>
-            </MenuOptions>
-          </Menu>
-        </View>
-
         <View style={styles.header}>
           <View style={styles.name}>
-            <LargeText color="white" marginTop={4} size={24}>
+            <LargeText color="white" marginTop={4} size={((person.firstName || '') + ' ' + (person.lastName || '')).trim().length > 12 ? 18 : 24}>
               {person.firstName + " " + person.lastName}
             </LargeText>
             <NormalText color="white" weight="bold" marginBottom={10}>@{person.username}</NormalText>
@@ -453,6 +386,31 @@ const FullProfile = ({ blockBack, route, navigation }) => {
             />
           ))}
         </View>
+
+        {tryoutId != user.uid && (
+          <View style={styles.bottomActions}>
+            <TouchableOpacity
+              style={styles.blockButton}
+              onPress={() => blockPerson(person.id, navigation, blockBack)}
+            >
+              <NormalText color="red" weight="bold">Block</NormalText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.reportButton}
+              onPress={reportPerson}
+            >
+              <NormalText color="#797979" weight="bold">Report</NormalText>
+            </TouchableOpacity>
+            {status === "Connections" && (
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => removeFriend(person.id, navigation)}
+              >
+                <NormalText>Remove Connection</NormalText>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -503,12 +461,6 @@ const styles = StyleSheet.create({
     left: 20,
     top: 80,
     marginTop: 10,
-  },
-
-  settings: {
-    position: "absolute",
-    right: 20,
-    alignItems: "center",
   },
 
   name: {
@@ -569,6 +521,48 @@ const styles = StyleSheet.create({
     width: "95%",
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  bottomActions: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    marginTop: 32,
+    marginBottom: 40,
+    paddingHorizontal: 20,
+  },
+
+  blockButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 28,
+    minWidth: 180,
+    marginRight: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 13,
+    borderColor: "red",
+    borderWidth: 2,
+    borderRadius: 10,
+    color: "red",
+  },
+
+  reportButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 28,
+    minWidth: 180,
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "#797979",
+    borderWidth: 2,
+    borderRadius: 10,
+    color: "#797979",
+  },
+
+  actionButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginLeft: 16,
   },
 });
 

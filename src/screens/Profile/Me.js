@@ -243,7 +243,8 @@ export default function ({ navigation }) {
 
         <View style={styles.header}>
           <View style={styles.name}>
-            <LargeText color="white" marginTop={4} size={24}>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
+            {/* ensuring that if a user has a long name, like last name, their name doesn't overflow, the text gets smaller to accommodate */}
+            <LargeText color="white" marginTop={4} size={((userInfo.firstName || '') + ' ' + (userInfo.lastName || '')).trim().length > 12 ? 18 : 24}>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
             <NormalText color="white" weight="bold" marginBottom={10}>@{userInfo.username}</NormalText>
 
             <View style={styles.infoRow}>

@@ -354,7 +354,7 @@ export const removeFriend = (uid, navigation) => {
       text: "Cancel",
       style: "cancel",
     },
-    { text: "Yes", style: "destructive", onPress: () => databaseRemoveFriend(uid, navigation) },
+    { text: "Remove Connection", style: "destructive", onPress: () => databaseRemoveFriend(uid, navigation) },
   ]);
 };
 
