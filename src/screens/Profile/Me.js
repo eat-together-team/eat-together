@@ -314,10 +314,12 @@ export default function ({ navigation }) {
 
 
         {/* break down tags list */}
-        <TagsList tags={userInfo.tags ? userInfo.tags : []} />
-
-        {/* separate the fun fact into a section */}
-        <MediumText center>{userInfo.bio}</MediumText>
+        <View style={{ marginTop: 30 }}>
+          <TagsList tags={userInfo.tags} filterType="food" />
+          <TagsList tags={userInfo.tags} filterType="hobby" />
+          <MediumText center>{userInfo.bio}</MediumText>
+          <TagsList tags={userInfo.tags} filterType="school" />
+        </View>
 
         {/* events */}
         {events.length > 0 && <View style={styles.eventRecordBackground}>

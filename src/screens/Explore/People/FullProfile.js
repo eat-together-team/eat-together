@@ -387,8 +387,13 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           </View>
         )}
 
-        <TagsList tags={person.tags} />
-        <MediumText center>{person.bio}</MediumText>
+        <View style={{ marginTop: 30 }}>
+          <TagsList tags={person.tags} filterType="food" />
+          <TagsList tags={person.tags} filterType="hobby" />
+          <MediumText center>{person.bio}</MediumText>
+          <TagsList tags={person.tags} filterType="school" />
+        </View>
+        
         <View style={styles.cards}>
           {events.map((event) => (
             <EventCard
