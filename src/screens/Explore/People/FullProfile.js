@@ -14,7 +14,7 @@ import {
   StatusBar,
   Platform
 } from "react-native";
-import { Layout, TopNav } from "react-native-rapi-ui";
+import { Layout } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from 'expo-constants';
 
@@ -24,7 +24,7 @@ import TagsList from "../../../components/TagsList";
 import Button from "../../../components/Button";
 import EventCard from "../../../components/EventCard";
 import NormalText from "../../../components/NormalText";
-import WithBadge from "../../../components/WithBadge";
+// import WithBadge from "../../../components/WithBadge";
 
 import { db, auth } from "../../../provider/Firebase";
 import firebase from "firebase/compat";
@@ -156,6 +156,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
     "https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png"
   );
   const [personData, setPersonData] = useState(person);
+  const [followButtonLayout, setFollowButtonLayout] = useState({ y: 0, height: 0 });
 
   const reportPerson = () => {
     navigation.navigate("ReportPerson", {
@@ -282,51 +283,44 @@ const FullProfile = ({ blockBack, route, navigation }) => {
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-      <TopNav
-        middleContent={<MediumText center>View Profile</MediumText>}
-        leftContent={<Ionicons name="chevron-back" size={20} />}
-        leftAction={() => navigation.goBack()}
-      />
 
       {/* if a user has a set profile picture, blur it and set it as their background
       if they don't set their background to the default eat together green*/}
       {personData.hasImage && personData.image ? (
         <ImageBackground
           source={{ uri: personData.image }}
-          style={[styles.background, { top: -statusBarHeight, height: 360 + statusBarHeight }]}
+          style={[styles.background, { top: -statusBarHeight, height: Math.max(360, followButtonLayout.y + followButtonLayout.height + 20) + statusBarHeight }]}
           imageStyle={styles.backgroundImage}
           blurRadius={20}
         />
       ) : (
         <View style={[styles.background, {backgroundColor: '#5DB075', top: -statusBarHeight, 
-          height: 400 + statusBarHeight}]} />
+          height: Math.max(360, followButtonLayout.y + followButtonLayout.height + 20) + statusBarHeight}]} />
       )}
       <ScrollView 
-        contentContainerStyle={[styles.page, { paddingTop: statusBarHeight + 30 }]}
+        contentContainerStyle={[styles.page, { paddingTop: statusBarHeight + 100 }]}
         style={{ flex: 1, zIndex: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.palette}>
+        <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
           <Ionicons
             name="arrow-back-sharp"
             size={24}
             color="white"
-            onPress={() => {
-              navigation.goBack();
-            }}
-          ></Ionicons>
+            onPress={() => navigation.goBack()}
+          />
         </View>
 
-        <View style={styles.badge}>
+        {/* <View style={styles.badge}>
           <WithBadge
             mealsAttended={person.attendedEventIDs.length}
             mealsSignedUp={person.archivedEventIDs.length +
               person.attendingEventIDs.length}/>
-        </View>
+        </View> */}
 
         <View style={styles.header}>
           <View style={styles.name}>
-            <LargeText color="white" marginTop={4} size={((person.firstName || '') + ' ' + (person.lastName || '')).trim().length > 12 ? 18 : 24}>
+            <LargeText color="white" marginTop={4} size={((person.firstName || '') + ' ' + (person.lastName || '')).trim().length > 18 ? 18 : 24}>
               {person.firstName + " " + person.lastName}
             </LargeText>
             <NormalText color="white" weight="bold" marginBottom={10}>@{person.username}</NormalText>
@@ -359,8 +353,30 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           />
         </View>
 
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.connections}
+            onPress={() =>
+              navigation.navigate("Connections", {
+                viewingUser: { id: person.id, firstName: person.firstName, lastName: person.lastName },
+                returnPerson: person,
+              })
+            }
+          >
+            <NormalText color="white" align="left" weight="bold" marginTop={8} marginBottom={8}>
+              {(personData.friendIDs || person.friendIDs || []).length} Connections
+            </NormalText>
+          </TouchableOpacity>
+        </View>
+
         {tryoutId != user.uid && (
-          <View style={styles.links}>
+          <View 
+            style={styles.links}
+            onLayout={(event) => {
+              const { y, height } = event.nativeEvent.layout;
+              setFollowButtonLayout({ y, height });
+            }}
+          >
             <TouchableOpacity
               style={[styles.followButton, { backgroundColor: "white", opacity: disabled ? 0.7 : 1 }]}
               onPress={connect}
@@ -456,12 +472,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  badge: {
-    position: "absolute",
-    left: 20,
-    top: 80,
-    marginTop: 10,
-  },
+  // badge: {
+  //   position: "absolute",
+  //   left: 20,
+  //   top: 80,
+  //   marginTop: 10,
+  // },
 
   name: {
     flex: 1,
@@ -469,6 +485,11 @@ const styles = StyleSheet.create({
     marginTop: 0,
     marginBottom: 20,
     alignItems: "flex-start",
+  },
+
+  connections: {
+    alignItems: "flex-start",
+    paddingTop: 42,
   },
 
   infoRow: {

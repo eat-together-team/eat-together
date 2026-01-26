@@ -16,7 +16,7 @@ import { Ionicons, Feather } from "@expo/vector-icons";
 import Constants from 'expo-constants';
 import { db, auth } from "../../provider/Firebase";
 
-import WithBadge from "../../components/WithBadge";
+// import WithBadge from "../../components/WithBadge";
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
@@ -37,6 +37,7 @@ export default function ({ navigation }) {
   const [joinDate, setJoinDate] = useState(null);
 
   const [events, setEvents] = useState([]);
+  const [followButtonLayout, setFollowButtonLayout] = useState({ y: 0, height: 0 });
 
   useEffect(() => {
     async function fetchData() {
@@ -199,19 +200,19 @@ export default function ({ navigation }) {
       {userInfo.hasImage ? (
         <ImageBackground
           source={{ uri: userInfo.image }}
-          style={[styles.background, { top: -statusBarHeight, height: 360 + statusBarHeight }]}
+          style={[styles.background, { top: -statusBarHeight, height: Math.max(360, followButtonLayout.y + followButtonLayout.height + 20) + statusBarHeight }]}
           imageStyle={styles.backgroundImage}
           blurRadius={20}
         />
       ) : (
-        <View style={[styles.background, {backgroundColor: '#5DB075', top: -statusBarHeight, height: 400 + statusBarHeight}]} />
+        <View style={[styles.background, {backgroundColor: '#5DB075', top: -statusBarHeight, height: Math.max(400, followButtonLayout.y + followButtonLayout.height + 20) + statusBarHeight}]} />
       )}
       <ScrollView 
         contentContainerStyle={[styles.page, { paddingTop: statusBarHeight + 30 }]}
         style={{ flex: 1, zIndex: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.palette}>
+        <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
           <Ionicons
             name="arrow-back-sharp"
             size={24}
@@ -222,11 +223,11 @@ export default function ({ navigation }) {
           ></Ionicons>
         </View>
 
-        <View style={styles.badge}>
+        {/* <View style={styles.badge}>
           <WithBadge mealsAttended={mealsAttended} mealsSignedUp={mealsSignedUp}/>
-        </View>
+        </View> */}
 
-        <View style={styles.settings}>
+        <View style={[styles.settings, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
           <Ionicons
             name="settings-outline"
             size={24}
@@ -290,7 +291,13 @@ export default function ({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.links}>
+        <View 
+          style={styles.links}
+          onLayout={(event) => {
+            const { y, height } = event.nativeEvent.layout;
+            setFollowButtonLayout({ y, height });
+          }}
+        >
           <TouchableOpacity
             style={styles.profile}
             onPress={() => {
@@ -401,14 +408,12 @@ const styles = StyleSheet.create({
   palette: {
     position: "absolute",
     left: 20,
-    top: 64,
     alignItems: "center",
   },
 
   settings: {
     position: "absolute",
     right: 20,
-    top: 64,
     alignItems: "center",
   },
 
