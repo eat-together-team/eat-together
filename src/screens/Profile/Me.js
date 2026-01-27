@@ -23,6 +23,7 @@ import NormalText from "../../components/NormalText";
 import TagsList from "../../components/TagsList";
 import EventCard from "../../components/EventCard";
 import { AntDesign } from '@expo/vector-icons';
+import FunFact from "../../components/FunFact";
 
 import { compareDates } from "../../utils/methods";
 import SmallText from "../../components/SmallText";
@@ -195,7 +196,7 @@ export default function ({ navigation }) {
   const statusBarHeight = Constants.statusBarHeight || (Platform.OS === 'ios' ? 44 : 24);
   
   return (
-    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       {userInfo.hasImage ? (
         <ImageBackground
@@ -312,13 +313,17 @@ export default function ({ navigation }) {
           </TouchableOpacity>
         </View>
 
-
         {/* break down tags list */}
         <View style={{ marginTop: 30 }}>
           <TagsList tags={userInfo.tags} filterType="food" />
           <TagsList tags={userInfo.tags} filterType="hobby" />
-          <MediumText center>{userInfo.bio}</MediumText>
+          <FunFact text={userInfo.bio} />
           <TagsList tags={userInfo.tags} filterType="school" />
+        </View>
+
+        {/* gallery */}
+        <View style={styles.galleryBackground}>
+          <MediumText>Gallery</MediumText>
         </View>
 
         {/* events */}

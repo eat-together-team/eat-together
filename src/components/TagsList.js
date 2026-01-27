@@ -4,12 +4,13 @@ import Tag from "./Tag";
 
 const TagsList = props => {
     // filter tags by type
+    const tags = props.tags || [];
     const filteredTags = props.filterType 
-        ? props.tags.filter(tag => {
+        ? tags.filter(tag => {
             const tagType = tag.type ? tag.type : null;
             return tagType === props.filterType;
         })
-        : props.tags;
+        : tags;
 
     const content = (
         <View 
@@ -23,7 +24,7 @@ const TagsList = props => {
             onStartShouldSetResponder={() => props.remove ? true : false}
         >
             {filteredTags.map((tag, i) => {
-                const originalIndex = props.tags.indexOf(tag);
+                const originalIndex = tags.indexOf(tag);
                 return (
                     <View key={tag.tag ? tag.tag : tag} style={{ margin: 2 }}>
                         <Tag 

@@ -24,6 +24,7 @@ import TagsList from "../../../components/TagsList";
 import Button from "../../../components/Button";
 import EventCard from "../../../components/EventCard";
 import NormalText from "../../../components/NormalText";
+import FunFact from "../../../components/FunFact";
 // import WithBadge from "../../../components/WithBadge";
 
 import { db, auth } from "../../../provider/Firebase";
@@ -281,7 +282,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
   const statusBarHeight = Constants.statusBarHeight || (Platform.OS === 'ios' ? 44 : 24);
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
       {/* if a user has a set profile picture, blur it and set it as their background
@@ -378,7 +379,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
             }}
           >
             <TouchableOpacity
-              style={[styles.followButton, { backgroundColor: "white", opacity: disabled ? 0.7 : 1 }]}
+              style={[styles.followButton, { backgroundColor: "white"}]}
               onPress={connect}
               disabled={disabled}
             >
@@ -390,7 +391,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
         <View style={{ marginTop: 30 }}>
           <TagsList tags={person.tags} filterType="food" />
           <TagsList tags={person.tags} filterType="hobby" />
-          <MediumText center>{person.bio}</MediumText>
+          <FunFact text={person.bio} />
           <TagsList tags={person.tags} filterType="school" />
         </View>
         
@@ -422,14 +423,6 @@ const FullProfile = ({ blockBack, route, navigation }) => {
             >
               <NormalText color="#797979" weight="bold">Report</NormalText>
             </TouchableOpacity>
-            {status === "Connections" && (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => removeFriend(person.id, navigation)}
-              >
-                <NormalText>Remove Connection</NormalText>
-              </TouchableOpacity>
-            )}
           </View>
         )}
       </ScrollView>
