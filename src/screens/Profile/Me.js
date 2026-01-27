@@ -24,6 +24,7 @@ import TagsList from "../../components/TagsList";
 import EventCard from "../../components/EventCard";
 import { AntDesign } from '@expo/vector-icons';
 import FunFact from "../../components/FunFact";
+import GalleryRow from "../../components/GalleryRow";
 
 import { compareDates } from "../../utils/methods";
 import SmallText from "../../components/SmallText";
@@ -323,7 +324,17 @@ export default function ({ navigation }) {
 
         {/* gallery */}
         <View style={styles.galleryBackground}>
-          <MediumText>Gallery</MediumText>
+          <View style={styles.galleryHeader}>
+            <NormalText>Gallery</NormalText>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("Gallery", { user: userInfo });
+              }}
+            >
+              <NormalText color="grey">View all</NormalText>
+            </TouchableOpacity>
+          </View>
+          <GalleryRow images={userInfo.gallery} />
         </View>
 
         {/* events */}
@@ -457,5 +468,19 @@ const styles = StyleSheet.create({
 
   connections: {
     alignItems: "flex-start",
+  },
+
+  galleryBackground: {
+    width: Dimensions.get("screen").width,
+    alignItems: "center",
+    paddingTop: 20,
+    marginTop: 20,
+  },
+  galleryHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 14,
   },
 });

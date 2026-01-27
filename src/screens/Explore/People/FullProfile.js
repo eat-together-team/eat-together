@@ -25,6 +25,7 @@ import Button from "../../../components/Button";
 import EventCard from "../../../components/EventCard";
 import NormalText from "../../../components/NormalText";
 import FunFact from "../../../components/FunFact";
+import GalleryRow from "../../../components/GalleryRow";
 // import WithBadge from "../../../components/WithBadge";
 
 import { db, auth } from "../../../provider/Firebase";
@@ -95,43 +96,7 @@ const databaseStoreBlockAction = (uid, navigation, back) => {
     });
 
   navigation.navigate(back);
-  /*
-  Other places this effects:
-  -remove from people display
-  -can't organize private events with this person
-  -remove invites from that person
-  -remove connection requests from that person
-  */
 };
-
-//Remove a friend, if we are already connected with them
-// function removeFriend(uid, navigation) {
-//   Alert.alert("Remove Friend", "Are you sure you want to remove this friend?", [
-//     {
-//       text: "Cancel",
-//       style: "cancel",
-//     },
-//     { text: "Yes", style: "destructive" ,onPress: () => databaseRemoveFriend(uid, navigation) },
-//   ]);
-// }
-
-// function databaseRemoveFriend(uid, navigation) {
-//   alert("Friend removed.");
-//   const user = auth.currentUser;
-
-//   // update user's blacklist & remove from friends
-//   db.collection("Users")
-//       .doc(user.uid)
-//       .update({
-//         friendIDs: firebase.firestore.FieldValue.arrayRemove(uid)
-//       }).then(() => {
-//         db.collection("Users").doc(uid).update({
-//           friendIDs: firebase.firestore.FieldValue.arrayRemove(user.uid)
-//         })
-//   });
-
-//   navigation.goBack();
-// }
 
 const FullProfile = ({ blockBack, route, navigation }) => {
   const user = auth.currentUser; // Current user
@@ -394,6 +359,16 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           <FunFact text={person.bio} />
           <TagsList tags={person.tags} filterType="school" />
         </View>
+
+        {/* gallery */}
+        {personData.gallery && personData.gallery.length > 0 && (
+          <View style={styles.galleryBackground}>
+            <View style={styles.galleryHeader}>
+              <NormalText>Gallery</NormalText>
+            </View>
+            <GalleryRow images={personData.gallery || []} />
+          </View>
+        )}
         
         <View style={styles.cards}>
           {events.map((event) => (
@@ -582,6 +557,20 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     marginLeft: 16,
+  },
+
+  galleryBackground: {
+    width: Dimensions.get("screen").width,
+    alignItems: "center",
+    paddingTop: 20,
+    marginTop: 20,
+  },
+  galleryHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 14,
   },
 });
 

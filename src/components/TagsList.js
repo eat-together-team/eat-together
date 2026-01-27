@@ -17,7 +17,8 @@ const TagsList = props => {
             style={{ 
                 flexDirection: "row", 
                 flexWrap: "wrap",
-                width: "100%",
+                width: "90%",
+                alignSelf: "center",
                 justifyContent: props.left ? "flex-start" : "center",
                 marginVertical: props.marginVertical ? props.marginVertical : 10,
             }} 
