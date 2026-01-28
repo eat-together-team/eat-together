@@ -250,25 +250,43 @@ const FullProfile = ({ blockBack, route, navigation }) => {
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-
-      {/* if a user has a set profile picture, blur it and set it as their background
-      if they don't set their background to the default eat together green*/}
-      {personData.hasImage && personData.image ? (
-        <ImageBackground
-          source={{ uri: personData.image }}
-          style={[styles.background, { top: -statusBarHeight, height: Math.max(360, followButtonLayout.y + followButtonLayout.height + 20) + statusBarHeight }]}
-          imageStyle={styles.backgroundImage}
-          blurRadius={20}
-        />
-      ) : (
-        <View style={[styles.background, {backgroundColor: '#5DB075', top: -statusBarHeight, 
-          height: Math.max(360, followButtonLayout.y + followButtonLayout.height + 20) + statusBarHeight}]} />
-      )}
       <ScrollView 
-        contentContainerStyle={[styles.page, { paddingTop: statusBarHeight + 100 }]}
-        style={{ flex: 1, zIndex: 1 }}
+        contentContainerStyle={styles.scrollContent}
+        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
       >
+        {/* if a user has a set profile picture, blur it and set it as their background
+        if they don't set their background to the default eat together green*/}
+        <View style={styles.backgroundContainer}>
+          {personData.hasImage && personData.image ? (
+            <ImageBackground
+              source={{ uri: personData.image }}
+              style={[
+                styles.background,
+                {
+                  height:
+                    Math.max(320, followButtonLayout.y + followButtonLayout.height + 10) +
+                    statusBarHeight - 35,
+                },
+              ]}
+              imageStyle={styles.backgroundImage}
+              blurRadius={20}
+            />
+          ) : (
+            <View
+              style={[
+                styles.background,
+                {
+                  backgroundColor: "#5DB075",
+                  height:
+                    Math.max(360, followButtonLayout.y + followButtonLayout.height) +
+                    statusBarHeight - 25,
+                },
+              ]}
+            />
+          )}
+        </View>
+        <View style={[styles.page, { paddingTop: statusBarHeight + 100 }]}>
         <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
           <Ionicons
             name="arrow-back-sharp"
@@ -354,7 +372,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           </View>
         )}
 
-        <View style={{ marginTop: 30 }}>
+        <View style={{ marginTop: 50 }}>
           <TagsList tags={person.tags} filterType="food" />
           <TagsList tags={person.tags} filterType="hobby" />
           <FunFact text={person.bio} />
@@ -366,7 +384,9 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           <View style={styles.galleryBackground}>
             <View style={styles.galleryHeader}>
               <NormalText>Gallery</NormalText>
-              <NormalText color="grey">View all</NormalText>
+              <TouchableOpacity onPress={() => navigation.navigate("Gallery", { userId: person.id, userName: person.firstName + " " + person.lastName })}>
+                <NormalText color="grey">View all</NormalText>
+              </TouchableOpacity>
             </View>
             <GalleryRow images={personData.gallery || []} />
           </View>
@@ -374,9 +394,9 @@ const FullProfile = ({ blockBack, route, navigation }) => {
 
         {/* events */}
         {events.length > 0 && (
-          <View style={styles.eventRecordBackground}>
+          <View style={styles.eventRecordBackground} marginTop={10}>
             <View style={styles.eventsHeader}>
-              <NormalText>Past Meetups</NormalText>
+              <NormalText>Meetup Archive</NormalText>
               <TouchableOpacity>
                 <NormalText color="grey">View all</NormalText>
               </TouchableOpacity>
@@ -408,23 +428,30 @@ const FullProfile = ({ blockBack, route, navigation }) => {
             </TouchableOpacity>
           </View>
         )}
+        </View>
       </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    flexGrow: 1,
+  },
+  backgroundContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    width: Dimensions.get("window").width,
+  },
   page: {
     alignItems: "center",
     paddingHorizontal: 10,
   },
 
   background: {
-    position: "absolute",
     width: Dimensions.get("window").width,
-    left: 0,
-    right: 0,
-    zIndex: 0,
   },
   backgroundImage: {
     resizeMode: "cover",
@@ -584,9 +611,8 @@ const styles = StyleSheet.create({
   eventRecordBackground: {
     width: Dimensions.get("screen").width,
     alignItems: "center",
-    paddingTop: 20,
-    marginTop: 20,
   },
+
   eventsHeader: {
     flexDirection: "row",
     justifyContent: "space-between",

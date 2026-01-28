@@ -200,21 +200,24 @@ export default function ({ navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-      {userInfo.hasImage ? (
-        <ImageBackground
-          source={{ uri: userInfo.image }}
-          style={[styles.background, { top: -statusBarHeight, height: Math.max(360, followButtonLayout.y + followButtonLayout.height + 20) + statusBarHeight }]}
-          imageStyle={styles.backgroundImage}
-          blurRadius={20}
-        />
-      ) : (
-        <View style={[styles.background, {backgroundColor: '#5DB075', top: -statusBarHeight, height: Math.max(400, followButtonLayout.y + followButtonLayout.height + 20) + statusBarHeight}]} />
-      )}
       <ScrollView 
-        contentContainerStyle={[styles.page, { paddingTop: statusBarHeight + 30 }]}
-        style={{ flex: 1, zIndex: 1 }}
+        contentContainerStyle={styles.scrollContent}
+        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
       >
+        <View style={styles.backgroundContainer}>
+          {userInfo.hasImage ? (
+            <ImageBackground
+              source={{ uri: userInfo.image }}
+              style={[styles.background, { height: Math.max(360, followButtonLayout.y + followButtonLayout.height) + statusBarHeight - 30}]}
+              imageStyle={styles.backgroundImage}
+              blurRadius={20}
+            />
+          ) : (
+            <View style={[styles.background, {backgroundColor: '#5DB075', height: Math.max(400, followButtonLayout.y + followButtonLayout.height + 20) + statusBarHeight + 30 - 40}]} />
+          )}
+        </View>
+        <View style={[styles.page, { paddingTop: statusBarHeight + 30 }]}>
         <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
           <Ionicons
             name="arrow-back-sharp"
@@ -316,7 +319,7 @@ export default function ({ navigation }) {
         </View>
 
         {/* break down tags list */}
-        <View style={{ marginTop: 30 }}>
+        <View style={{ marginTop: 55 }}>
           <TagsList tags={userInfo.tags} filterType="food" />
           <TagsList tags={userInfo.tags} filterType="hobby" />
           <FunFact text={userInfo.bio} />
@@ -340,9 +343,9 @@ export default function ({ navigation }) {
 
         {/* events */}
         {events.length > 0 && (
-          <View style={styles.eventRecordBackground}>
+          <View style={styles.eventRecordBackground} marginTop={10}>
             <View style={styles.eventsHeader}>
-              <NormalText>Past Meetups</NormalText>
+              <NormalText>Meetup Archive</NormalText>
               <TouchableOpacity>
                 <NormalText color="grey">View all</NormalText>
               </TouchableOpacity>
@@ -355,6 +358,7 @@ export default function ({ navigation }) {
             />
           </View>
         )}
+        </View>
       </ScrollView>
     </View>
   );
@@ -370,9 +374,8 @@ const styles = StyleSheet.create({
   eventRecordBackground: {
     width: Dimensions.get("screen").width,
     alignItems: "center",
-    paddingTop: 20,
-    marginTop: 20,
   },
+
   eventsHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -382,18 +385,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
+  scrollContent: {
+    flexGrow: 1,
+  },
+  backgroundContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    width: Dimensions.get("window").width,
+    zIndex: 0,
+  },
   page: {
-    paddingTop: Constants.statusBarHeight + 30,
     alignItems: "center",
     paddingHorizontal: 10,
   },
 
   background: {
-    position: "absolute",
     width: Dimensions.get("window").width,
-    left: 0,
-    right: 0,
-    zIndex: 0,
   },
   backgroundImage: {
     resizeMode: "cover",
@@ -486,6 +495,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     marginTop: 20,
   },
+
   galleryHeader: {
     flexDirection: "row",
     justifyContent: "space-between",

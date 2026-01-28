@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Image, ScrollView, StyleSheet } from "react-native";
-import SmallText from "./SmallText";
 import NormalText from "./NormalText";
 
 const GalleryRow = props => {
@@ -36,10 +35,10 @@ const GalleryRow = props => {
                             style={[styles.image, { width: 150, height: 150 }]}
                         />
                         <NormalText style={styles.caption} numberOfLines={2}>
-                            Image Title
+                            {displayCaption}
                         </NormalText>
                         <NormalText style={styles.name}>
-                            Name
+                            {image && image.eventName ? image.eventName : ''}
                         </NormalText>
                     </View>
                 );
