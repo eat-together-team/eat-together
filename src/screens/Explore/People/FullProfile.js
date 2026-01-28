@@ -26,6 +26,7 @@ import EventCard from "../../../components/EventCard";
 import NormalText from "../../../components/NormalText";
 import FunFact from "../../../components/FunFact";
 import GalleryRow from "../../../components/GalleryRow";
+import EventsRow from "../../../components/EventsRow";
 // import WithBadge from "../../../components/WithBadge";
 
 import { db, auth } from "../../../provider/Firebase";
@@ -365,24 +366,31 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           <View style={styles.galleryBackground}>
             <View style={styles.galleryHeader}>
               <NormalText>Gallery</NormalText>
+              <NormalText color="grey">View all</NormalText>
             </View>
             <GalleryRow images={personData.gallery || []} />
           </View>
         )}
-        
-        <View style={styles.cards}>
-          {events.map((event) => (
-            <EventCard
-              event={event}
-              key={event.id}
-              click={() => {
+
+        {/* events */}
+        {events.length > 0 && (
+          <View style={styles.eventRecordBackground}>
+            <View style={styles.eventsHeader}>
+              <NormalText>Past Meetups</NormalText>
+              <TouchableOpacity>
+                <NormalText color="grey">View all</NormalText>
+              </TouchableOpacity>
+            </View>
+            <EventsRow 
+              events={events} 
+              onEventPress={(event) => {
                 navigation.navigate("FullCard", {
                   event,
                 });
               }}
             />
-          ))}
-        </View>
+          </View>
+        )}
 
         {tryoutId != user.uid && (
           <View style={styles.bottomActions}>
@@ -571,6 +579,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     paddingHorizontal: 14,
+  },
+
+  eventRecordBackground: {
+    width: Dimensions.get("screen").width,
+    alignItems: "center",
+    paddingTop: 20,
+    marginTop: 20,
+  },
+  eventsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 14,
+    marginBottom: 10,
   },
 });
 

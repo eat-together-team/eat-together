@@ -25,6 +25,7 @@ import EventCard from "../../components/EventCard";
 import { AntDesign } from '@expo/vector-icons';
 import FunFact from "../../components/FunFact";
 import GalleryRow from "../../components/GalleryRow";
+import EventsRow from "../../components/EventsRow";
 
 import { compareDates } from "../../utils/methods";
 import SmallText from "../../components/SmallText";
@@ -338,21 +339,22 @@ export default function ({ navigation }) {
         </View>
 
         {/* events */}
-        {events.length > 0 && <View style={styles.eventRecordBackground}>
-          <MediumText>Past Meetups</MediumText>
-          <View style={styles.cards}>
-            {
-              events.map((event) => (
-                <EventCard
-                  event={event}
-                  key={event.id}
-                  click={() => {
-                    navigation.navigate("FullCard", { event });
-                  }}
-                />
-              ))}
+        {events.length > 0 && (
+          <View style={styles.eventRecordBackground}>
+            <View style={styles.eventsHeader}>
+              <NormalText>Past Meetups</NormalText>
+              <TouchableOpacity>
+                <NormalText color="grey">View all</NormalText>
+              </TouchableOpacity>
+            </View>
+            <EventsRow 
+              events={events} 
+              onEventPress={(event) => {
+                navigation.navigate("FullCard", { event });
+              }}
+            />
           </View>
-        </View>}
+        )}
       </ScrollView>
     </View>
   );
@@ -369,7 +371,15 @@ const styles = StyleSheet.create({
     width: Dimensions.get("screen").width,
     alignItems: "center",
     paddingTop: 20,
-    marginTop: 40,
+    marginTop: 20,
+  },
+  eventsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 14,
+    marginBottom: 10,
   },
 
   page: {
