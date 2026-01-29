@@ -1,7 +1,8 @@
 // First page of registration
 
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Dimensions, SafeAreaView, Alert, Linking } from "react-native";
+import { View, StyleSheet, Dimensions, Alert, Linking } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as Progress from 'react-native-progress';
 
 import TextInput from "../../../components/TextInput";

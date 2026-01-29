@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react'
 import {StyleSheet, View, ScrollView, Alert} from "react-native";
-import { Layout, TopNav} from "react-native-rapi-ui";
+import { Layout, TopNav} from "../../rapi_ui_components";
 import MediumText from "../../components/MediumText";
 import { Ionicons } from "@expo/vector-icons";
 import CuisineCard from './CuisineCard';

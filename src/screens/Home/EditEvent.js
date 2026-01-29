@@ -12,7 +12,7 @@ import {
 
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import TextInput from "../../components/TextInput";
-import { TopNav, Layout } from "react-native-rapi-ui";
+import { TopNav, Layout } from "../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import eventTags from "../../utils/eventTags";
 

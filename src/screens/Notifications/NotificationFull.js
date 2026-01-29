@@ -8,7 +8,7 @@ import {
     Image,
     Linking
 } from "react-native";
-import { Layout, TopNav } from "react-native-rapi-ui";
+import { Layout, TopNav } from "../../rapi_ui_components";
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu";
 import { Ionicons } from "@expo/vector-icons";
 
