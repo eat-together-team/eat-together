@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { View, StyleSheet, Image, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { Layout, TopNav } from "react-native-rapi-ui";
-import { Ionicons, Feather } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 import * as ImagePicker from 'expo-image-picker';
 import { db, storage } from "../../provider/Firebase";
@@ -80,6 +80,11 @@ export default function edit({ route, navigation }) {
         }
     };
 
+    // Clear image to match the "Delete photo" action in the mock. 
+    const clearImage = () => {
+        setImage(null); // This visually removes the image and updates the saved state on submit.
+    }
+
     // Upload image to firebase
     const updateImage = async () => {
         if(!image) return;
@@ -112,26 +117,45 @@ export default function edit({ route, navigation }) {
             route.params.updateInfo(firstName, lastName, pronouns, bio, tags, image);
 
             if (image !== oldImage) {
-                await updateImage().then(() => {
-                    fetchImage().then((uri) => {
-                        updateProfileImg(uri);
-                        db.collection("Users").doc(route.params.user.id).update({
-                            firstName,
-                            lastName,
-                            age: parseInt(age),
-                            pronouns,
-                            bio,
-                            tags,
-                            hasImage: !(!image),
-                            image: uri,
-                            school
-                        }).then(() => {
-                            alert("Profile updated!");
-                            navigation.goBack();
-                            updateEventsPfp(uri);
+                // Handle delete-photo path without calling upload logic.
+                if (!image) {
+                    await db.collection("Users").doc(route.params.user.id).update({
+                        firstName,
+                        lastName,
+                        age: parseInt(age),
+                        pronouns,
+                        bio,
+                        tags,
+                        hasImage: false, // Clear the flag so UI can fall back to default avatar.
+                        image: "", // Store empty value to represent a deleted photo.
+                        school
+                    }).then(() => {
+                        updateProfileImg(null); // Clear cached profile image in context.
+                        alert("Profile updated!");
+                        navigation.goBack();
+                    });
+                } else {
+                    await updateImage().then(() => {
+                        fetchImage().then((uri) => {
+                            updateProfileImg(uri);
+                            db.collection("Users").doc(route.params.user.id).update({
+                                firstName,
+                                lastName,
+                                age: parseInt(age),
+                                pronouns,
+                                bio,
+                                tags,
+                                hasImage: !(!image),
+                                image: uri,
+                                school
+                            }).then(() => {
+                                alert("Profile updated!");
+                                navigation.goBack();
+                                updateEventsPfp(uri);
+                            });
                         });
                     });
-                });
+                }
             } else {
                 await db.collection("Users").doc(route.params.user.id).update({
                     firstName,
@@ -189,6 +213,30 @@ export default function edit({ route, navigation }) {
         setTagText(displayTags([...schoolTags, ...hobbyTags, ...foodTags]));
     }
 
+    // Reusable section header to match the dotted divider style in the mock.
+    const renderSectionHeader = (title) => (
+        <View style={styles.sectionHeader}>
+            <NormalText style={styles.sectionTitle}>{title}</NormalText>
+            <View style={styles.sectionLine} />
+        </View>
+    );
+
+    // Renders a tag category card with dashed border, shadow chips, and tinted CTA.
+    const renderTagCategory = ({ title, buttonLabel, borderColor, chipStyle, textColor, buttonStyle, onPress, items }) => (
+        <View style={[styles.tagCategoryCard, { borderColor }]}>
+            <View style={styles.tagsRow}>
+                {items.map((tag, index) => (
+                    <View key={`${title}-${index}`} style={[styles.tagChip, styles.tagChipShadow, chipStyle]}>
+                        <NormalText size={12} color={textColor}>{tag}</NormalText>
+                    </View>
+                ))}
+            </View>
+            <TouchableOpacity style={[styles.tagCategoryButton, buttonStyle]} onPress={onPress}>
+                <NormalText size={12} color="#111">{buttonLabel}</NormalText>
+            </TouchableOpacity>
+        </View>
+    );
+
     return (
         <Layout>
             <TopNav
@@ -210,45 +258,58 @@ export default function edit({ route, navigation }) {
             >
                 <KeyboardAvoidingWrapper>
                     <View style={{ paddingHorizontal: 20 }}>
-                        <View style={styles.imageContainer}>
-                            <Image style={styles.image} source={image ? {uri: image} : require("../../../assets/logo.png")}/>
-                            <TouchableOpacity style={styles.editImage} onPress={pickImage}>
-                                <Feather name="edit-2" size={25} color="black"/>
-                            </TouchableOpacity>
+                        {/* Remove the required-asterisk legend to align with the mock's clean layout. */}
+                        {renderSectionHeader("Picture")}
+                        <View style={styles.photoRow}>
+                            <View style={styles.photoActions}>
+                                <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
+                                    <NormalText style={styles.photoButtonText}>Upload photo</NormalText>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.photoButtonSecondary} onPress={clearImage}>
+                                    <NormalText style={styles.photoButtonSecondaryText}>Delete photo</NormalText>
+                                </TouchableOpacity>
+                            </View>
+                            <Image style={styles.image} source={image ? { uri: image } : require("../../../assets/logo.png")} />
                         </View>
 
-                        <NormalText center color="red">* = required</NormalText>
+                        {renderSectionHeader("Fun fact")}
+                        {/* Dashed, multiline input to match the mock's fun fact box. */}
+                        <TextInput
+                            placeholder="Type here to add a fun fact to your profile"
+                            onChangeText={(val) => setBio(val)}
+                            value={bio}
+                            width={"100%"}
+                            multiline
+                            height={120}
+                            iconLeft=""
+                            required
+                            mainContainerStyle={styles.funFactContainer}
+                            textInputStyle={styles.funFactInput}
+                        />
 
-                        <View style={styles.row}>
-                            <TextInput
-                                placeholder="First name"
-                                onChangeText={(val) => setFirstName(val)}
-                                iconLeft="person-circle-outline"
-                                value={firstName}
-                                width={"47%"}
-                                required
-                            />
-                            <TextInput
-                                placeholder="Last name"
-                                onChangeText={(val) => setLastName(val)}
-                                iconLeft="person-circle-outline"
-                                value={lastName}
-                                width={"47%"}
-                                required
-                            />
-                        </View>
+                        {renderSectionHeader("Identity")}
+                        {/* Stack name fields to match the mock's full-width inputs. */}
+                        <TextInput
+                            placeholder="First name"
+                            onChangeText={(val) => setFirstName(val)}
+                            iconLeft="" // Hide icons for the cleaner mock style.
+                            value={firstName}
+                            width={"100%"}
+                            required
+                            mainContainerStyle={styles.identityInput}
+                        />
+                        <TextInput
+                            placeholder="Last name"
+                            onChangeText={(val) => setLastName(val)}
+                            iconLeft="" // Hide icons for the cleaner mock style.
+                            value={lastName}
+                            width={"100%"}
+                            required
+                            mainContainerStyle={styles.identityInput}
+                        />
 
+                        {/* Pronouns + Birth year row matches the side-by-side mock layout. */}
                         <View style={{...styles.row, zIndex: 12}}>
-                            <TextInput
-                                keyboardType="numeric"
-                                placeholder="Birth year"
-                                onChangeText={(val) => setAge(val)}
-                                width={"47%"}
-                                iconLeftType="Ionicons"
-                                iconLeft="pencil"
-                                value={age}
-                                required
-                            />
                             <View style={{width: "47%"}}>
                                 <SuggestSelection
                                     multi={true}
@@ -262,28 +323,28 @@ export default function edit({ route, navigation }) {
                                     itemStyle={{
                                         padding: 10,
                                         borderWidth: 2,
-                                        borderColor: '#5DB075',
+                                        borderColor: '#B0B0B0', // Neutral border to match the identity input styling.
                                         borderRadius: 10,
                                         marginTop: 2,
                                         width: "100%",
-                                        height: 40,
+                                        height: 44,
                                         backgroundColor: "white"
                                     }}
                                     selectedItemsStyle={{
                                         margin: 0,
-                                        height: 40,
+                                        height: 44,
                                         width: "100%",
                                         justifyContent: "space-around",
                                         backgroundColor: "white",
-                                        borderColor: "lightgrey",
-                                        borderWidth: 1,
+                                        borderColor: "#B0B0B0", // Neutral border to match the identity input styling.
+                                        borderWidth: 2,
                                         borderRadius: 10,
                                     }}
                                     textInputProps = {{
                                         placeholder: "Pronouns",
                                     }}
                                     containerStyle = {{
-                                        // height: 200 this line is causing the dropdown cover issue, without it the dropdown displays correctly
+                                        // Keep dropdown aligned without covering other inputs.
                                     }}
                                     onSubmitEditing = {(e) => {
                                         if (e.nativeEvent.text.length !== 0) {
@@ -298,7 +359,18 @@ export default function edit({ route, navigation }) {
                                     required
                                 />
                             </View>
+                            <TextInput
+                                keyboardType="numeric"
+                                placeholder="Birth year"
+                                onChangeText={(val) => setAge(val)}
+                                width={"47%"}
+                                iconLeft="" // Hide icons for the cleaner mock style.
+                                value={age}
+                                required
+                                mainContainerStyle={styles.identityInput}
+                            />
                         </View>
+                        {/* Campus full-width input mirrors the mock's single line field. */}
                         <View style={{...styles.school, zIndex: 11}}>
                             <SuggestSelection
                                 multi={true}
@@ -312,26 +384,26 @@ export default function edit({ route, navigation }) {
                                 itemStyle={{
                                     padding: 10,
                                     borderWidth: 2,
-                                    borderColor: '#5DB075',
+                                    borderColor: "#B0B0B0", // Neutral border to match the identity input styling.
                                     borderRadius: 10,
                                     marginTop: 2,
                                     width: "100%",
-                                    height: 40,
+                                    height: 44,
                                     backgroundColor: "white"
                                 }}
                                 selectedItemsStyle={{
                                     margin: 0,
-                                    height: 40,
+                                    height: 44,
                                     width: "100%",
                                     justifyContent: "space-around",
                                     backgroundColor: "white",
-                                    borderColor: "lightgrey",
-                                    borderWidth: 1,
+                                    borderColor: "#B0B0B0", // Neutral border to match the identity input styling.
+                                    borderWidth: 2,
                                     borderRadius: 10
                                 }}
-                                height={40}
+                                height={44}
                                 textInputProps={{
-                                    placeholder: "School"
+                                    placeholder: "Campus" // Copy the mock's field label.
                                 }}
                                 onSubmitEditing = {(e) => {
                                     if (e.nativeEvent.text.length !== 0) {
@@ -340,8 +412,8 @@ export default function edit({ route, navigation }) {
                                     }}
                                 }
                                 containerStyle = {{
-                                    // height: 200, this line is causing the dropdown cover issue, without it the dropdown displays correctly
-                                    height: 0, // even if we comment out the line above, the dropdown still covers the input field, so we just set the height to 0
+                                    // Keep dropdown aligned without covering other inputs.
+                                    height: 0,
                                     marginBottom: 300
                                 }}
                                 selectedItemsWidth={"100%"}
@@ -352,39 +424,59 @@ export default function edit({ route, navigation }) {
                             />
                         </View>
                         
-                        <View style={styles.row}>
-                            <TextInput
-                                placeholder="Fun fact"
-                                onChangeText={(val) => setBio(val)}
-                                width={"100%"}
-                                iconLeftType="FontAwesome"
-                                iconLeft="exclamation"
-                                value={bio}
-                                marginBottom={10}
-                                required
-                            />
-                        </View>
-                        
-                        <View style={{height: "6%"}}>
-                            <TouchableOpacity onPress={() => navigation.navigate("EditTags", {
-                                schoolTags: tags.filter(tag => tag.type === "school").map(tag => tag.tag),
-                                hobbyTags: tags.filter(tag => tag.type === "hobby").map(tag => tag.tag),
-                                foodTags: tags.filter(tag => tag.type === "food").map(tag => tag.tag),
+                        {renderSectionHeader("Tags")}
+                        {/* Category cards mimic the three dashed boxes shown in the mock. */}
+                        {renderTagCategory({
+                            title: "Food",
+                            buttonLabel: "Edit favorite foods",
+                            borderColor: "#E6C7F4",
+                            chipStyle: styles.tagChipPurple,
+                            textColor: "#5A2D82",
+                            buttonStyle: styles.tagButtonPurple, // Match the tinted CTA in the mock.
+                            items: tags.filter(t => t.type === "food").map(t => t.tag),
+                            onPress: () => navigation.navigate("EditTags", {
+                                schoolTags: tags.filter(t => t.type === "school").map(t => t.tag),
+                                hobbyTags: tags.filter(t => t.type === "hobby").map(t => t.tag),
+                                foodTags: tags.filter(t => t.type === "food").map(t => t.tag),
                                 updateTags
-                            })}>
-                                <View pointerEvents="none">
-                                    <TextInput
-                                        placeholder="Tags"
-                                        onChangeText={(val) => setBio(val)}
-                                        width={"100%"}
-                                        iconLeft="pricetag"
-                                        value={tagText}
-                                        editable={false}
-                                        required
-                                    />
-                                </View>
-                            </TouchableOpacity>
-                        </View>
+                            })
+                        })}
+                        {renderTagCategory({
+                            title: "Hobbies",
+                            buttonLabel: "Edit hobbies",
+                            borderColor: "#BFE1FA",
+                            chipStyle: styles.tagChipBlue,
+                            textColor: "#2A5C8A",
+                            buttonStyle: styles.tagButtonBlue, // Match the tinted CTA in the mock.
+                            items: tags.filter(t => t.type === "hobby").map(t => t.tag),
+                            onPress: () => navigation.navigate("EditTags", {
+                                schoolTags: tags.filter(t => t.type === "school").map(t => t.tag),
+                                hobbyTags: tags.filter(t => t.type === "hobby").map(t => t.tag),
+                                foodTags: tags.filter(t => t.type === "food").map(t => t.tag),
+                                updateTags
+                            })
+                        })}
+                        {renderTagCategory({
+                            title: "Education",
+                            buttonLabel: "Edit education",
+                            borderColor: "#F7E7B0",
+                            chipStyle: styles.tagChipGold,
+                            textColor: "#8A6B1F",
+                            buttonStyle: styles.tagButtonGold, // Match the tinted CTA in the mock.
+                            items: tags.filter(t => t.type === "school").map(t => t.tag),
+                            onPress: () => navigation.navigate("EditTags", {
+                                schoolTags: tags.filter(t => t.type === "school").map(t => t.tag),
+                                hobbyTags: tags.filter(t => t.type === "hobby").map(t => t.tag),
+                                foodTags: tags.filter(t => t.type === "food").map(t => t.tag),
+                                updateTags
+                            })
+                        })}
+
+                        {renderSectionHeader("Other")}
+                        {/* Outlined button to match the mock's photo gallery action. */}
+                        <TouchableOpacity style={styles.galleryButton}>
+                            <NormalText style={styles.galleryButtonText}>Edit photo gallery</NormalText>
+                        </TouchableOpacity>
 
                         <Button disabled={firstName === "" || lastName === "" || bio === "" || loading}
                             marginVertical={40}
@@ -402,11 +494,12 @@ export default function edit({ route, navigation }) {
     );
 }
 const styles = StyleSheet.create({
+    // Smaller image size to align with the mock's layout next to buttons.
     image: {
-        width: 150,
-        height: 150,
+        width: 90,
+        height: 90,
         borderColor: "#5DB075",
-        borderWidth: 3,
+        borderWidth: 2,
         borderRadius: 100,
         alignItems: 'center'
     },
@@ -424,22 +517,51 @@ const styles = StyleSheet.create({
         marginRight: 10
     },
 
-    imageContainer: {
-        marginTop: 30,
+    // Row layout for the "Upload/Delete photo" buttons and avatar.
+    photoRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 20
+    },
+
+    // Left column with two action buttons, stacked vertically.
+    photoActions: {
+        flex: 1,
+        marginRight: 12
+    },
+
+    // Primary outlined button for "Upload photo" to match the mock.
+    photoButton: {
+        borderWidth: 2,
+        borderColor: "#5DB075",
+        borderRadius: 8,
+        paddingVertical: 8,
+        alignItems: "center",
+        marginBottom: 10
+    },
+
+    // Neutral outlined button for "Delete photo".
+    photoButtonSecondary: {
+        borderWidth: 1,
+        borderColor: "#C9C9C9",
+        borderRadius: 8,
+        paddingVertical: 8,
         alignItems: "center"
     },
 
-    editImage: {
-        left: 45,
-        bottom: 45,
-        padding: 12,
-        backgroundColor: "#5DB075",
-        borderRadius: 100
+    // Button text colors to align with mock colors.
+    photoButtonText: {
+        color: "#5DB075"
     },
 
+    photoButtonSecondaryText: {
+        color: "#B0B0B0"
+    },
+
+    // Remove fixed height so inputs can expand (esp. multiline fun fact).
     row: {
         width: "100%",
-        height: "6%",
         flexDirection: "row",
         justifyContent: "space-between",
         marginBottom: 10
@@ -449,6 +571,128 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "8%",
         zIndex: 10
+    },
+
+    // Section header (label + dotted line) used across the page.
+    sectionHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 16,
+        marginBottom: 10
+    },
+
+    sectionTitle: {
+        marginRight: 10,
+        color: "#666"
+    },
+
+    sectionLine: {
+        flex: 1,
+        borderBottomWidth: 1,
+        borderColor: "#D0D0D0",
+        borderStyle: "dashed"
+    },
+
+    // Dashed fun fact container that mimics the mock's large input area.
+    funFactContainer: {
+        borderStyle: "dashed",
+        borderWidth: 2,
+        borderColor: "#D0D0D0",
+        height: 120,
+        alignItems: "flex-start",
+        paddingVertical: 6
+    },
+
+    funFactInput: {
+        textAlignVertical: "top"
+    },
+
+    // Identity input styling to match the mock's thicker, rounded borders.
+    identityInput: {
+        borderWidth: 2,
+        borderColor: "#B0B0B0",
+        height: 44,
+        marginBottom: 12
+    },
+
+    // Tag category card wrapper with dashed border and soft padding.
+    tagCategoryCard: {
+        borderWidth: 2,
+        borderStyle: "dashed",
+        borderRadius: 12,
+        padding: 12,
+        marginBottom: 14
+    },
+
+    tagsRow: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 8,
+        marginBottom: 10
+    },
+
+    // Base chip style; colors per category are layered in.
+    tagChip: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+        backgroundColor: "#F0F0F0"
+    },
+
+    // Subtle shadow to lift chips like in the mock.
+    tagChipShadow: {
+        shadowColor: "#000",
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 2
+    },
+
+    // Category chip color variants to match the mock.
+    tagChipPurple: {
+        backgroundColor: "#F3E6FB"
+    },
+
+    tagChipBlue: {
+        backgroundColor: "#E3F2FD"
+    },
+
+    tagChipGold: {
+        backgroundColor: "#FFF3CD"
+    },
+
+    // Button inside each tag card, centered and subdued.
+    tagCategoryButton: {
+        backgroundColor: "#EEF1F4",
+        borderRadius: 10,
+        paddingVertical: 10,
+        alignItems: "center"
+    },
+
+    // CTA color variants to match the tag group tint.
+    tagButtonPurple: {
+        backgroundColor: "#F1E7F6"
+    },
+
+    tagButtonBlue: {
+        backgroundColor: "#E8F2F7"
+    },
+
+    tagButtonGold: {
+        backgroundColor: "#F2F4E4"
+    },
+
+    // Outlined action for the "Other" section.
+    galleryButton: {
+        borderWidth: 1,
+        borderColor: "#C9C9C9",
+        borderRadius: 8,
+        paddingVertical: 10,
+        alignItems: "center"
+    },
+
+    galleryButtonText: {
+        color: "#B0B0B0"
     }
 });
 
