@@ -1,9 +1,22 @@
 import React from "react";
-import { View, StyleSheet, Dimensions, Image } from "react-native";
+import { View, StyleSheet, Dimensions } from "react-native";
+import Svg, { Path } from "react-native-svg";
 
 import MediumText from "./MediumText";
 
 const { width } = Dimensions.get("window");
+
+const QUOTE_PATH =
+  "M0 25.8168V18.1463C0 15.9683 0.426125 13.7429 1.2784 11.4702C2.13067 9.19744 3.2552 7.05492 4.65198 5.04261C6.04876 3.03029 7.56391 1.34942 9.19743 0L15.8736 3.94176C14.5478 6.02509 13.4588 8.20312 12.6065 10.4758C11.7779 12.7486 11.3636 15.2817 11.3636 18.0753V25.8168H0ZM17.9332 25.8168V18.1463C17.9332 15.9683 18.3594 13.7429 19.2116 11.4702C20.0639 9.19744 21.1884 7.05492 22.5852 5.04261C23.982 3.03029 25.4971 1.34942 27.1307 0L33.8068 3.94176C32.4811 6.02509 31.392 8.20312 30.5398 10.4758C29.7112 12.7486 29.2969 15.2817 29.2969 18.0753V25.8168H17.9332Z";
+
+const QuoteIcon = ({ size = 36, color = "#b2b2b2", style }) => (
+  <Svg width={size} height={size} viewBox="0 0 34 26" fill="none" style={style}>
+    <Path
+      d={QUOTE_PATH}
+      fill={color}
+    />
+  </Svg>
+);
 
 const FunFact = ({ text }) => {
   if (!text || text.trim() === "") return null;
@@ -11,12 +24,14 @@ const FunFact = ({ text }) => {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Image
-          source={require("../../assets/quote.png")}
+        <QuoteIcon
+          size={36}
+          color="#b2b2b2"
           style={[styles.quote, styles.quoteClose]}
         />
-        <Image
-          source={require("../../assets/quote.png")}
+        <QuoteIcon
+          size={36}
+          color="#b2b2b2"
           style={[styles.quote, styles.quoteOpen]}
         />
 
@@ -44,10 +59,7 @@ const styles = StyleSheet.create({
   },
   quote: {
     position: "absolute",
-    width: 36,
-    height: 36,
     resizeMode: "contain",
-    tintColor: "#b2b2b2",
   },
   quoteOpen: {
     top: 10,
