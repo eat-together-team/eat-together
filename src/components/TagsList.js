@@ -1,5 +1,5 @@
 import React from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { View, ScrollView, StyleSheet, Platform } from "react-native";
 import Tag from "./Tag";
 
 const TagsList = props => {
@@ -27,7 +27,13 @@ const TagsList = props => {
             {filteredTags.map((tag, i) => {
                 const originalIndex = tags.indexOf(tag);
                 return (
-                    <View key={tag.tag ? tag.tag : tag} style={{ margin: 2 }}>
+                    <View
+                        key={tag.tag ? tag.tag : tag}
+                        style={[
+                            { margin: 2, alignSelf: "flex-start" },
+                            Platform.OS === "android" && { borderWidth: 0, borderBottomWidth: 0 },
+                        ]}
+                    >
                         <Tag 
                             text={tag.tag ? tag.tag : tag} 
                             type={tag.type ? tag.type : null} 

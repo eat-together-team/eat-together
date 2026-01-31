@@ -25,7 +25,6 @@ const tileSize = (screenWidth - 2.7 * 5 * numColumns) / numColumns;
 export default function Gallery({ route, navigation }) {
     // State Variables
     const user = auth.currentUser;
-    const viewingUserId = route?.params?.userId;
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filteredImages, setFilteredImages] = useState([]);
@@ -63,8 +62,7 @@ export default function Gallery({ route, navigation }) {
 
     // Use Effect to fetch image data
     useEffect(() => {
-        const userIdToFetch = viewingUserId || user.uid;
-        const unsubscribe = db.collection("Users").doc(userIdToFetch).onSnapshot((userDoc) => {
+        const unsubscribe = db.collection("Users").doc(user.uid).onSnapshot((userDoc) => {
             try {
                 if (userDoc.exists) {
                     const userData = userDoc.data();
@@ -85,7 +83,7 @@ export default function Gallery({ route, navigation }) {
         return () => unsubscribe();
     
 
-    }, [user.uid, viewingUserId]);
+    }, [user.uid]);
 
     // Use effect to fetch attended events of the user
     useEffect(() => {
@@ -565,16 +563,14 @@ export default function Gallery({ route, navigation }) {
     return (
         <Layout>
             <TopNav
-                middleContent={<MediumText>{viewingUserId ? firstName + "'s Photo Gallery" : "Your Photo Gallery"}</MediumText>}
+                middleContent={<MediumText>Your Photo Gallery</MediumText>}
                 leftContent={<Ionicons name="chevron-back" size={20} />}
                 leftAction={() => navigation.goBack()}
             />
 
-            {!viewingUserId && (
-                <View style={styles.buttonContainer}>
-                    <Button style={styles.button} onPress={addPhoto}> Add Photos </Button>
-                </View>
-            )}
+            <View style={styles.buttonContainer}>
+                <Button style={styles.button} onPress={addPhoto}> Add Photos </Button>
+            </View>
 
             <View>
                 <HorizontalRow style={{ paddingHorizontal: 20 }}>
