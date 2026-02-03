@@ -31,7 +31,7 @@ const restaurant = async (categoryParams, priceRange) => {
   const search_endpoint = 'https://api.yelp.com/v3/businesses/search';
 
   let categories = categoryParams ? categoryParams : ['coffee', 'restaurant', 'food'];
-  const location = 'University District, Seattle, WA'
+  const location = 'University District, Seattle, WA';
   const limit = 10;
   const radius = 10000;  // 1 km radius
 
