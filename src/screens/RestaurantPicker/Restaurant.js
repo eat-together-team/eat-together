@@ -43,33 +43,30 @@ export default function ({navigation}) {
 
       // 1. fetch restaurants based on user categories
       const result = await restaurant(categoryParams);
-      console.log("RESULT", result)
+
       // 2. get match scores (parallel to each restaurant in result)
       const matchScores =  result.map(business => 
         weighRestaurant({restaurant: business, cuisinePref: categoryAliases, dietaryPref: selectedDietaryTags, priceRange: priceRange}))
-     console.log(matchScores, "Match Scores")
-        // 3. Pair restaurants with scores
+      // 3. Pair restaurants with scores
       const restaurantWithScores = result.map((restaurant, index) => ({
         ...restaurant,
         matchScore: matchScores[index]
       }));
 
-      console.log(restaurantWithScores, "MATCHED SCORES")
-      console.log(restaurantWithScores[0].matchScore)
       // 4. sort from highest to lowest
       const sortedRestaurants = restaurantWithScores.sort((a, b) => {
-  if (b.matchScore !== a.matchScore) {
-    return b.matchScore - a.matchScore;
-  }
+      if (b.matchScore !== a.matchScore) {
+          return b.matchScore - a.matchScore;
+        }
 
-  // tie-breaker 1: rating
-  if (b.rating !== a.rating) {
-    return b.rating - a.rating;
-  }
+        // tie-breaker 1: rating
+        if (b.rating !== a.rating) {
+          return b.rating - a.rating;
+        }
 
-  // tie-breaker 2: review count
-  return b.reviewCount - a.reviewCount;
-});
+        // tie-breaker 2: review count
+        return b.reviewCount - a.reviewCount;
+      });
 
       return sortedRestaurants;
 
