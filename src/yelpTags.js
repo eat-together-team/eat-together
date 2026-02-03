@@ -328,7 +328,6 @@ const foodTagsToYelpCategories = {
   "Pan Asian": "panasian",
   "Persian/Iranian": "persian",
   "Peruvian": "peruvian",
-  "Pizza": "pizza",
   "Polish": "polish",
   "Portuguese": "portuguese",
   "Ramen": "ramen",
