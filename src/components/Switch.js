@@ -10,7 +10,7 @@ import Animated, {
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const switchWidthRatio = 0.1;
-const switchHeightRatio = 0.055;
+const switchHeightRatio = 0.063;
 const maxSwitchHeight = 22;
 const maxSwitchWidth = 40;
 const SWITCH_HEIGHT = Math.max(maxSwitchHeight, SCREEN_WIDTH * switchHeightRatio);
