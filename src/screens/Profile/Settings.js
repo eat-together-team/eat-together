@@ -48,19 +48,34 @@ export default function ({ navigation }) {
 
     // Changes if user's acount is private or not
     function changePrivacySettings() {
-        if (privAcct) {
-            db.collection("Users").doc(user.uid).update({
-                "settings.privateAccount": false
-            });
-            setPrivAcct(false);
+        Alert.alert(
+            "Update Account Status",
+            "Would you like to make your account private? This will prevent your profile from matching with other users on the Explore page; however, you will still be able to be found if a user searches your exact username.",
+            [
+                {
+                    text: "Yes",
+                    onPress: async () => {
+                        if (privAcct) return; //Don't display a "changed" animation and alert if nothing changed
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.privateAccount": true
+                        }); setPrivAcct(true);
+                        alert("Account status updated!");
+                    }
+                },
+                {
+                    text: "No",
+                    onPress: async () => {
+                        if (!privAcct) return; //Don't display a "changed" animation and alert if nothing changed
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.privateAccount": false
+                        });
 
-        } else {
-            db.collection("Users").doc(user.uid).update({
-                "settings.privateAccount": true
-            });
-            setPrivAcct(true);
-
-        }
+                        setPrivAcct(false);
+                        alert("Account status updated!");
+                    }
+                }
+            ]
+        );
     }
 
 

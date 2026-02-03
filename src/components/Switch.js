@@ -9,8 +9,12 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const SWITCH_HEIGHT = Math.max(22, SCREEN_WIDTH * 0.055);
-const SWITCH_WIDTH = Math.max(40, SCREEN_WIDTH * 0.1);
+const switchWidthRatio = 0.1;
+const switchHeightRatio = 0.055;
+const maxSwitchHeight = 22;
+const maxSwitchWidth = 40;
+const SWITCH_HEIGHT = Math.max(maxSwitchHeight, SCREEN_WIDTH * switchHeightRatio);
+const SWITCH_WIDTH = Math.max(maxSwitchWidth, SCREEN_WIDTH * switchWidthRatio);
 
 const Switch = ({
   value,
