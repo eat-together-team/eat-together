@@ -66,18 +66,6 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                 }>
                 Back To Start
             </Button>
-            <Button onPress = {()=> 
-                {
-                    setIndex(0);
-                    setUserSkipped(false);
-                    setCurrentIndex(0);
-                    setPressedStart(false);
-                    setResult(undefined);
-                }
-                }>
-                Finish
-            </Button>
-
         </View>
         )
     }
