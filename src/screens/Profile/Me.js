@@ -209,12 +209,14 @@ export default function ({ navigation }) {
           {userInfo.hasImage ? (
             <ImageBackground
               source={{ uri: userInfo.image }}
-              style={[styles.background, { height: Math.max(360, followButtonLayout.y + followButtonLayout.height) + statusBarHeight - 30}]}
+              style={[styles.background, { height: Math.max(360, followButtonLayout.y + followButtonLayout.height) 
+                + statusBarHeight - 30 + (Platform.OS === 'android' ? 16 : 0) }]}
               imageStyle={styles.backgroundImage}
               blurRadius={20}
             />
           ) : (
-            <View style={[styles.background, {backgroundColor: '#5DB075', height: Math.max(400, followButtonLayout.y + followButtonLayout.height + 20) + statusBarHeight + 30 - 40}]} />
+            <View style={[styles.background, {backgroundColor: '#5DB075', height: Math.max(400, followButtonLayout.y 
+              + followButtonLayout.height + 20) + statusBarHeight + 30 - 40 + (Platform.OS === 'android' ? 16 : 0) }]} />
           )}
         </View>
         <View style={[styles.page, { paddingTop: statusBarHeight + 30 }]}>

@@ -124,6 +124,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
   );
   const [personData, setPersonData] = useState(person);
   const [followButtonLayout, setFollowButtonLayout] = useState({ y: 0, height: 0 });
+  const [joinDate, setJoinDate] = useState(null);
 
   const reportPerson = () => {
     navigation.navigate("ReportPerson", {
@@ -266,7 +267,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
                 {
                   height:
                     Math.max(320, followButtonLayout.y + followButtonLayout.height + 10) +
-                    statusBarHeight - 35,
+                    statusBarHeight - 35 + (Platform.OS === 'android' ? 16 : 0),
                 },
               ]}
               imageStyle={styles.backgroundImage}
@@ -280,7 +281,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
                   backgroundColor: "#5DB075",
                   height:
                     Math.max(360, followButtonLayout.y + followButtonLayout.height) +
-                    statusBarHeight - 25,
+                    statusBarHeight - 25 + (Platform.OS === 'android' ? 16 : 0),
                 },
               ]}
             />
@@ -565,11 +566,10 @@ const styles = StyleSheet.create({
   blockButton: {
     paddingVertical: 10,
     paddingHorizontal: 28,
-    minWidth: 180,
+    minWidth: Platform.OS === "android" ? 150 : 175,
     marginRight: 16,
     alignItems: "center",
     justifyContent: "center",
-    fontSize: 13,
     borderColor: "red",
     borderWidth: 2,
     borderRadius: 10,
@@ -579,7 +579,7 @@ const styles = StyleSheet.create({
   reportButton: {
     paddingVertical: 10,
     paddingHorizontal: 28,
-    minWidth: 180,
+    minWidth: Platform.OS === "android" ? 150 : 175,
     alignItems: "center",
     justifyContent: "center",
     borderColor: "#797979",
