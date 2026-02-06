@@ -1,4 +1,7 @@
 import { View, Modal, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from 'react-native-reanimated';
 import MediumText from '../../components/MediumText';
 import Button from '../../components/Button';
 import RestaurantRec from '../../components/RestaurantRec';
@@ -8,7 +11,16 @@ import { Ionicons } from '@expo/vector-icons';
 
 // "Swipe Deck" screen that renders each restaurant that is tailored to user preferences
 const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, incrementIndex, currentIndex, setCurrentIndex, setIndex, setUserSkipped, setPressedStart, setUserResults, setResult}) => {
-  // store restaurant if green button is pressed
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
+  // reset card position when index changes
+  useEffect(() => {
+    translateX.value = 0;
+    translateY.value = 0;
+  }, [currentIndex]);
+
+  // store restaurant if green button is pressed (or swipe right)
   const storeRestaurant = () => {
     setCurrentIndex((prev) => (prev + 1));
     setUserResults(prev => [...prev, listOfRestaurants[currentIndex]]);
@@ -22,10 +34,44 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
   const checkLimit = () => {
     if (currentIndex >= 9) {
       setSwipingFinished(true);
-    }else{
+    } else {
       storeRestaurant();
     }
   };
+
+  // translation for angled card swiping
+  const panGesture = Gesture.Pan()
+    .onUpdate((e) => {
+      translateX.value = e.translationX;
+      translateY.value = e.translationY * 0.3;
+    })
+    .onEnd((e) => {
+      const goRight = e.translationX > 80 || e.velocityX > 300;
+      const goLeft = e.translationX < - 80 || e.velocityX < -300;
+      if (goRight) {
+        translateX.value = withTiming(400, { duration: 180 }, (finished) => {
+          if (finished) runOnJS(checkLimit)();
+        });
+      } else if (goLeft) {
+        translateX.value = withTiming(-400, { duration: 180 }, (finished) => {
+          if (finished) runOnJS(ignoreRestaurant)();
+        });
+      } else {
+        translateX.value = 0;
+        translateY.value = 0;
+      }
+    });
+
+  const cardAnimatedStyle = useAnimatedStyle(() => {
+    const rotation = (translateX.value / 350) * 12;
+    return {
+      transform: [
+        { translateX: translateX.value },
+        { translateY: translateY.value },
+        { rotate: `${rotation}deg` },
+      ],
+    };
+  });
 
   // Wait until API response loads
   if(!listOfRestaurants){
@@ -36,19 +82,44 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
     )
   }
 
+  const restaurant = listOfRestaurants[currentIndex];
+
   // Renders each restaurant as a card
-  const renderCard = (restaurant) => {
+  const renderCard = () => {
+    if (!restaurant) {
+      return (
+        <RestaurantRec
+          restaurant={restaurant}
+          setIndex={setIndex}
+          setUserSkipped={setUserSkipped}
+          setCurrentIndex={setCurrentIndex}
+          setPressedStart={setPressedStart}
+          setResult={setResult}
+        />
+      );
+    }
     return (
-        <>
-            <RestaurantRec restaurant = {restaurant} setIndex = {setIndex} setUserSkipped = {setUserSkipped} setCurrentIndex = {setCurrentIndex} setPressedStart = {setPressedStart} setResult = {setResult}>
-            </RestaurantRec>  
-        </>
+      <View style={styles.cardWrapper}>
+        <GestureDetector gesture={panGesture}>
+          <Animated.View style={cardAnimatedStyle}>
+            <RestaurantRec
+              key={restaurant.id}
+              restaurant={restaurant}
+              setIndex={setIndex}
+              setUserSkipped={setUserSkipped}
+              setCurrentIndex={setCurrentIndex}
+              setPressedStart={setPressedStart}
+              setResult={setResult}
+            />
+          </Animated.View>
+        </GestureDetector>
+      </View>
     );
   };
 
   return (
     <View>
-        {renderCard(listOfRestaurants[currentIndex])}
+        {renderCard()}
         
         {currentIndex <= 9 && <View style = {{marginTop:20}}>
             <View>
@@ -118,6 +189,11 @@ const styles = StyleSheet.create({
   },
   finishContainer:{
       textAlign:'center',
-  }
+  },
+  cardWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    marginTop: 40,
+  },
 })
 export default NewSwipeDeck;
