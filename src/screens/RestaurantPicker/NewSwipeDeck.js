@@ -41,6 +41,8 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
 
   // translation for angled card swiping
   const panGesture = Gesture.Pan()
+    .activeOffsetX([-15, 15])
+    .failOffsetY([-40, 40])
     .onUpdate((e) => {
       translateX.value = e.translationX;
       translateY.value = e.translationY * 0.3;
