@@ -9,7 +9,7 @@ const RestaurantCard = ({children, expanded}) => {
       width: 311,
       height: expanded ? undefined : 500,
       maxHeight: expanded ? CARD_MAX_HEIGHT : undefined,
-      backgroundColor: "#FFFFFF",
+      backgroundColor: "#F7F7F7",
       borderRadius: 40,
       shadowOpacity: 0.25,
       shadowOffset: {
