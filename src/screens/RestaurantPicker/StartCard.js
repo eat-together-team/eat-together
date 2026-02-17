@@ -9,7 +9,7 @@ import SmallText from '../../components/SmallText';
 const StartCard = ({incrementIndex, skipToSwiping}) => {
   return (
     <View style={styles.cardWrapper}>
-        <RestaurantCard>
+        <RestaurantCard height={590}>
             <View style = {styles.questionContainer}>
                 <View style = {styles.textWrapper}>
                     <LargeText color = "#808080" size = {30}>Before we start,</LargeText>

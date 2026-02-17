@@ -3,21 +3,15 @@ import { View, ScrollView, Dimensions } from 'react-native';
 const CARD_MAX_HEIGHT = Dimensions.get('window').height * 0.7; 
 
 //Card components for Restaurant picker feature
-const RestaurantCard = ({children, expanded}) => {
+const RestaurantCard = ({children, expanded, height: customHeight}) => {
+  const defaultHeight = 500;
+  const cardHeight = expanded ? undefined : (customHeight ?? defaultHeight);
   return (
     <View style={{
       width: 311,
-      height: expanded ? undefined : 500,
+      height: cardHeight,
       maxHeight: expanded ? CARD_MAX_HEIGHT : undefined,
-      backgroundColor: "#F7F7F7",
-      borderRadius: 40,
-      shadowOpacity: 0.25,
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      marginBottom: 10,
-      marginTop: 50,
+      marginTop: 20,
       overflow: 'hidden',
     }}>
       {expanded ? (

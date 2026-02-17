@@ -1,7 +1,7 @@
 import React from 'react'
 import {TouchableOpacity, StyleSheet} from 'react-native';
-import MediumText
- from './MediumText';
+import MediumText from './MediumText';
+import SmallText from './SmallText';
 const PriceRangeButton = ({dollars, text, setPriceRange , priceRange}) => {
  
   const handlePriceRange = () =>{
@@ -18,26 +18,27 @@ const PriceRangeButton = ({dollars, text, setPriceRange , priceRange}) => {
   return (
     <TouchableOpacity style = {styles.priceContainer(priceRange,dollars)} onPress={handlePriceRange}>
       <MediumText>
-        <MediumText color  = "#5DB075" size = {15}>{dollars}</MediumText>
-        <MediumText color = "#A9A9A9" size = {15}>{text}</MediumText>
+        <MediumText color  = "#808080" size = {15} center = "center">{dollars} {'\n'}</MediumText>
+        <SmallText color = "#808080" size = {12} center = "center">{text}</SmallText>
       </MediumText>
     </TouchableOpacity>
   )
 }
 const styles = StyleSheet.create({
-  priceContainer: (priceRange, dollars) => ({
-      display:'flex',
-      alignItems:'center',
-      justifyContent:'center',
-      width: 190,
-      height: 40,
-      backgroundColor: priceRange === dollars.length ? "#F2F4F7" : "#FFFFFF",
-      borderRadius:10,
-      shadowOpacity: 0.25,
-      shadowOffset: {
-          width: 0,
-          height: 4,
-      },
-    })
+  priceContainer: (priceRange, dollars) => {
+      const isSelected = priceRange === dollars.length;
+      return {
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+        width: 258,
+        height: 87,
+        backgroundColor: isSelected ? 'rgba(93, 176, 117, 0.3)' : '#FFFFFF',
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: isSelected ? '#5DB075' : '#D0D0D0',
+        marginVertical: 10,
+      };
+    }
   });
 export default PriceRangeButton

@@ -22,13 +22,10 @@ const CuisineCard = ({setCategoryAliases, cuisineTagSelected, setCuisineTagSelec
   }, [cuisineTagSelected]);
 
   return (
-      <View>
+      <View style={styles.cardWrapper}>
         <RestaurantCard>
           <View style ={styles.questionContainer}>
-            <MediumText color = "#5DB075" center = "center">What Cuisine(s) are you {'\n'} in the mood for?</MediumText>
-          </View>
-          <View style = {styles.exampleTextContainer}>
-            <MediumText weight = {600} color = "#A9A9A9" size = {13} center ={true}>E.g. favorite culture, favorite dish</MediumText>
+            <MediumText center = "center">What cuisines are you {'\n'} in the mood for?</MediumText>
           </View>
           <View style = {styles.textInputContainer}>
             <TagsSection
@@ -55,36 +52,28 @@ const CuisineCard = ({setCategoryAliases, cuisineTagSelected, setCuisineTagSelec
   )
 }
 const styles = StyleSheet.create({
-    outerContainer:{
-      flex:1,
-      justifyContent:'center',
-      alignItems:'center',
+    cardWrapper: {
+      borderWidth: 2,
+      borderColor: '#D0D0D0',
+      borderRadius: 20,
     },
+
     questionContainer:{
-      backgroundColor:'#FFFFFF',
+      backgroundColor:'#F7F7F7',
       width: '100%',
-      height: 105,
-      borderTopLeftRadius: 40,
-      borderTopRightRadius: 40,
-      shadowOpacity: 0.25,
-      shadowOffset: {
-          width: 0,
-          height: 4,
-      },
       display:'flex',
       justifyContent:'center',
       alignItems:'center',
+      marginBottom: 20,
     },
-    exampleTextContainer:{
-      marginTop:30,
-      marginBottom:10,
-    },
+
     cuisineTagInput:{
       borderColor:'gray',
       borderWidth: 0.5,
       borderRadius: 5,
       height: 35,
     },
+
     textInputContainer:{
       alignItems:'center',
       width:"90%",

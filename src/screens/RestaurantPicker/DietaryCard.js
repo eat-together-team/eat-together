@@ -10,14 +10,12 @@ const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
   //dietary tags (approved category aliases) from Yelp
   const dietaryTags = ["vegan","vegetarian","gluten_free","halal","kosher"];
   return (
-    <View>
+    <View style={styles.cardWrapper}>
         <RestaurantCard>
             <View style = {styles.questionContainer}>
-                <MediumText color = "#5DB075" center ="center">Do you have any dietary preferences?</MediumText>
+                <MediumText center ="center">Do you have any dietary restrictions?</MediumText>
             </View>
-            <View style = {styles.exampleTextContainer}>
-                <MediumText size = {13} color = "#A9A9A9" center={true}>E.g. Vegetarian, Gluten-free</MediumText>
-            </View>
+
             <View style = {styles.textInputContainer}>
               <TagsSection
                         multi={true}
@@ -43,25 +41,21 @@ const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
   )
 }
 const styles = StyleSheet.create({
+    cardWrapper: {
+      borderWidth: 2,
+      borderColor: '#D0D0D0',
+      borderRadius: 20,
+    },
+    
     questionContainer:{
-        backgroundColor:'#FFFFFF',
+        backgroundColor:'#F7F7F7',
         width: '100%',
-        height: 105,
-        borderTopLeftRadius: 40,
-        borderTopRightRadius: 40,
-        shadowOpacity: 0.25,
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
         display:'flex',
         justifyContent:'center',
         alignItems:'center',
+        marginBottom: 20,
       },
-      exampleTextContainer:{
-        marginTop:30,
-        marginBottom:10,
-      },
+
       dietTagInput:{
         width:"90%",
         borderColor:'gray',
