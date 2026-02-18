@@ -1,5 +1,5 @@
 import {YELP_API_KEY} from "@env";
-import axios from "axios";
+import axios from "axios/dist/axios.min.js";
 
 const apiKey = YELP_API_KEY;
 
@@ -31,9 +31,9 @@ const restaurant = async (categoryParams, priceRange) => {
   const search_endpoint = 'https://api.yelp.com/v3/businesses/search';
 
   let categories = categoryParams ? categoryParams : ['coffee', 'restaurant', 'food'];
-  const location = 'The Ave, Seattle, WA';
+  const location = 'University District, Seattle, WA';
   const limit = 10;
-  const radius = 10000;  // 1 km radius
+  const radius = 10000;  // 10 km radius
 
   // Check if user provided any categories
 
