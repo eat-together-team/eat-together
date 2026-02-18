@@ -1,4 +1,7 @@
 import profaneWords from "./profaneWords";
+import { db, auth } from "../provider/Firebase";
+import firebase from "firebase/compat";
+import { Alert } from "react-native";
 
 /**
  * Sorts an array of people by similarity to the current user.
@@ -339,5 +342,45 @@ export const convertToFutureDate = (date) => {
 
     return date;
 }
+
+/**
+ * Remove a friend, if we are already connected with them
+ * @param {String} uid The user ID of the friend to remove.
+ * @param {Object} navigation Navigation object to go back after removal (optional).
+ */
+export const removeFriend = (uid, navigation) => {
+  Alert.alert("Remove Friend", "Are you sure you want to remove this friend?", [
+    {
+      text: "Cancel",
+      style: "cancel",
+    },
+    { text: "Remove Connection", style: "destructive", onPress: () => databaseRemoveFriend(uid, navigation) },
+  ]);
+};
+
+/**
+ * Database operation to remove friend connection between two users
+ * @param {String} uid The user ID of the friend to remove.
+ * @param {Object} navigation Navigation object to go back after removal (optional).
+ */
+const databaseRemoveFriend = (uid, navigation) => {
+  alert("Friend removed.");
+  const user = auth.currentUser;
+
+  // update user's blacklist & remove from friends
+  db.collection("Users")
+      .doc(user.uid)
+      .update({
+        friendIDs: firebase.firestore.FieldValue.arrayRemove(uid)
+      }).then(() => {
+        db.collection("Users").doc(uid).update({
+          friendIDs: firebase.firestore.FieldValue.arrayRemove(user.uid)
+        })
+  });
+
+  if (navigation) {
+    navigation.goBack();
+  }
+};
 
 // Yelp restaurant function

@@ -3,24 +3,32 @@ import {
   View,
   StyleSheet,
   Image,
+  ImageBackground,
   Dimensions,
   ScrollView,
   TouchableOpacity,
-  Alert
+  Alert,
+  StatusBar,
+  Platform
 } from "react-native";
 import { Layout } from "react-native-rapi-ui";
 import { Ionicons, Feather } from "@expo/vector-icons";
+import Constants from 'expo-constants';
 import { db, auth } from "../../provider/Firebase";
 
-import WithBadge from "../../components/WithBadge";
+// import WithBadge from "../../components/WithBadge";
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 import TagsList from "../../components/TagsList";
 import EventCard from "../../components/EventCard";
 import { AntDesign } from '@expo/vector-icons';
+import FunFact from "../../components/FunFact";
+import GalleryRow from "../../components/GalleryRow";
+import EventsRow from "../../components/EventsRow";
 
 import { compareDates } from "../../utils/methods";
+import SmallText from "../../components/SmallText";
 
 export default function ({ navigation }) {
   const user = auth.currentUser;
@@ -29,11 +37,24 @@ export default function ({ navigation }) {
   const [banner, setBanner] = useState({});
   const [mealsAttended, setMealsAttended] = useState(0);
   const [mealsSignedUp, setMealsSignedUp] = useState(0);
+  const [joinDate, setJoinDate] = useState(null);
 
   const [events, setEvents] = useState([]);
+  const [followButtonLayout, setFollowButtonLayout] = useState({ y: 0, height: 0 });
 
   useEffect(() => {
     async function fetchData() {
+      try {
+        if (user && user.metadata && user.metadata.creationTime) {
+          const creationDate = new Date(user.metadata.creationTime);
+          const month = creationDate.toLocaleString('default', { month: 'long' });
+          const year = creationDate.getFullYear();
+          setJoinDate(`${month} ${year}`);
+        }
+      } catch (error) {
+        console.log("Error getting join date:", error);
+      }
+
       await db
         .collection("Users")
         .doc(user.uid)
@@ -174,33 +195,50 @@ export default function ({ navigation }) {
     }));
   }
 
+  const statusBarHeight = Constants.statusBarHeight || (Platform.OS === 'ios' ? 44 : 24);
+  
   return (
-    <Layout>
-      <ScrollView contentContainerStyle={styles.page}>
-        <View style={[styles.background, {backgroundColor: banner}]} />
-        <View style={styles.palette}>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.backgroundContainer}>
+          {userInfo.hasImage ? (
+            <ImageBackground
+              source={{ uri: userInfo.image }}
+              style={[styles.background, { height: Math.max(360, followButtonLayout.y + followButtonLayout.height) 
+                + statusBarHeight - 30 + (Platform.OS === 'android' ? 16 : 0) }]}
+              imageStyle={styles.backgroundImage}
+              blurRadius={20}
+            />
+          ) : (
+            <View style={[styles.background, {backgroundColor: '#5DB075', height: Math.max(400, followButtonLayout.y 
+              + followButtonLayout.height + 20) + statusBarHeight + 30 - 40 + (Platform.OS === 'android' ? 16 : 0) }]} />
+          )}
+        </View>
+        <View style={[styles.page, { paddingTop: statusBarHeight + 30 }]}>
+        <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
           <Ionicons
-            name="aperture"
-            size={40}
+            name="arrow-back-sharp"
+            size={24}
             color="white"
             onPress={() => {
-              navigation.navigate("ColorPicker", {
-                oldbanner: banner,
-                updateBanner,
-              });
+              navigation.navigate("Home");
             }}
           ></Ionicons>
-          <NormalText style={{color: "white"}}>Background</NormalText>
         </View>
 
-        <View style={styles.badge}>
+        {/* <View style={styles.badge}>
           <WithBadge mealsAttended={mealsAttended} mealsSignedUp={mealsSignedUp}/>
-        </View>
+        </View> */}
 
-        <View style={styles.settings}>
+        <View style={[styles.settings, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
           <Ionicons
-            name="settings-sharp"
-            size={40}
+            name="settings-outline"
+            size={24}
             color="white"
             onPress={() => {
               navigation.navigate("Settings", {
@@ -210,22 +248,45 @@ export default function ({ navigation }) {
               });
             }}
           ></Ionicons>
-          <NormalText style={{color: "white"}}>Settings</NormalText>
         </View>
-        <Image
-          style={styles.image}
-          source={
-            userInfo.hasImage
-              ? { uri: userInfo.image }
-              : require("../../../assets/logo.png")
-          }
-        />
 
-        <View style={styles.links}>
+        <View style={styles.header}>
+          <View style={styles.name}>
+            {/* ensuring that if a user has a long name, like last name, their name doesn't overflow, the text gets smaller to accommodate */}
+            <LargeText color="white" marginTop={4} size={((userInfo.firstName || '') + ' ' + (userInfo.lastName || '')).trim().length > 12 ? 18 : 24}>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
+            <NormalText color="white" weight="bold" marginBottom={10}>@{userInfo.username}</NormalText>
 
-          {/* add back connections when navigation succcessfully configured */}
+            <View style={styles.infoRow}>
+              <Ionicons name="school-outline" size={16} color="white" style={styles.infoIcon} />
+              <NormalText color="white" marginBottom={2}>{userInfo.school ? userInfo.school : "UW Seattle"}</NormalText>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="restaurant-outline" size={16} color="white" style={styles.infoIcon} />
+              <NormalText color="white" marginBottom={2}>
+                {mealsAttended + "/" + mealsSignedUp + " meals attended"}
+              </NormalText>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="calendar-outline" size={16} color="white" style={styles.infoIcon} />
+              <NormalText color="white">Joined {joinDate || userInfo.join || "June 2024"}</NormalText>
+            </View>
+          </View>
+
+          <Image
+            style={styles.image}
+            source={
+              userInfo.hasImage
+                ? { uri: userInfo.image }
+                : require("../../../assets/logo.png")
+            }
+          />
+        </View>
+
+        <View style={styles.header}>
           <TouchableOpacity
-            style={styles.link}
+            style={styles.connections}
             onPress={() => {
               navigation.navigate("Connections", {
                 user: userInfo,
@@ -234,13 +295,19 @@ export default function ({ navigation }) {
               });
             }}
           >
-            <Ionicons name="list-circle" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Connections</NormalText>
+            <NormalText color="white" align="left" weight="bold" marginTop={8} marginBottom={8}>{userInfo.friendIDs ? userInfo.friendIDs.length : 0} Connections</NormalText>
           </TouchableOpacity>
+        </View>
 
-
+        <View 
+          style={styles.links}
+          onLayout={(event) => {
+            const { y, height } = event.nativeEvent.layout;
+            setFollowButtonLayout({ y, height });
+          }}
+        >
           <TouchableOpacity
-            style={styles.link}
+            style={styles.profile}
             onPress={() => {
               navigation.navigate("Edit", {
                 user: userInfo,
@@ -248,41 +315,54 @@ export default function ({ navigation }) {
               });
             }}
           >
-            <Feather name="edit-2" size={20} color="#4C6FB1" />
-            <NormalText color="#4C6FB1"> Edit Profile</NormalText>
+          
+          <NormalText color="white" center weight="bold"> Edit profile</NormalText>
           </TouchableOpacity>
-
         </View>
 
-        <View style={styles.name}>
-          <LargeText size={24}>{userInfo.firstName + " " + userInfo.lastName + " (" + userInfo.pronouns + ")"}</LargeText>
-          <MediumText>@{userInfo.username}</MediumText>
-          <NormalText>
-            🍽️ {mealsAttended + "/" + mealsSignedUp + " meals attended"}
-          </NormalText>
-          <NormalText marginBottom={5}>🏫 {userInfo.school ? userInfo.school : "UW-Seattle"}</NormalText>
+        {/* break down tags list */}
+        <View style={{ marginTop: 55 }}>
+          <TagsList tags={userInfo.tags} filterType="food" />
+          <TagsList tags={userInfo.tags} filterType="hobby" />
+          <FunFact text={userInfo.bio} />
+          <TagsList tags={userInfo.tags} filterType="school" />
         </View>
 
-
-        <TagsList tags={userInfo.tags ? userInfo.tags : []} />
-        <MediumText center>{userInfo.bio}</MediumText>
-        {events.length > 0 && <View style={styles.eventRecordBackground}>
-          <LargeText>Archives</LargeText>
-          <View style={styles.cards}>
-            {
-              events.map((event) => (
-                <EventCard
-                  event={event}
-                  key={event.id}
-                  click={() => {
-                    navigation.navigate("FullCard", { event });
-                  }}
-                />
-              ))}
+        {/* gallery */}
+        <View style={styles.galleryBackground}>
+          <View style={styles.galleryHeader}>
+            <NormalText>Gallery</NormalText>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("Gallery", { user: userInfo });
+              }}
+            >
+              <NormalText color="grey">View all</NormalText>
+            </TouchableOpacity>
           </View>
-        </View>}
+          <GalleryRow images={userInfo.gallery} />
+        </View>
+
+        {/* events */}
+        {events.length > 0 && (
+          <View style={styles.eventRecordBackground} marginTop={10}>
+            <View style={styles.eventsHeader}>
+              <NormalText>Meetup Archive</NormalText>
+              <TouchableOpacity>
+                <NormalText color="grey">View all</NormalText>
+              </TouchableOpacity>
+            </View>
+            <EventsRow 
+              events={events} 
+              onEventPress={(event) => {
+                navigation.navigate("FullCard", { event });
+              }}
+            />
+          </View>
+        )}
+        </View>
       </ScrollView>
-    </Layout>
+    </View>
   );
 }
 
@@ -296,55 +376,83 @@ const styles = StyleSheet.create({
   eventRecordBackground: {
     width: Dimensions.get("screen").width,
     alignItems: "center",
-    paddingTop: 20,
-    marginTop: 40,
   },
 
+  eventsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 14,
+    marginBottom: 10,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+  },
+  backgroundContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    width: Dimensions.get("window").width,
+    zIndex: 0,
+  },
   page: {
-    paddingTop: 30,
     alignItems: "center",
     paddingHorizontal: 10,
   },
 
   background: {
-    position: "absolute",
-    width: Dimensions.get("screen").width,
-    height: 150,
+    width: Dimensions.get("window").width,
+  },
+  backgroundImage: {
+    resizeMode: "cover",
   },
 
   image: {
-    width: 175,
-    height: 175,
+    width: 150,
+    height: 150,
     borderColor: "white",
     borderWidth: 3,
     borderRadius: 100,
     backgroundColor: "white",
   },
 
-  name: {
+  header: {
     width: "100%",
-    marginVertical: 20,
+    flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+
+  name: {
+    flex: 1,
+    marginRight: 20,
+    marginVertical: 20,
+    alignItems: "flex-start",
+  },
+
+  profile: {
+    fontSize: 13,
+    borderColor: "white",
+    borderWidth: 2,
+    borderRadius: 10,
+    paddingBottom: 12,
+    paddingTop: 12,
+    width: "95%",
   },
 
   palette: {
     position: "absolute",
     left: 20,
-    top: 20,
     alignItems: "center",
-  },
-
-  badge: {
-    position: "absolute",
-    left: 20,
-    top: 70,
-    marginTop: 10,
   },
 
   settings: {
     position: "absolute",
     right: 20,
-    top: 20,
     alignItems: "center",
   },
 
@@ -358,12 +466,43 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-evenly",
+    justifyContent: "flex-start",
     width: "100%",
+    paddingHorizontal: 20,
   },
 
   link: {
     flexDirection: "row",
     alignItems: "center",
+  },
+
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 2,
+    // opacity: "70",
+  },
+
+  infoIcon: {
+    marginRight: 6,
+  },
+
+  connections: {
+    alignItems: "flex-start",
+  },
+
+  galleryBackground: {
+    width: Dimensions.get("screen").width,
+    alignItems: "center",
+    paddingTop: 20,
+    marginTop: 20,
+  },
+
+  galleryHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 14,
   },
 });
