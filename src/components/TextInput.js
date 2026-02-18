@@ -32,8 +32,8 @@ function TextInput(props) {
         // Affects the container
         backgroundColor = "white",
         borderColor = "lightgrey",
-        borderWidth = 1,
-        height = 42,
+        borderWidth = 2,
+        height = 44,
         width = "30%",
         marginTop = "0%",
         marginBottom = "0%",
@@ -82,7 +82,7 @@ function TextInput(props) {
 
         mainContainer: {
             flexDirection: 'row',
-            height: Platform.OS === "ios" ? 34 : height,
+            height: height,
             width: width,
             backgroundColor: backgroundColor,
             borderRadius: 10,

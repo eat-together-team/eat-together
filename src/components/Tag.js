@@ -2,24 +2,33 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import MediumText from './MediumText';
+import NormalText from './NormalText';
 
 const Tag = props => {
+    const typeBg = props.type === "school" ? "#FFFCE5"
+        : props.type === "hobby" ? "#E5F7FF"
+        : props.type === "food" ? "#FDE5FF"
+        : props.type ? "#E5FFF2" : undefined;
+    const tagStyle = [
+        styles.tag,
+        typeBg && { backgroundColor: typeBg },
+        props.backgroundColor && { backgroundColor: props.backgroundColor },
+        props.justifySpaceBetween && { justifyContent: 'space-between' },
+        props.style
+    ];
+    const textColor = props.type === "school" ? "#CC9300"
+        : props.type === "hobby" ? "#05097A"
+        : props.type === "food" ? "#460072"
+        : props.color ?? "white";
+    const TextComponent = props.plain ? NormalText : MediumText;
     return (
-        <View style={props.type ? [styles.tag, {
-            backgroundColor: props.type === "school" ? "#FFFCE5"
-                : props.type === "hobby" ? "#E5F7FF"
-                : props.type === "food" ? "#FDE5FF"
-                : "#E5FFF2"
-        }] : styles.tag}>
-            <MediumText size={12} color={
-                props.type === "school" ? "#CC9300"
-                : props.type === "hobby" ? "#05097A"
-                : props.type === "food" ? "#460072"
-                : "white"
-            }>{props.text}</MediumText>
+        <View style={tagStyle}>
+            <View style={[styles.textWrap, props.plain && styles.textWrapLeft]}>
+                <TextComponent size={12} color={textColor} style={props.plain ? { textAlign: 'left' } : undefined}>{props.text}</TextComponent>
+            </View>
             {props.remove && 
                 <TouchableOpacity onPress={props.remove} style={styles.close}>
-                    <Ionicons name="close" size={16} color="white" />
+                    <Ionicons name="close" size={16} color={props.closeIconColor ?? "white"} />
                 </TouchableOpacity>
             }
         </View>
@@ -44,7 +53,13 @@ const styles = StyleSheet.create({
         },
         elevation: 2
     },
-
+    textWrap: {
+        flex: 1,
+    },
+    textWrapLeft: {
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+    },
     close: {
         alignItems: 'center',
         justifyContent: 'center',

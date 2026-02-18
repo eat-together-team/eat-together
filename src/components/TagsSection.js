@@ -193,10 +193,11 @@ export default class TagsSection extends Component {
     return (
       <TextInput
         { ...textInputProps }
-        placeholder="Type a tag..."
-        iconLeft="pricetag"
-        iconLeftFontSize={20}
+        placeholder={this.props.placeholder != null ? this.props.placeholder : "Add a cuisine"}
+        height={44}
         width="100%"
+        borderColor="#A9A9A9"
+        mainContainerStyle={{ paddingLeft: 2, ...this.props.mainContainerStyle }}
         onBlur={(e) => {
             if (this.props.onBlur) {
                 this.props.onBlur(e);
@@ -235,7 +236,17 @@ export default class TagsSection extends Component {
         return (
           <View style={styles.itemDisplay}>
             { items.map((tag, i) => 
-              <Tag key={i} text={tag} remove={() => this.props.onRemoveItem(tag, i)}/>
+              <Tag
+                key={i}
+                text={tag}
+                remove={() => this.props.onRemoveItem(tag, i)}
+                backgroundColor="rgba(93, 176, 117, 0.3)"
+                color="black"
+                plain
+                justifySpaceBetween
+                closeIconColor="black"
+                style={styles.selectedTag}
+              />
             )}
           </View>
         );
@@ -256,10 +267,15 @@ const styles = StyleSheet.create({
     },
 
     itemDisplay: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
+        width: '100%',
+        flexDirection: 'column',
         paddingBottom: 10,
         marginTop: 5
+    },
+    selectedTag: {
+        width: 275,
+        height: 42,
+        borderRadius: 10,
     },
 
     tag: {

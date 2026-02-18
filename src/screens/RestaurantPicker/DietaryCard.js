@@ -8,7 +8,7 @@ import MediumText from '../../components/MediumText';
 const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
 
   //dietary tags (approved category aliases) from Yelp
-  const dietaryTags = ["vegan","vegetarian","gluten_free","halal","kosher"];
+  const dietaryTags = ["Vegan","Vegetarian","Gluten-free","Halal","Kosher", "Dairy-free", "Pescatarian"];
   return (
     <View style={styles.cardWrapper}>
         <RestaurantCard>
@@ -18,6 +18,7 @@ const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
 
             <View style = {styles.textInputContainer}>
               <TagsSection
+                        placeholder="Add a dietary restriction"
                         multi={true}
                         selectedItems={selectedDietaryTags}
                         onItemSelect={(item) => {
@@ -63,6 +64,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         height: 35,
       },
+
       textInputContainer:{
         alignItems:'center',
         width:'90%',
