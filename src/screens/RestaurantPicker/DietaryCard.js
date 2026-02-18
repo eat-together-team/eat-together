@@ -5,10 +5,10 @@ import TagsSection from '../../components/TagsSection';
 import MediumText from '../../components/MediumText';
 
 // Dietary screen that allows users to select dietary preferences
-const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
+const DietaryPref = ({navigation, setSelectedDietaryTags, selectedDietaryTags}) => {
 
   //dietary tags (approved category aliases) from Yelp
-  const dietaryTags = ["Vegan","Vegetarian","Gluten-free","Halal","Kosher", "Dairy-free", "Pescatarian"];
+  const dietaryTags = ["Vegan","Vegetarian","Gluten-free","Halal","Kosher","Dairy-free","Pescatarian","Meat eater","Spicy-food lover","Non-spicy foods only"];
   return (
     <View style={styles.cardWrapper}>
         <RestaurantCard>
@@ -18,24 +18,25 @@ const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
 
             <View style = {styles.textInputContainer}>
               <TagsSection
-                        placeholder="Add a dietary restriction"
-                        multi={true}
-                        selectedItems={selectedDietaryTags}
-                        onItemSelect={(item) => {
-                            if (selectedDietaryTags.length >= 4) {
-                                alert("You can only select up to 4 tags.");
-                            } else {
-                              setSelectedDietaryTags([...selectedDietaryTags, item]);
-                            }
-                        }}
-                        onRemoveItem={(item, index) => {
-                            const newTags = selectedDietaryTags.filter((tag, i) => i !== index);
-                            setSelectedDietaryTags(newTags);
-                        }}
-                        items={dietaryTags}
-                        chip={true}
-                        resetValue={false}
-                    />
+                placeholder="Add a dietary restriction"
+                multi={true}
+                selectedItems={selectedDietaryTags}
+                onItemSelect={(item) => {
+                  if (selectedDietaryTags.length >= 4) {
+                    alert("You can only select up to 4 tags.");
+                  } else {
+                    setSelectedDietaryTags([...selectedDietaryTags, item]);
+                  }
+                }}
+                onRemoveItem={(item, index) => {
+                  const newTags = selectedDietaryTags.filter((tag, i) => i !== index);
+                  setSelectedDietaryTags(newTags);
+                }}
+                items={dietaryTags}
+                chip={true}
+                resetValue={false}
+                onInputPress={() => navigation.navigate('TagSearch', { items: dietaryTags, selectedItems: selectedDietaryTags, screenType: 'dietary', title: 'Add dietary restrictions' })}
+              />
             </View>
         </RestaurantCard>
     </View>

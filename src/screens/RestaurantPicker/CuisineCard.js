@@ -6,7 +6,7 @@ import foodTagsToYelpCategories from '../../yelpTags';
 import MediumText from '../../components/MediumText';
 
 // Cuisine screen tha allows users to select cuisine preferences
-const CuisineCard = ({setCategoryAliases, cuisineTagSelected, setCuisineTagSelected}) => {
+const CuisineCard = ({navigation, setCategoryAliases, cuisineTagSelected, setCuisineTagSelected}) => {
   
   //Eat together's food tags
   const foodTags = Object.keys(foodTagsToYelpCategories); 
@@ -31,13 +31,6 @@ const CuisineCard = ({setCategoryAliases, cuisineTagSelected, setCuisineTagSelec
             <TagsSection
                       multi={true}
                       selectedItems={cuisineTagSelected}
-                      onItemSelect={(item) => {
-                          if (cuisineTagSelected.length >= 4) {
-                              alert("You can only select up to 4 tags.");
-                          } else {
-                              setCuisineTagSelected([...cuisineTagSelected, item]);
-                          }
-                      }}
                       onRemoveItem={(tag, index) => {
                           const newTags = cuisineTagSelected.filter((tag, i) => i !== index);
                           setCuisineTagSelected(newTags);
@@ -45,6 +38,7 @@ const CuisineCard = ({setCategoryAliases, cuisineTagSelected, setCuisineTagSelec
                       items={foodTags}
                       chip={true}
                       resetValue={false}
+                      onInputPress={() => navigation.navigate('TagSearch', { items: foodTags, selectedItems: cuisineTagSelected, screenType: 'cuisine', title: 'Add cuisines' })}
                   />
           </View>
         </RestaurantCard>
@@ -76,7 +70,7 @@ const styles = StyleSheet.create({
 
     textInputContainer:{
       alignItems:'center',
-      width:"90%",
+      width:"100%",
       marginLeft: 'auto',
       marginRight:'auto',
     }

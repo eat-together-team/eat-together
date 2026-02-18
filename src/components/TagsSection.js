@@ -5,6 +5,7 @@ import {
   FlatList,
   View,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Keyboard,
   StyleSheet
 } from 'react-native';
@@ -190,7 +191,25 @@ export default class TagsSection extends Component {
       }
     });
 
-    return (
+    if (this.props.onInputPress) {
+      return (
+        <TouchableOpacity
+          onPress={this.props.onInputPress}
+          style={[styles.searchBarButton, this.props.mainContainerStyle]}
+          activeOpacity={1}
+        >
+          <NormalText
+            size={14}
+            color="#999"
+            style={styles.searchBarPlaceholder}
+          >
+            {this.props.placeholder != null ? this.props.placeholder : "Add a cuisine"}
+          </NormalText>
+        </TouchableOpacity>
+      );
+    }
+
+    const input = (
       <TextInput
         { ...textInputProps }
         placeholder={this.props.placeholder != null ? this.props.placeholder : "Add a cuisine"}
@@ -211,14 +230,15 @@ export default class TagsSection extends Component {
         }}
         marginBottom={10}
       />
-    )
+    );
+    return input;
   }
 
   render = () => {
     return (
       <View
         keyboardShouldPersist="always"
-        style={{ padding: 0 }}
+        style={styles.container}
       >
         { this.renderTextInput() }
         { this.renderListType() }
@@ -256,6 +276,33 @@ export default class TagsSection extends Component {
 }
 
 const styles = StyleSheet.create({
+    container: {
+      padding: 0,
+      marginHorizontal: 10,
+      alignItems: 'center',
+    },
+
+    searchBarButton: {
+      height: 44,
+      width: 260,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#fff',
+      borderWidth: 2,
+      borderColor: '#A9A9A9',
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      marginBottom: 10,
+    },
+
+    searchBarIcon: {
+      marginRight: 10,
+    },
+
+    searchBarPlaceholder: {
+      color: '#999',
+    },
+
     item: {
         flex: 1,
         flexDirection: 'row',
@@ -269,11 +316,13 @@ const styles = StyleSheet.create({
     itemDisplay: {
         width: '100%',
         flexDirection: 'column',
+        alignItems: 'center',
         paddingBottom: 10,
         marginTop: 5
     },
+
     selectedTag: {
-        width: 275,
+        width: 255,
         height: 42,
         borderRadius: 10,
     },
