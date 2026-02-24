@@ -4,7 +4,7 @@ module.exports = {
     "owner": "eat-together-team",
     "slug": "eat-together",
     "description": "Connecting students through shared meals.",
-    "version": "1.5.3",
+    "version": "1.6.3",
     "orientation": "portrait",
     "icon": "./assets/big_logo.png",
     "scheme": "com.eat.together",
@@ -20,7 +20,7 @@ module.exports = {
     ],
     "android": {
       "package": "com.eattogether.android",
-      "versionCode": 4,
+      "versionCode": 5,
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.MEDIA_LIBRARY",
@@ -31,7 +31,7 @@ module.exports = {
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "28",
+      "buildNumber": "29",
       "icon": "./assets/big_logo.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false

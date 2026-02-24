@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'axios/dist/axios.min.js';
 
 export const dummySearch = (term, options) => new Promise(resolve =>
   setTimeout(

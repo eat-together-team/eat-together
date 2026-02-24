@@ -54,9 +54,19 @@ export default function ({navigation}) {
       }));
 
       // 4. sort from highest to lowest
-      const sortedRestaurants = restaurantWithScores.sort(
-        (a, b) => b.matchScore - a.matchScore
-      );
+      const sortedRestaurants = restaurantWithScores.sort((a, b) => {
+      if (b.matchScore !== a.matchScore) {
+          return b.matchScore - a.matchScore;
+        }
+
+        // tie-breaker 1: rating
+        if (b.rating !== a.rating) {
+          return b.rating - a.rating;
+        }
+
+        // tie-breaker 2: review count
+        return b.reviewCount - a.reviewCount;
+      });
 
       return sortedRestaurants;
 

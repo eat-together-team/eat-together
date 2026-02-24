@@ -1,9 +1,9 @@
 import React from "react";
 import { Platform, Text } from "react-native";
-import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
+import { useFonts, Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
 
 const NormalText = props => {
-    let [fontsLoaded] = useFonts({ Inter_400Regular });
+    let [fontsLoaded] = useFonts({ Inter_400Regular, Inter_700Bold });
 
     if (!fontsLoaded) {
         return (
@@ -12,7 +12,7 @@ const NormalText = props => {
                 fontWeight: props.weight ? props.weight : "normal",
                 fontFamily: Platform.os === 'ios' ? 'AppleSDGothicNeo-Regular' : 'sans-serif',
                 color: props.color ? props.color : "black",
-                textAlign: props.center ? "center" : "auto",
+                textAlign: props.align ? props.align : props.center ? "center" : "auto",
                 paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
                 marginBottom: props.marginBottom ? props.marginBottom : 0,
                 marginTop: props.marginTop ? props.marginTop : 0,
@@ -26,9 +26,9 @@ const NormalText = props => {
         <Text style={{
             fontSize: props.size ? props.size : 14,
             fontWeight: props.weight ? props.weight : "normal",
-            fontFamily: 'Inter_400Regular',
+            fontFamily: props.weight === 'bold' ? 'Inter_700Bold' : 'Inter_400Regular',
             color: props.color ? props.color : "black",
-            textAlign: props.center ? "center" : "auto",
+            textAlign: props.align ? props.align : props.center ? "center" : "auto",
             paddingHorizontal: props.paddingHorizontal ? props.paddingHorizontal : 0,
             marginBottom: props.marginBottom ? props.marginBottom : 0,
             marginTop: props.marginTop ? props.marginTop : 0,

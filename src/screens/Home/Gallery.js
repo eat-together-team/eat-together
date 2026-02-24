@@ -25,6 +25,9 @@ const tileSize = (screenWidth - 2.7 * 5 * numColumns) / numColumns;
 export default function Gallery({ route, navigation }) {
     // State Variables
     const user = auth.currentUser;
+    const galleryOwnerId = route.params?.userId || user?.uid;
+    const viewingUserName = route.params?.userName || "";
+    const isOwnGallery = galleryOwnerId === user?.uid;
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filteredImages, setFilteredImages] = useState([]);
@@ -62,7 +65,8 @@ export default function Gallery({ route, navigation }) {
 
     // Use Effect to fetch image data
     useEffect(() => {
-        const unsubscribe = db.collection("Users").doc(user.uid).onSnapshot((userDoc) => {
+        if (!galleryOwnerId) return;
+        const unsubscribe = db.collection("Users").doc(galleryOwnerId).onSnapshot((userDoc) => {
             try {
                 if (userDoc.exists) {
                     const userData = userDoc.data();
@@ -83,13 +87,13 @@ export default function Gallery({ route, navigation }) {
         return () => unsubscribe();
     
 
-    }, [user.uid]);
+    }, [galleryOwnerId]);
 
     // Use effect to fetch attended events of the user
     useEffect(() => {
         const fetchAttendedEvents = async () => {
             try {
-                const userDoc = await db.collection("Users").doc(user.uid).get();
+                const userDoc = await db.collection("Users").doc(galleryOwnerId).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     const attendedEventsData = userData.attendedEventIDs || [];
@@ -563,15 +567,32 @@ export default function Gallery({ route, navigation }) {
     return (
         <Layout>
             <TopNav
-                middleContent={<MediumText>Your Photo Gallery</MediumText>}
+                middleContent={
+                    <MediumText>
+                        {isOwnGallery
+                            ? "Your Photo Gallery"
+                            : viewingUserName
+                            ? `${viewingUserName}'s Photo Gallery`
+                            : "Photo Gallery"}
+                    </MediumText>
+                }
                 leftContent={<Ionicons name="chevron-back" size={20} />}
-                leftAction={() => navigation.goBack()}
+                leftAction={() => {
+                    if (!isOwnGallery && route.params?.person) {
+                        navigation.navigate("FullProfile", { person: route.params.person });
+                    } else {
+                        navigation.goBack();
+                    }
+                }}
             />
 
-            <View style={styles.buttonContainer}>
-                <Button style={styles.button} onPress={addPhoto}> Add Photos </Button>
-            </View>
+            {isOwnGallery && (
+                <View style={styles.buttonContainer}>
+                    <Button style={styles.button} onPress={addPhoto}> Add Photos </Button>
+                </View>
+            )}
 
+            {filteredImages.length > 0 && (
             <View>
                 <HorizontalRow style={{ paddingHorizontal: 20 }}>
                     <Filter checked={column || grid || meetup}
@@ -669,6 +690,7 @@ export default function Gallery({ route, navigation }) {
                     </RBSheet> 
                 </HorizontalRow>
             </View>
+            )}
 
             <View style={styles.container}>
                 {loading ? (
@@ -683,7 +705,10 @@ export default function Gallery({ route, navigation }) {
                         contentContainerStyle={styles.flatListContentContainer}
                     />
                 ) : (
-                    <EmptyState title="No Images" text="Add some photos to your event gallery!" />
+                    <EmptyState
+                        title="No Images"
+                        text={isOwnGallery ? "Add some photos to your event gallery!" : "No photos in this gallery."}
+                    />
                 )}
             </View>
             {/*  Assign  Images to a event*/}
@@ -754,18 +779,22 @@ export default function Gallery({ route, navigation }) {
                         <NormalText weight='bold'>{firstName} </NormalText>
                         <NormalText weight='bold'>{lastName}</NormalText>
                     </View>
+                    {isOwnGallery && (
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Filter checked={false} onPress={() => editCaption(selectedImageUri)} text="Add | Edit" />
                         <Filter checked={false} onPress={() => handleDeleteImage(selectedImageUri)} text="Delete" />
                     </View>
+                    )}
                 </View>
                     <NormalText style ={{flexDirection: "row", padding:5, alignItems:"center",paddingHorizontal:10,opacity:0.6}}>{imageCaption}</NormalText>
                     <NormalText style ={{flexDirection: "row", padding:5, alignItems:"center",paddingHorizontal:10,}}>{timeUploaded}</NormalText>
                     <NormalText style ={{flexDirection: "row", padding:5, alignItems:"center",paddingHorizontal:10,}}>Event Assigned: {assignedEventName}</NormalText>
 
+                    {isOwnGallery && (
                     <View style={styles.assignBottom}> 
                         <Button backgroundColor="white" color="#5DB075" onPress={() => handleAssignEvent(selectedImageUri)}>Assign Image</Button>
                     </View>
+                    )}
                 </View>
 
             </Modal>
