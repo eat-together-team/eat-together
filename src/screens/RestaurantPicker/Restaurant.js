@@ -214,9 +214,11 @@ export default function ({navigation, route}) {
         leftContent={<Ionicons name="arrow-back" size={20} />}
         leftAction={() => navigation.goBack()}
       />
-      <ScrollView 
+      <ScrollView
         keyboardShouldPersistTaps="handled"
-        >
+        contentContainerStyle={styles.scrollContent}
+        scrollEnabled={index > 4}
+      >
       <View style = {styles.outerContainer}>
         <CardCarousel 
           cards = {cards} 
@@ -237,6 +239,10 @@ export default function ({navigation, route}) {
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 100,
+  },
+  
   outerContainer:{
     flex:1,
     justifyContent:'center',
