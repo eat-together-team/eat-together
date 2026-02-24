@@ -87,48 +87,56 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                     </View>
             </TouchableOpacity>
         </Modal>
-        {(index >= 2 && index <= 4) &&
-            <View style = {styles.buttonContainer}>
-                <Button
-                    backgroundColor="white"
-                    color="#5DB075"
-                    onPress={decrementIndex}
-                    fontSize={16}
-                    paddingHorizontal={25}
-                    paddingVertical={10}
-                    marginHorizontal={10}
-                >
-                    Back
-                </Button>
-                <Button
-                    onPress={incrementIndex}
-                    disabled = {validateSteps()}
-                    fontSize={16}
-                    paddingHorizontal={25}
-                    paddingVertical={10}
-                    marginHorizontal={10}
-                >
-                    {index == cards.length - 2 ? "Finish" : "Next"}
-                </Button>
-            </View>
-        }
-        { (index >= 2 && index <= 4) && <Progress.Bar progress={progress} width={200} color="#5DB075" style ={{alignSelf: 'center'}}/>
-        }
-        <View style = {styles.stepContainer}>
-            {
-                (index >= 2 && index <= 4) && 
-                <SmallText size = {12}>Step {index - 1} of {cards.length - 4}</SmallText>
-            }
-        </View>
+        {(index >= 2 && index <= 4) && (
+            <>
+                <Progress.Bar
+                  progress={progress}
+                  width={311}
+                  height={16}
+                  color="#5DB075"
+                  unfilledColor="#D0D0D0"
+                  borderWidth={0}
+                  borderRadius={8}
+                  style={{ alignSelf: 'center', marginTop: 16 }}
+                />
+                <View style={styles.buttonContainer}>
+                    <Button
+                        backgroundColor="white"
+                        color="#A9A9A9"
+                        borderWidth={2}
+                        borderColor="#A9A9A9"
+                        noShadow
+                        onPress={decrementIndex}
+                        fontSize={13}
+                        paddingHorizontal={32}
+                        paddingVertical={8}
+                    >
+                        Back
+                    </Button>
+                    <SmallText size={13} style={{ alignSelf: 'center' }}>{index - 1} of {cards.length - 4}</SmallText>
+                    <Button
+                        noShadow
+                        onPress={incrementIndex}
+                        disabled={validateSteps()}
+                        fontSize={13}
+                        paddingHorizontal={32}
+                        paddingVertical={8}
+                    >
+                        {index == cards.length - 2 ? "Finish" : "Next"}
+                    </Button>
+                </View>
+            </>
+        )}
   </View>
   )
 }
 const styles = StyleSheet.create({
     buttonContainer:{
-        display:'flex',
+        width: 311,
         flexDirection:'row',
-        justifyContent:'center',
-        padding:20,
+        justifyContent:'space-between',
+        alignItems:'center',
+        paddingVertical: 16,
     },
     backButton:{
         backgroundColor:"#F7F7F7", 

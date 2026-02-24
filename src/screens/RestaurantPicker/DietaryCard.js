@@ -44,9 +44,11 @@ const DietaryPref = ({navigation, setSelectedDietaryTags, selectedDietaryTags}) 
 }
 const styles = StyleSheet.create({
     cardWrapper: {
+      width: 311,
       borderWidth: 2,
       borderColor: '#D0D0D0',
       borderRadius: 20,
+      overflow: 'hidden',
     },
     
     questionContainer:{
