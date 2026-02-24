@@ -295,7 +295,8 @@ export default function ({ navigation }) {
               });
             }}
           >
-            <NormalText color="white" align="left" weight="bold" marginTop={8} marginBottom={8}>{userInfo.friendIDs ? userInfo.friendIDs.length : 0} Connections</NormalText>
+            <NormalText color="white" align="left" weight="bold" marginTop={8} marginBottom={8}>
+              {userInfo.friendIDs ? userInfo.friendIDs.length : 0} Connections</NormalText>
           </TouchableOpacity>
         </View>
 
@@ -348,7 +349,9 @@ export default function ({ navigation }) {
           <View style={styles.eventRecordBackground} marginTop={10}>
             <View style={styles.eventsHeader}>
               <NormalText>Meetup Archive</NormalText>
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("MeetupArchive", { events, isOwnProfile: true })}
+              >
                 <NormalText color="grey">View all</NormalText>
               </TouchableOpacity>
             </View>

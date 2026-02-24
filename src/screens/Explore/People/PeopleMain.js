@@ -6,6 +6,7 @@ import ReportPerson from "./ReportPerson";
 import FullProfile from "./FullProfile";
 import FullCard from '../FullCard';
 import ReportEvent from "../../Home/ReportEvent";
+import MeetupArchive from "../../Profile/MeetupArchive";
 
 const Stack = createStackNavigator();
 
@@ -25,6 +26,7 @@ export default function () {
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
       <Stack.Screen name="FullCard" component={FullCard}/>
       <Stack.Screen name="ReportEvent" component={ReportEvent}/>
+      <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
     </Stack.Navigator>
   );
 }

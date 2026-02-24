@@ -9,6 +9,7 @@ import ChatRoom from "../Chat/ChatRoom";
 
 import FullCard from "../Profile/FullCard";
 import FullProfile from "../Explore/People/FullProfile";
+import MeetupArchive from "../Profile/MeetupArchive";
 
 import Recommendation from "../Recommendations/Recommendation";
 
@@ -29,6 +30,7 @@ export default function ({ route }) {
       <Stack.Screen name="NotificationFull" component={NotificationFull} />
       <Stack.Screen name="FullCard" component={FullCard} />
       <Stack.Screen name="FullProfile" component={FullProfile} />
+      <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
 
       <Stack.Screen name="Recommendation" component={Recommendation} />
       
