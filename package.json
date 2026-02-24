@@ -85,6 +85,7 @@
     "react-native-dotenv": "^3.3.1",
     "react-native-svg-transformer": "^1.5.3",
     "react-test-renderer": "19.0.0"
+    "typescript": "~5.9.2"
   },
   "private": true,
   "name": "eat-together",

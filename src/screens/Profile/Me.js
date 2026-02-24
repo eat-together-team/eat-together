@@ -11,7 +11,7 @@ import {
   StatusBar,
   Platform
 } from "react-native";
-import { Layout } from "react-native-rapi-ui";
+import { Layout } from "../../rapi_ui_components";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import Constants from 'expo-constants';
 import { db, auth } from "../../provider/Firebase";

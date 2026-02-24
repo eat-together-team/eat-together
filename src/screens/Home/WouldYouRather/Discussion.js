@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
-import { Layout, TopNav } from "react-native-rapi-ui";
+import { Layout, TopNav } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";

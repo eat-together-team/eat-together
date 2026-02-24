@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, FlatList, ActivityIndicator,Platform} from "react-native";
 
 import { db, auth, storage } from "../../provider/Firebase";
-import { TopNav, Layout } from "react-native-rapi-ui";
+import { TopNav, Layout } from "../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import firebase from "firebase/compat";
 
