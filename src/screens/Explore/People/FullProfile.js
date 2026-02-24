@@ -385,7 +385,12 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           <View style={styles.galleryBackground}>
             <View style={styles.galleryHeader}>
               <NormalText>Gallery</NormalText>
-              <TouchableOpacity onPress={() => navigation.navigate("Gallery", { userId: person.id, userName: person.firstName + " " + person.lastName })}>
+              <TouchableOpacity onPress={() => navigation.navigate("Gallery", {
+                userId: person.id,
+                userName: person.firstName || personData?.firstName || "",
+                person: personData || person,
+              })
+            }>
                 <NormalText color="grey">View all</NormalText>
               </TouchableOpacity>
             </View>
@@ -398,7 +403,14 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           <View style={styles.eventRecordBackground} marginTop={10}>
             <View style={styles.eventsHeader}>
               <NormalText>Meetup Archive</NormalText>
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                navigation.navigate("MeetupArchive", {
+                  events,
+                  profileName: personData?.firstName || person?.firstName || "",
+                })
+              }
+              >
                 <NormalText color="grey">View all</NormalText>
               </TouchableOpacity>
             </View>
