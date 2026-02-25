@@ -77,12 +77,14 @@ const EditTags = props => {
   return (
     <Layout style={styles.page}>
         <ScrollView contentContainerStyle={{ alignItems: "center" }}>
-            <LargeText center marginBottom={20}>Edit your tags!</LargeText>
+            {/* Keep the heading but align the hierarchy with the new edit profile look. */}
+            <LargeText center marginBottom={10}>Edit Tags</LargeText>
 
             <NormalText center size={12}>Note: each of the 3 categories below must contain:</NormalText>
             <MediumText center size={12} marginBottom={20}>Minimum 1 tag, maximum 4 tags</MediumText>
 
-            <View style={styles.tagSection}>
+            {/* Dashed card for School tags to match the mock's tag containers. */}
+            <View style={[styles.tagSection, styles.tagCard, styles.tagCardGold]}>
                 <MediumText center marginBottom={5}>School</MediumText>
                 <NormalText center marginBottom={5}>E.g. year, major</NormalText>
                 <TouchableOpacity onPress={() => {
@@ -99,12 +101,14 @@ const EditTags = props => {
                             iconLeft="pricetags-outline"
                             editable={false}
                             required
+                            mainContainerStyle={styles.tagInputContainer}
                         />
                     </View>
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.tagSection}>
+            {/* Dashed card for Hobbies tags with blue tint. */}
+            <View style={[styles.tagSection, styles.tagCard, styles.tagCardBlue]}>
                 <MediumText center marginBottom={5}>Hobbies</MediumText>
                 <NormalText center marginBottom={5}>E.g. sports, reading</NormalText>
                 <TouchableOpacity onPress={() => {
@@ -121,12 +125,14 @@ const EditTags = props => {
                             iconLeft="pricetags-outline"
                             editable={false}
                             required
+                            mainContainerStyle={styles.tagInputContainer}
                         />
                     </View>
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.tagSection}>
+            {/* Dashed card for Food tags with purple tint. */}
+            <View style={[styles.tagSection, styles.tagCard, styles.tagCardPurple]}>
                 <MediumText center marginBottom={5}>Food-related</MediumText>
                 <NormalText center marginBottom={5}>E.g. favorite dishes, favorite cuisine</NormalText>
                 <TouchableOpacity onPress={() => {
@@ -143,6 +149,7 @@ const EditTags = props => {
                             iconLeft="pricetags-outline"
                             editable={false}
                             required
+                            mainContainerStyle={styles.tagInputContainer}
                         />
                     </View>
                 </TouchableOpacity>
@@ -268,6 +275,33 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     width: "90%",
     justifyContent: "center"
+  },
+
+  // Dashed card styling to match the tag groups in the mock.
+  tagCard: {
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 8
+  },
+
+  // Subtle color tints for each category card (visual grouping).
+  tagCardGold: {
+    borderColor: "#F7E7B0"
+  },
+
+  tagCardBlue: {
+    borderColor: "#BFE1FA"
+  },
+
+  tagCardPurple: {
+    borderColor: "#E6C7F4"
+  },
+
+  // Input container tweak to keep TextInput visually light inside cards.
+  tagInputContainer: {
+    backgroundColor: "white"
   },
 
   buttons: {
