@@ -1,7 +1,7 @@
 //Controls style of text in bottom navigation bar
 
 import React from "react";
-import {Text, themeColor, useTheme} from "react-native-rapi-ui";
+import {Text, themeColor, useTheme} from "../../rapi_ui_components";
 
 export default (props) => {
     const {isDarkmode} = useTheme();
@@ -12,8 +12,8 @@ export default (props) => {
                 marginBottom: 5,
                 color: props.focused
                     ? isDarkmode
-                        ? themeColor.white100
-                        : themeColor.primary
+                        ? "#f7f7f7"
+                        : "#3366FF"
                     : "rgb(143, 155, 179)",
                 fontSize: 10,
             }}
