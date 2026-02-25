@@ -1,7 +1,7 @@
 // Report event screen
 import React, { useState } from "react";
 import { View, StyleSheet, Dimensions, ScrollView } from "react-native";
-import { Layout, TopNav } from "react-native-rapi-ui";
+import { Layout, TopNav } from "../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 
 import TextInput from "../../components/TextInput";

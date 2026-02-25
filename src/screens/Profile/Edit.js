@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { View, StyleSheet, Image, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
-import { Layout, TopNav } from "react-native-rapi-ui";
+import { Layout, TopNav } from "../../rapi_ui_components";
 import { Ionicons } from '@expo/vector-icons';
 
 import * as ImagePicker from 'expo-image-picker';

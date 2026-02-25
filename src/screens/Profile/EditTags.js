@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { View, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from "react-native";
-import { Layout } from "react-native-rapi-ui";
+import { Layout } from "../../rapi_ui_components";
 import RBSheet from "react-native-raw-bottom-sheet";
 
 import LargeText from "../../components/LargeText";

@@ -11,7 +11,7 @@ import {
     Alert,
     Platform
 } from "react-native";
-import { Layout } from "react-native-rapi-ui";
+import { Layout } from "../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import eventTags from "../../utils/eventTags";
 

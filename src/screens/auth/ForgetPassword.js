@@ -13,7 +13,7 @@ import * as firebase from "firebase/compat";
 
 import {
   Layout,
-} from "react-native-rapi-ui";
+} from "../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 
 import TextInput from "../../components/TextInput";

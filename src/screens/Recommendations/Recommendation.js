@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { View, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Linking } from "react-native";
-import { Layout, TopNav } from "react-native-rapi-ui";
+import { Layout, TopNav } from "../../rapi_ui_components";
 import { Ionicons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import LargeText from "../../components/LargeText";

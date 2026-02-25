@@ -6,7 +6,7 @@ import {
   ImageBackground,
   Dimensions,
 } from "react-native";
-import { Layout, TopNav } from "react-native-rapi-ui";
+import { Layout, TopNav } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 
 import PlayerList from "../../../components/PlayerList";
