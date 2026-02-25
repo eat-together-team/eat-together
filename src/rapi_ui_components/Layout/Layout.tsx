@@ -24,6 +24,7 @@ const Layout: React.FC<Props> = (props: Props) => {
   return (
     <SafeAreaView
       {...props}
+      edges={props.edges ?? ['top', 'left', 'right']}
       style={[
         props.style,
         {

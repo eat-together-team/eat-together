@@ -417,7 +417,6 @@ export default function ({ route, navigation }) {
             }
           }
         }}
-        marginBottom={Platform.OS === "ios"? -34 : 0}
       >
        {loading ? "Sending ..." : "Send Invites"}
       </Button>

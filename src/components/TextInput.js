@@ -82,7 +82,7 @@ function TextInput(props) {
 
         mainContainer: {
             flexDirection: 'row',
-            height: Platform.OS === "ios" ? 34 : height,
+            height: height,
             width: width,
             backgroundColor: backgroundColor,
             borderRadius: 10,
