@@ -58,7 +58,10 @@ module.exports = {
           }
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "@react-native-community/datetimepicker"
+      ]
     ],
     "extra": {
       "eas": {
