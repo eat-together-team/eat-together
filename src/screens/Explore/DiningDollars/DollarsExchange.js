@@ -222,6 +222,35 @@ export default function DollarsExchange({ navigation, route }) {
         renderItem={({ item }) => <PostCard post={item} />}
         ItemSeparatorComponent={() => <View style={styles.cardSeparator} />}
       />
+
+      <Modal
+        transparent
+        animationType="fade"
+        visible={showPostedPopup}
+        onRequestClose={() => setShowPostedPopup(false)}
+      >
+        <View style={styles.popupOverlay}>
+          <View style={styles.popupCard}>
+            <Ionicons name="checkmark-circle-outline" size={40} color="#5CA671" />
+            <Text style={styles.popupTitle}>
+              {popupPostType.charAt(0).toUpperCase() + popupPostType.slice(1)} posted
+            </Text>
+            <Text style={styles.popupBody}>
+              <Text>
+                To manage your {popupPostType.toLowerCase()}, visit{" "}
+                <Text style={styles.popupBodyBold}>My active posts.</Text>
+              </Text>
+              {"\n\n"}
+              You'll be notified if anyone responds to your post. To complete the transfer, chat to
+              finalize your meeting details.
+            </Text>
+
+            <TouchableOpacity style={styles.popupCloseButton} onPress={() => setShowPostedPopup(false)}>
+              <Text style={styles.popupCloseButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </Layout>
   );
 }
