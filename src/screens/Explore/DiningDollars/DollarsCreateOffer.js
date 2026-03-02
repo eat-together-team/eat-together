@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,6 +16,7 @@ const PRICE_OPTIONS = [
   { id: "exact", label: "Exact amount" },
   { id: "upto", label: "Up to" },
   { id: "more", label: "Or more" },
+  { id: "range", label: "Range" },
 ];
 
 const PAYMENT_METHODS = [
@@ -82,6 +84,7 @@ export default function DollarsCreateOffer({ navigation }) {
   const [offerEndDate, setOfferEndDate] = useState(new Date(2025, 0, 27));
   const [amountType, setAmountType] = useState("exact");
   const [offerAmount, setOfferAmount] = useState("75");
+  const [offerMaxAmount, setOfferMaxAmount] = useState("50");
   const [selectedPayments, setSelectedPayments] = useState(["venmo"]);
   const [selectedLocations, setSelectedLocations] = useState(["suzzalo"]);
   const [activePicker, setActivePicker] = useState(null);
@@ -113,7 +116,29 @@ export default function DollarsCreateOffer({ navigation }) {
 
   const canGoNext = useMemo(() => selectedPayments.length > 0, [selectedPayments.length]);
 
+  const validateRange = () => {
+    if (amountType !== "range") return true;
+    const lower = Number(offerAmount);
+    const upper = Number(offerMaxAmount);
+
+    if (!offerAmount || !offerMaxAmount || Number.isNaN(lower) || Number.isNaN(upper)) {
+      Alert.alert("Invalid range", "Please enter both lower and upper bounds.");
+      return false;
+    }
+    if (lower > upper) {
+      Alert.alert("Range mismatch", "Lower bound must be less than upper bound.");
+      return false;
+    }
+    if (lower === upper) {
+      Alert.alert("Use exact amount", "Bounds are equal. Please use Exact amount instead.");
+      return false;
+    }
+    return true;
+  };
+
   const submit = () => {
+    if (!validateRange()) return;
+
     navigation.replace("DollarsExchange", {
       showPostedPopup: true,
       postType: "offer",
@@ -158,8 +183,22 @@ export default function DollarsCreateOffer({ navigation }) {
                 keyboardType="decimal-pad"
                 placeholder="0"
                 placeholderTextColor="rgba(0,0,0,0.35)"
-                style={styles.amountInput}
+                style={[styles.amountInput, amountType === "range" && styles.rangeAmountInput]}
               />
+              {amountType === "range" && (
+                <>
+                  <Text style={styles.rangeDash}>-</Text>
+                  <Text style={styles.amountPrefix}>$</Text>
+                  <TextInput
+                    value={offerMaxAmount}
+                    onChangeText={(value) => setOfferMaxAmount(value.replace(/[^0-9.]/g, ""))}
+                    keyboardType="decimal-pad"
+                    placeholder="0"
+                    placeholderTextColor="rgba(0,0,0,0.35)"
+                    style={[styles.amountInput, styles.rangeAmountInput]}
+                  />
+                </>
+              )}
             </View>
 
             <View style={styles.pillRow}>
@@ -214,7 +253,10 @@ export default function DollarsCreateOffer({ navigation }) {
         {step === 1 ? (
           <TouchableOpacity
             style={[styles.primaryButton, !canGoNext && styles.primaryButtonDisabled]}
-            onPress={() => setStep(2)}
+            onPress={() => {
+              if (!validateRange()) return;
+              setStep(2);
+            }}
             disabled={!canGoNext}
           >
             <Text style={styles.primaryButtonText}>Next</Text>
@@ -331,6 +373,15 @@ const styles = StyleSheet.create({
     fontSize: 24 / 1.6,
     color: "rgba(0,0,0,0.7)",
     paddingVertical: 0,
+  },
+  rangeAmountInput: {
+    flex: 0,
+    width: 60,
+  },
+  rangeDash: {
+    marginHorizontal: 5,
+    fontSize: 16,
+    color: "rgba(0,0,0,0.7)",
   },
   pillRow: {
     flexDirection: "row",

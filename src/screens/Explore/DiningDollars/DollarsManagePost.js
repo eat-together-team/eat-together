@@ -16,6 +16,7 @@ const PRICE_OPTIONS = [
   { id: "exact", label: "Exact amount" },
   { id: "upto", label: "Up to" },
   { id: "more", label: "Or more" },
+  { id: "range", label: "Range" },
 ];
 
 const PAYMENT_METHODS = [
@@ -69,6 +70,7 @@ export default function DollarsManagePost({ navigation }) {
   const [offerEndDate, setOfferEndDate] = useState(new Date(2025, 0, 27));
   const [amountType, setAmountType] = useState("exact");
   const [offerAmount, setOfferAmount] = useState("75");
+  const [offerMaxAmount, setOfferMaxAmount] = useState("50");
   const [selectedPayments, setSelectedPayments] = useState(["venmo"]);
   const [selectedLocations, setSelectedLocations] = useState(["suzzalo"]);
   const [activePicker, setActivePicker] = useState(null);
@@ -137,8 +139,22 @@ export default function DollarsManagePost({ navigation }) {
             keyboardType="decimal-pad"
             placeholder="0"
             placeholderTextColor="rgba(0,0,0,0.35)"
-            style={styles.amountInput}
+            style={[styles.amountInput, amountType === "range" && styles.rangeAmountInput]}
           />
+          {amountType === "range" && (
+            <>
+              <Text style={styles.rangeDash}>-</Text>
+              <Text style={styles.amountPrefix}>$</Text>
+              <TextInput
+                value={offerMaxAmount}
+                onChangeText={(value) => setOfferMaxAmount(value.replace(/[^0-9.]/g, ""))}
+                keyboardType="decimal-pad"
+                placeholder="0"
+                placeholderTextColor="rgba(0,0,0,0.35)"
+                style={[styles.amountInput, styles.rangeAmountInput]}
+              />
+            </>
+          )}
         </View>
 
         <View style={styles.pillRow}>
@@ -189,7 +205,29 @@ export default function DollarsManagePost({ navigation }) {
       </ScrollView>
 
       <View style={styles.bottomArea}>
-        <TouchableOpacity style={styles.primaryButton} onPress={() => Alert.alert("Saved", "Post details updated locally.")}>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => {
+            if (amountType === "range") {
+              const lower = Number(offerAmount);
+              const upper = Number(offerMaxAmount);
+
+              if (!offerAmount || !offerMaxAmount || Number.isNaN(lower) || Number.isNaN(upper)) {
+                Alert.alert("Invalid range", "Please enter both lower and upper bounds.");
+                return;
+              }
+              if (lower > upper) {
+                Alert.alert("Range mismatch", "Lower bound must be less than upper bound.");
+                return;
+              }
+              if (lower === upper) {
+                Alert.alert("Use exact amount", "Bounds are equal. Please use Exact amount instead.");
+                return;
+              }
+            }
+            Alert.alert("Saved", "Post details updated locally.");
+          }}
+        >
           <Text style={styles.primaryButtonText}>Save post</Text>
         </TouchableOpacity>
       </View>
@@ -297,6 +335,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "rgba(0,0,0,0.7)",
     paddingVertical: 0,
+  },
+  rangeAmountInput: {
+    flex: 0,
+    width: 60,
+  },
+  rangeDash: {
+    marginHorizontal: 5,
+    fontSize: 16,
+    color: "rgba(0,0,0,0.7)",
   },
   pillRow: {
     flexDirection: "row",
