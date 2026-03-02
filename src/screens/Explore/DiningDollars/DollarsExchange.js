@@ -149,7 +149,8 @@ export default function DollarsExchange({ navigation, route }) {
         post.priceText.toLowerCase().includes(query) ||
         post.locationText.toLowerCase().includes(query) ||
         post.dateText.toLowerCase().includes(query) ||
-        paymentSearchBlob.includes(query)
+        paymentSearchBlob.includes(query) ||
+        post.type.toLowerCase().includes(query)
       );
     });
   }, [searchQuery]);
