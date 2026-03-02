@@ -36,6 +36,9 @@ const LOCATIONS = [
   { id: "rotunda", label: "The Rotunda", short: "TR" },
   { id: "suzzalo", label: "Starbucks (Suzzalo)", short: "SB" },
   { id: "population", label: "Starbucks (Population Health)", short: "SB" },
+  { id: "bygeorge", label: "By George Cafe", short: "BG" },
+  { id: "orins", label: "Orin's Place", short: "OP" },
+  { id: "microsoft", label: "Microsoft Cafe", short: "MC" },
 ];
 
 const formatShortDate = (date) => {
@@ -88,9 +91,14 @@ export default function DollarsManagePost({ navigation }) {
   };
 
   const toggleLocation = (locationId) => {
-    setSelectedLocations((curr) =>
-      curr.includes(locationId) ? curr.filter((id) => id !== locationId) : [...curr, locationId]
-    );
+    setSelectedLocations((curr) => {
+      if (curr.includes(locationId)) {
+        // Keep at least one preferred location selected.
+        if (curr.length === 1) return curr;
+        return curr.filter((id) => id !== locationId);
+      }
+      return [...curr, locationId];
+    });
   };
 
   return (
