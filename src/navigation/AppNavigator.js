@@ -19,6 +19,11 @@ import TryOut from "../screens/TryOut";
 import ProfileMain from "../screens/Profile/ProfileMain";
 import NotificationsMain from "../screens/Notifications/NotificationsMain";
 import Loading from "../screens/utils/Loading";
+import DollarsExchange from "../screens/Explore/DiningDollars/DollarsExchange";
+import DollarsCreateRequest from "../screens/Explore/DiningDollars/DollarsCreateRequest";
+import DollarsCreateOffer from "../screens/Explore/DiningDollars/DollarsCreateOffer";
+import DollarsActivePosts from "../screens/Explore/DiningDollars/DollarsActivePosts";
+import DollarsManagePost from "../screens/Explore/DiningDollars/DollarsManagePost";
 
 // Auth screens
 import Auth from "./Auth";
@@ -53,6 +58,11 @@ const Main = () => {
     >
       <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
       <MainStack.Screen name="Notifications" component={NotificationsMain} />
+      <MainStack.Screen name="DollarsExchange" component={DollarsExchange} />
+      <MainStack.Screen name="DollarsCreateRequest" component={DollarsCreateRequest} />
+      <MainStack.Screen name="DollarsCreateOffer" component={DollarsCreateOffer} />
+      <MainStack.Screen name="DollarsActivePosts" component={DollarsActivePosts} />
+      <MainStack.Screen name="DollarsManagePost" component={DollarsManagePost} />
     </MainStack.Navigator>
   );
 };
