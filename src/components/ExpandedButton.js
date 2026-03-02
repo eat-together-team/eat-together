@@ -29,7 +29,7 @@ const ExpandedButton = ({expanded = false, setExpanded}) => {
                     padding: 3,
                     
                     }}>
-                        <Ionicons name={"chevron-expand"} size={22} color="#5DB075" />
+                  <Ionicons name={"resize"} size={22} color="#5DB075" />
                 </MediumText>
             </TouchableOpacity>
   )

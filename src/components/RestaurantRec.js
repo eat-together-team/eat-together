@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image, Text, View, StyleSheet, Linking, Platform} from "react-native";
 import MediumText from "./MediumText";
+import SmallText from "./SmallText";
 import LargeText from './LargeText';
 import Button from './Button';
 import ExpandedButton from "./ExpandedButton";
+import BackButton from "./BackButton";
 
 //Presents each restaurant result from YELP API Response
-const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart, setResult}) => {
+const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart, setResult, onExpandedChange, onBack}) => {
     const [expanded, setExpanded] = useState(false);
+
+    useEffect(() => {
+        onExpandedChange?.(expanded);
+    }, [expanded, onExpandedChange]);
+
     // console.log("Rendering restaurant: " + JSON.stringify(restaurant, null, 2));
     const listOfCategories = restaurant?.categories
         ? restaurant.categories.split(', ')
@@ -76,14 +83,20 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                 source={{ uri: restaurant.imageUrl }}
                 style={styles.image}
             />
-            <LargeText style = {{marginLeft: 30, marginBottom: 20, marginTop: 30, marginRight: 30,}} color = "#5DB075" numberOfLines={2} ellipsizeMode="tail">{restaurant.name}</LargeText>
+
+            <BackButton onPress={onBack} />
             <ExpandedButton setExpanded = {setExpanded} expanded = {expanded}/>
             <View style = {styles.ratingAndCategoryContainer}>
                 <View>
                     <MediumText size = {13} lineHeight = {15}>{[listOfCategories[0]]}</MediumText>
                     <MediumText size = {13}>{restaurant.price}  {restaurant.rating}★</MediumText>
                 </View>
-                {listOfCategories[1] && <MediumText size = {13} lineHeight = {15} style = {{marginRight: 15}}>{listOfCategories[1]}</MediumText>}
+                {listOfCategories[1] && <MediumText size = {13} lineHeight = {15} style = {{marginRight: 30}}>{listOfCategories[1]}</MediumText>}
+            </View>
+
+            <View>
+                <LargeText style = {{marginLeft: 30, marginBottom: 10, marginTop: 16, marginRight: 30}} color = "#5DB075" numberOfLines={2} ellipsizeMode="tail">{restaurant.name}</LargeText>
+                <SmallText style = {{marginLeft: 30, marginRight: 30}}>{restaurant.description}</SmallText>
             </View>
             {expanded && (
                 <View>
@@ -97,15 +110,15 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
                         <MediumText center color = "#5DB075">Phone Number</MediumText>
                         <MediumText onPress = {handleOpeningPhoneNum} center size = {13} style = {{marginTop: 7, textDecorationLine: 'underline'}}>{restaurant.phone}</MediumText>
                     </View>
-                    <View style = {styles.servicesContainer}>
+                    {/* <View style = {styles.servicesContainer}>
                         <MediumText center color = "#5DB075">Types of Services</MediumText>
                         <MediumText center size = {13} style = {{marginTop: 7}}>{restaurant.serviceOptions}</MediumText>
-                    </View>            
+                    </View>             */}
                 </View>
             )}
-                <View>
+                {/* <View>
                     <MediumText center onPress = {handleOpeningURL} marginBottom = {20} lineHeight = {15} size = {13} weight = {600} style = {{textDecorationLine: 'underline'}}>Check it out on Yelp!</MediumText>
-                </View>
+                </View> */}
         </View>
     );
 };
@@ -114,7 +127,7 @@ const styles = StyleSheet.create({
     container: {
         alignSelf:'center',
         width: 315,
-        height: 'auto', // Changed from fixed height to auto to fit content dynamically
+        height: 'auto',
         marginTop: 40,
         borderWidth: 0.2,
         borderRadius: 40,
@@ -129,7 +142,7 @@ const styles = StyleSheet.create({
         display:'flex',
         flexDirection:'row',
         justifyContent:'space-between',
-        marginTop: 15,
+        marginTop: 24,
         marginBottom: 5,
         marginLeft: 30,
     },

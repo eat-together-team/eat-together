@@ -36,7 +36,7 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                                 <Ionicons name="close" size={18} />
                                 </CustomButton>
 
-                                <SmallText size={25}> to skip.</SmallText>
+                                <SmallText size={25}> to skip</SmallText>
                             </View>
 
                             <View
@@ -67,7 +67,7 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                                 <Ionicons name="checkmark" size={18} />
                                 </CustomButton>
 
-                                <SmallText size={25}> to save.</SmallText>
+                                <SmallText size={25}> to save</SmallText>
                             </View>
                         </View>
                         <View style = {[{marginTop:30}]}>
@@ -81,7 +81,7 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
                                     setPressedFinished(false);
                                 }}
                             >
-                                Let's Go
+                                Let's go!
                             </Button>
                         </View>
                     </View>

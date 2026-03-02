@@ -46,6 +46,7 @@ export default function ({navigation, route}) {
   const [swipingFinished, setSwipingFinished] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0); // Index for list of restaurants
   const [resultVisible, setResultVisible] = useState(true);
+  const [swipeCardExpanded, setSwipeCardExpanded] = useState(false);
 
   //Queries Yelp restaurant data
   const findRestaurant = async() =>{
@@ -198,6 +199,7 @@ export default function ({navigation, route}) {
       setUserSkipped = {setUserSkipped}
       setPressedStart = {setPressedStart}
       setResult = {setResult}
+      onExpandedChange={setSwipeCardExpanded}
     />,
     <Results 
       userResults = {userResults}
@@ -217,7 +219,7 @@ export default function ({navigation, route}) {
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
-        scrollEnabled={index > 4}
+        scrollEnabled={index > 4 && (index !== 5 || swipeCardExpanded)}
       >
       <View style = {styles.outerContainer}>
         <CardCarousel 
