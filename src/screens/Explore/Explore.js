@@ -330,6 +330,13 @@ export default function({ navigation }) {
           <EmptyState title="No Meals" text="Organize your own, or start making new friends!"/>
         }
       </View>
+      <View style={styles.dollarsButton}>
+        <Button icon={(
+          <Ionicons name="cash-outline" color="white" size={20}/>
+        )} onPress={() => navigation.navigate("DollarsExchange")}>
+          Dollars
+        </Button>
+      </View>
       <View style={styles.button}>
         <Button icon={(
           <Ionicons name="copy-outline" color="white" size={20}/>
@@ -352,5 +359,11 @@ const styles = StyleSheet.create({
     bottom: 10,
     right: 10,
     zIndex: 1,
-  }
+  },
+  dollarsButton: {
+    position: "absolute",
+    bottom: 78,
+    right: 10,
+    zIndex: 1,
+  },
 });
