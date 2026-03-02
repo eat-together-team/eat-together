@@ -1,10 +1,75 @@
-import {View, Modal, StyleSheet, FlatList, Image} from "react-native";
+import React, { useState } from "react";
+import {View, Modal, StyleSheet, FlatList, Image, TouchableOpacity} from "react-native";
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
+import SmallText from "../../components/SmallText";
 import Button from "../../components/Button";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 
-// Shows a list of restaurants user pressed "green" on 
+const ResultItem = ({ item }) => {
+    const [starred, setStarred] = useState(false);
+    const rawCategories = item.categories || "";
+    const primaryCategory = rawCategories.includes(",")
+        ? rawCategories.substring(0, rawCategories.indexOf(","))
+        : rawCategories;
+    const hasCategory = primaryCategory.trim().length > 0;
+
+    return (
+        <View style={styles.itemContainer}>
+            <View style={styles.imageContainer}>
+                <Image         
+                    source={{ uri: item.imageUrl }}
+                    style={styles.image}
+                />
+            </View>
+            <View style={[styles.textContainer, { flex: 1, flexDirection: 'row' }]}>
+                <View style={{ flex: 1 }}>
+                    <MediumText
+                        style={{ lineHeight: 20, paddingBottom: 5 }}
+                        size={18}
+                    >
+                        {item.name}
+                    </MediumText>
+                    {hasCategory && (
+                        <MediumText color="#5DB075" size={11} style={{ lineHeight: 12 }}>
+                            {primaryCategory}
+                        </MediumText>
+                    )}
+                    <View style={styles.ratingAndPriceContainer}>
+                        <MediumText paddingHorizontal={2} color="#5DB075" size={11}>
+                            {item.price}
+                        </MediumText>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <MediumText color="#5DB075" size={11}>
+                                {item.rating}
+                            </MediumText>
+                            <Ionicons
+                                name="star"
+                                size={10}
+                                color="#5DB075"
+                                style={{ marginLeft: 2 }}
+                            />
+                        </View>
+                    </View>
+                </View>
+                <View style={styles.iconColumn}>
+                    <TouchableOpacity onPress={() => setStarred(prev => !prev)}>
+                        <Ionicons
+                            name={starred ? "star" : "star-outline"}
+                            size={22}
+                            color={starred ? "#F5C542" : undefined}
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ marginTop: 8 }}>
+                        <Ionicons name="arrow-redo-outline" size={20} />
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </View>
+    );
+};
+
 const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
     // redirect to profile page
     const navigation = useNavigation();
@@ -15,31 +80,9 @@ const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
         setResult(undefined);
     }
 
-    // Renders each restaurant as an item for Flatlist
+    // renders restaurants for flatlist
     const renderItem = ({item}) => (
-        
-        <View style={styles.itemContainer}>
-            <View style = {styles.imageContainer}>
-                <Image         
-                    source={{ uri: item.imageUrl }}
-                    style={styles.image}
-                />
-            </View>
-            <View style = {styles.textContainer}>
-                <MediumText style = {{lineHeight: 13, paddingBottom: 5,}} size = {13}>{item.name}</MediumText>
-                <MediumText color = "#5DB075" size ={11} style ={{lineHeight: 12}}>
-                    {item.categories.substring(0, item.categories?.indexOf(','))}
-                </MediumText>
-                <View style = {styles.ratingAndPriceContainer}>
-                    <MediumText paddingHorizontal = {2} color = "#5DB075" size = {11}>
-                        {item.price}
-                    </MediumText>
-                    <MediumText color = "#5DB075" size = {11}>
-                        {item.rating}
-                    </MediumText>
-                </View>
-            </View>
-        </View>
+        <ResultItem item={item} />
     );
 
     return (
@@ -50,9 +93,9 @@ const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
                         <LargeText center="center" color="#5DB075" style={{marginTop: 30}}>
                             Results
                         </LargeText>
-                        <MediumText size = {13} weight = "bold" center = {true} style = {{lineHeight: 20,}}>
-                            These are the places you have shortlisted, Have a great time!
-                        </MediumText>
+                        <SmallText size={13} center style={{ lineHeight: 20, marginTop: 10, paddingHorizontal: 20 }}>
+                            Star the places that are your favorite to save under your profile!
+                        </SmallText>
                     </View>
                     <View style={styles.flatListContainer}>
                         <FlatList
@@ -61,11 +104,16 @@ const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
                             keyExtractor={item => item.id}
                             showsVerticalScrollIndicator={true}
                             indicatorStyle="black"
-                            ItemSeparatorComponent={() => <View style={styles.separator} />}
+                            ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                         />
                     </View>
-                    <View style = {{display:'flex', alignItems:'center', bottom: 5,}}>
-                        <Button onPress={handleFinishSeeingResults}  >
+                    <View style={styles.footerContainer}>
+                        <Button
+                            onPress={handleFinishSeeingResults}
+                            paddingVertical={12}
+                            paddingHorizontal={120}
+                            fontSize={13}
+                        >
                             Finish
                         </Button>
                     </View>
@@ -91,7 +139,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         backgroundColor: "#F7F7F7",
         top: 20,
-        borderRadius: 40,
+        borderRadius: 20,
         height: 660,
         width: 310,
     },
@@ -99,23 +147,38 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFFFFF",
         width: 310,
         height: 140,
-        borderTopLeftRadius: 40,
-        borderTopRightRadius: 40,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
     },
     flatListContainer: {
         flex: 1,
         paddingHorizontal: 20,
         paddingVertical: 10,
     },
+    footerContainer: {
+        paddingTop: 20,
+        paddingBottom: 20,
+        backgroundColor: '#FFFFFF',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+    },
     itemContainer: {
         backgroundColor: '#FFFFFF',
         display: 'flex',
         flexDirection:'row',
+        alignItems: 'center',
         width: 260,
-        height: 80,
+        minHeight: 80,
         borderRadius: 10,
         padding: 10,
-
+        marginVertical: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 3,
     },
     ratingAndPriceContainer:{
         display:'flex',
@@ -124,10 +187,10 @@ const styles = StyleSheet.create({
     textContainer:{
         paddingLeft: 10,
     },
-    separator: {
-        height: 1,
-        backgroundColor: '#E0E0E0',
-        marginVertical: 5,
+    iconColumn: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingLeft: 8,
     }
 });
 

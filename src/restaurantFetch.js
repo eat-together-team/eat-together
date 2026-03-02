@@ -3,28 +3,51 @@ import axios from "axios";
 
 const apiKey = YELP_API_KEY;
 
-//Format the response from Yelp API
-  const extractRestaurantInfo = (businesses) => {
-    if (!businesses || businesses.length === 0) {
-      return [];
-    }
-
-    return businesses.map(business => {
-      return {
-        id: business.id,
-        name: business.name,
-        rating: business.rating,
-        reviewCount: business.review_count,
-        price: business.price,
-        categories: business.categories.map(cat => cat.title).join(', '),
-        address: business.location.display_address.join(', '),
-        phone: business.display_phone,
-        serviceOptions: business.transactions.join(', '),
-        imageUrl: business.image_url,
-        url: business.url
-      };
+// fetch detailed business info for a given business
+const fetchBusinessDetails = async (businessId) => {
+  const detailsEndpoint = `https://api.yelp.com/v3/businesses/${businessId}`;
+  try {
+    const response = await axios.get(detailsEndpoint, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
     });
-  };
+    return response.data;
+  } catch (err) {
+    console.log('Error fetching business details', err?.message || err);
+    return null;
+  }
+};
+
+// Format the response from Yelp API
+const extractRestaurantInfo = async (businesses) => {
+  if (!businesses || businesses.length === 0) {
+    return [];
+  }
+
+  const detailsList = await Promise.all(
+    businesses.map((b) => fetchBusinessDetails(b.id))
+  );
+
+  return businesses.map((business, index) => {
+    const details = detailsList[index] || {};
+    return {
+      id: business.id,
+      name: business.name,
+      rating: business.rating,
+      reviewCount: business.review_count,
+      price: business.price,
+      categories: business.categories.map((cat) => cat.title).join(', '),
+      address: business.location.display_address.join(', '),
+      phone: business.display_phone,
+      serviceOptions: business.transactions.join(', '),
+      imageUrl: business.image_url,
+      url: business.url,
+      hours: details.hours || null,
+      photos: Array.isArray(details.photos) ? details.photos.slice(0, 3) : [],
+    };
+  });
+};
 
 const restaurant = async (categoryParams, priceRange) => {
 
