@@ -1,5 +1,5 @@
 import {YELP_API_KEY} from "@env";
-import axios from "axios";
+import axios from "axios/dist/axios.min.js";
 
 const apiKey = YELP_API_KEY;
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import MediumText from './MediumText';
 import NormalText from './NormalText';
@@ -46,12 +46,15 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         paddingVertical: 5,
         paddingHorizontal: 15,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        elevation: 2
+        overflow: 'hidden',
+        // iOS shadow only; Android uses elevation (set to 0 to avoid black line under tags)
+        ...(Platform.OS === 'ios' && {
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 2,
+        }),
+        ...(Platform.OS === 'android' && { elevation: 0 }),
     },
     textWrap: {
         flex: 1,

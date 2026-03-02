@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet } from "react-native";
-import { Layout, TopNav } from 'react-native-rapi-ui';
+import { Layout, TopNav } from '../../rapi_ui_components';
 import { Ionicons } from "@expo/vector-icons";
 
 import LoadingView from '../../components/LoadingView';

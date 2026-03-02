@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, FlatList, View, Alert, Dimensions, Image, TouchableOpacity, Modal, TouchableWithoutFeedback } from "react-native";
-import { Layout, TopNav } from "react-native-rapi-ui";
+import { Layout, TopNav } from "../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 
 import Button from "../../components/Button";
