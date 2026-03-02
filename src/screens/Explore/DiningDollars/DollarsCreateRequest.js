@@ -1,0 +1,460 @@
+import React, { useMemo, useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Layout } from "react-native-rapi-ui";
+import { Ionicons } from "@expo/vector-icons";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+
+const PRICE_OPTIONS = [
+  { id: "exact", label: "Exact amount" },
+  { id: "upto", label: "Up to" },
+  { id: "more", label: "Or more" },
+];
+
+const PAYMENT_METHODS = [
+  { id: "zelle", label: "Zelle", badge: "Z", color: "#5B2BD3" },
+  { id: "cash", label: "Cash", badge: "$", color: "#1DA64B" },
+  { id: "venmo", label: "Venmo", badge: "V", color: "#1E88E5" },
+  { id: "cashapp", label: "Cash App", badge: "C", color: "#0DBF4B" },
+];
+
+const PAYMENT_HIGHLIGHT_COLORS = {
+  zelle: "#C4A1F1",
+  venmo: "#A1CCF0",
+  cashapp: "#9DF2B1",
+  cash: "#A1DDBB",
+};
+
+const LOCATIONS = [
+  { id: "rotunda", label: "The Rotunda", short: "TR" },
+  { id: "suzzalo", label: "Starbucks (Suzzalo)", short: "SB" },
+  { id: "population", label: "Starbucks (Population Health)", short: "SB" },
+  { id: "bygeorge", label: "By George Cafe", short: "BG" },
+  { id: "orins", label: "Orin's Place", short: "OP" },
+  { id: "microsoft", label: "Microsoft Cafe", short: "MC" },
+];
+
+const formatShortDate = (date) => {
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const yy = String(date.getFullYear()).slice(-2);
+  return `${mm}/${dd}/${yy}`;
+};
+
+const PaymentItem = ({ item, selected, onPress }) => (
+  <TouchableOpacity
+    style={[
+      styles.selectableRow,
+      selected && { backgroundColor: PAYMENT_HIGHLIGHT_COLORS[item.id] || "#A1CCF0" },
+    ]}
+    onPress={onPress}
+  >
+    <View style={[styles.methodBadge, { backgroundColor: item.color }]}>
+      <Text style={styles.methodBadgeText}>{item.badge}</Text>
+    </View>
+    <Text style={styles.selectableRowLabel}>{item.label}</Text>
+    {selected && <Ionicons name="checkmark" size={18} color="#111" />}
+  </TouchableOpacity>
+);
+
+const LocationItem = ({ item, selected, onPress }) => (
+  <TouchableOpacity
+    style={[styles.selectableRow, selected && styles.selectableRowChosen]}
+    onPress={onPress}
+  >
+    <View style={styles.locationBadge}>
+      <Text style={styles.locationBadgeText}>{item.short}</Text>
+    </View>
+    <Text style={styles.selectableRowLabel}>{item.label}</Text>
+    {selected && <Ionicons name="checkmark" size={18} color="#777" />}
+  </TouchableOpacity>
+);
+
+export default function DollarsCreateRequest({ navigation }) {
+  const [step, setStep] = useState(1);
+  const [requestStartDate, setRequestStartDate] = useState(new Date(2025, 0, 17));
+  const [requestEndDate, setRequestEndDate] = useState(new Date(2025, 0, 27));
+  const [amountType, setAmountType] = useState("exact");
+  const [requestAmount, setRequestAmount] = useState("75");
+  const [selectedPayments, setSelectedPayments] = useState(["venmo"]);
+  const [selectedLocations, setSelectedLocations] = useState(["suzzalo"]);
+  const [activePicker, setActivePicker] = useState(null);
+
+  const onConfirmDate = (selectedDate) => {
+    if (activePicker === "start") {
+      setRequestStartDate(selectedDate);
+      if (selectedDate > requestEndDate) {
+        setRequestEndDate(selectedDate);
+      }
+    }
+    if (activePicker === "end") {
+      setRequestEndDate(selectedDate < requestStartDate ? requestStartDate : selectedDate);
+    }
+    setActivePicker(null);
+  };
+
+  const togglePaymentMethod = (methodId) => {
+    setSelectedPayments((curr) =>
+      curr.includes(methodId) ? curr.filter((id) => id !== methodId) : [...curr, methodId]
+    );
+  };
+
+  const toggleLocation = (locationId) => {
+    setSelectedLocations((curr) =>
+      curr.includes(locationId) ? curr.filter((id) => id !== locationId) : [...curr, locationId]
+    );
+  };
+
+  const canGoNext = useMemo(() => selectedPayments.length > 0, [selectedPayments.length]);
+
+  const submit = () => {
+    navigation.replace("DollarsExchange", {
+      showPostedPopup: true,
+      postType: "request",
+    });
+  };
+
+  return (
+    <Layout style={styles.layout}>
+      <View style={styles.topBar}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={22} color="#111" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Create request</Text>
+        <View style={styles.backButton} />
+      </View>
+
+      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+        {step === 1 && (
+          <>
+            <Text style={styles.sectionLabel}>Set active period of your request:</Text>
+            <View style={styles.dateRow}>
+              <TouchableOpacity style={styles.inputCardSmall} onPress={() => setActivePicker("start")}>
+                <Ionicons name="calendar-outline" size={17} color="#777" />
+                <Text style={styles.inputText}>{formatShortDate(requestStartDate)}</Text>
+              </TouchableOpacity>
+
+              <View style={styles.dateDivider} />
+
+              <TouchableOpacity style={styles.inputCardSmall} onPress={() => setActivePicker("end")}>
+                <Ionicons name="calendar-outline" size={17} color="#777" />
+                <Text style={styles.inputText}>{formatShortDate(requestEndDate)}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={[styles.sectionLabel, styles.spacingTop]}>Set request amount</Text>
+            <View style={styles.inputCardLarge}>
+              <Ionicons name="wallet-outline" size={17} color="#777" />
+              <Text style={styles.amountPrefix}>$</Text>
+              <TextInput
+                value={requestAmount}
+                onChangeText={(value) => setRequestAmount(value.replace(/[^0-9.]/g, ""))}
+                keyboardType="decimal-pad"
+                placeholder="0"
+                placeholderTextColor="rgba(0,0,0,0.35)"
+                style={styles.amountInput}
+              />
+            </View>
+
+            <View style={styles.pillRow}>
+              {PRICE_OPTIONS.map((option) => {
+                const active = amountType === option.id;
+                return (
+                  <TouchableOpacity
+                    key={option.id}
+                    style={[styles.choicePill, active && styles.choicePillActive]}
+                    onPress={() => setAmountType(option.id)}
+                  >
+                    <Text style={[styles.choicePillText, active && styles.choicePillTextActive]}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <Text style={[styles.sectionLabel, styles.spacingTop]}>Set accepted payment methods:</Text>
+            <View style={styles.listGap}>
+              {PAYMENT_METHODS.map((method) => (
+                <PaymentItem
+                  key={method.id}
+                  item={method}
+                  selected={selectedPayments.includes(method.id)}
+                  onPress={() => togglePaymentMethod(method.id)}
+                />
+              ))}
+            </View>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <Text style={styles.sectionLabel}>Set preferred locations</Text>
+            <View style={styles.listGap}>
+              {LOCATIONS.map((location) => (
+                <LocationItem
+                  key={location.id}
+                  item={location}
+                  selected={selectedLocations.includes(location.id)}
+                  onPress={() => toggleLocation(location.id)}
+                />
+              ))}
+            </View>
+          </>
+        )}
+      </ScrollView>
+
+      <View style={styles.bottomArea}>
+        {step === 1 ? (
+          <TouchableOpacity
+            style={[styles.primaryButton, !canGoNext && styles.primaryButtonDisabled]}
+            onPress={() => setStep(2)}
+            disabled={!canGoNext}
+          >
+            <Text style={styles.primaryButtonText}>Next</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.bottomButtonsRow}>
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => setStep(1)}>
+              <Text style={styles.secondaryButtonText}>Previous</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButtonSmall} onPress={submit}>
+              <Text style={styles.primaryButtonText}>Submit</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
+      <DateTimePickerModal
+        isVisible={activePicker !== null}
+        mode="date"
+        date={activePicker === "end" ? requestEndDate : requestStartDate}
+        minimumDate={activePicker === "end" ? requestStartDate : new Date()}
+        onConfirm={onConfirmDate}
+        onCancel={() => setActivePicker(null)}
+      />
+    </Layout>
+  );
+}
+
+const styles = StyleSheet.create({
+  layout: {
+    backgroundColor: "#fff",
+  },
+  topBar: {
+    height: 60,
+    borderBottomWidth: 1,
+    borderBottomColor: "#D9D9D9",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 14,
+  },
+  backButton: {
+    width: 28,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 28 / 1.55,
+    color: "#111",
+    fontWeight: "600",
+  },
+  content: {
+    flex: 1,
+    backgroundColor: "#F0F0F0",
+  },
+  contentContainer: {
+    paddingHorizontal: 22,
+    paddingTop: 24,
+    paddingBottom: 120,
+  },
+  sectionLabel: {
+    fontSize: 10,
+    color: "rgba(0,0,0,0.7)",
+    marginBottom: 10,
+  },
+  spacingTop: {
+    marginTop: 20,
+  },
+  dateRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  dateDivider: {
+    width: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#7E7E7E",
+    marginHorizontal: 8,
+  },
+  inputCardSmall: {
+    flex: 1,
+    height: 43,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#CACACA",
+    backgroundColor: "#F8F8F8",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+  },
+  inputCardLarge: {
+    height: 43,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#CACACA",
+    backgroundColor: "#F8F8F8",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+  },
+  inputText: {
+    marginLeft: 10,
+    fontSize: 24 / 1.6,
+    color: "rgba(0,0,0,0.7)",
+  },
+  amountPrefix: {
+    marginLeft: 10,
+    marginRight: 2,
+    fontSize: 24 / 1.6,
+    color: "rgba(0,0,0,0.7)",
+  },
+  amountInput: {
+    flex: 1,
+    fontSize: 24 / 1.6,
+    color: "rgba(0,0,0,0.7)",
+    paddingVertical: 0,
+  },
+  pillRow: {
+    flexDirection: "row",
+    marginTop: 14,
+  },
+  choicePill: {
+    height: 25,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#5DB075",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    marginRight: 8,
+    backgroundColor: "transparent",
+  },
+  choicePillActive: {
+    backgroundColor: "#5DB075",
+  },
+  choicePillText: {
+    fontSize: 11,
+    color: "#5DB075",
+  },
+  choicePillTextActive: {
+    color: "#fff",
+  },
+  listGap: {
+    gap: 7,
+  },
+  selectableRow: {
+    height: 46,
+    borderRadius: 8,
+    backgroundColor: "#F8F8F8",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+  },
+  selectableRowChosen: {
+    backgroundColor: "#DADADA",
+    borderWidth: 1,
+    borderColor: "#CCCCCC",
+  },
+  selectableRowLabel: {
+    flex: 1,
+    marginLeft: 12,
+    fontSize: 12,
+    color: "rgba(0,0,0,0.7)",
+  },
+  methodBadge: {
+    width: 25,
+    height: 25,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  methodBadgeText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  locationBadge: {
+    width: 25,
+    height: 25,
+    borderRadius: 4,
+    borderWidth: 0.5,
+    borderColor: "#CCC",
+    backgroundColor: "#EFEFEF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  locationBadgeText: {
+    fontSize: 9,
+    color: "#5B5B5B",
+    fontWeight: "600",
+  },
+  bottomArea: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 22,
+    paddingVertical: 20,
+    backgroundColor: "#F0F0F0",
+  },
+  primaryButton: {
+    height: 41,
+    borderRadius: 10,
+    backgroundColor: "#5DB075",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primaryButtonSmall: {
+    flex: 1,
+    height: 41,
+    borderRadius: 10,
+    backgroundColor: "#5DB075",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primaryButtonDisabled: {
+    opacity: 0.6,
+  },
+  primaryButtonText: {
+    fontSize: 13,
+    color: "#F7F7F7",
+    fontWeight: "600",
+  },
+  bottomButtonsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  secondaryButton: {
+    flex: 1,
+    height: 41,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#5DB075",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  secondaryButtonText: {
+    fontSize: 13,
+    color: "#5DB075",
+    fontWeight: "600",
+  },
+});
