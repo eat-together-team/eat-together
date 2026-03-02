@@ -258,6 +258,7 @@ const styles = StyleSheet.create({
     itemDisplay: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        justifyContent: 'center',
         paddingBottom: 10,
         marginTop: 5
     },

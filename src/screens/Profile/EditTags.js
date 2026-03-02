@@ -83,9 +83,9 @@ const EditTags = props => {
             <NormalText center size={12}>Note: each of the 3 categories below must contain:</NormalText>
             <MediumText center size={12} marginBottom={20}>Minimum 1 tag, maximum 4 tags</MediumText>
 
-            {/* Dashed card for School tags to match the mock's tag containers. */}
+            {/* Dashed card for Education tags to match the mock's tag containers. */}
             <View style={[styles.tagSection, styles.tagCard, styles.tagCardGold]}>
-                <MediumText center marginBottom={5}>School</MediumText>
+                <MediumText center marginBottom={5}>Education</MediumText>
                 <NormalText center marginBottom={5}>E.g. year, major</NormalText>
                 <TouchableOpacity onPress={() => {
                     setHobby(false);
@@ -131,9 +131,9 @@ const EditTags = props => {
                 </TouchableOpacity>
             </View>
 
-            {/* Dashed card for Food tags with purple tint. */}
+            {/* Dashed card for Favorite foods with purple tint. */}
             <View style={[styles.tagSection, styles.tagCard, styles.tagCardPurple]}>
-                <MediumText center marginBottom={5}>Food-related</MediumText>
+                <MediumText center marginBottom={5}>Favorite foods</MediumText>
                 <NormalText center marginBottom={5}>E.g. favorite dishes, favorite cuisine</NormalText>
                 <TouchableOpacity onPress={() => {
                     setSchool(false);
@@ -189,7 +189,7 @@ const EditTags = props => {
             }}>
             {school ? (
             <View>
-                <MediumText center marginBottom={5}>School</MediumText>
+                <MediumText center marginBottom={5}>Education</MediumText>
                 <NormalText center marginBottom={5}>E.g. year, major</NormalText>
                 <TagsSection
                     multi={true}
@@ -236,7 +236,7 @@ const EditTags = props => {
             </View>
             ) : (
             <View>
-                <MediumText center marginBottom={5}>Food-related</MediumText>
+                <MediumText center marginBottom={5}>Favorite foods</MediumText>
                 <NormalText center marginBottom={5}>E.g. favorite dishes, favorite cuisine</NormalText>
                 <TagsSection
                     multi={true}

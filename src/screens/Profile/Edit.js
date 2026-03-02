@@ -232,7 +232,7 @@ export default function edit({ route, navigation }) {
                 ))}
             </View>
             <TouchableOpacity style={[styles.tagCategoryButton, buttonStyle]} onPress={onPress}>
-                <NormalText size={12} color="#111">{buttonLabel}</NormalText>
+                <NormalText size={12} color={textColor}>{buttonLabel}</NormalText>
             </TouchableOpacity>
         </View>
     );
@@ -250,6 +250,19 @@ export default function edit({ route, navigation }) {
                     />
                 }
                 leftAction={() => navigation.goBack()}
+                rightContent={
+                    <Ionicons
+                        name="create-outline"
+                        size={20}
+                        style={{ opacity: (firstName === "" || lastName === "" || bio === "" || loading) ? 0.4 : 1 }}
+                    />
+                }
+                rightAction={async () => {
+                    if (firstName === "" || lastName === "" || bio === "" || loading) return;
+                    setLoading(true);
+                    await updateUser();
+                    setLoading(false);
+                }}
             />
             <ScrollView 
                 scrollEnabled={true} 
@@ -281,6 +294,7 @@ export default function edit({ route, navigation }) {
                             width={"100%"}
                             multiline
                             height={120}
+                            fontSize={16}
                             iconLeft=""
                             required
                             mainContainerStyle={styles.funFactContainer}
@@ -474,7 +488,7 @@ export default function edit({ route, navigation }) {
 
                         {renderSectionHeader("Other")}
                         {/* Outlined button to match the mock's photo gallery action. */}
-                        <TouchableOpacity style={styles.galleryButton}>
+                        <TouchableOpacity style={styles.galleryButton} onPress={() => navigation.navigate("Gallery", { user: route.params.user })}>
                             <NormalText style={styles.galleryButtonText}>Edit photo gallery</NormalText>
                         </TouchableOpacity>
 
@@ -583,7 +597,8 @@ const styles = StyleSheet.create({
 
     sectionTitle: {
         marginRight: 10,
-        color: "#666"
+        color: "#666",
+        fontSize: 16
     },
 
     sectionLine: {
@@ -627,6 +642,7 @@ const styles = StyleSheet.create({
     tagsRow: {
         flexDirection: "row",
         flexWrap: "wrap",
+        justifyContent: "center",
         gap: 8,
         marginBottom: 10
     },
