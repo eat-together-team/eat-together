@@ -9,7 +9,9 @@ import ExpandedButton from "./ExpandedButton";
 const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart, setResult}) => {
     const [expanded, setExpanded] = useState(false);
     // console.log("Rendering restaurant: " + JSON.stringify(restaurant, null, 2));
-    const listOfCategories = restaurant.categories.split(', ');
+    const listOfCategories = restaurant?.categories
+        ? restaurant.categories.split(', ')
+        : [];
     
     // Opens Yelp app (or browser)
     const handleOpeningURL = async() =>{

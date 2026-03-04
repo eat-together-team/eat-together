@@ -11,6 +11,7 @@ import Gallery from "./Gallery";
 import EventGallery from "./EventGallery";
 import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
+import MeetupArchive from "../Profile/MeetupArchive";
 import ChatRoom from "../Chat/ChatRoom";
 import Recommendation from "../Recommendations/Recommendation";
 import InvitePeople from "../Organize/InvitePeople";
@@ -49,6 +50,7 @@ export default function () {
 
       <Stack.Screen name="Gallery" component={Gallery} />
       <Stack.Screen name="EventGallery" component={EventGallery} />
+      <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       {/* WYR Game Screens */}
       <Stack.Screen name="StartGame" component={StartGame}/>
       <Stack.Screen name="IntroGuidelines" component={IntroGuidelines}/>

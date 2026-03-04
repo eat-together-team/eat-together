@@ -7,7 +7,7 @@ import {
   KeyboardAvoidingView
 } from "react-native";
 import firebase from "firebase/compat";
-import { Layout } from "react-native-rapi-ui";
+import { Layout } from "../rapi_ui_components";
 
 import Button from "../components/Button";
 import LargeText from "../components/LargeText";
