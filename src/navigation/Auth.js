@@ -49,6 +49,8 @@ const Auth = () => {
 
   const [usernames, setUsernames] = useState([]); // List of all usernames
 
+  const [buddy, setBuddy] = useState([]); // List of all buddies
+
   useEffect(() => {
     db.collection("Usernames")
       .get()
@@ -145,6 +147,7 @@ const Auth = () => {
       attendedEventIDs: [],
       archivedEventIDs: [],
       blockedIDs: [],
+      buddy: [], // field for buddies 
       friendIDs: [],
       groupIDs: [],
       notifications: [],

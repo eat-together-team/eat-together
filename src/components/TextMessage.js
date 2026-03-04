@@ -5,7 +5,7 @@ import NormalText from "./NormalText";
 import moment from "moment";
 import getDate from "../utils/getDate";
 import getTime from "../utils/getTime";
-import { TopNav } from "../rapi_ui_components";
+import { TopNav } from "react-native-rapi-ui";
 import MediumText from "./MediumText";
 import { Ionicons } from "@expo/vector-icons";
 

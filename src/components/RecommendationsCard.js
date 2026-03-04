@@ -6,7 +6,7 @@ import {
     Image,
     View
 } from "react-native";
-import { Section, SectionContent, SectionImage } from "../rapi_ui_components";
+import { Section, SectionContent, SectionImage } from "react-native-rapi-ui";
 import MediumText from "./MediumText";
 import SmallText from "./SmallText";
 

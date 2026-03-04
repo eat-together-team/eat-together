@@ -12,7 +12,7 @@ import {
   Image,
   Linking
 } from "react-native";
-import { Layout, TopNav } from "../../rapi_ui_components";
+import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
 import PeopleList from "../../components/PeopleList";
@@ -537,7 +537,7 @@ const WhileYouEat = ({ route, navigation }) => {
                     <NormalText size={18}>Invite People</NormalText>
                   </MenuOption>
                 )}
-                {(event.hostID === user.uid) && (
+                {(event.hostID === user.uid || event.type === "recommendation") && (
                   <MenuOption
                     onSelect={() =>
                       navigation.navigate("EditEvent", {

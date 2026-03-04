@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { AuthProvider } from "./src/provider/AuthProvider";
-import { ThemeProvider } from "./src/rapi_ui_components";
+import { ThemeProvider } from "react-native-rapi-ui";
 import { MenuProvider } from "react-native-popup-menu";
 import { LogBox } from "react-native";
 import * as Network from 'expo-network';

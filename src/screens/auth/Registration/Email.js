@@ -1,9 +1,8 @@
 // Email + school info
 
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Dimensions, Image } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Layout } from "../../../rapi_ui_components";
+import { View, StyleSheet, SafeAreaView, Dimensions, Image } from "react-native";
+import { Layout } from "react-native-rapi-ui";
 import * as Progress from 'react-native-progress';
 
 import SuggestSelection from "../../../components/SuggestSelection";

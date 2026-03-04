@@ -7,7 +7,7 @@ import {
   FlatList,
   ActivityIndicator
 } from "react-native";
-import { Button, Layout } from "../../rapi_ui_components";
+import { Button, Layout } from "react-native-rapi-ui";
 
 import Header from "../../components/Header";
 import ChatPreview from "../../components/ChatPreview";

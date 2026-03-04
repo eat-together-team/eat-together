@@ -1,5 +1,5 @@
 import React from "react";
-import { Section } from "../rapi_ui_components";
+import { Section } from "react-native-rapi-ui";
 
 const DarkContainer = props => {
     return (

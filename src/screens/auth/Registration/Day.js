@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
-import { Layout } from "../../../rapi_ui_components";
+import { Layout } from "react-native-rapi-ui";
 import { cloneDeep } from "lodash";
 
 import Button from "../../../components/Button";

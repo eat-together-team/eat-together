@@ -12,7 +12,7 @@ import {
 
 import {
   Layout,
-} from "../../rapi_ui_components";
+} from "react-native-rapi-ui";
 
 import Button from "../../components/Button";
 import LargeText from "../../components/LargeText";

@@ -11,7 +11,7 @@ import {
   Linking,
   TouchableOpacity
 } from "react-native";
-import { Layout, TopNav } from "../../rapi_ui_components";
+import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
 
 import LargeText from "../../components/LargeText";

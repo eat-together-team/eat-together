@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
-import { Ionicons } from "@expo/vector-icons";
+import { View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from 'react-native';
 import MediumText from "./MediumText";
 import NormalText from './NormalText';
 
 import Tag from "./Tag";
+import LargeText from './LargeText';
 
 const ProfileBubble = props => {
     // Generates text for school tags in common with the user
@@ -17,19 +17,32 @@ const ProfileBubble = props => {
         return tags.filter(tag => tag.type === "hobby" || tag.type === "food");
     }
 
+    console.log(props.person.image);
+
     return (
-        <View style={styles.card}>
+        <View style={[styles.card, {}]}>
             <TouchableOpacity onPress={props.click}>
-                <MediumText size={18}>
+            <View style={styles.profile}>
+                <Image
+                style={styles.image}
+                source={
+                    props.person.hasImage
+                    ? { uri: props.person.image }
+                    : require("../../assets/logo.png")
+                }
+                />
+                <LargeText size={30}>
                     {props.person.firstName + " " + props.person.lastName.substring(0, 1) + "."}
-                </MediumText>
+                </LargeText>
+            </View>
+
                 <MediumText size={14}>
                     🗯️ "{props.person.bio}"
                 </MediumText>
 
                 {props.person.inCommon.length > 0 && (<View style={styles.common}>
                     {getCommonSchoolTags(props.person.inCommon).length !== 0 && (<View style={styles.commonRow}>
-                        <NormalText>This person is:</NormalText>
+                        <NormalText>🏫 You both are: </NormalText>
                         <ScrollView horizontal={true}>
                             <View onStartShouldSetResponder={() => true} style={{ flexDirection: "row" }}>
                                 {getCommonSchoolTags(props.person.inCommon).map(tag =>
@@ -37,9 +50,8 @@ const ProfileBubble = props => {
                             </View>
                         </ScrollView>
                     </View>)}
-                    
                     {getCommonHobbyFoodTags(props.person.inCommon).length !== 0 && (<View style={styles.commonRow}>
-                        <NormalText>Enjoyment:</NormalText>
+                        <NormalText>🤩 You both enjoy: </NormalText>
                         <ScrollView horizontal={true}>
                             <View onStartShouldSetResponder={() => true} style={{ flexDirection: "row" }}>
                                 {getCommonHobbyFoodTags(props.person.inCommon).map(tag =>
@@ -48,10 +60,7 @@ const ProfileBubble = props => {
                         </ScrollView>
                     </View>)}
                 </View>)}
-                <TouchableOpacity style={styles.greenButton}>
-                    <MediumText style= {{color: "white"}}>Send a buddy Request!</MediumText>
-                    <Ionicons name="person-add" size={25} color="white" style={{marginLeft: 8}}/>
-                </TouchableOpacity>
+
             </TouchableOpacity>
         </View>
     );
@@ -59,6 +68,7 @@ const ProfileBubble = props => {
 
 const styles = StyleSheet.create({
     card: {
+        // display: flex,
         paddingVertical: 10,
         paddingHorizontal: 15,
         width: Dimensions.get('screen').width - 40,
@@ -84,15 +94,19 @@ const styles = StyleSheet.create({
         flexWrap: "wrap"
     },
 
-    greenButton: {
-        backgroundColor: "#5DB075",
+    image: {
+        width: 50,
+        height: 50,
+        borderRadius:50,
+        marginRight: 20,
+        paddingBottom: 30
+    },
+
+    profile: {
         flexDirection: "row",
-        justifyContent: "center",
-        alignSelf: "center",
-        borderRadius: 8,
-        marginTop: 15,
-        width: "90%",
-        padding: 10
+        alignItems: "center",
+        flexWrap: "wrap",
+        marginBottom: 20
     }
 })
 

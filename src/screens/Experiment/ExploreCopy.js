@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { StyleSheet, FlatList, View } from "react-native";
-import { Layout } from "../../rapi_ui_components";
+import { Layout } from "react-native-rapi-ui";
 
 import EventCard from "../../components/EventCard";
 import Header from "../../components/Header";

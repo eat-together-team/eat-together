@@ -38,6 +38,13 @@ const Header = (props) => {
             <NotifIcon hasNotif={props.hasNotif === null ? false : props.hasNotif} />
           </TouchableOpacity>
         )}
+        {props.buddy && props.navigation && (
+          <TouchableOpacity onPress={() => {
+            props.navigation.navigate("IncomingRequests");
+          }}>
+            <Octicons name="people" size={30} color="black" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

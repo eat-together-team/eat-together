@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     Alert, Linking
 } from 'react-native';
-import { Layout, TopNav } from "../../rapi_ui_components";
+import { Layout, TopNav } from "react-native-rapi-ui";
 import { Ionicons } from '@expo/vector-icons';
 
 import { db, auth } from "../../provider/Firebase";
@@ -48,31 +48,31 @@ export default function ({ navigation }) {
 
     // Changes if user's acount is private or not
     function changePrivacySettings() {
-        const willEnable = !privAcct;
-    
         Alert.alert(
-            willEnable ? "Enable Private Account" : "Disable Private Account",
-            willEnable
-                ? "Would you like to make your account private? This will prevent your profile from matching with other users on the Explore page."
-                : "Are you sure you want to make your account public?",
+            "Update Account Status",
+            "Would you like to make your account private? This will prevent your profile from matching with other users on the Explore page; however, you will still be able to be found if a user searches your exact username.",
             [
                 {
-                    text: "Confirm",
+                    text: "Yes",
                     onPress: async () => {
-                        try {
-                            await db.collection("Users").doc(user.uid).update({
-                                "settings.privateAccount": willEnable
-                            });
-    
-                            setPrivAcct(willEnable);
-                        } catch (error) {
-                            console.error("Error updating private account:", error);
-                        }
+                        if (privAcct) return; //Don't display a "changed" animation and alert if nothing changed
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.privateAccount": true
+                        }); setPrivAcct(true);
+                        alert("Account status updated!");
                     }
                 },
                 {
-                    text: "Cancel",
-                    style: "cancel"
+                    text: "No",
+                    onPress: async () => {
+                        if (!privAcct) return; //Don't display a "changed" animation and alert if nothing changed
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.privateAccount": false
+                        });
+
+                        setPrivAcct(false);
+                        alert("Account status updated!");
+                    }
                 }
             ]
         );
@@ -81,31 +81,33 @@ export default function ({ navigation }) {
 
     // Changes if user gets recommendations or not
     function changeRecommendationSettings() {
-        const willEnable = !getRecommendations;
-    
         Alert.alert(
-            willEnable ? "Enable Recommendations" : "Disable Recommendations",
-            willEnable
-                ? "Would you like to receive weekly meetup recommendations? You’ll be paired with 3 other users based on your schedule and interests."
-                : "Are you sure you want to stop receiving weekly meetup recommendations?",
+            "Getting Recommendations",
+            "Would you like to get weekly recommendations of meetups? You will be paired up with 3 other users based on your schedule and interests to eat at a restaurant.",
             [
                 {
-                    text: "Confirm",
+                    text: "Yes",
                     onPress: async () => {
-                        try {
-                            await db.collection("Users").doc(user.uid).update({
-                                "settings.getRecommendations": willEnable
-                            });
-    
-                            setGetRecommendations(willEnable);
-                        } catch (error) {
-                            console.error("Error updating recommendations:", error);
-                        }
+                        if (getRecommendations) return; //Don't display a "changed" animation and alert if nothing changed
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.getRecommendations": true
+                        });
+
+                        setGetRecommendations(true);
+                        alert("Recommendations preference updated!");
                     }
                 },
                 {
-                    text: "Cancel",
-                    style: "cancel"
+                    text: "No",
+                    onPress: async () => {
+                        if (!getRecommendations) return; //Don't display a "changed" animation and alert if nothing changed
+                        await db.collection("Users").doc(user.uid).update({
+                            "settings.getRecommendations": false
+                        });
+
+                        setGetRecommendations(false);
+                        alert("Recommendations preference updated!");
+                    }
                 }
             ]
         );
