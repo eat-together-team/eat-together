@@ -1,11 +1,12 @@
 // Script to test out the Yelp API for food recommendations
+import axios from 'axios/dist/axios.min.js'
+
 require('dotenv').config({ path: '../.env' });
 
 const apiKey = process.env.YELP_API_KEY;
 
 // Library that helps allows you to send HTTP requests to the API endpoint.
 const restaurant = async () => {
-  const axios = require('axios');
   const search_endpoint = 'https://api.yelp.com/v3/businesses/search';
 
   let categories = ['coffee', 'restaurant', 'food']; // Default categories if user doesn't provide any
