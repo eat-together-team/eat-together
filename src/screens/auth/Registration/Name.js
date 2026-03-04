@@ -1,8 +1,7 @@
 // First page of registration
 
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Dimensions, Image, ImageBackground, TouchableOpacity, ScrollView, Platform, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, StyleSheet, Dimensions, Image, ImageBackground, TouchableOpacity, SafeAreaView, ScrollView, Platform, Alert } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import * as Progress from 'react-native-progress';
 

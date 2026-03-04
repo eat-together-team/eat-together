@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
-import { Layout } from "../../../rapi_ui_components";
+import { Layout } from "react-native-rapi-ui";
 import MediumText from "../../../components/MediumText";
 
 const EndGame = ({ navigation, route }) => {

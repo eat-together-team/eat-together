@@ -1,6 +1,6 @@
 import React from "react";
 import { View, ActivityIndicator } from "react-native";
-import { Layout } from "../../rapi_ui_components";
+import { Layout, themeColor } from "react-native-rapi-ui";
 
 export default function ({ navigation }) {
   return (
@@ -13,7 +13,7 @@ export default function ({ navigation }) {
         }}
       >
         {/* This text using ubuntu font */}
-        <ActivityIndicator size="large" color={"#3366FF"} />
+        <ActivityIndicator size="large" color={themeColor.primary} />
       </View>
     </Layout>
   );

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { FlatList, View, ActivityIndicator, StyleSheet } from "react-native";
-import { Layout } from "../../../rapi_ui_components";
+import { Layout } from "react-native-rapi-ui";
 
 import Searchbar from "../../../components/Searchbar";
 import ProfileBubble from "../../../components/ProfileBubble";

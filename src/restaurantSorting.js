@@ -1,17 +1,13 @@
-import foodTagsToYelpCategories from './yelpTags';
-
 const weighRestaurant = ({ restaurant, dietaryPref, cuisinePref, priceRange }) => {
     let totalScore = 0;
 
     const categoryWeights = {
-        dietary: 0.35,
+        dietary: 0.4,
         price: 0.3,
-        cuisine: 0.4
+        cuisine: 0.3
     };
 
-    const restaurantCategories = restaurant.categories
-        ? restaurant.categories.split(',').map((cat) => foodTagsToYelpCategories[cat.trim()])
-        : [];
+    const restaurantCategories = restaurant.categories || []; 
 
     // 1. Check if any dietary tag matches
     const hasDietaryTag = dietaryPref?.some(tag => restaurantCategories.includes(tag));
@@ -23,9 +19,7 @@ const weighRestaurant = ({ restaurant, dietaryPref, cuisinePref, priceRange }) =
 
     // 3. Price range match
     const restaurantPrice = restaurant?.price; // assume something like "$$", or undefined
-    if (restaurantPrice) {
-        totalScore += restaurantPrice.length === priceRange ? categoryWeights.price : 0.15;
-    }
+    totalScore += restaurantPrice.length === priceRange ? categoryWeights.price : 0.15;
 
     return totalScore;
 };

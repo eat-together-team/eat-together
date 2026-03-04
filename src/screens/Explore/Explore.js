@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { StyleSheet, FlatList, View } from "react-native";
-import { Layout } from "../../rapi_ui_components";
+import { Layout } from "react-native-rapi-ui";
 import RBSheet from "react-native-raw-bottom-sheet";
 import { Ionicons } from '@expo/vector-icons';
 

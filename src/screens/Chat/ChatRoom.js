@@ -9,7 +9,7 @@ import {
   Alert, 
   Image
 } from "react-native";
-import { Layout, TopNav } from "../../rapi_ui_components";
+import { Layout, TopNav } from "react-native-rapi-ui";
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from "@expo/vector-icons";
 
@@ -298,9 +298,8 @@ export default function ({ route, navigation }) {
         </View>
       :
         <KeyboardAvoidingView 
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+          style={{ flex: 1 , marginBottom:Platform.OS === "ios" ? -34 : 0}}
+          behavior={Platform.OS === "ios" ? "height" : ""}
         >
           <FlatList
             data={messages}
@@ -309,25 +308,23 @@ export default function ({ route, navigation }) {
             )}
             inverted={true}
             keyExtractor={(item) => item.sentAt.toString()}
-            contentContainerStyle={{ paddingBottom: 8 }}
           />
-          {/* message bar at bottom of flex container */}
-          <View style={{ paddingHorizontal: 8, paddingTop: 4, paddingBottom: 0 }}>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Send Message"
-              width="100%"
-              value={message}
-              onChangeText={setMessage}
-              iconLeft="camera-outline"
-              iconRight="send"
-              iconRightColor={message.length > 0 ? "black" : "#A9A9A9"}
-              iconRightFontSize={20}
-              iconRightDisabled={message.length === 0}
-              iconLeftOnPress={handleChoosePhoto}
-              iconRightOnPress={() => onSend(null)}
-            />
-          </View>
+          {/* message bar */}
+          {/* add another view and wrap textInput */}
+          <TextInput
+            style={styles.textInput}
+            placeholder="Send Message"
+            width="100%"
+            value={message}
+            onChangeText={setMessage}
+            iconLeft="camera-outline"
+            iconRight="send"
+            iconRightColor= {message.length > 0 ? "black" : "#A9A9A9"}
+            iconRightFontSize={20}
+            iconRightDisabled={message.length === 0}
+            iconLeftOnPress={handleChoosePhoto}
+            iconRightOnPress={() => onSend(null)}
+          />
         </KeyboardAvoidingView>
       }
     </Layout>

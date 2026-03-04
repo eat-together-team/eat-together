@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react'
 import {StyleSheet, View, ScrollView, Alert} from "react-native";
-import { Layout, TopNav} from "../../rapi_ui_components";
+import { Layout, TopNav} from "react-native-rapi-ui";
 import MediumText from "../../components/MediumText";
 import { Ionicons } from "@expo/vector-icons";
 import CuisineCard from './CuisineCard';
@@ -54,19 +54,9 @@ export default function ({navigation}) {
       }));
 
       // 4. sort from highest to lowest
-      const sortedRestaurants = restaurantWithScores.sort((a, b) => {
-      if (b.matchScore !== a.matchScore) {
-          return b.matchScore - a.matchScore;
-        }
-
-        // tie-breaker 1: rating
-        if (b.rating !== a.rating) {
-          return b.rating - a.rating;
-        }
-
-        // tie-breaker 2: review count
-        return b.reviewCount - a.reviewCount;
-      });
+      const sortedRestaurants = restaurantWithScores.sort(
+        (a, b) => b.matchScore - a.matchScore
+      );
 
       return sortedRestaurants;
 
