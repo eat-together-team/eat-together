@@ -15,7 +15,7 @@ import firebase from "firebase/compat";
 
 import {
   Layout,
-} from "react-native-rapi-ui";
+} from "../../rapi_ui_components";
 
 import Button from "../../components/Button";
 import TextInput from "../../components/TextInput";
