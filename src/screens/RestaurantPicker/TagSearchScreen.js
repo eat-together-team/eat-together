@@ -3,7 +3,6 @@ import { View, StyleSheet, FlatList, TouchableOpacity, TextInput, Keyboard } fro
 import { Layout } from 'react-native-rapi-ui';
 import { Ionicons } from '@expo/vector-icons';
 import NormalText from '../../components/NormalText';
-import SmallText from '../../components/SmallText';
 import { auth, db } from '../../provider/Firebase';
 
 const POPULAR_CUISINES = ['Mexican cuisine', 'Italian cuisine', 'Mediterranean cuisine', 'Indian cuisine', 'Japanese cuisine'];

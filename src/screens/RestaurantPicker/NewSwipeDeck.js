@@ -1,7 +1,5 @@
-import { View, Modal, StyleSheet } from 'react-native';
-import { useEffect } from 'react';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from 'react-native-reanimated';
+import { View, Modal, StyleSheet, Animated, PanResponder } from 'react-native';
+import { useEffect, useRef } from 'react';
 import MediumText from '../../components/MediumText';
 import Button from '../../components/Button';
 import RestaurantRec from '../../components/RestaurantRec';
@@ -11,16 +9,20 @@ import { Ionicons } from '@expo/vector-icons';
 
 // "Swipe Deck" screen that renders each restaurant that is tailored to user preferences
 const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, incrementIndex, currentIndex, setCurrentIndex, setIndex, setUserSkipped, setPressedStart, setUserResults, setResult, onExpandedChange}) => {
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
-  const cardOpacity = useSharedValue(1);
+  const translateX = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
+  const cardOpacity = useRef(new Animated.Value(1)).current;
 
   // reset card position when index changes
   useEffect(() => {
-    translateX.value = 0;
-    translateY.value = 0;
-    cardOpacity.value = 0;
-    cardOpacity.value = withTiming(1, { duration: 200 });
+    translateX.setValue(0);
+    translateY.setValue(0);
+    cardOpacity.setValue(0);
+    Animated.timing(cardOpacity, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
   }, [currentIndex]);
 
   // new card starts collapsed, so parent can disable scroll
@@ -28,10 +30,26 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
     onExpandedChange?.(false);
   }, [currentIndex]);
 
-  // store restaurant if green button is pressed (or swipe right)
-  const storeRestaurant = () => {
-    setCurrentIndex((prev) => (prev + 1));
-    setUserResults(prev => [...prev, listOfRestaurants[currentIndex]]);
+  // Approve current restaurant (button or swipe right)
+  const approveCurrent = () => {
+    if (!Array.isArray(listOfRestaurants) || listOfRestaurants.length === 0) {
+      return;
+    }
+
+    setCurrentIndex(prevIndex => {
+      const current = listOfRestaurants[prevIndex];
+      if (current) {
+        setUserResults(prev => [...prev, current]);
+      }
+
+      const next = prevIndex + 1;
+      // If we've reached the end of the list, show the finish modal
+      if (!listOfRestaurants[next]) {
+        setSwipingFinished(true);
+        return prevIndex;
+      }
+      return next;
+    });
   };
 
   // Ignore if red button is pressed
@@ -41,18 +59,26 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
 
   // card animation when declining a restaurant
   const triggerReject = () => {
-    translateX.value = withTiming(-400, { duration: 180 }, (finished) => {
+    Animated.timing(translateX, {
+      toValue: -400,
+      duration: 180,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
       if (finished) {
-        runOnJS(ignoreRestaurant)();
+        ignoreRestaurant();
       }
     });
   };
 
   // card animation when approving a restaurant
   const triggerApprove = () => {
-    translateX.value = withTiming(400, { duration: 180 }, (finished) => {
+    Animated.timing(translateX, {
+      toValue: 400,
+      duration: 180,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
       if (finished) {
-        runOnJS(checkLimit)();
+        approveCurrent();
       }
     });
   };
@@ -77,79 +103,103 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
     });
   };
 
-  const checkLimit = () => {
-    if (currentIndex >= 9) {
-      setSwipingFinished(true);
-    } else {
-      storeRestaurant();
-    }
+  // translation for angled card swiping
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (evt, gestureState) =>
+        Math.abs(gestureState.dx) > 15 || Math.abs(gestureState.dy) > 15,
+      onPanResponderMove: (evt, gestureState) => {
+        translateX.setValue(gestureState.dx);
+        translateY.setValue(gestureState.dy * 0.3);
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        const { dx, vx } = gestureState;
+        const goRight = dx > 80 || vx > 0.3;
+        const goLeft = dx < -80 || vx < -0.3;
+
+        if (goRight) {
+          Animated.timing(translateX, {
+            toValue: 400,
+            duration: 180,
+            useNativeDriver: true,
+          }).start(({ finished }) => {
+            if (finished) {
+              approveCurrent();
+            }
+          });
+        } else if (goLeft) {
+          Animated.timing(translateX, {
+            toValue: -400,
+            duration: 180,
+            useNativeDriver: true,
+          }).start(({ finished }) => {
+            if (finished) {
+              ignoreRestaurant();
+            }
+          });
+        } else {
+          Animated.spring(translateX, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+          Animated.spring(translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  const rotation = translateX.interpolate({
+    inputRange: [-350, 0, 350],
+    outputRange: ['-12deg', '0deg', '12deg'],
+    extrapolate: 'clamp',
+  });
+
+  const cardAnimatedStyle = {
+    opacity: cardOpacity,
+    transform: [
+      { translateX },
+      { translateY },
+      { rotate: rotation },
+    ],
   };
 
-  // translation for angled card swiping
-  const panGesture = Gesture.Pan()
-    .activeOffsetX([-15, 15])
-    .failOffsetY([-40, 40])
-    .onUpdate((e) => {
-      translateX.value = e.translationX;
-      translateY.value = e.translationY * 0.3;
-    })
-    .onEnd((e) => {
-      const goRight = e.translationX > 80 || e.velocityX > 300;
-      const goLeft = e.translationX < - 80 || e.velocityX < -300;
-      if (goRight) {
-        translateX.value = withTiming(400, { duration: 180 }, (finished) => {
-          if (finished) runOnJS(checkLimit)();
-        });
-      } else if (goLeft) {
-        translateX.value = withTiming(-400, { duration: 180 }, (finished) => {
-          if (finished) runOnJS(ignoreRestaurant)();
-        });
-      } else {
-        translateX.value = 0;
-        translateY.value = 0;
-      }
-    });
-
-  const cardAnimatedStyle = useAnimatedStyle(() => {
-    const rotation = (translateX.value / 350) * 12;
-    return {
-      opacity: cardOpacity.value,
-      transform: [
-        { translateX: translateX.value },
-        { translateY: translateY.value },
-        { rotate: `${rotation}deg` },
-      ],
-    };
-  });
-
   // rejected background when declining a restaurant
-  const rejectOverlayStyle = useAnimatedStyle(() => {
-    const isLeft = translateX.value < 0;
-    const magnitude = Math.abs(translateX.value);
-    const opacity = isLeft ? Math.min(magnitude / 140, 1) : 0;
-    const scale = 0.9 + opacity * 0.15;
-
-    return {
-      opacity,
-      transform: [{ scale }],
-    };
+  const rejectOpacity = translateX.interpolate({
+    inputRange: [-140, 0],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
   });
+  const rejectScale = translateX.interpolate({
+    inputRange: [-140, 0],
+    outputRange: [1.05, 0.9],
+    extrapolate: 'clamp',
+  });
+  const rejectOverlayStyle = {
+    opacity: rejectOpacity,
+    transform: [{ scale: rejectScale }],
+  };
 
   // accepted background when approving a restaurant
-  const acceptOverlayStyle = useAnimatedStyle(() => {
-    const isRight = translateX.value > 0;
-    const magnitude = Math.abs(translateX.value);
-    const opacity = isRight ? Math.min(magnitude / 140, 1) : 0;
-    const scale = 0.9 + opacity * 0.15;
-
-    return {
-      opacity,
-      transform: [{ scale }],
-    };
+  const acceptOpacity = translateX.interpolate({
+    inputRange: [0, 140],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
   });
+  const acceptScale = translateX.interpolate({
+    inputRange: [0, 140],
+    outputRange: [0.9, 1.05],
+    extrapolate: 'clamp',
+  });
+  const acceptOverlayStyle = {
+    opacity: acceptOpacity,
+    transform: [{ scale: acceptScale }],
+  };
 
   // Wait until API response loads
-  if(!listOfRestaurants){
+  if (!Array.isArray(listOfRestaurants)) {
     return (
       <View style = {{marginTop: 300}}>
         <MediumText>Loading...</MediumText>
@@ -162,18 +212,11 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
   // Renders each restaurant as a card
   const renderCard = () => {
     if (!restaurant) {
-      return (
-        <RestaurantRec
-          restaurant={restaurant}
-          setIndex={setIndex}
-          setUserSkipped={setUserSkipped}
-          setCurrentIndex={setCurrentIndex}
-          setPressedStart={setPressedStart}
-          setResult={setResult}
-          onExpandedChange={onExpandedChange}
-          onBack={handleBack}
-        />
-      );
+      if (!swipingFinished) {
+        setSwipingFinished(true);
+      }
+      
+      return null;
     }
     return (
       <View style={styles.cardWrapper}>
@@ -187,21 +230,19 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
           style={[styles.acceptOverlay, acceptOverlayStyle]}
           resizeMode="contain"
         />
-        <GestureDetector gesture={panGesture}>
-          <Animated.View style={cardAnimatedStyle}>
-            <RestaurantRec
-              key={restaurant.id}
-              restaurant={restaurant}
-              setIndex={setIndex}
-              setUserSkipped={setUserSkipped}
-              setCurrentIndex={setCurrentIndex}
-              setPressedStart={setPressedStart}
-              setResult={setResult}
-              onExpandedChange={onExpandedChange}
-              onBack={handleBack}
-            />
-          </Animated.View>
-        </GestureDetector>
+        <Animated.View style={cardAnimatedStyle} {...panResponder.panHandlers}>
+          <RestaurantRec
+            key={restaurant.id}
+            restaurant={restaurant}
+            setIndex={setIndex}
+            setUserSkipped={setUserSkipped}
+            setCurrentIndex={setCurrentIndex}
+            setPressedStart={setPressedStart}
+            setResult={setResult}
+            onExpandedChange={onExpandedChange}
+            onBack={handleBack}
+          />
+        </Animated.View>
       </View>
     );
   };

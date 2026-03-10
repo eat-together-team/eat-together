@@ -49,6 +49,30 @@ const extractRestaurantInfo = async (businesses) => {
   });
 };
 
+// Format the response from Yelp API using only the /businesses/search results.
+// This avoids extra per-business detail requests that can trigger 429 rate limits.
+const extractRestaurantInfoFromSearch = (businesses) => {
+  if (!businesses || businesses.length === 0) {
+    return [];
+  }
+
+  return businesses.map((business) => ({
+    id: business.id,
+    name: business.name,
+    rating: business.rating,
+    reviewCount: business.review_count,
+    price: business.price,
+    categories: (business.categories || []).map((cat) => cat.title).join(', '),
+    address: (business.location?.display_address || []).join(', '),
+    phone: business.display_phone,
+    serviceOptions: (business.transactions || []).join(', '),
+    imageUrl: business.image_url,
+    url: business.url,
+    hours: null,
+    photos: [],
+  }));
+};
+
 const restaurant = async (categoryParams, priceRange) => {
 
   const search_endpoint = 'https://api.yelp.com/v3/businesses/search';
@@ -75,7 +99,7 @@ const restaurant = async (categoryParams, priceRange) => {
     params.price = priceRange.toString();
   }
 
-  let businesses;
+  let businesses = [];
 
   await axios.get(search_endpoint, {
     headers: {
@@ -83,13 +107,17 @@ const restaurant = async (categoryParams, priceRange) => {
     },
     params,
   }).then(response => {
-    businesses = response.data.businesses;
+    businesses = response.data.businesses || [];
   }).catch(error => {
-    console.log(error);
+    console.log('Error fetching restaurant search results', error?.message || error);
   });
 
-  const formattedBusinesses = await extractRestaurantInfo(businesses);
-  return formattedBusinesses;
+  try {
+    return await extractRestaurantInfo(businesses);
+  } catch (err) {
+    console.log('Error enriching restaurant details, falling back to basic data', err?.message || err);
+    return extractRestaurantInfoFromSearch(businesses);
+  }
 }
 
 export default restaurant;
