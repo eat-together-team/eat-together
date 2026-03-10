@@ -9,7 +9,7 @@ const PriceRangeCard = ({setPriceRange, priceRange}) => {
 
   return (
     <View style={styles.cardWrapper}>
-        <RestaurantCard>
+        <RestaurantCard height={560}>
             <View style = {styles.questionContainer}>
               <MediumText center = "center" marginBottom={10}>What is your price {'\n'}range?</MediumText>
             </View>
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
       },
       
       buttonContainer:{
-        height: 370,
+        height: 410,
         display:'flex',
         justifyContent:'space-evenly',
         alignItems:'center'

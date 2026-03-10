@@ -250,14 +250,16 @@ const styles = StyleSheet.create({
     hoursRow: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
-        alignSelf: 'center',
+        alignItems: 'flex-start',
         marginTop: 2,
-        marginHorizontal: 55,
+        paddingHorizontal: 55,
+        width: '100%',
     },
     hoursDay: {
-        width: 60,
+        minWidth: 60,
         textAlign: 'left',
         marginRight: 8,
+        flexShrink: 0,
     },
     hoursText: {
         flex: 1,

@@ -33,7 +33,7 @@ export default function ({navigation, route}) {
       setSelectedDietaryTags(params.selectedDietaryTags);
       navigation.setParams({ selectedDietaryTags: undefined });
     }
-  }, [route.params]);
+  }, [route.params?.cuisineTagSelected, route.params?.selectedDietaryTags]);
   
   const [index, setIndex] = useState(0); // Index for card carousel
   const [pressedFinished, setPressedFinished] = useState(false);

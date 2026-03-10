@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         margin: 2,
         borderRadius: 20,
-        paddingVertical: 5,
+        paddingVertical: 10,
         paddingHorizontal: 15,
         overflow: 'hidden',
         // iOS shadow only; Android uses elevation (set to 0 to avoid black line under tags)

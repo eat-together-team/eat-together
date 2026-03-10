@@ -4,7 +4,7 @@ const CARD_MAX_HEIGHT = Dimensions.get('window').height * 0.7;
 
 //Card components for Restaurant picker feature
 const RestaurantCard = ({children, expanded, height: customHeight}) => {
-  const defaultHeight = 500;
+  const defaultHeight = 540;
   const cardHeight = expanded ? undefined : (customHeight ?? defaultHeight);
   return (
     <View style={{

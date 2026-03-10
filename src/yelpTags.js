@@ -29,6 +29,7 @@ const foodTagsToYelpCategories = {
   
   // Dietary preferences and eating styles
   "Spicy food lover": "hotandspicy",
+  "Spicy-food lover": "hotandspicy",
   "Non-spicy foods only": "restaurants",
   "Dessert lover": "desserts",
   "Sweets lover": "desserts",
@@ -49,6 +50,8 @@ const foodTagsToYelpCategories = {
   "Ovo Vegetarian": "vegetarian",
   "Lacto Vegetarian": "vegetarian",
   "Vegan": "vegan",
+  "Dairy-free": "vegan",
+  "Gluten-free": "gluten_free",
   "Halal": "halal",
   "Pollotarian": "chicken_wings",
   "Flexitarian": "healthy",

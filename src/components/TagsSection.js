@@ -323,8 +323,10 @@ const styles = StyleSheet.create({
 
     selectedTag: {
         width: 255,
-        height: 42,
         borderRadius: 10,
+        justifyContent: 'center',
+        minHeight: 42,
+        paddingVertical: 10,
     },
 
     tag: {

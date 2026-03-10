@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, TextInput, Keyboard } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, TextInput, Keyboard, BackHandler, Platform } from 'react-native';
 import { Layout } from 'react-native-rapi-ui';
 import { Ionicons } from '@expo/vector-icons';
 import NormalText from '../../components/NormalText';
@@ -29,6 +29,19 @@ export default function TagSearchScreen({ route, navigation }) {
       })
       .catch(() => {});
   }, [screenType, items]);
+
+    useEffect(() => {
+    if (Platform.OS !== 'android') return;
+
+    const onBackPress = () => {
+      const param = screenType === 'dietary' ? 'selectedDietaryTags' : 'cuisineTagSelected';
+      navigation.navigate('Restaurant', { [param]: selected });
+      return true;
+    };
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => subscription.remove();
+  }, [navigation, screenType, selected]);
 
   const defaultItems =
     !search.trim()
