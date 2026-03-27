@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Layout } from "react-native-rapi-ui";
+import { Layout } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 
 const ACTIVE_POST = {
