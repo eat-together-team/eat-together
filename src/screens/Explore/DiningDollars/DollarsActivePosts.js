@@ -1,25 +1,102 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Layout } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
+import firebase from "firebase/compat";
+import { auth, db } from "../../../provider/Firebase";
+import { DOLLARS_LOCATIONS, dollarsPaymentMethodToBadge } from "./dollarsConstants";
+import DollarsPostCard from "./DollarsPostCard";
 
-const ACTIVE_POST = {
-  id: "active-1",
-  type: "REQUEST",
-  age: "3d",
-  priceText: "$15-$25",
-  dateText: "11/7",
-  locationText: "HUB, Cultivate, Local Point, Center Table +3",
-  paymentMethods: ["Z", "V", "$"],
+const DINING_DOLLARS_POSTS_COLLECTION = "DiningDollarsPosts";
+
+const formatAge = (dateOrTimestamp) => {
+  const date =
+    typeof dateOrTimestamp?.toDate === "function" ? dateOrTimestamp.toDate() : new Date(dateOrTimestamp);
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+
+  const diffMs = Date.now() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  if (diffMinutes < 60) return `${Math.max(0, diffMinutes)}m`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}h`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}d`;
 };
 
-const PAYMENT_STYLE = {
-  Z: { backgroundColor: "#5B2BD3" },
-  V: { backgroundColor: "#2D8CFF" },
-  $: { backgroundColor: "#19C85B" },
+const formatShortDate = (dateOrTimestamp) => {
+  const date =
+    typeof dateOrTimestamp?.toDate === "function" ? dateOrTimestamp.toDate() : new Date(dateOrTimestamp);
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${mm}/${dd}`;
 };
+
+const mapPaymentMethodBadges = (methods = []) =>
+  methods.map((m) => dollarsPaymentMethodToBadge(m)).filter(Boolean);
 
 export default function DollarsActivePosts({ navigation }) {
+  const [posts, setPosts] = useState([]);
+
+  const uid = auth?.currentUser?.uid || firebase.auth().currentUser?.uid;
+
+  useEffect(() => {
+    if (!uid) return undefined;
+
+    let q = db
+      .collection(DINING_DOLLARS_POSTS_COLLECTION)
+      .where("ownerID", "==", uid)
+      .where("status", "==", "active");
+    q = q.orderBy("createdAt", "desc");
+
+    const unsubscribe = q.onSnapshot(
+      (snapshot) => {
+        const next = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setPosts(next);
+      },
+      () => {
+        // If ordering/indexing fails, fall back to filtering only.
+        db.collection(DINING_DOLLARS_POSTS_COLLECTION)
+          .where("ownerID", "==", uid)
+          .where("status", "==", "active")
+          .get()
+          .then((snapshot) => {
+            const next = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            setPosts(next);
+          })
+          .catch(() => {});
+      }
+    );
+
+    return unsubscribe;
+  }, [uid]);
+
+  const viewModels = useMemo(
+    () =>
+      posts.map((p) => {
+        const amountTitle = p.amountTitle;
+        const paymentMethods = mapPaymentMethodBadges(p.paymentMethods);
+        const locationText = Array.isArray(p.preferredLocations)
+          ? p.preferredLocations
+              .map((id) => DOLLARS_LOCATIONS.find((l) => l.id === id)?.label || id)
+              .join(", ")
+          : "";
+
+        return {
+          id: p.id,
+          author: p.ownerDisplayName || "You",
+          ownerPhotoUrl: p.ownerPhotoUrl,
+          type: String(p.postType || "").toUpperCase(),
+          age: formatAge(p.createdAt),
+          priceText: amountTitle,
+          dateText: formatShortDate(p.startsAt) + " - " + formatShortDate(p.expiresAt),
+          locationText,
+          paymentMethods,
+        };
+      }),
+    [posts]
+  );
+
   return (
     <Layout style={styles.layout}>
       <View style={styles.topBar}>
@@ -31,42 +108,22 @@ export default function DollarsActivePosts({ navigation }) {
       </View>
 
       <View style={styles.content}>
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.priceText}>{ACTIVE_POST.priceText}</Text>
-
-            <View style={styles.typeGroup}>
-              <View style={styles.typePill}>
-                <Text style={styles.typePillText}>{ACTIVE_POST.type}</Text>
-              </View>
-              <Text style={styles.ageText}>{ACTIVE_POST.age}</Text>
-            </View>
+        {viewModels.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyTitle}>No active posts</Text>
+            <Text style={styles.emptyBody}>Create a new post to get started!</Text>
           </View>
-
-          <View style={styles.detailRow}>
-            <Ionicons name="calendar-outline" size={14} color="#8A8A8A" />
-            <Text style={styles.detailText}>{ACTIVE_POST.dateText}</Text>
-          </View>
-
-          <View style={styles.detailRow}>
-            <Ionicons name="location-outline" size={14} color="#8A8A8A" />
-            <Text style={styles.detailText} numberOfLines={1}>
-              {ACTIVE_POST.locationText}
-            </Text>
-          </View>
-
-          <View style={styles.paymentRow}>
-            {ACTIVE_POST.paymentMethods.map((method) => (
-              <View key={method} style={[styles.paymentBadge, PAYMENT_STYLE[method]]}>
-                <Text style={styles.paymentBadgeText}>{method}</Text>
-              </View>
-            ))}
-          </View>
-
-          <TouchableOpacity style={styles.manageButton} onPress={() => navigation.navigate("DollarsManagePost")}>
-            <Text style={styles.manageButtonText}>Manage</Text>
-          </TouchableOpacity>
-        </View>
+        ) : (
+          viewModels.map((post) => (
+            <DollarsPostCard
+              key={post.id}
+              post={post}
+              buttonLabel="Manage"
+              onPressButton={() => navigation.navigate("DollarsManagePost")}
+              wrapLocations
+            />
+          ))
+        )}
       </View>
     </Layout>
   );
@@ -105,87 +162,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 170,
   },
-  card: {
+  emptyState: {
+    paddingHorizontal: 8,
+    paddingVertical: 18,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: "#DDD",
-    borderRadius: 7,
     backgroundColor: "#FBFBFB",
-    paddingHorizontal: 14,
-    paddingTop: 12,
-    paddingBottom: 12,
   },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  typeGroup: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  typePill: {
-    height: 16,
-    borderRadius: 5,
-    backgroundColor: "#E6E6E6",
-    paddingHorizontal: 6,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 6,
-  },
-  typePillText: {
-    fontSize: 8,
-    color: "rgba(0,0,0,0.5)",
-    fontWeight: "600",
-  },
-  ageText: {
-    fontSize: 10,
-    color: "rgba(0,0,0,0.5)",
-  },
-  priceText: {
-    fontSize: 30 / 2,
+  emptyTitle: {
+    fontSize: 14,
     color: "#111",
-    fontWeight: "500",
-  },
-  detailRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-  },
-  detailText: {
-    marginLeft: 8,
-    fontSize: 10,
-    color: "rgba(0,0,0,0.5)",
-    flexShrink: 1,
-  },
-  paymentRow: {
-    flexDirection: "row",
-    marginTop: 12,
-  },
-  paymentBadge: {
-    width: 25,
-    height: 25,
-    borderRadius: 5,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 6,
-  },
-  paymentBadgeText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "700",
-  },
-  manageButton: {
-    height: 28,
-    borderRadius: 6,
-    borderWidth: 1.5,
-    borderColor: "#BEBEBE",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 14,
-  },
-  manageButtonText: {
-    color: "#BEBEBE",
-    fontSize: 20 / 1.6,
     fontWeight: "600",
+  },
+  emptyBody: {
+    marginTop: 6,
+    fontSize: 11,
+    color: "rgba(0,0,0,0.6)",
   },
 });
