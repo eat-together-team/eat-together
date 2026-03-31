@@ -11,35 +11,13 @@ import {
 import { Layout } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { DOLLARS_LOCATIONS, DOLLARS_PAYMENT_HIGHLIGHT_COLORS, DOLLARS_PAYMENT_METHODS } from "./dollarsConstants";
 
 const PRICE_OPTIONS = [
   { id: "exact", label: "Exact amount" },
   { id: "upto", label: "Up to" },
   { id: "more", label: "Or more" },
   { id: "range", label: "Range" },
-];
-
-const PAYMENT_METHODS = [
-  { id: "zelle", label: "Zelle", badge: "Z", color: "#5B2BD3" },
-  { id: "cash", label: "Cash", badge: "$", color: "#1DA64B" },
-  { id: "venmo", label: "Venmo", badge: "V", color: "#1E88E5" },
-  { id: "cashapp", label: "Cash App", badge: "C", color: "#0DBF4B" },
-];
-
-const PAYMENT_HIGHLIGHT_COLORS = {
-  zelle: "#C4A1F1",
-  venmo: "#A1CCF0",
-  cashapp: "#9DF2B1",
-  cash: "#A1DDBB",
-};
-
-const LOCATIONS = [
-  { id: "rotunda", label: "The Rotunda", short: "TR" },
-  { id: "suzzalo", label: "Starbucks (Suzzalo)", short: "SB" },
-  { id: "population", label: "Starbucks (Population Health)", short: "SB" },
-  { id: "bygeorge", label: "By George Cafe", short: "BG" },
-  { id: "orins", label: "Orin's Place", short: "OP" },
-  { id: "microsoft", label: "Microsoft Cafe", short: "MC" },
 ];
 
 const formatShortDate = (date) => {
@@ -53,7 +31,7 @@ const PaymentItem = ({ item, selected, onPress }) => (
   <TouchableOpacity
     style={[
       styles.selectableRow,
-      selected && { backgroundColor: PAYMENT_HIGHLIGHT_COLORS[item.id] || "#A1CCF0" },
+      selected && { backgroundColor: DOLLARS_PAYMENT_HIGHLIGHT_COLORS[item.id] || "#A1CCF0" },
     ]}
     onPress={onPress}
   >
@@ -220,7 +198,7 @@ export default function DollarsCreateRequest({ navigation }) {
 
             <Text style={[styles.sectionLabel, styles.spacingTop]}>Set accepted payment methods:</Text>
             <View style={styles.listGap}>
-              {PAYMENT_METHODS.map((method) => (
+              {DOLLARS_PAYMENT_METHODS.map((method) => (
                 <PaymentItem
                   key={method.id}
                   item={method}
@@ -236,7 +214,7 @@ export default function DollarsCreateRequest({ navigation }) {
           <>
             <Text style={styles.sectionLabel}>Set preferred locations</Text>
             <View style={styles.listGap}>
-              {LOCATIONS.map((location) => (
+              {DOLLARS_LOCATIONS.map((location) => (
                 <LocationItem
                   key={location.id}
                   item={location}
