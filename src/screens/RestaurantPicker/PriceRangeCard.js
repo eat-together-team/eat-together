@@ -9,7 +9,7 @@ const PriceRangeCard = ({setPriceRange, priceRange}) => {
 
   return (
     <View style={styles.cardWrapper}>
-        <RestaurantCard height={560}>
+        <RestaurantCard height={510}>
             <View style = {styles.questionContainer}>
               <MediumText center = "center" marginBottom={10}>What is your price {'\n'}range?</MediumText>
             </View>

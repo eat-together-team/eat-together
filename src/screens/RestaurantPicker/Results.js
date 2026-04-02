@@ -61,9 +61,6 @@ const ResultItem = ({ item }) => {
                             color={starred ? "#F5C542" : undefined}
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ marginTop: 8 }}>
-                        <Ionicons name="arrow-redo-outline" size={20} />
-                    </TouchableOpacity>
                 </View>
             </View>
         </View>
@@ -93,7 +90,7 @@ const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
                         <LargeText center="center" color="#5DB075" style={{marginTop: 30}}>
                             Results
                         </LargeText>
-                        <SmallText size={13} center style={{ lineHeight: 20, marginTop: 10, paddingHorizontal: 20 }}>
+                        <SmallText size={13} center style={{ lineHeight: 20, marginTop: 10, paddingHorizontal: 20}}>
                             Star the places that are your favorite to save under your profile!
                         </SmallText>
                     </View>

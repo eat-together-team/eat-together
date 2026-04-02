@@ -27,7 +27,7 @@
     "expo-auth-session": "~55.0.6",
     "expo-build-properties": "~55.0.9",
     "expo-constants": "~55.0.7",
-    "expo-dev-client": "~55.0.10",
+    "expo-dev-client": "~55.0.19",
     "expo-device": "~55.0.9",
     "expo-font": "~55.0.4",
     "expo-image-picker": "~55.0.10",
