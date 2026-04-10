@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Image, Text, View, StyleSheet, Linking, Platform, ScrollView} from "react-native";
+import { Image, View, StyleSheet, Linking, Platform, ScrollView} from "react-native";
 import MediumText from "./MediumText";
 import SmallText from "./SmallText";
 import LargeText from './LargeText';
@@ -116,7 +116,11 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
     return (
         <View style = {styles.container}>
             <Image
-                source={{ uri: restaurant.imageUrl }}
+                source={
+                    restaurant.imageUrl
+                        ? { uri: restaurant.imageUrl }
+                        : require("../../assets/foodBackground.png")
+                }
                 style={styles.image}
             />
 
@@ -280,4 +284,5 @@ const styles = StyleSheet.create({
     },
 });
 
-export default RestaurantRec
+export default RestaurantRec;
+

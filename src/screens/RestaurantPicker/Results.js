@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {View, Modal, StyleSheet, FlatList, Image, TouchableOpacity} from "react-native";
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
@@ -6,9 +6,47 @@ import SmallText from "../../components/SmallText";
 import Button from "../../components/Button";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
+import firebase from "firebase/compat/app";
+import { auth, db } from "../../provider/Firebase";
 
-const ResultItem = ({ item }) => {
-    const [starred, setStarred] = useState(false);
+function pickRestaurantForProfile(item) {
+    return {
+        id: item.id,
+        name: item.name,
+        imageUrl: item.imageUrl,
+        categories: item.categories || "",
+        price: item.price || "",
+        rating: item.rating || "",
+        url: item.url || "",
+        reviewCount: item.reviewCount || item.review_count || "",
+        address: item.address || "",
+        phone: item.phone || item.display_phone || "",
+        serviceOptions: item.serviceOptions || "",
+        hours: item.hours || null,
+        photos: Array.isArray(item.photos) ? item.photos.slice(0, 6) : [],
+    };
+}
+
+function normalizeRestaurantId(id) {
+    if (id === null || id === undefined) return "";
+    return String(id);
+}
+
+function dedupeRestaurants(restaurants) {
+    const list = Array.isArray(restaurants) ? restaurants : [];
+    const seen = new Set();
+    const out = [];
+    for (const r of list) {
+        const rid = normalizeRestaurantId(r?.id);
+        if (!rid) continue;
+        if (seen.has(rid)) continue;
+        seen.add(rid);
+        out.push({ ...r, id: rid });
+    }
+    return out;
+}
+
+const ResultItem = ({ item, starred, onToggleStar }) => {
     const rawCategories = item.categories || "";
     const primaryCategory = rawCategories.includes(",")
         ? rawCategories.substring(0, rawCategories.indexOf(","))
@@ -54,7 +92,7 @@ const ResultItem = ({ item }) => {
                     </View>
                 </View>
                 <View style={styles.iconColumn}>
-                    <TouchableOpacity onPress={() => setStarred(prev => !prev)}>
+                    <TouchableOpacity onPress={() => onToggleStar && onToggleStar(item, !starred)}>
                         <Ionicons
                             name={starred ? "star" : "star-outline"}
                             size={22}
@@ -70,6 +108,48 @@ const ResultItem = ({ item }) => {
 const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
     // redirect to profile page
     const navigation = useNavigation();
+    const user = auth.currentUser;
+    const [starredRestaurants, setStarredRestaurants] = useState([]);
+
+    useEffect(() => {
+        if (!user?.uid) return;
+
+        const unsub = db
+            .collection("Users")
+            .doc(user.uid)
+            .onSnapshot((doc) => {
+                const data = doc.data() || {};
+                setStarredRestaurants(dedupeRestaurants(data.starredRestaurants));
+            });
+
+        return () => unsub && unsub();
+    }, [user?.uid]);
+
+    const starredIds = useMemo(() => {
+        return new Set((starredRestaurants || []).map(r => normalizeRestaurantId(r?.id)).filter(Boolean));
+    }, [starredRestaurants]);
+
+    const handleToggleStar = async (restaurant, nextStarred) => {
+        if (!user?.uid) return;
+
+        const pickedRaw = pickRestaurantForProfile(restaurant);
+        const picked = { ...pickedRaw, id: normalizeRestaurantId(pickedRaw.id) };
+        const current = dedupeRestaurants(starredRestaurants);
+
+        const next = nextStarred
+            ? dedupeRestaurants([picked, ...current])
+            : current.filter(r => normalizeRestaurantId(r?.id) !== picked.id);
+
+        try {
+            await db.collection("Users").doc(user.uid).update({
+                starredRestaurants: next,
+                starredRestaurantIDs: next.map(r => r.id).filter(Boolean),
+                starredRestaurantsUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+        } catch (e) {
+            console.log("error updating starred restaurants:", e);
+        }
+    };
 
     const handleFinishSeeingResults = () => {
         setResultVisible(false);
@@ -79,7 +159,11 @@ const Results = ({userResults, resultVisible, setResultVisible, setResult}) => {
 
     // renders restaurants for flatlist
     const renderItem = ({item}) => (
-        <ResultItem item={item} />
+        <ResultItem
+            item={item}
+            starred={starredIds.has(item.id)}
+            onToggleStar={handleToggleStar}
+        />
     );
 
     return (
