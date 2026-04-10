@@ -1,5 +1,3 @@
-// Note: this is a modification of the library https://github.com/zubairpaizer/react-native-searchable-dropdown
-
 import React, { Component } from 'react';
 import {
   FlatList,
@@ -314,9 +312,9 @@ const styles = StyleSheet.create({
     },
 
     itemDisplay: {
-        width: '100%',
-        flexDirection: 'column',
-        alignItems: 'center',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
         paddingBottom: 10,
         marginTop: 5
     },

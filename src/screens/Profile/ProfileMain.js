@@ -51,8 +51,8 @@ export default function () {
       <Stack.Screen name="ColorPicker" component={ColorSelector} />
 
       {/* Photo Gallery */}
-      <Stack.Screen name="EventGallery" component={EventGallery} />
       <Stack.Screen name="Gallery" component={Gallery} />
+      <Stack.Screen name="EventGallery" component={EventGallery} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="StarredRestaurants" component={StarredRestaurants} />
     </Stack.Navigator>
