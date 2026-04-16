@@ -20,6 +20,12 @@ module.exports = {
     ],
     "android": {
       "package": "com.eattogether.android",
+      "icon": "./assets/big_logo.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icons/icon_foreground.png",
+        "backgroundColor": "#73AE7B",
+        "monochromeImage": "./assets/icons/icon_monochrome.png"
+      },
       "versionCode": 5,
       "permissions": [
         "android.permission.RECORD_AUDIO",
