@@ -42,6 +42,7 @@ const Recommendation = ({ route, navigation }) => {
 
   const [recSteps, setRecSteps] =  useState(0); // Tutorial steps for recommendations
   const [attendingTutorial, setAttendingTutorial] = useState(true);  // State to see if we should show the attending an event tutorial
+  const scrollRef = useRef();
 
   const showTimeFilterRef = useRef();
   const [monday, setMonday] = useState(false);
@@ -212,7 +213,7 @@ const Recommendation = ({ route, navigation }) => {
       let newStartDate = startDate;
       let newEndDate = endDate;
       if (eventData.userVotes) {
-        const voters = eventData.userVotes; 
+        const voters = eventData.userVotes;
         const voteCount = eventData.voteCount;
         const voter = voters && Object.keys(voters).includes(route.params.userData.id);
         const userVotes = voters[route.params.userData.id];
@@ -231,7 +232,7 @@ const Recommendation = ({ route, navigation }) => {
 
         if (voter) {
           setDayChosen(true);
-  
+
           // Adjust seconds based on vote counts
           if (
             voteCount.mondayCount >= voteCount.tuesdayCount &&
@@ -280,15 +281,15 @@ const Recommendation = ({ route, navigation }) => {
         }
       }
     });
-  
+
     return () => unsubscribe(); // Cleanup listener on unmount
-  }, [votesChanged]); 
+  }, [votesChanged]);
 
   const updateAvailabilities = async (monday,tuesday,wednesday,thursday) => {
     const eventRef = db.collection("Private Events").doc(route.params.event.id);
     const eventDoc = await eventRef.get();
     const eventData = eventDoc.data();
-    const userId = route.params.userData.id; 
+    const userId = route.params.userData.id;
     let previousVotes = getPreviousVotes(eventData, userId);
     let voteUpdates = {};
 
@@ -328,7 +329,7 @@ const Recommendation = ({ route, navigation }) => {
     }
     voteUpdates[`userVotes.${userId}`] = { monday, tuesday, wednesday, thursday };
 
-    await eventRef.update(voteUpdates);    
+    await eventRef.update(voteUpdates);
     showTimeFilterRef.current.close();
     setVotesChanged(true); // Set the votes changed state to true
   }
@@ -350,13 +351,26 @@ const Recommendation = ({ route, navigation }) => {
         if (data.settings?.attendingTutorial !== undefined) {
           setAttendingTutorial(data.settings.attendingTutorial);
         }
-        
+
       } else {
         console.log('No such document!');
       }
     };
 
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (route.params?.tutorialStep === 9) {
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({ y: 73, animated: true }); // tune this
+      }, 300);
+    }
+    if (route.params?.tutorialStep === 10) {
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({ y: 500, animated: true }); // tune this
+      }, 300);
+    }
   }, []);
 
 
@@ -387,7 +401,7 @@ const Recommendation = ({ route, navigation }) => {
 
   return (
     <Layout>
-      {attendingTutorial && 
+      {attendingTutorial && !route.params?.tutorialStep &&
         <>
           <RecTutorialMessage
             userId={user.uid}
@@ -415,9 +429,9 @@ const Recommendation = ({ route, navigation }) => {
         }
         leftAction={() => navigation.goBack()}
       />
-      
-      <ScrollView>
-        <View style={styles.infoContainer}>  
+
+      <ScrollView ref={scrollRef}>
+        <View style={styles.infoContainer}>
           <Container>
             <Image
               style={styles.image}
@@ -431,7 +445,7 @@ const Recommendation = ({ route, navigation }) => {
             </View>
 
             <View style={styles.row}>
-              {attendees.map((attendee, index) => 
+              {attendees.map((attendee, index) =>
                 <TouchableOpacity style={styles.row}
                   onPress={() => {
                       navigation.navigate("FullProfile", {
@@ -442,9 +456,9 @@ const Recommendation = ({ route, navigation }) => {
                   <Image source={attendee.hasImage ? { uri: attendee.image }
                     : require("../../../assets/logo.png")} style={styles.profileImg}/>
                   <NormalText size={16}>{attendee.firstName + " " + attendee.lastName.substring(0, 1) + "."}</NormalText>
-                  {route.params.event.attendees.includes(attendee.id) && 
+                  {route.params.event.attendees.includes(attendee.id) &&
                     <Ionicons name="checkmark-circle" size={20} color="#5DB075" />}
-                  {!route.params.event.attendees.includes(attendee.id) && 
+                  {!route.params.event.attendees.includes(attendee.id) &&
                     <Ionicons name="help-circle" size={20} color="grey" />}
                 </TouchableOpacity>
               )}
@@ -513,7 +527,7 @@ const Recommendation = ({ route, navigation }) => {
                 <View style={styles.checkbox}>
                   <Checkbox checked={tuesday} text="Tuesday" marginBottom={5}
                       onPress={() => {
-                       setTuesday(!tuesday);  
+                       setTuesday(!tuesday);
                   }}/>
                   <MediumText> Tuesday: </MediumText>
                   <MediumText>{tuesdayVote} Votes </MediumText>
@@ -539,7 +553,7 @@ const Recommendation = ({ route, navigation }) => {
                 <Button onPress = {() => updateAvailabilities(monday,tuesday,wednesday,thursday)}>
                   Set Availabilities
                 </Button>
-            </RBSheet> 
+            </RBSheet>
 
               <View style={styles.row}>
                 <Ionicons name="time-outline" size={20} />
@@ -664,9 +678,9 @@ const styles = StyleSheet.create({
     right: 5
   },
   checkbox:{
-    flexDirection: "row", 
-    padding: 10, 
-    alignItems: "center", 
+    flexDirection: "row",
+    padding: 10,
+    alignItems: "center",
     justifyContent: 'left',
   },
 });
