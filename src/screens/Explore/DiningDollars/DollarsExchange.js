@@ -11,48 +11,88 @@ import {
 import { Layout } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import { auth, db } from "../../../provider/Firebase";
+import { DOLLARS_LOCATIONS, dollarsPaymentMethodToBadge } from "./dollarsConstants";
 import DollarsPostCard from "./DollarsPostCard";
-import { USER_DINING_DOLLARS_POST_COUNT_FIELD } from "./dollarsPostSchema";
+import { DINING_DOLLARS_POSTS_COLLECTION, USER_DINING_DOLLARS_POST_COUNT_FIELD } from "./dollarsPostSchema";
 import firebase from "firebase/compat";
 
-const SAMPLE_POSTS = [
-  {
-    id: "1",
-    author: "Sebastian",
-    age: "2h",
-    type: "OFFER",
-    priceText: "Up to $75",
-    dateText: "11/7 - 12/20",
-    locationText: "HUB, Cultivate, Local Point, Center Table +3",
-    paymentMethods: ["Z", "V", "$", "C"],
-  },
-  {
-    id: "2",
-    author: "Kevin",
-    age: "2h",
-    type: "REQUEST",
-    priceText: "$284 or more",
-    dateText: "11/7",
-    locationText: "Red Door, Thai Basil, Trillium, Umami Burger +1",
-    paymentMethods: ["Z", "V"],
-  },
-  {
-    id: "3",
-    author: "Navneeth",
-    age: "2h",
-    type: "OFFER",
-    priceText: "$20 - $50",
-    dateText: "11/7 - 12/20",
-    locationText: "Subway, Burger King, Pizza Hut, Chipotle +1",
-    paymentMethods: ["Z", "V"],
-  },
-];
+const formatAge = (dateOrTimestamp) => {
+  const date =
+    typeof dateOrTimestamp?.toDate === "function" ? dateOrTimestamp.toDate() : new Date(dateOrTimestamp);
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+
+  const diffMs = Date.now() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  if (diffMinutes < 60) return `${Math.max(0, diffMinutes)}m`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}h`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}d`;
+};
+
+const formatShortDate = (dateOrTimestamp) => {
+  const date =
+    typeof dateOrTimestamp?.toDate === "function" ? dateOrTimestamp.toDate() : new Date(dateOrTimestamp);
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${mm}/${dd}`;
+};
+
+const mapPaymentMethodBadges = (methods = []) =>
+  methods.map((m) => dollarsPaymentMethodToBadge(m)).filter(Boolean);
+
+/** Firestore row `{ id, ...data }` into props for {@link DollarsPostCard}. */
+function diningDollarsPostDocToCardModel(p) {
+  const amountTitle = p.amountTitle ?? "";
+  const paymentMethods = mapPaymentMethodBadges(p.paymentMethods);
+  const locationText = Array.isArray(p.preferredLocations)
+    ? p.preferredLocations
+        .map((id) => DOLLARS_LOCATIONS.find((l) => l.id === id)?.label || id)
+        .join(", ")
+    : "";
+
+  return {
+    id: p.id,
+    author: (p.ownerDisplayName && String(p.ownerDisplayName).trim()) || "Member",
+    ownerPhotoUrl: p.ownerPhotoUrl,
+    type: String(p.postType || "").toUpperCase(),
+    age: formatAge(p.createdAt),
+    priceText: amountTitle,
+    dateText: formatShortDate(p.startsAt) + " - " + formatShortDate(p.expiresAt),
+    locationText,
+    paymentMethods,
+  };
+}
 
 export default function DollarsExchange({ navigation, route }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showPostedPopup, setShowPostedPopup] = useState(false);
   const [popupPostType, setPopupPostType] = useState("offer");
   const [diningDollarsPostCount, setDiningDollarsPostCount] = useState(0);
+  const [exchangePostDocs, setExchangePostDocs] = useState([]);
+
+  useEffect(() => {
+    const q = db.collection(DINING_DOLLARS_POSTS_COLLECTION).where("status", "==", "active");
+
+    const unsubscribe = q.onSnapshot(
+      (snapshot) => {
+        const next = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setExchangePostDocs(next);
+      },
+      () => {
+        db.collection(DINING_DOLLARS_POSTS_COLLECTION)
+          .where("status", "==", "active")
+          .get()
+          .then((snapshot) => {
+            setExchangePostDocs(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+          })
+          .catch(() => setExchangePostDocs([]));
+      }
+    );
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     const uid = auth?.currentUser?.uid || firebase.auth().currentUser?.uid;
@@ -120,10 +160,15 @@ export default function DollarsExchange({ navigation, route }) {
     route?.params?.postType,
   ]);
 
+  const exchangeCardPosts = useMemo(
+    () => exchangePostDocs.map(diningDollarsPostDocToCardModel),
+    [exchangePostDocs]
+  );
+
   const filteredPosts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    if (!query) return SAMPLE_POSTS;
-    return SAMPLE_POSTS.filter((post) => {
+    if (!query) return exchangeCardPosts;
+    return exchangeCardPosts.filter((post) => {
       const paymentSearchBlob = (post.paymentMethods || [])
         .map((method) => {
           const normalized = method.toLowerCase();
@@ -136,14 +181,14 @@ export default function DollarsExchange({ navigation, route }) {
         .join(" ");
 
       return (
-        post.priceText.toLowerCase().includes(query) ||
-        post.locationText.toLowerCase().includes(query) ||
-        post.dateText.toLowerCase().includes(query) ||
+        String(post.priceText || "").toLowerCase().includes(query) ||
+        String(post.locationText || "").toLowerCase().includes(query) ||
+        String(post.dateText || "").toLowerCase().includes(query) ||
         paymentSearchBlob.includes(query) ||
-        post.type.toLowerCase().includes(query)
+        String(post.type || "").toLowerCase().includes(query)
       );
     });
-  }, [searchQuery]);
+  }, [searchQuery, exchangeCardPosts]);
 
   return (
     <Layout style={styles.layout}>
@@ -206,10 +251,19 @@ export default function DollarsExchange({ navigation, route }) {
       </View>
 
       <FlatList
+        style={styles.postsList}
         data={filteredPosts}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.postsListContent}
+        contentContainerStyle={
+          filteredPosts.length === 0 ? [styles.postsListContent, styles.postsListContentEmpty] : styles.postsListContent
+        }
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyFeed}>
+            <Text style={styles.emptyFeedTitle}>No listings yet</Text>
+            <Text style={styles.emptyFeedBody}>Be the first to create an offer or request.</Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <DollarsPostCard post={item} buttonLabel="Claim" buttonDisabled wrapLocations={false} />
         )}
@@ -251,6 +305,10 @@ export default function DollarsExchange({ navigation, route }) {
 const styles = StyleSheet.create({
   layout: {
     backgroundColor: "#FFFFFF",
+    flex: 1,
+  },
+  postsList: {
+    flex: 1,
   },
   topBar: {
     height: 60,
@@ -281,6 +339,25 @@ const styles = StyleSheet.create({
   postsListContent: {
     paddingHorizontal: 20,
     paddingBottom: 24,
+  },
+  postsListContentEmpty: {
+    flexGrow: 1,
+  },
+  emptyFeed: {
+    paddingVertical: 28,
+    paddingHorizontal: 12,
+    alignItems: "center",
+  },
+  emptyFeedTitle: {
+    fontSize: 15,
+    color: "#111",
+    fontWeight: "600",
+  },
+  emptyFeedBody: {
+    marginTop: 8,
+    fontSize: 13,
+    color: "rgba(0,0,0,0.55)",
+    textAlign: "center",
   },
   actionsRow: {
     flexDirection: "row",
