@@ -10,7 +10,9 @@ import {
 } from "react-native";
 import { Layout } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
+import { auth, db } from "../../../provider/Firebase";
 import DollarsPostCard from "./DollarsPostCard";
+import { USER_DINING_DOLLARS_POST_COUNT_FIELD } from "./dollarsPostSchema";
 import firebase from "firebase/compat";
 
 const SAMPLE_POSTS = [
@@ -50,6 +52,46 @@ export default function DollarsExchange({ navigation, route }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showPostedPopup, setShowPostedPopup] = useState(false);
   const [popupPostType, setPopupPostType] = useState("offer");
+  const [diningDollarsPostCount, setDiningDollarsPostCount] = useState(0);
+
+  useEffect(() => {
+    const uid = auth?.currentUser?.uid || firebase.auth().currentUser?.uid;
+    if (!uid) {
+      setDiningDollarsPostCount(0);
+      return undefined;
+    }
+    let attemptedEnsurePostCountField = false;
+    const unsubscribe = db
+      .collection("Users")
+      .doc(uid)
+      .onSnapshot(
+        (doc) => {
+          if (!doc.exists) {
+            setDiningDollarsPostCount(0);
+            return;
+          }
+          const data = doc.data() || {};
+          const field = USER_DINING_DOLLARS_POST_COUNT_FIELD;
+          const raw = data[field];
+          const fieldMissingOrNull = !(field in data) || raw === null;
+          if (fieldMissingOrNull) {
+            setDiningDollarsPostCount(0);
+            if (!attemptedEnsurePostCountField) {
+              attemptedEnsurePostCountField = true;
+              db.collection("Users")
+                .doc(uid)
+                .set({ [field]: 0 }, { merge: true })
+                .catch(() => {});
+            }
+            return;
+          }
+          const n = typeof raw === "number" ? raw : Number(raw);
+          setDiningDollarsPostCount(Number.isFinite(n) ? n : 0);
+        },
+        () => setDiningDollarsPostCount(0)
+      );
+    return unsubscribe;
+  }, [auth?.currentUser?.uid]);
 
   useEffect(() => {
     const shouldShowPopup =
@@ -146,7 +188,7 @@ export default function DollarsExchange({ navigation, route }) {
         >
           <Text style={styles.activePostsText}>My active posts</Text>
           <View style={styles.countBadge}>
-            <Text style={styles.countBadgeText}>{firebase.auth().currentUser?.diningDollarsPostCount ?? 0}</Text>
+            <Text style={styles.countBadgeText}>{diningDollarsPostCount}</Text>
           </View>
           <Ionicons name="chevron-forward" size={16} color="#718474" />
         </TouchableOpacity>

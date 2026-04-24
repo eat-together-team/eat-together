@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  DeviceEventEmitter,
   ScrollView,
   StyleSheet,
   Text,
@@ -21,6 +22,10 @@ import {
   DINING_DOLLARS_POSTS_COLLECTION,
   dollarsPostToManageFormState,
 } from "./dollarsPostSchema";
+import {
+  DINING_DOLLARS_ACTIVE_POST_UPDATED_EVENT,
+  refreshMyActiveDiningDollarPost,
+} from "./DollarsActivePosts";
 
 const PRICE_OPTIONS = [
   { id: "exact", label: "Exact amount" },
@@ -203,7 +208,12 @@ export default function DollarsManagePost({ navigation }) {
             selectedLocations,
           })
         );
-      Alert.alert("Saved", "Your post has been updated.");
+      const uidSave = auth?.currentUser?.uid || firebase.auth().currentUser?.uid;
+      const fresh = await refreshMyActiveDiningDollarPost(uidSave, postId);
+      if (fresh) {
+        DeviceEventEmitter.emit(DINING_DOLLARS_ACTIVE_POST_UPDATED_EVENT, fresh);
+      }
+      navigation.navigate("DollarsActivePosts");
     } catch (e) {
       Alert.alert("Could not save", e?.message || "Please try again.");
     } finally {
