@@ -6,22 +6,23 @@ export const DINING_DOLLARS_POSTS_COLLECTION = "DiningDollarsPosts";
 const roundMoney = (n) => Math.round(Number(n) * 100) / 100;
 
 /**
- * Builds a document matching the DiningDollarsPosts schema for a new offer.
+ * Builds a document matching the DiningDollarsPosts schema for a new offer/request.
  */
-export function buildOfferPostDocument({
+export function buildDollarsPostDocument({
+  postType,
   amountType,
-  offerAmount,
-  offerMaxAmount,
-  offerStartDate,
-  offerEndDate,
+  postAmount,
+  postMaxAmount,
+  postStartDate,
+  postEndDate,
   selectedPayments,
   selectedLocations,
   ownerID,
   ownerDisplayName,
   ownerPhotoUrl,
 }) {
-  const lower = roundMoney(offerAmount);
-  const upper = roundMoney(offerMaxAmount);
+  const lower = roundMoney(postAmount);
+  const upper = roundMoney(postMaxAmount);
 
   let amountMin;
   let amountMax;
@@ -56,24 +57,23 @@ export function buildOfferPostDocument({
   }
 
   return {
+    postType,
     amountMin,
     amountMax,
     amountTitle,
-    amountType,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     currency: "USD",
-    expiresAt: firebase.firestore.Timestamp.fromDate(offerEndDate),
+    expiresAt: firebase.firestore.Timestamp.fromDate(postEndDate),
     groupID: "",
     ownerDisplayName: ownerDisplayName || "",
     ownerID,
     ownerPhotoUrl: ownerPhotoUrl || "",
     paymentMethods: [...selectedPayments],
-    postType: "offer",
     preferredLocations: [...selectedLocations],
     responderDisplayName: "",
     responderID: "",
     responderPhotoUrl: "",
-    startsAt: firebase.firestore.Timestamp.fromDate(offerStartDate),
+    startsAt: firebase.firestore.Timestamp.fromDate(postStartDate),
     status: "active",
   };
 }

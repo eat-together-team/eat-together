@@ -5,9 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import firebase from "firebase/compat";
 import { auth, db } from "../../../provider/Firebase";
 import { DOLLARS_LOCATIONS, dollarsPaymentMethodToBadge } from "./dollarsConstants";
+import { DINING_DOLLARS_POSTS_COLLECTION } from "./dollarsPostSchema";
 import DollarsPostCard from "./DollarsPostCard";
-
-const DINING_DOLLARS_POSTS_COLLECTION = "DiningDollarsPosts";
 
 const formatAge = (dateOrTimestamp) => {
   const date =

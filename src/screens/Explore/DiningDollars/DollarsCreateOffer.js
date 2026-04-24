@@ -11,7 +11,9 @@ import {
 import { Layout } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { auth, db } from "../../../provider/Firebase";
 import { DOLLARS_LOCATIONS, DOLLARS_PAYMENT_HIGHLIGHT_COLORS, DOLLARS_PAYMENT_METHODS } from "./dollarsConstants";
+import { buildDollarsPostDocument, DINING_DOLLARS_POSTS_COLLECTION } from "./dollarsPostSchema";
 
 const PRICE_OPTIONS = [
   { id: "exact", label: "Exact amount" },
@@ -64,8 +66,9 @@ export default function DollarsCreateOffer({ navigation }) {
   const [offerAmount, setOfferAmount] = useState("75");
   const [offerMaxAmount, setOfferMaxAmount] = useState("50");
   const [selectedPayments, setSelectedPayments] = useState(["venmo"]);
-  const [selectedLocations, setSelectedLocations] = useState(["suzzalo"]);
+  const [selectedLocations, setSelectedLocations] = useState(["SB_suzzalo"]);
   const [activePicker, setActivePicker] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const onConfirmDate = (selectedDate) => {
     if (activePicker === "start") {
@@ -114,13 +117,61 @@ export default function DollarsCreateOffer({ navigation }) {
     return true;
   };
 
-  const submit = () => {
+  const submit = async () => {
     if (!validateRange()) return;
+    if (selectedLocations.length === 0) {
+      Alert.alert("Locations", "Select at least one preferred location.");
+      return;
+    }
 
-    navigation.replace("DollarsExchange", {
-      showPostedPopup: true,
-      postType: "offer",
-    });
+    const user = auth.currentUser;
+    if (!user) {
+      Alert.alert("Sign in required", "Please sign in to create an offer.");
+      return;
+    }
+
+    let ownerDisplayName = user.displayName || "";
+    let ownerPhotoUrl = user.photoURL || "";
+
+    setSubmitting(true);
+    try {
+      try {
+        const userDoc = await db.collection("Users").doc(user.uid).get();
+        if (userDoc.exists) {
+          const data = userDoc.data();
+          const fromProfile = [data?.firstName, data?.lastName].filter(Boolean).join(" ").trim();
+          if (fromProfile) ownerDisplayName = fromProfile;
+          if (data?.image) ownerPhotoUrl = data.image;
+        }
+      } catch {
+        // use auth fields only
+      }
+
+      const doc = buildDollarsPostDocument({
+        postType: "offer",
+        amountType,
+        postAmount: offerAmount,
+        postMaxAmount: offerMaxAmount,
+        postStartDate: offerStartDate,
+        postEndDate: offerEndDate,
+        selectedPayments,
+        selectedLocations,
+        ownerID: user.uid,
+        ownerDisplayName,
+        ownerPhotoUrl,
+      });
+
+      await db.collection(DINING_DOLLARS_POSTS_COLLECTION).add(doc);
+
+      navigation.replace("DollarsExchange", {
+        showPostedPopup: true,
+        postType: "offer",
+      });
+    } catch (e) {
+      Alert.alert("Could not post offer", e?.message || String(e));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -244,8 +295,12 @@ export default function DollarsCreateOffer({ navigation }) {
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setStep(1)}>
               <Text style={styles.secondaryButtonText}>Previous</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.primaryButtonSmall} onPress={submit}>
-              <Text style={styles.primaryButtonText}>Submit</Text>
+            <TouchableOpacity
+              style={[styles.primaryButtonSmall, submitting && styles.primaryButtonDisabled]}
+              onPress={submit}
+              disabled={submitting}
+            >
+              <Text style={styles.primaryButtonText}>{submitting ? "Posting…" : "Submit"}</Text>
             </TouchableOpacity>
           </View>
         )}

@@ -12,6 +12,9 @@ import { Layout } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { DOLLARS_LOCATIONS, DOLLARS_PAYMENT_HIGHLIGHT_COLORS, DOLLARS_PAYMENT_METHODS } from "./dollarsConstants";
+import firebase from "firebase/compat";
+import { auth, db } from "../../../provider/Firebase";
+import { buildDollarsPostDocument, DINING_DOLLARS_POSTS_COLLECTION } from "./dollarsPostSchema";
 
 const PRICE_OPTIONS = [
   { id: "exact", label: "Exact amount" },
@@ -60,11 +63,11 @@ export default function DollarsCreateRequest({ navigation }) {
   const [step, setStep] = useState(1);
   const [requestStartDate, setRequestStartDate] = useState(new Date(2025, 0, 17));
   const [requestEndDate, setRequestEndDate] = useState(new Date(2025, 0, 27));
-  const [amountType, setAmountType] = useState("exact");
-  const [requestAmount, setRequestAmount] = useState("75");
-  const [requestMaxAmount, setRequestMaxAmount] = useState("50");
+  const [amountType, setAmountType] = useState("range");
+  const [requestAmount, setRequestAmount] = useState("50");
+  const [requestMaxAmount, setRequestMaxAmount] = useState("100");
   const [selectedPayments, setSelectedPayments] = useState(["venmo"]);
-  const [selectedLocations, setSelectedLocations] = useState(["suzzalo"]);
+  const [selectedLocations, setSelectedLocations] = useState(["SB_suzzalo"]);
   const [activePicker, setActivePicker] = useState(null);
 
   const onConfirmDate = (selectedDate) => {
@@ -114,13 +117,48 @@ export default function DollarsCreateRequest({ navigation }) {
     return true;
   };
 
-  const submit = () => {
+  const submit = async () => {
     if (!validateRange()) return;
 
-    navigation.replace("DollarsExchange", {
-      showPostedPopup: true,
+    const uid = auth?.currentUser?.uid || firebase.auth().currentUser?.uid;
+    if (!uid) {
+      Alert.alert("Not signed in", "Please sign in again and try posting.");
+      return;
+    }
+
+    let ownerDisplayName = "";
+    let ownerPhotoUrl = "";
+    try {
+      const userDoc = await db.collection("Users").doc(uid).get();
+      const data = userDoc.exists ? userDoc.data() : null;
+      ownerDisplayName = data?.name || data?.displayName || data?.username || "";
+      ownerPhotoUrl = data?.image || data?.photoUrl || data?.profilePhotoUrl || "";
+    } catch (e) {
+    }
+
+    const doc = buildDollarsPostDocument({
       postType: "request",
+      amountType,
+      postAmount: requestAmount,
+      postMaxAmount: requestMaxAmount,
+      postStartDate: requestStartDate,
+      postEndDate: requestEndDate,
+      selectedPayments,
+      selectedLocations,
+      ownerID: uid,
+      ownerDisplayName,
+      ownerPhotoUrl,
     });
+
+    try {
+      await db.collection(DINING_DOLLARS_POSTS_COLLECTION).add(doc);
+      navigation.replace("DollarsExchange", {
+        showPostedPopup: true,
+        postType: "request",
+      });
+    } catch (e) {
+      Alert.alert("Couldn't post", e?.message || "Please try again.");
+    }
   };
 
   return (
