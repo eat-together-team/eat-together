@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Layout } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import firebase from "firebase/compat";
@@ -106,31 +106,40 @@ export default function DollarsActivePosts({ navigation }) {
         <View style={styles.topBarSpacer} />
       </View>
 
-      <View style={styles.content}>
-        {viewModels.length === 0 ? (
+      <FlatList
+        style={styles.list}
+        data={viewModels}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={
+          viewModels.length === 0 ? [styles.postsListContent, styles.postsListContentEmpty] : styles.postsListContent
+        }
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyTitle}>No active posts</Text>
             <Text style={styles.emptyBody}>Create a new post to get started!</Text>
           </View>
-        ) : (
-          viewModels.map((post) => (
-            <DollarsPostCard
-              key={post.id}
-              post={post}
-              buttonLabel="Manage"
-              onPressButton={() => navigation.navigate("DollarsManagePost")}
-              wrapLocations
-            />
-          ))
+        }
+        renderItem={({ item }) => (
+          <DollarsPostCard
+            post={item}
+            buttonLabel="Manage"
+            onPressButton={() => navigation.navigate("DollarsManagePost", { postId: item.id })}
+            wrapLocations
+          />
         )}
-      </View>
+        ItemSeparatorComponent={() => <View style={styles.cardSeparator} />}
+      />
     </Layout>
   );
 }
 
 const styles = StyleSheet.create({
   layout: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
+  },
+  list: {
+    flex: 1,
   },
   topBar: {
     height: 60,
@@ -148,18 +157,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   topBarTitle: {
-    fontSize: 18,
+    fontSize: 28 / 1.55,
     color: "#111",
     fontWeight: "600",
   },
   topBarSpacer: {
     width: 28,
   },
-  content: {
-    flex: 1,
-    backgroundColor: "#F0F0F0",
-    paddingHorizontal: 24,
-    paddingTop: 170,
+  postsListContent: {
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 24,
+  },
+  postsListContentEmpty: {
+    flexGrow: 1,
+  },
+  cardSeparator: {
+    height: 16,
   },
   emptyState: {
     paddingHorizontal: 8,
