@@ -1,3 +1,5 @@
+const path = require("path");
+
 module.exports = {
   "expo": {
     "name": "Eat Together!",
@@ -26,7 +28,8 @@ module.exports = {
         "android.permission.MEDIA_LIBRARY",
         "android.permission.MEDIA_LIBRARY_WRITE_ONLY"
       ],
-      "googleServicesFile": "./google-services.json"
+      // Absolute path: "./google-services.json" breaks if Expo/Metro starts with a different cwd.
+      "googleServicesFile": path.join(__dirname, "google-services.json")
     },
     "ios": {
       "supportsTablet": false,
@@ -43,6 +46,7 @@ module.exports = {
     "runtimeVersion": "1.0.1",
     "userInterfaceStyle": "automatic",
     "plugins": [
+      "./plugins/withPinGradleWrapper",
       [
         "expo-image-picker",
         {
