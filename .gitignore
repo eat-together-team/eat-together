@@ -23,7 +23,7 @@ web-build/
 # For deployment
 eat-together-expo.json
 google-services.json
-eat-together-303ec-firebase-adminsdk-w9k2l-7516856eea.json
+eat-together-303ec-firebase-admin-w9k2l-7516856eea.json
 
 package-lock.json
 yarn.lock
