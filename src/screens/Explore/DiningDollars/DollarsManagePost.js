@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   ScrollView,
   StyleSheet,
@@ -8,10 +9,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useRoute } from "@react-navigation/native";
 import { Layout } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import firebase from "firebase/compat";
+import { auth, db } from "../../../provider/Firebase";
 import { DOLLARS_LOCATIONS, DOLLARS_PAYMENT_HIGHLIGHT_COLORS, DOLLARS_PAYMENT_METHODS } from "./dollarsConstants";
+import {
+  buildDollarsPostUpdatePayload,
+  DINING_DOLLARS_POSTS_COLLECTION,
+  dollarsPostToManageFormState,
+} from "./dollarsPostSchema";
 
 const PRICE_OPTIONS = [
   { id: "exact", label: "Exact amount" },
@@ -44,14 +53,76 @@ const SelectableRow = ({ label, badge, badgeColor, selected, onPress, selectedCo
 );
 
 export default function DollarsManagePost({ navigation }) {
+  const route = useRoute();
+  const postId = route.params?.postId;
+
+  const [postType, setPostType] = useState("offer");
   const [offerStartDate, setOfferStartDate] = useState(new Date(2025, 0, 17));
   const [offerEndDate, setOfferEndDate] = useState(new Date(2025, 0, 27));
   const [amountType, setAmountType] = useState("exact");
   const [offerAmount, setOfferAmount] = useState("75");
   const [offerMaxAmount, setOfferMaxAmount] = useState("50");
   const [selectedPayments, setSelectedPayments] = useState(["venmo"]);
-  const [selectedLocations, setSelectedLocations] = useState(["suzzalo"]);
+  const [selectedLocations, setSelectedLocations] = useState(["SB_suzzalo"]);
   const [activePicker, setActivePicker] = useState(null);
+  const [loadingPost, setLoadingPost] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!postId) {
+      Alert.alert("Missing post", "Could not open this post.", [
+        { text: "OK", onPress: () => navigation.goBack() },
+      ]);
+      setLoadingPost(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+    setLoadingPost(true);
+
+    const uid = auth?.currentUser?.uid || firebase.auth().currentUser?.uid;
+
+    db.collection(DINING_DOLLARS_POSTS_COLLECTION)
+      .doc(postId)
+      .get()
+      .then((snap) => {
+        if (cancelled) return;
+        if (!snap.exists) {
+          Alert.alert("Not found", "This post may have been removed.", [
+            { text: "OK", onPress: () => navigation.goBack() },
+          ]);
+          return;
+        }
+        const data = snap.data();
+        if (data?.ownerID && uid && data.ownerID !== uid) {
+          Alert.alert("Cannot edit", "You can only edit your own posts.", [
+            { text: "OK", onPress: () => navigation.goBack() },
+          ]);
+          return;
+        }
+        const form = dollarsPostToManageFormState(data);
+        setPostType(form.postType);
+        setOfferStartDate(form.offerStartDate);
+        setOfferEndDate(form.offerEndDate);
+        setAmountType(form.amountType);
+        setOfferAmount(form.offerAmount);
+        setOfferMaxAmount(form.offerMaxAmount);
+        setSelectedPayments(form.selectedPayments.length ? form.selectedPayments : ["venmo"]);
+        setSelectedLocations(form.selectedLocations.length ? form.selectedLocations : ["SB_suzzalo"]);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          Alert.alert("Error", "Could not load this post.", [{ text: "OK", onPress: () => navigation.goBack() }]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingPost(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [postId, navigation]);
 
   const onConfirmDate = (selectedDate) => {
     if (activePicker === "start") {
@@ -81,6 +152,65 @@ export default function DollarsManagePost({ navigation }) {
     });
   };
 
+  const periodLabel =
+    postType === "request" ? "Set active period of your request:" : "Set active period of your offer:";
+  const amountLabel = postType === "request" ? "Set request amount" : "Set offer amount";
+
+  const savePost = async () => {
+    if (!postId || loadingPost) return;
+    if (selectedPayments.length === 0) {
+      Alert.alert("Payments", "Select at least one payment method.");
+      return;
+    }
+    if (selectedLocations.length === 0) {
+      Alert.alert("Locations", "Select at least one preferred location.");
+      return;
+    }
+    if (amountType === "range") {
+      const lower = Number(offerAmount);
+      const upper = Number(offerMaxAmount);
+
+      if (!offerAmount || !offerMaxAmount || Number.isNaN(lower) || Number.isNaN(upper)) {
+        Alert.alert("Invalid range", "Please enter both lower and upper bounds.");
+        return;
+      }
+      if (lower > upper) {
+        Alert.alert("Range mismatch", "Lower bound must be less than upper bound.");
+        return;
+      }
+      if (lower === upper) {
+        Alert.alert("Use exact amount", "Bounds are equal. Please use Exact amount instead.");
+        return;
+      }
+    } else if (!offerAmount || Number.isNaN(Number(offerAmount))) {
+      Alert.alert("Amount", "Please enter a valid amount.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await db
+        .collection(DINING_DOLLARS_POSTS_COLLECTION)
+        .doc(postId)
+        .update(
+          buildDollarsPostUpdatePayload({
+            amountType,
+            postAmount: offerAmount,
+            postMaxAmount: offerMaxAmount,
+            postStartDate: offerStartDate,
+            postEndDate: offerEndDate,
+            selectedPayments,
+            selectedLocations,
+          })
+        );
+      Alert.alert("Saved", "Your post has been updated.");
+    } catch (e) {
+      Alert.alert("Could not save", e?.message || "Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <Layout style={styles.layout}>
       <View style={styles.topBar}>
@@ -91,8 +221,13 @@ export default function DollarsManagePost({ navigation }) {
         <View style={styles.backButton} />
       </View>
 
+      {loadingPost ? (
+        <View style={styles.loadingBox}>
+          <ActivityIndicator size="large" color="#5DB075" />
+        </View>
+      ) : (
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <Text style={styles.sectionLabel}>Set active period of your offer:</Text>
+        <Text style={styles.sectionLabel}>{periodLabel}</Text>
         <View style={styles.dateRow}>
           <TouchableOpacity style={styles.inputCardSmall} onPress={() => setActivePicker("start")}>
             <Ionicons name="calendar-outline" size={17} color="#777" />
@@ -107,7 +242,7 @@ export default function DollarsManagePost({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        <Text style={[styles.sectionLabel, styles.spacingTop]}>Set offer amount</Text>
+        <Text style={[styles.sectionLabel, styles.spacingTop]}>{amountLabel}</Text>
         <View style={styles.inputCardLarge}>
           <Ionicons name="wallet-outline" size={17} color="#777" />
           <Text style={styles.amountPrefix}>$</Text>
@@ -180,32 +315,15 @@ export default function DollarsManagePost({ navigation }) {
           ))}
         </View>
       </ScrollView>
+      )}
 
       <View style={styles.bottomArea}>
         <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => {
-            if (amountType === "range") {
-              const lower = Number(offerAmount);
-              const upper = Number(offerMaxAmount);
-
-              if (!offerAmount || !offerMaxAmount || Number.isNaN(lower) || Number.isNaN(upper)) {
-                Alert.alert("Invalid range", "Please enter both lower and upper bounds.");
-                return;
-              }
-              if (lower > upper) {
-                Alert.alert("Range mismatch", "Lower bound must be less than upper bound.");
-                return;
-              }
-              if (lower === upper) {
-                Alert.alert("Use exact amount", "Bounds are equal. Please use Exact amount instead.");
-                return;
-              }
-            }
-            Alert.alert("Saved", "Post details updated locally.");
-          }}
+          style={[styles.primaryButton, (saving || loadingPost || !postId) && styles.primaryButtonDisabled]}
+          onPress={savePost}
+          disabled={saving || loadingPost || !postId}
         >
-          <Text style={styles.primaryButtonText}>Save post</Text>
+          <Text style={styles.primaryButtonText}>{saving ? "Saving…" : "Save post"}</Text>
         </TouchableOpacity>
       </View>
 
@@ -243,6 +361,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#111",
     fontWeight: "600",
+  },
+  loadingBox: {
+    flex: 1,
+    backgroundColor: "#F0F0F0",
+    alignItems: "center",
+    justifyContent: "center",
   },
   content: {
     flex: 1,
@@ -400,6 +524,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#5DB075",
     alignItems: "center",
     justifyContent: "center",
+  },
+  primaryButtonDisabled: {
+    opacity: 0.55,
   },
   primaryButtonText: {
     fontSize: 13,
