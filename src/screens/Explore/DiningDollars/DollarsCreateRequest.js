@@ -14,7 +14,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { DOLLARS_LOCATIONS, DOLLARS_PAYMENT_HIGHLIGHT_COLORS, DOLLARS_PAYMENT_METHODS } from "./dollarsConstants";
 import firebase from "firebase/compat";
 import { auth, db } from "../../../provider/Firebase";
-import { buildDollarsPostDocument, DINING_DOLLARS_POSTS_COLLECTION } from "./dollarsPostSchema";
+import { buildDollarsPostDocument, commitNewDiningDollarsPost } from "./dollarsPostSchema";
 
 const PRICE_OPTIONS = [
   { id: "exact", label: "Exact amount" },
@@ -151,7 +151,7 @@ export default function DollarsCreateRequest({ navigation }) {
     });
 
     try {
-      await db.collection(DINING_DOLLARS_POSTS_COLLECTION).add(doc);
+      await commitNewDiningDollarsPost(db, doc, uid);
       navigation.replace("DollarsExchange", {
         showPostedPopup: true,
         postType: "request",

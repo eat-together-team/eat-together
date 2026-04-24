@@ -13,7 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { auth, db } from "../../../provider/Firebase";
 import { DOLLARS_LOCATIONS, DOLLARS_PAYMENT_HIGHLIGHT_COLORS, DOLLARS_PAYMENT_METHODS } from "./dollarsConstants";
-import { buildDollarsPostDocument, DINING_DOLLARS_POSTS_COLLECTION } from "./dollarsPostSchema";
+import { buildDollarsPostDocument, commitNewDiningDollarsPost } from "./dollarsPostSchema";
 
 const PRICE_OPTIONS = [
   { id: "exact", label: "Exact amount" },
@@ -161,7 +161,7 @@ export default function DollarsCreateOffer({ navigation }) {
         ownerPhotoUrl,
       });
 
-      await db.collection(DINING_DOLLARS_POSTS_COLLECTION).add(doc);
+      await commitNewDiningDollarsPost(db, doc, user.uid);
 
       navigation.replace("DollarsExchange", {
         showPostedPopup: true,
