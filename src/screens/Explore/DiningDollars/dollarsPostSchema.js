@@ -3,6 +3,9 @@ import firebase from "firebase/compat";
 /** Firestore collection for dining dollar exchange posts */
 export const DINING_DOLLARS_POSTS_COLLECTION = "DiningDollarsPosts";
 
+/** `Users/{uid}` field incremented when creating an active post (see DollarsExchange badge). */
+export const USER_DINING_DOLLARS_POST_COUNT_FIELD = "diningDollarsPostCount";
+
 const roundMoney = (n) => Math.round(Number(n) * 100) / 100;
 
 function computeAmountParts({ amountType, postAmount, postMaxAmount }) {
@@ -164,4 +167,29 @@ export function buildDollarsPostDocument({
     startsAt: firebase.firestore.Timestamp.fromDate(postStartDate),
     status: "active",
   };
+}
+
+/**
+ * Creates a new DiningDollarsPosts document and increments {@link USER_DINING_DOLLARS_POST_COUNT_FIELD}
+ * on `Users/{ownerUid}` in a single batch (post is not written if the user update fails).
+ *
+ * @param {firebase.firestore.Firestore} db
+ * @param {object} postDoc from {@link buildDollarsPostDocument}
+ * @param {string} ownerUid
+ * @returns {Promise<string>} New post document id
+ */
+export async function commitNewDiningDollarsPost(db, postDoc, ownerUid) {
+  if (!ownerUid) {
+    throw new Error("commitNewDiningDollarsPost: ownerUid is required");
+  }
+  const batch = db.batch();
+  const postRef = db.collection(DINING_DOLLARS_POSTS_COLLECTION).doc();
+  batch.set(postRef, postDoc);
+  batch.set(
+    db.collection("Users").doc(ownerUid),
+    { [USER_DINING_DOLLARS_POST_COUNT_FIELD]: firebase.firestore.FieldValue.increment(1) },
+    { merge: true }
+  );
+  await batch.commit();
+  return postRef.id;
 }
