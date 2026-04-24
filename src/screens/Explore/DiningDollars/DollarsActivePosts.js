@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { DeviceEventEmitter, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Layout } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import firebase from "firebase/compat";
@@ -34,6 +34,62 @@ const formatShortDate = (dateOrTimestamp) => {
 const mapPaymentMethodBadges = (methods = []) =>
   methods.map((m) => dollarsPaymentMethodToBadge(m)).filter(Boolean);
 
+function diningDollarsPostCreatedAtMillis(post) {
+  const c = post?.createdAt;
+  if (c && typeof c.toMillis === "function") return c.toMillis();
+  if (c && typeof c.seconds === "number") return c.seconds * 1000;
+  return 0;
+}
+
+/** Mutates and returns `posts` sorted newest `createdAt` first. */
+export function sortDiningDollarsActivePostsByRecency(posts) {
+  posts.sort((a, b) => diningDollarsPostCreatedAtMillis(b) - diningDollarsPostCreatedAtMillis(a));
+  return posts;
+}
+
+function postsFromDiningDollarsQuerySnapshot(snapshot) {
+  const next = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  return sortDiningDollarsActivePostsByRecency(next);
+}
+
+/**
+ * Fetches the current user's active dining dollar posts (newest first).
+ * Safe to call from other screens after saves or mutations; does not touch React state.
+ *
+ * @param {string | undefined} uid Firebase Auth uid
+ * @returns {Promise<Array<{ id: string }>>}
+ */
+export async function refreshMyActiveDiningDollarsPosts(uid) {
+  if (!uid) return [];
+  const snapshot = await db
+    .collection(DINING_DOLLARS_POSTS_COLLECTION)
+    .where("ownerID", "==", uid)
+    .where("status", "==", "active")
+    .get();
+  return postsFromDiningDollarsQuerySnapshot(snapshot);
+}
+
+/**
+ * Fetches a single active post by document id, only if it belongs to `uid`.
+ * One read instead of listing all posts — handy right after saving in Manage.
+ * Returns null if the doc is missing, not owned by uid, or not active (so callers can drop it from UI).
+ *
+ * @param {string | undefined} uid Firebase Auth uid
+ * @param {string | undefined} postId Firestore document id
+ * @returns {Promise<{ id: string } | null>}
+ */
+export async function refreshMyActiveDiningDollarPost(uid, postId) {
+  if (!uid || !postId) return null;
+  const snap = await db.collection(DINING_DOLLARS_POSTS_COLLECTION).doc(postId).get();
+  if (!snap.exists) return null;
+  const data = snap.data();
+  if (data?.ownerID !== uid || data?.status !== "active") return null;
+  return { id: snap.id, ...data };
+}
+
+/** Use with `DeviceEventEmitter` after mutating a post so this screen can merge one row without a full query. */
+export const DINING_DOLLARS_ACTIVE_POST_UPDATED_EVENT = "diningDollarsActivePostUpdated";
+
 export default function DollarsActivePosts({ navigation }) {
   const [posts, setPosts] = useState([]);
 
@@ -42,33 +98,40 @@ export default function DollarsActivePosts({ navigation }) {
   useEffect(() => {
     if (!uid) return undefined;
 
-    let q = db
+    // Avoid orderBy("createdAt") here: it requires a composite index and can leave the
+    // listener in a broken state; sort client-side instead.
+    const q = db
       .collection(DINING_DOLLARS_POSTS_COLLECTION)
       .where("ownerID", "==", uid)
       .where("status", "==", "active");
-    q = q.orderBy("createdAt", "desc");
 
     const unsubscribe = q.onSnapshot(
       (snapshot) => {
-        const next = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setPosts(next);
+        setPosts(postsFromDiningDollarsQuerySnapshot(snapshot));
       },
       () => {
-        // If ordering/indexing fails, fall back to filtering only.
-        db.collection(DINING_DOLLARS_POSTS_COLLECTION)
-          .where("ownerID", "==", uid)
-          .where("status", "==", "active")
-          .get()
-          .then((snapshot) => {
-            const next = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-            setPosts(next);
-          })
-          .catch(() => {});
+        refreshMyActiveDiningDollarsPosts(uid).then(setPosts).catch(() => {});
       }
     );
 
     return unsubscribe;
   }, [uid]);
+
+  useEffect(() => {
+    const sub = DeviceEventEmitter.addListener(DINING_DOLLARS_ACTIVE_POST_UPDATED_EVENT, (post) => {
+      if (!post?.id) return;
+      setPosts((prev) => {
+        const i = prev.findIndex((p) => p.id === post.id);
+        if (i === -1) {
+          return sortDiningDollarsActivePostsByRecency([...prev, post]);
+        }
+        const next = [...prev];
+        next[i] = post;
+        return next;
+      });
+    });
+    return () => sub.remove();
+  }, []);
 
   const viewModels = useMemo(
     () =>
