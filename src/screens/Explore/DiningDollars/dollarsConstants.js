@@ -1,10 +1,10 @@
 export const DOLLARS_LOCATIONS = [
-  { id: "rotunda", label: "The Rotunda"},
-  { id: "SB_suzzalo", label: "Starbucks (Suzzalo)"},
-  { id: "SB_populationHealth", label: "Starbucks (Population Health)"},
-  { id: "byGeorgeCafe", label: "By George Cafe"},
-  { id: "orinsPlace", label: "Orin's Place"},
-  { id: "microsoftCafe", label: "Microsoft Cafe"},
+  { id: "rotunda", label: "The Rotunda", short: "TR" },
+  { id: "SB_suzzalo", label: "Starbucks (Suzzalo)", short: "SB" },
+  { id: "SB_populationHealth", label: "Starbucks (Population Health)", short: "SB" },
+  { id: "byGeorgeCafe", label: "By George Cafe", short: "BG" },
+  { id: "orinsPlace", label: "Orin's Place", short: "OP" },
+  { id: "microsoftCafe", label: "Microsoft Cafe", short: "MC" },
 ];
 
 export const DOLLARS_PAYMENT_METHODS = [
