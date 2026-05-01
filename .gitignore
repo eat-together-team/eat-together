@@ -73,3 +73,6 @@ yarn-error.*
 *.tsbuildinfo
 
 # @end expo-cli
+
+#external drive binaries
+._*

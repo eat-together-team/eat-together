@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { Layout, TopNav } from 'react-native-rapi-ui';
+import { Layout, TopNav } from '../../rapi_ui_components';
 import MediumText from '../../components/MediumText';
 import InvitePerson from "../../components/InvitePerson";
 import { Ionicons } from "@expo/vector-icons";
