@@ -1,4 +1,4 @@
-export const tokens = {
+export const colorTokens = {
   light: {
     textNormal: '#000000',
     textMedium: '#646464',
@@ -97,4 +97,4 @@ export const tokens = {
   },
 } as const;
 
-export type TokenSet = typeof tokens.light;
+export type ColorTokenSet = typeof colorTokens.light;
