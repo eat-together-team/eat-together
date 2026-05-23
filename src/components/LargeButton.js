@@ -6,7 +6,7 @@ import { radiusTokens } from '../theme/radiusTokens';
 
 const RIPPLE_SIZE = 80;
 
-const LargeButton = ({ onPress, outlined = false, color = 'green', children, disabled, style }) => {
+const LargeButton = ({ onPress, outlined = false, color = 'green', children, disabled, style, leadingIcon }) => {
   const [ripplePos, setRipplePos] = useState({ x: 0, y: 0 });
   const rippleScale = useRef(new Animated.Value(0)).current;
   const rippleOpacity = useRef(new Animated.Value(0)).current;
@@ -62,9 +62,16 @@ const LargeButton = ({ onPress, outlined = false, color = 'green', children, dis
             },
           ]}
         />
-        <Text style={{ fontSize: 13, fontFamily, color: textColor, textAlign: 'center' }}>
-          {children}
-        </Text>
+        {leadingIcon ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            {leadingIcon}
+            <Text style={{ fontSize: 13, fontFamily, color: textColor }}>{children}</Text>
+          </View>
+        ) : (
+          <Text style={{ fontSize: 13, fontFamily, color: textColor, textAlign: 'center' }}>
+            {children}
+          </Text>
+        )}
       </Pressable>
     </View>
   );
