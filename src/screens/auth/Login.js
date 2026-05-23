@@ -10,25 +10,29 @@ import SmallAppBar from '../../components/SmallAppBar';
 import TextInputField from '../../components/TextInputField';
 import SmallTextButton from '../../components/SmallTextButton';
 import LargeButton from '../../components/LargeButton';
+import InformationCard from '../../components/InformationCard';
 import DeviceToken from '../../utils/DeviceToken';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   async function login() {
+    setError('');
     setLoading(true);
-    await firebase.auth().signInWithEmailAndPassword(email, password).catch((error) => {
+    try {
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      const user = auth.currentUser;
+      if (DeviceToken.getToken() != null) {
+        await db.collection('Users').doc(user.uid).update({
+          pushTokens: firebase.firestore.FieldValue.arrayUnion(DeviceToken.getToken()),
+        });
+      }
+    } catch (err) {
       setLoading(false);
-      alert(error.message);
-    });
-
-    const user = auth.currentUser;
-    if (DeviceToken.getToken() != null) {
-      await db.collection('Users').doc(user.uid).update({
-        pushTokens: firebase.firestore.FieldValue.arrayUnion(DeviceToken.getToken()),
-      });
+      setError('Email or password is incorrect');
     }
   }
 
@@ -41,6 +45,13 @@ export default function Login({ navigation }) {
       >
         <View style={styles.content}>
           <View style={styles.topSection}>
+            {error && (
+              <>
+                <InformationCard type="Error" text={error} />
+                <View style={styles.errorGap} />
+              </>
+            )}
+            <View style={styles.inputsSection}>
             <TextInputField
               hint="Email"
               value={email}
@@ -67,6 +78,7 @@ export default function Login({ navigation }) {
               onPress={() => navigation.navigate('ForgetPassword')}
             />
           </View>
+        </View>
           <View style={styles.footer}>
             <LargeButton onPress={login} disabled={loading}>
               {loading ? 'Loading...' : 'Sign in'}
@@ -97,14 +109,20 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 24,
   },
+  errorGap: {
+    height: 20,
+  },
+  inputsSection: {
+    gap: 5,
+  },
   inputGap: {
-    height: 10,
+    height: 5,
   },
   forgotPasswordGap: {
     height: 20,
   },
   footer: {
-    paddingBottom: 0,
+    paddingBottom: 15,
     rowGap: 10,
   },
 });
