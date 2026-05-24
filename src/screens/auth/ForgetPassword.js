@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import firebase from 'firebase/compat';
 import { Ionicons } from '@expo/vector-icons';
 import { colorTokens } from '../../theme/colorTokens';
+import { useTheme } from '../../rapi_ui_components';
 import SmallAppBar from '../../components/SmallAppBar';
 import TextInputField from '../../components/TextInputField';
 import LargeButton from '../../components/LargeButton';
@@ -14,6 +15,8 @@ export default function ForgetPassword({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
 
   async function submit() {
     setError('');
@@ -30,7 +33,7 @@ export default function ForgetPassword({ navigation }) {
 
   if (submitted) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
         <SmallAppBar title="Reset password" onBack={() => navigation.goBack()} />
         <View style={styles.content}>
           <View style={styles.topSection}>
@@ -41,7 +44,7 @@ export default function ForgetPassword({ navigation }) {
               outlined
               color="gray"
               leadingIcon={
-                <Ionicons name="checkmark-outline" size={16} color={colorTokens.light.outline} />
+                <Ionicons name="checkmark-outline" size={16} color={colors.outline} />
               }
               onPress={() => navigation.navigate('Login')}
             >
@@ -54,7 +57,7 @@ export default function ForgetPassword({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <SmallAppBar title="Reset password" onBack={() => navigation.goBack()} />
       <KeyboardAvoidingView
         style={styles.flex}
@@ -78,7 +81,7 @@ export default function ForgetPassword({ navigation }) {
               value={email}
               onChangeText={setEmail}
               leadingIcon={
-                <Ionicons name="mail-outline" size={16} color={colorTokens.light.onBackground} />
+                <Ionicons name="mail-outline" size={16} color={colors.onBackground} />
               }
               keyboardType="email-address"
               autoCapitalize="none"
@@ -98,7 +101,6 @@ export default function ForgetPassword({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colorTokens.light.background,
   },
   flex: {
     flex: 1,

@@ -3,6 +3,7 @@ import { View, Pressable, Animated, Platform, Text } from 'react-native';
 import { useFonts, Inter_600SemiBold } from '@expo-google-fonts/inter';
 import { colorTokens } from '../theme/colorTokens';
 import { radiusTokens } from '../theme/radiusTokens';
+import { useTheme } from '../rapi_ui_components';
 
 const RIPPLE_SIZE = 80;
 
@@ -12,6 +13,8 @@ const LargeButton = ({ onPress, outlined = false, color = 'green', children, dis
   const rippleOpacity = useRef(new Animated.Value(0)).current;
   const buttonWidth = useRef(300);
   const [fontsLoaded] = useFonts({ Inter_600SemiBold });
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
 
   const handlePressIn = (event) => {
     const { locationX, locationY } = event.nativeEvent;
@@ -28,13 +31,13 @@ const LargeButton = ({ onPress, outlined = false, color = 'green', children, dis
   };
 
   const isGray = color === 'gray';
-  const accentColor = isGray ? colorTokens.light.outline : colorTokens.light.primary;
+  const accentColor = isGray ? colors.outline : colors.primary;
 
   const wrapperStyle = outlined
     ? { backgroundColor: 'transparent', borderWidth: 2, borderColor: accentColor }
     : { backgroundColor: accentColor };
 
-  const textColor = outlined ? accentColor : colorTokens.light.onPrimary;
+  const textColor = outlined ? accentColor : colors.onPrimary;
   const rippleColor = outlined
     ? (isGray ? 'rgba(187,187,187,0.22)' : 'rgba(93,176,117,0.22)')
     : 'rgba(255,255,255,0.3)';
@@ -98,5 +101,3 @@ const styles = {
 };
 
 export default LargeButton;
-
-

@@ -6,6 +6,7 @@ import firebase from 'firebase/compat';
 import 'firebase/firestore';
 import { Ionicons } from '@expo/vector-icons';
 import { colorTokens } from '../../theme/colorTokens';
+import { useTheme } from '../../rapi_ui_components';
 import SmallAppBar from '../../components/SmallAppBar';
 import TextInputField from '../../components/TextInputField';
 import SmallTextButton from '../../components/SmallTextButton';
@@ -18,6 +19,8 @@ export default function Login({ navigation }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
 
   async function login() {
     setError('');
@@ -37,7 +40,7 @@ export default function Login({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <SmallAppBar title="Sign in" onBack={() => navigation.goBack()} />
       <KeyboardAvoidingView
         style={styles.flex}
@@ -57,7 +60,7 @@ export default function Login({ navigation }) {
               value={email}
               onChangeText={setEmail}
               leadingIcon={
-                <Ionicons name="mail-outline" size={16} color={colorTokens.light.onBackground} />
+                <Ionicons name="mail-outline" size={16} color={colors.onBackground} />
               }
               keyboardType="email-address"
             />
@@ -67,7 +70,7 @@ export default function Login({ navigation }) {
               value={password}
               onChangeText={setPassword}
               leadingIcon={
-                <Ionicons name="lock-closed-outline" size={16} color={colorTokens.light.onBackground} />
+                <Ionicons name="lock-closed-outline" size={16} color={colors.onBackground} />
               }
               secureTextEntry
             />
@@ -96,7 +99,6 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colorTokens.light.background,
   },
   flex: {
     flex: 1,

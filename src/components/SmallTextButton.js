@@ -2,9 +2,12 @@ import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import Header4Text from './typography/Header4Text';
 import { colorTokens } from '../theme/colorTokens';
+import { useTheme } from '../rapi_ui_components';
 
 const SmallTextButton = ({ onPress, text = 'Text button', type = 'Primary' }) => {
-  const textColor = type === 'Primary' ? colorTokens.light.primary : colorTokens.light.outline;
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
+  const textColor = type === 'Primary' ? colors.primary : colors.outline;
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
@@ -22,4 +25,3 @@ const styles = StyleSheet.create({
 });
 
 export default SmallTextButton;
-

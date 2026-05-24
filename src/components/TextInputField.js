@@ -3,6 +3,7 @@ import { View, TextInput as RNTextInput, StyleSheet, Platform } from 'react-nati
 import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
 import { colorTokens } from '../theme/colorTokens';
 import { radiusTokens } from '../theme/radiusTokens';
+import { useTheme } from '../rapi_ui_components';
 
 const TextInputField = ({
   hint = 'Hint',
@@ -16,19 +17,25 @@ const TextInputField = ({
   style,
 }) => {
   const [fontsLoaded] = useFonts({ Inter_400Regular });
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
+
   const fontFamily = fontsLoaded
     ? 'Inter_400Regular'
     : Platform.OS === 'ios' ? 'AppleSDGothicNeo-Regular' : 'sans-serif';
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, {
+      borderColor: colors.outline,
+      backgroundColor: colors.background,
+    }, style]}>
       {leadingIcon && <View style={styles.iconWrap}>{leadingIcon}</View>}
       <RNTextInput
-        style={[styles.input, { fontFamily }]}
+        style={[styles.input, { fontFamily, color: colors.onBackground }]}
         value={value}
         onChangeText={onChangeText}
         placeholder={hint}
-        placeholderTextColor="rgba(32,32,32,0.5)"
+        placeholderTextColor={colors.textLight}
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
@@ -46,8 +53,6 @@ const styles = StyleSheet.create({
     height: 47,
     borderRadius: radiusTokens.small,
     borderWidth: 2,
-    borderColor: colorTokens.light.outline,
-    backgroundColor: colorTokens.light.background,
     paddingHorizontal: 16,
     gap: 10,
   },
@@ -57,7 +62,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 13,
-    color: colorTokens.light.onBackground,
     padding: 0,
   },
 });

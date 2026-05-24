@@ -3,17 +3,24 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header3Text from './typography/Header3Text';
 import { colorTokens } from '../theme/colorTokens';
+import { useTheme } from '../rapi_ui_components';
 
 const SmallAppBar = ({ title = 'Title', onBack }) => {
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {
+      backgroundColor: colors.background,
+      borderBottomColor: colors.containerMedium,
+    }]}>
       {onBack && (
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={23} color={colorTokens.light.onBackground} />
+          <Ionicons name="arrow-back" size={23} color={colors.onBackground} />
         </TouchableOpacity>
       )}
       <View style={styles.titleContainer} pointerEvents="none">
-        <Header3Text color={colorTokens.light.onBackground} center>
+        <Header3Text color={colors.onBackground} center>
           {title}
         </Header3Text>
       </View>
@@ -24,9 +31,7 @@ const SmallAppBar = ({ title = 'Title', onBack }) => {
 const styles = StyleSheet.create({
   container: {
     height: 60,
-    backgroundColor: colorTokens.light.background,
     borderBottomWidth: 1,
-    borderBottomColor: colorTokens.light.containerMedium,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 25,
@@ -43,4 +48,3 @@ const styles = StyleSheet.create({
 });
 
 export default SmallAppBar;
-

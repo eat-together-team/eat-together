@@ -4,15 +4,18 @@ import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
 import { Ionicons } from '@expo/vector-icons';
 import { colorTokens } from '../theme/colorTokens';
 import { radiusTokens } from '../theme/radiusTokens';
+import { useTheme } from '../rapi_ui_components';
 
 const InformationCard = ({ type = 'Informative', text = 'Information message', actionText = 'Go to profile', onAction }) => {
   const [fontsLoaded] = useFonts({ Inter_400Regular });
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
 
   const isError = type === 'Error';
   const isAction = type === 'Action';
 
-  const bgColor = isError ? colorTokens.light.errorContainer : colorTokens.light.containerMedium;
-  const textColor = isError ? colorTokens.light.onErrorContainer : colorTokens.light.onContainerMedium;
+  const bgColor = isError ? colors.errorContainer : colors.containerMedium;
+  const textColor = isError ? colors.onErrorContainer : colors.onContainerMedium;
   const iconColor = textColor;
 
   const fontFamily = fontsLoaded

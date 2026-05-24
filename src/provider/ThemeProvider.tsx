@@ -1,5 +1,5 @@
 import React from "react";
-import { StatusBar } from "react-native";
+import { StatusBar, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import useCachedResources from "../hooks/useCachedResources";
 
@@ -37,9 +37,17 @@ const ThemeProvider = (props: {
   children?: React.ReactNode;
   loading?: React.ReactNode;
 }) => {
+  const systemColorScheme = useColorScheme();
   const [theme, setTheme] = React.useState<"light" | "dark">(
-    props.theme || "light"
+    props.theme || (systemColorScheme === "dark" ? "dark" : "light")
   );
+
+  React.useEffect(() => {
+    if (!props.theme) {
+      setTheme(systemColorScheme === "dark" ? "dark" : "light");
+    }
+  }, [systemColorScheme, props.theme]);
+
   const isLoadingComplete = useCachedResources(props.images, props.fonts);
   const isDarkmode = theme === "dark";
 

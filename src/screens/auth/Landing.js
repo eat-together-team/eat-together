@@ -13,33 +13,36 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts, Inter_500Medium } from '@expo-google-fonts/inter';
 import { colorTokens } from '../../theme/colorTokens';
 import { radiusTokens } from '../../theme/radiusTokens';
+import { useTheme } from '../../rapi_ui_components';
 import SubBodyText from '../../components/typography/SubBodyText';
 import LargeButton from '../../components/LargeButton';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const SLIDES = [
-  {
-    image: require('../../../assets/welcome-sample-meetup-light.png'),
-    subtitle: 'Find meetups happening near you',
-  },
-  {
-    image: require('../../../assets/welcome-sample-explore-light.png'),
-    subtitle: 'Meet new friends with similar interests',
-  },
-  {
-    image: require('../../../assets/welcome-sample-exchange-light.png'),
-    subtitle: 'Exchange your extra dining dollars for cash',
-  },
-  {
-    image: require('../../../assets/welcome-sample-picker-light.png'),
-    subtitle: 'Receive personalized restaurant recommendations',
-  },
-];
-
 export default function Landing({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fontsLoaded] = useFonts({ Inter_500Medium });
+  const { theme, isDarkmode } = useTheme();
+  const colors = colorTokens[theme];
+
+  const SLIDES = [
+    {
+      image: theme === 'dark' ? require('../../../assets/welcome-sample-meetup-dark.png') : require('../../../assets/welcome-sample-meetup-light.png'),
+      subtitle: 'Find meetups happening near you',
+    },
+    {
+      image: theme === 'dark' ? require('../../../assets/welcome-sample-explore-dark.png') : require('../../../assets/welcome-sample-explore-light.png'),
+      subtitle: 'Meet new friends with similar interests',
+    },
+    {
+      image: theme === 'dark' ? require('../../../assets/welcome-sample-exchange-dark.png') : require('../../../assets/welcome-sample-exchange-light.png'),
+      subtitle: 'Exchange your extra dining dollars for cash',
+    },
+    {
+      image: theme === 'dark' ? require('../../../assets/welcome-sample-picker-dark.png') : require('../../../assets/welcome-sample-picker-light.png'),
+      subtitle: 'Receive personalized restaurant recommendations',
+    },
+  ];
 
   const handleScroll = (event) => {
     const offset = event.nativeEvent.contentOffset.x;
@@ -48,8 +51,8 @@ export default function Landing({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkmode ? 'light-content' : 'dark-content'} />
 
       <View style={styles.header}>
         <View style={styles.logoContainer}>
@@ -63,6 +66,7 @@ export default function Landing({ navigation }) {
           style={[
             styles.title,
             {
+              color: colors.textNormal,
               fontFamily: fontsLoaded
                 ? 'Inter_500Medium'
                 : Platform.OS === 'ios'
@@ -88,7 +92,7 @@ export default function Landing({ navigation }) {
         >
           {SLIDES.map((slide, index) => (
             <View key={index} style={styles.slide}>
-              <View style={styles.imageContainer}>
+              <View style={[styles.imageContainer, { backgroundColor: colors.primaryContainerLow }]}>
                 <Image
                   source={slide.image}
                   style={styles.slideImage}
@@ -100,7 +104,7 @@ export default function Landing({ navigation }) {
         </ScrollView>
 
         <View style={styles.carouselInfo}>
-          <SubBodyText center color={colorTokens.light.textMedium}>
+          <SubBodyText center color={colors.textMedium}>
             {SLIDES[currentIndex].subtitle}
           </SubBodyText>
           <View style={styles.dotsRow}>
@@ -109,9 +113,12 @@ export default function Landing({ navigation }) {
                 key={dotIndex}
                 style={[
                   styles.dot,
-                  dotIndex === currentIndex
-                    ? styles.dotActive
-                    : styles.dotInactive,
+                  dotIndex === currentIndex ? styles.dotActive : styles.dotInactive,
+                  {
+                    backgroundColor: dotIndex === currentIndex
+                      ? colors.primary
+                      : colors.outline,
+                  },
                 ]}
               />
             ))}
@@ -136,7 +143,6 @@ export default function Landing({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colorTokens.light.background,
   },
   header: {
     alignItems: 'center',
@@ -156,7 +162,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 25,
-    color: colorTokens.light.textNormal,
     textAlign: 'center',
     letterSpacing: -0.5,
   },
@@ -187,7 +192,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: 297,
     height: 297,
-    backgroundColor: colorTokens.light.primaryContainerLow,
     borderRadius: radiusTokens.large,
     overflow: 'hidden',
   },
@@ -211,12 +215,10 @@ const styles = StyleSheet.create({
   dotActive: {
     width: 8,
     height: 8,
-    backgroundColor: colorTokens.light.primary,
   },
   dotInactive: {
     width: 6,
     height: 6,
-    backgroundColor: colorTokens.light.outline,
     opacity: 0.5,
   },
   footer: {
