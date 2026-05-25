@@ -27,8 +27,6 @@ const firebaseConfig = {
   appId: process.env.FIREBASE_APP_ID ?? FIREBASE_APP_ID,
 };
 
-// for some reason it says invalid api key when we remove this 
-console.log("Firebase Config:", firebaseConfig);
 
 // Initialize app safely
 const app = firebase.apps.length === 0 ? firebase.initializeApp(firebaseConfig) : firebase.app();
