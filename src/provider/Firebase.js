@@ -27,6 +27,7 @@ const firebaseConfig = {
   appId: process.env.FIREBASE_APP_ID ?? FIREBASE_APP_ID,
 };
 
+
 // Initialize app safely
 const app = firebase.apps.length === 0 ? firebase.initializeApp(firebaseConfig) : firebase.app();
 

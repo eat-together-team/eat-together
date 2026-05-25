@@ -1,164 +1,175 @@
-//Users go here to log in
+import React, { useState, useRef, useEffect } from 'react';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, Animated } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { db, auth } from '../../provider/Firebase';
+import firebase from 'firebase/compat';
+import 'firebase/firestore';
+import { Ionicons } from '@expo/vector-icons';
+import { colorTokens } from '../../theme/colorTokens';
+import { useTheme } from '../../rapi_ui_components';
+import SmallAppBar from '../../components/SmallAppBar';
+import TextInputField from '../../components/TextInputField';
+import SmallTextButton from '../../components/SmallTextButton';
+import LargeButton from '../../components/LargeButton';
+import InformationCard from '../../components/InformationCard';
+import DeviceToken from '../../utils/DeviceToken';
 
-import React, { useState } from "react";
-import {
-  ScrollView,
-  TouchableOpacity,
-  View,
-  KeyboardAvoidingView,
-  Image,
-} from "react-native";
-import {db} from "../../provider/Firebase";
-import {auth} from "../../provider/Firebase";
-import "firebase/firestore"
-import firebase from "firebase/compat";
-
-import {
-  Layout,
-} from "../../rapi_ui_components";
-
-import Button from "../../components/Button";
-import TextInput from "../../components/TextInput";
-import LargeText from "../../components/LargeText";
-import NormalText from "../../components/NormalText";
-import DeviceToken from "../../utils/DeviceToken";
-
-export default function ({ navigation }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function Login({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPass, setShowPass] = useState(false);
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
+  const errorOpacity = useRef(new Animated.Value(0)).current;
+  const errorHeight = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (error) {
+      Animated.parallel([
+        Animated.timing(errorOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: false,
+        }),
+        Animated.spring(errorHeight, {
+          toValue: 1,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(errorOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: false,
+        }),
+        Animated.spring(errorHeight, {
+          toValue: 0,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    }
+  }, [error]);
 
   async function login() {
+    setError('');
     setLoading(true);
-    await firebase.auth().signInWithEmailAndPassword(email, password).catch(function (error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        // ...
-        setLoading(false);
-        alert(errorMessage);
-    });
-
-    const user = auth.currentUser;
-
-    //If this is a sign-in to a new acct from the same phone, register the device token on that new acct
-    if(DeviceToken.getToken() != null) {
-        await db.collection("Users").doc(user.uid).update({
-            pushTokens: firebase.firestore.FieldValue.arrayUnion(DeviceToken.getToken())
-        })
+    try {
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      const user = auth.currentUser;
+      if (DeviceToken.getToken() != null) {
+        await db.collection('Users').doc(user.uid).update({
+          pushTokens: firebase.firestore.FieldValue.arrayUnion(DeviceToken.getToken()),
+        });
+      }
+    } catch (err) {
+      setLoading(false);
+      setError('Email or password is incorrect');
     }
   }
 
   return (
-  <Layout>
-    <KeyboardAvoidingView behavior="height" enabled style={{ flex: 1 }}>
-      <ScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-          }}
-        >
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "white",
-            }}
-          >
-            <Image
-              resizeMode="contain"
-              style={{
-                height: 150,
-                width: 150,
-              }}
-              source={require("../../../assets/logo.png")}
-            />
-          </View>
-          <View
-            style={{
-              flex: 1,
-              paddingHorizontal: 20,
-              paddingBottom: 20,
-              backgroundColor: "white",
-            }}
-          >
-            <LargeText center>Welcome Back!</LargeText>
-
-            <TextInput
-              iconLeft="mail"
-              placeholder="Enter your email"
-              width="100%"
-              height="10%"
-              marginTop="9%"
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <SmallAppBar title="Sign in" onBack={() => navigation.goBack()} />
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.content}>
+          <View style={styles.topSection}>
+            <Animated.View
+              style={[
+                styles.errorContainer,
+                {
+                  opacity: errorOpacity,
+                  maxHeight: errorHeight.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 200],
+                  }),
+                },
+              ]}
+            >
+              {error && <InformationCard type="Error" text={error} />}
+            </Animated.View>
+            <View style={styles.inputsSection}>
+            <TextInputField
+              hint="Email"
               value={email}
-              bold={true}
-              onChangeText={(newEmail) => setEmail(newEmail)}
+              onChangeText={setEmail}
+              leadingIcon={
+                <Ionicons name="mail-outline" size={16} color={colors.onBackground} />
+              }
+              keyboardType="email-address"
             />
-
-            <TextInput
-              iconLeft="lock-closed"
-              iconRight={!showPass ? "eye" : "eye-off"}
-              iconRightOnPress={() => {setShowPass(!showPass)}}
-              placeholder="Enter your password"
-              width="100%"
-              height="10%"
-              marginTop="4%"
-              marginBottom="4%"
+            <View style={styles.inputGap} />
+            <TextInputField
+              hint="Password"
               value={password}
-              bold={true}
-              onChangeText={(newPassword) => setPassword(newPassword)}
-              secureTextEntry={!showPass ? true : false}
+              onChangeText={setPassword}
+              leadingIcon={
+                <Ionicons name="lock-closed-outline" size={16} color={colors.onBackground} />
+              }
+              secureTextEntry={!showPassword}
+              trailingIcon={<Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={16} color={colors.onBackground} onPress={() => setShowPassword(!showPassword)} />}
             />
-
-            <Button onPress={login} marginVertical={10} disabled={loading}>
-              {loading ? "Loading" : "Login"}
-            </Button>
-
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginVertical: 10,
-                justifyContent: "center",
-              }}
-            >
-              <NormalText>Forgot password? </NormalText>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate("ForgetPassword");
-                }}
-              >
-                <NormalText color="#5DB075">Click here</NormalText>
-              </TouchableOpacity>
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginBottom: 20,
-                justifyContent: "center",
-              }}
-            >
-              <NormalText>New? </NormalText>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate("Name");
-                }}
-              >
-                <NormalText color="#5DB075">Create a new account</NormalText>
-              </TouchableOpacity>
-            </View>
-
-            <Button onPress={() => {
-              navigation.goBack();
-            }} marginVertical={10} disabled={loading} backgroundColor="white" color="#5DB075">
-              Exit
-            </Button>
+            <View style={styles.forgotPasswordGap} />
+            <SmallTextButton
+              text="Forgot password?"
+              type="Primary"
+              onPress={() => navigation.navigate('ForgetPassword')}
+            />
           </View>
-        </ScrollView>
-    </KeyboardAvoidingView>
-  </Layout>
+        </View>
+          <View style={styles.footer}>
+            <LargeButton onPress={login} disabled={loading}>
+              {loading ? 'Loading...' : 'Sign in'}
+            </LargeButton>
+            <LargeButton outlined color="gray" onPress={() => navigation.goBack()}>
+              Back
+            </LargeButton>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  flex: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 30,
+  },
+  topSection: {
+    flex: 1,
+    paddingTop: 24,
+  },
+  errorContainer: {
+    marginBottom: 15,
+    overflow: 'hidden',
+  },
+  inputsSection: {
+    gap: 5,
+  },
+  inputGap: {
+    height: 5,
+  },
+  forgotPasswordGap: {
+    height: 20,
+  },
+  footer: {
+    paddingBottom: 15,
+    rowGap: 10,
+  },
+});
