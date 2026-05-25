@@ -15,9 +15,9 @@ import { useTheme } from '../../../rapi_ui_components';
 import SmallAppBar from '../../../components/SmallAppBar';
 import LargeButton from '../../../components/LargeButton';
 import ProgressBar from '../../../components/ProgressBar';
-import CreateAccountStep1 from './CreateAccountStep1';
-import CreateAccountStep2 from './CreateAccountStep2';
-import CreateAccountStep3 from './CreateAccountStep3';
+import CreateAccountProfile from './CreateAccountProfile';
+import CreateAccountInterests from './CreateAccountInterests';
+import CreateAccountCredentials from './CreateAccountCredentials';
 
 const TOTAL_STEPS = 3;
 
@@ -163,7 +163,7 @@ export default function CreateAccountFlow({
     switch (currentStep) {
       case 1:
         return (
-          <CreateAccountStep1
+          <CreateAccountProfile
             firstName={firstName}
             setFirstName={setFirstName}
             lastName={lastName}
@@ -179,7 +179,7 @@ export default function CreateAccountFlow({
         );
       case 2:
         return (
-          <CreateAccountStep2
+          <CreateAccountInterests
             navigation={navigation}
             foodTags={foodTags}
             setFoodTags={setFoodTags}
@@ -191,7 +191,7 @@ export default function CreateAccountFlow({
         );
       case 3:
         return (
-          <CreateAccountStep3
+          <CreateAccountCredentials
             email={email}
             setEmail={setEmail}
             campus={campus}
