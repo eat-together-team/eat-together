@@ -24,7 +24,7 @@ export const colorTokens = {
     errorContainer: '#feebe7',
     onError: '#fffcfc',
     onErrorContainer: '#202020',
-    educationTagContainer: '#fefbe9',
+    educationTagContainer: '#f1eed9',
     educationTagContainerLow: '#fefbe9',
     educationTagBorder: '#e9c162',
     educationBackground: '#fefdfb',

@@ -129,7 +129,7 @@ export default function Landing({ navigation }) {
       <View style={styles.spacer} />
 
       <View style={styles.footer}>
-        <LargeButton onPress={() => navigation.navigate('Name')}>
+        <LargeButton onPress={() => navigation.navigate('CreateAccountFlow')}>
           Create an account
         </LargeButton>
         <LargeButton outlined onPress={() => navigation.navigate('Login')}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput as RNTextInput, StyleSheet, Platform } from 'react-native';
+import { View, TextInput as RNTextInput, StyleSheet, Platform, Pressable } from 'react-native';
 import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
 import { colorTokens } from '../theme/colorTokens';
 import { radiusTokens } from '../theme/radiusTokens';
@@ -41,7 +41,11 @@ const TextInputField = ({
         autoCapitalize={autoCapitalize}
         autoCorrect={false}
       />
-      {trailingIcon && <View style={styles.iconWrap}>{trailingIcon}</View>}
+      {trailingIcon && (
+        <Pressable style={styles.iconWrap} onPress={trailingIcon?.props?.onPress} hitSlop={8}>
+          {React.cloneElement(trailingIcon, { onPress: undefined })}
+        </Pressable>
+      )}
     </View>
   );
 };

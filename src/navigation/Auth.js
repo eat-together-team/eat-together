@@ -10,12 +10,8 @@ import Login from "../screens/auth/Login";
 import ForgetPassword from "../screens/auth/ForgetPassword";
 
 // Sign-up pages
-import Name from "../screens/auth/Registration/Name";
-import Email from "../screens/auth/Registration/Email";
-import Tags from "../screens/auth/Registration/Tags";
-import Password from "../screens/auth/Registration/Password";
-
-import Day from "../screens/auth/Registration/Day";
+import CreateAccountFlow from "../screens/auth/Registration/CreateAccountFlow";
+import EditUserTags from "../screens/auth/Registration/EditUserTags";
 
 import Experiment from "../screens/Experiment";
 
@@ -28,7 +24,6 @@ const Auth = () => {
   // Name.js
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [age, setAge] = useState("");
   const [pronouns, setPronouns] = useState("");
   const [bio, setBio] = useState("");
   const [image, setImage] = useState("");
@@ -41,6 +36,7 @@ const Auth = () => {
 
   // Email.js
   const [email, setEmail] = useState("");
+  const [campus, setCampus] = useState("");
 
   // Password
   const [username, setUsername] = useState("");
@@ -65,8 +61,9 @@ const Auth = () => {
 
   const createUser = async () => {
     setLoading(true);
+    const derivedUsername = email.split('@')[0];
 
-    if (usernames.includes(username)) {
+    if (usernames.includes(derivedUsername)) {
       setLoading(false);
       alert("Your username has already been picked, choose another one :(");
     } else {
@@ -127,11 +124,12 @@ const Auth = () => {
     });
 
     // Initialize user data
+    const derivedUsername = email.split('@')[0];
     const userData = {
       id: uid,
       firstName,
       lastName,
-      username,
+      username: derivedUsername,
       email,
       age: parseInt(age),
       hasImage: image !== "",
@@ -139,7 +137,7 @@ const Auth = () => {
       tags,
       pronouns,
       bio,
-      school,
+      school: campus || school,
       hostedEventIDs: [],
       attendingEventIDs: [],
       attendedEventIDs: [],
@@ -198,67 +196,42 @@ const Auth = () => {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="ForgetPassword" component={ForgetPassword} />
 
-      <Stack.Screen name="Name" options={{ headerShown: false }}>
+      <Stack.Screen name="CreateAccountFlow" options={{ headerShown: false }}>
         {(props) => (
-          <Name
+          <CreateAccountFlow
             {...props}
             firstName={firstName}
             lastName={lastName}
             setFirstName={setFirstName}
             setLastName={setLastName}
-            age={age}
-            setAge={setAge}
-            bio={bio}
-            setBio={setBio}
-            image={image}
-            setImage={setImage}
             pronouns={pronouns}
             setPronouns={setPronouns}
-          />
-        )}
-      </Stack.Screen>
-      <Stack.Screen name="Tags" options={{ headerShown: false }}>
-        {(props) => (
-          <Tags
-            {...props}
-            schoolTags={schoolTags}
-            setSchoolTags={setSchoolTags}
-            hobbyTags={hobbyTags}
-            setHobbyTags={setHobbyTags}
+            image={image}
+            setImage={setImage}
+            bio={bio}
+            setBio={setBio}
             foodTags={foodTags}
             setFoodTags={setFoodTags}
-          />
-        )}
-      </Stack.Screen>
-      <Stack.Screen name="Email" options={{ headerShown: false }}>
-        {(props) => 
-          <Email {...props}
+            hobbyTags={hobbyTags}
+            setHobbyTags={setHobbyTags}
+            schoolTags={schoolTags}
+            setSchoolTags={setSchoolTags}
             email={email}
-            setEmail={setEmail} 
-            school={school}
-            setSchool={setSchool}
-          />}
-      </Stack.Screen>
-
-
-      <Stack.Screen name="Day" options={{ headerShown: false }} component={Day}/>
-        
-      <Stack.Screen name="Password" options={{ headerShown: false }}>
-        {(props) => (
-          <Password
-            {...props}
-            username={username}
-            setUsername={setUsername}
-            usernames={usernames}
+            setEmail={setEmail}
+            campus={campus}
+            setCampus={setCampus}
             password={password}
             setPassword={setPassword}
             createUser={createUser}
             loading={loading}
-            email={email}
-            setEmail={setEmail}
+            username={username}
+            setUsername={setUsername}
+            usernames={usernames}
           />
         )}
       </Stack.Screen>
+
+      <Stack.Screen name="EditUserTags" options={{ headerShown: false }} component={EditUserTags} />
     </Stack.Navigator>
   );
 };

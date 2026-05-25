@@ -31,7 +31,8 @@ const LargeButton = ({ onPress, outlined = false, color = 'green', children, dis
   };
 
   const isGray = color === 'gray';
-  const accentColor = isGray ? colors.outline : colors.primary;
+  const isGreen = color === 'green';
+  const accentColor = isGray ? colors.outline : isGreen ? colors.primary : color;
 
   const wrapperStyle = outlined
     ? { backgroundColor: 'transparent', borderWidth: 2, borderColor: accentColor }
@@ -39,7 +40,7 @@ const LargeButton = ({ onPress, outlined = false, color = 'green', children, dis
 
   const textColor = outlined ? accentColor : colors.onPrimary;
   const rippleColor = outlined
-    ? (isGray ? 'rgba(187,187,187,0.22)' : 'rgba(93,176,117,0.22)')
+    ? (isGray ? 'rgba(187,187,187,0.22)' : isGreen ? 'rgba(93,176,117,0.22)' : `${accentColor}38`)
     : 'rgba(255,255,255,0.3)';
 
   const fontFamily = fontsLoaded

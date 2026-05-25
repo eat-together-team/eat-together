@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db, auth } from '../../provider/Firebase';
 import firebase from 'firebase/compat';
@@ -19,8 +19,43 @@ export default function Login({ navigation }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { theme } = useTheme();
   const colors = colorTokens[theme];
+  const errorOpacity = useRef(new Animated.Value(0)).current;
+  const errorHeight = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (error) {
+      Animated.parallel([
+        Animated.timing(errorOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: false,
+        }),
+        Animated.spring(errorHeight, {
+          toValue: 1,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(errorOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: false,
+        }),
+        Animated.spring(errorHeight, {
+          toValue: 0,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    }
+  }, [error]);
 
   async function login() {
     setError('');
@@ -48,12 +83,20 @@ export default function Login({ navigation }) {
       >
         <View style={styles.content}>
           <View style={styles.topSection}>
-            {error && (
-              <>
-                <InformationCard type="Error" text={error} />
-                <View style={styles.errorGap} />
-              </>
-            )}
+            <Animated.View
+              style={[
+                styles.errorContainer,
+                {
+                  opacity: errorOpacity,
+                  maxHeight: errorHeight.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 200],
+                  }),
+                },
+              ]}
+            >
+              {error && <InformationCard type="Error" text={error} />}
+            </Animated.View>
             <View style={styles.inputsSection}>
             <TextInputField
               hint="Email"
@@ -72,7 +115,8 @@ export default function Login({ navigation }) {
               leadingIcon={
                 <Ionicons name="lock-closed-outline" size={16} color={colors.onBackground} />
               }
-              secureTextEntry
+              secureTextEntry={!showPassword}
+              trailingIcon={<Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={16} color={colors.onBackground} onPress={() => setShowPassword(!showPassword)} />}
             />
             <View style={styles.forgotPasswordGap} />
             <SmallTextButton
@@ -111,8 +155,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 24,
   },
-  errorGap: {
-    height: 20,
+  errorContainer: {
+    marginBottom: 15,
+    overflow: 'hidden',
   },
   inputsSection: {
     gap: 5,
