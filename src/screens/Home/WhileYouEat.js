@@ -431,7 +431,6 @@ const WhileYouEat = ({ route, navigation }) => {
     fetchData();
   }, []);
 
-
   const incrementStep = () => {
     setRecSteps((prevStep) => prevStep + 1);
   }
@@ -469,7 +468,7 @@ const WhileYouEat = ({ route, navigation }) => {
   return (
     <Layout>
 
-    {attendingTutorial &&
+    {attendingTutorial && !route.params?.tutorialStep &&
         <>
           <RecTutorialMessage
             userId={user.uid}
