@@ -5,63 +5,62 @@ import TagsSection from '../../components/TagsSection';
 import MediumText from '../../components/MediumText';
 
 // Dietary screen that allows users to select dietary preferences
-const DietaryPref = ({setSelectedDietaryTags, selectedDietaryTags}) => {
+const DietaryPref = ({navigation, setSelectedDietaryTags, selectedDietaryTags}) => {
 
   //dietary tags (approved category aliases) from Yelp
-  const dietaryTags = ["vegan","vegetarian","gluten_free","halal","kosher"];
+  const dietaryTags = ["Vegan","Vegetarian","Gluten-free","Halal","Kosher","Dairy-free","Pescatarian","Meat eater","Spicy-food lover","Non-spicy foods only"];
   return (
-    <View>
+    <View style={styles.cardWrapper}>
         <RestaurantCard>
             <View style = {styles.questionContainer}>
-                <MediumText color = "#5DB075" center ="center">Do you have any dietary preferences?</MediumText>
+                <MediumText center ="center">Do you have any dietary restrictions?</MediumText>
             </View>
-            <View style = {styles.exampleTextContainer}>
-                <MediumText size = {13} color = "#A9A9A9" center={true}>E.g. Vegetarian, Gluten-free</MediumText>
-            </View>
+
             <View style = {styles.textInputContainer}>
               <TagsSection
-                        multi={true}
-                        selectedItems={selectedDietaryTags}
-                        onItemSelect={(item) => {
-                            if (selectedDietaryTags.length >= 4) {
-                                alert("You can only select up to 4 tags.");
-                            } else {
-                              setSelectedDietaryTags([...selectedDietaryTags, item]);
-                            }
-                        }}
-                        onRemoveItem={(item, index) => {
-                            const newTags = selectedDietaryTags.filter((tag, i) => i !== index);
-                            setSelectedDietaryTags(newTags);
-                        }}
-                        items={dietaryTags}
-                        chip={true}
-                        resetValue={false}
-                    />
+                placeholder="Add a dietary restriction"
+                multi={true}
+                selectedItems={selectedDietaryTags}
+                onItemSelect={(item) => {
+                  if (selectedDietaryTags.length >= 4) {
+                    alert("You can only select up to 4 tags.");
+                  } else {
+                    setSelectedDietaryTags([...selectedDietaryTags, item]);
+                  }
+                }}
+                onRemoveItem={(item, index) => {
+                  const newTags = selectedDietaryTags.filter((tag, i) => i !== index);
+                  setSelectedDietaryTags(newTags);
+                }}
+                items={dietaryTags}
+                chip={true}
+                resetValue={false}
+                onInputPress={() => navigation.navigate('TagSearch', { items: dietaryTags, selectedItems: selectedDietaryTags, screenType: 'dietary', title: 'Add dietary restrictions' })}
+              />
             </View>
         </RestaurantCard>
     </View>
   )
 }
 const styles = StyleSheet.create({
+    cardWrapper: {
+      width: 311,
+      borderWidth: 2,
+      borderColor: '#D0D0D0',
+      borderRadius: 20,
+      backgroundColor: '#F7F7F7',
+      overflow: 'hidden',
+    },
+    
     questionContainer:{
-        backgroundColor:'#FFFFFF',
+        backgroundColor:'#F7F7F7',
         width: '100%',
-        height: 105,
-        borderTopLeftRadius: 40,
-        borderTopRightRadius: 40,
-        shadowOpacity: 0.25,
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
         display:'flex',
         justifyContent:'center',
         alignItems:'center',
+        marginBottom: 20,
       },
-      exampleTextContainer:{
-        marginTop:30,
-        marginBottom:10,
-      },
+
       dietTagInput:{
         width:"90%",
         borderColor:'gray',
@@ -69,6 +68,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         height: 35,
       },
+
       textInputContainer:{
         alignItems:'center',
         width:'90%',

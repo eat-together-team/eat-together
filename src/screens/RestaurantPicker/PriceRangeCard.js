@@ -8,61 +8,41 @@ import PriceRangeButton from '../../components/PriceRangeButton';
 const PriceRangeCard = ({setPriceRange, priceRange}) => {
 
   return (
-    <View>
-        <RestaurantCard>
+    <View style={styles.cardWrapper}>
+        <RestaurantCard height={510}>
             <View style = {styles.questionContainer}>
-              <MediumText center = "center" color = "#5DB075">What is your price {'\n'}range?</MediumText>
+              <MediumText center = "center" marginBottom={10}>What is your price {'\n'}range?</MediumText>
             </View>
             <View style = {styles.buttonContainer}>
-              <PriceRangeButton dollars="$" text="(Under $10)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
-              <PriceRangeButton dollars="$$" text="($11-$30)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
-              <PriceRangeButton dollars="$$$" text="($31-$60)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
-              <PriceRangeButton dollars="$$$$" text="(Above $61)" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+              <PriceRangeButton dollars="$" text="$10 and under" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+              <PriceRangeButton dollars="$$" text="$10 to $30" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+              <PriceRangeButton dollars="$$$" text="$30 to $60" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+              <PriceRangeButton dollars="$$$$" text="$60 and above" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
             </View>
         </RestaurantCard>
     </View>
   )
 }
 const styles = StyleSheet.create({
+    cardWrapper: {
+      width: 311,
+      borderWidth: 2,
+      borderColor: '#D0D0D0',
+      borderRadius: 20,
+      backgroundColor: '#F7F7F7',
+      overflow: 'hidden',
+    },
+    
     questionContainer:{
-        backgroundColor:'#FFFFFF',
+        backgroundColor:'#F7F7F7',
         width: '100%',
-        height: 105,
-        borderTopLeftRadius: 40,
-        borderTopRightRadius: 40,
-        shadowOpacity: 0.25,
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
         display:'flex',
         justifyContent:'center',
         alignItems:'center',
       },
-      exampleTextContainer:{
-        marginTop:30,
-        marginBottom:10,
-      },
-      exampleText:{
-        fontFamily:'Inter',
-        fontWeight: 600,
-        fontSize:15,
-        lineHeight: 15,
-        color:"#A9A9A9",
-        textAlign:'center'
-      },
-      dietTagInput:{
-        width:"90%",
-        borderColor:'gray',
-        borderWidth: 0.5,
-        borderRadius: 5,
-        height: 35,
-      },
-      textInputContainer:{
-        alignItems:'center',
-      },
+      
       buttonContainer:{
-        height: 370,
+        height: 410,
         display:'flex',
         justifyContent:'space-evenly',
         alignItems:'center'
