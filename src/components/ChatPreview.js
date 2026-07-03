@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Image, Dimensions, TouchableOpacity } from "react-native";
-import MediumText from "./MediumText";
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { useFonts, Inter_600SemiBold, Inter_700Bold } from "@expo-google-fonts/inter";
+import Header4Text from "./typography/Header4Text";
+import SubBodyText from "./typography/SubBodyText";
+import { useTheme } from "../rapi_ui_components";
+import { colorTokens } from "../theme/colorTokens";
 import { storage } from "../provider/Firebase";
-import SmallText from "./SmallText";
 import moment from "moment";
 
+const DEFAULT_AVATAR =
+  "https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png";
+
 const ChatPreview = (props) => {
-  const [image, setImage] = useState(
-    "https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png"
-  );
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
+  const [image, setImage] = useState(DEFAULT_AVATAR);
+  // Figma's "Header 3" style (13px Semi Bold) and the unread "Sub body" variant
+  // (12px Bold) aren't in the typography/ set, so load the extra weights here.
+  const [fontsLoaded] = useFonts({ Inter_600SemiBold, Inter_700Bold });
+
   useEffect(() => {
-    // TODO: Fix these pictures not showing up
     if (props.group.hasImage) {
       storage
         .ref("profilePictures/" + props.group.pictureID)
@@ -21,28 +30,37 @@ const ChatPreview = (props) => {
     }
   }, []);
 
-  let time = moment.unix(props.group.time).fromNow(true);
+  const time =
+    props.group.time !== "" ? moment.unix(props.group.time).fromNow(true) : "";
 
   return (
-    <TouchableOpacity style={styles.outline} onPress={props.onPress}>
-      <View style={styles.head}>
-        {props.group.unread && <View style={styles.unread}/>}
-
-        <View style={styles.time}>
-          {props.group.time !== "" && <SmallText size={13}>{time}</SmallText>}
-        </View>
-
-        <View style={styles.headleft}>
-          <Image style={styles.image} source={{ uri: image }} />
-          <View style={styles.textContainer}>
-            <View style={styles.nametimeframe}>
-              <MediumText size={18}>{props.group.name}</MediumText>
-            </View>
-            <View>
-              {props.group.message !== "" &&
-                <SmallText size={15} weight={props.group.unread ? "bold" : "normal"} fontFamily={'Inter_900Black'} >"{props.group.message}"</SmallText>}
-            </View>
-          </View>
+    <TouchableOpacity style={styles.row} onPress={props.onPress}>
+      <Image source={{ uri: image }} style={styles.avatar} />
+      <View style={styles.content}>
+        <Header4Text
+          color={tokens.textNormal}
+          style={fontsLoaded ? { fontFamily: "Inter_600SemiBold" } : undefined}
+        >
+          {props.group.name}
+        </Header4Text>
+        <View style={styles.messageRow}>
+          {props.group.message !== "" && (
+            <SubBodyText
+              color={tokens.textNormal}
+              numberOfLines={1}
+              style={[
+                { flexShrink: 1 },
+                props.group.unread && fontsLoaded
+                  ? { fontFamily: "Inter_700Bold" }
+                  : null,
+              ]}
+            >
+              {props.group.message}
+            </SubBodyText>
+          )}
+          {time !== "" && (
+            <SubBodyText color={tokens.textMedium}> · {time}</SubBodyText>
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -50,65 +68,26 @@ const ChatPreview = (props) => {
 };
 
 const styles = StyleSheet.create({
-  outline: {
-    padding: 10,
-    alignItems: "center",
-  },
-
-  head: {
-    width: Dimensions.get('window').width,
-    height: 80,
+  row: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingLeft: 20,
-    paddingRight: 30
+    gap: 18,
+    paddingVertical: 10,
+    width: "100%",
   },
-
-  headleft: {
+  avatar: {
+    width: 63,
+    height: 63,
+    borderRadius: 32,
+  },
+  content: {
+    flex: 1,
+    gap: 6,
+  },
+  messageRow: {
     flexDirection: "row",
     alignItems: "center",
-    maxWidth: 200,
-    justifyContent: "space-between"
   },
-
-  textContainer: {
-    flexDirection: "column"
-  },
-
-  image: {
-    width: 60,
-    height: 60,
-    borderRadius: 90,
-    borderColor: "white",
-    borderWidth: 2,
-    marginRight: 20,
-  },
-
-  name: {
-    marginRight: 20
-  },
-
-  unread: {
-    width: 10,
-    height: 10,
-    borderRadius: 10,
-    backgroundColor: "#5DB075",
-    position: "absolute",
-    top: 35,
-    left: 5
-  },
-
-  time: {
-    position: "absolute",
-    top: 5,
-    right: 25
-  },
-
-  nametimeframe: {
-    marginBottom: 5
-  }
-
 });
 
 export default ChatPreview;

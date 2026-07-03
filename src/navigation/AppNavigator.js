@@ -20,6 +20,7 @@ import ExploreMain from "../screens/Explore/ExploreMain";
 import TryOut from "../screens/TryOut";
 import ProfileMain from "../screens/Profile/ProfileMain";
 import NotificationsMain from "../screens/Notifications/NotificationsMain";
+import ChatMain from "../screens/Chat/ChatMain";
 import Loading from "../screens/utils/Loading";
 
 // Auth screens
@@ -65,7 +66,7 @@ const Tabs = createBottomTabNavigator();
 const MainTabs = () => {
   const auth_context = useContext(AuthContext);
   const profileImageUri = auth_context.profileImageUri;
-  const hasNotif = auth_context.hasNotif;
+  const hasUnreadMessages = auth_context.hasUnreadMessages;
   const user = auth_context.currUser;
 
   const { theme } = useTheme();
@@ -134,13 +135,13 @@ const MainTabs = () => {
       />
       <Tabs.Screen
         name="Notifs"
-        component={user.uid == tryoutId ? TryOut : NotificationsMain}
+        component={user.uid == tryoutId ? TryOut : ChatMain}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               focused={focused}
               icon={focused ? "mail-open" : "mail-open-outline"}
-              showBadge={hasNotif}
+              showBadge={hasUnreadMessages}
               title="Inbox"
             />
           ),

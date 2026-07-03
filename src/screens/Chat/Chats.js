@@ -5,24 +5,23 @@ import {
   View,
   StyleSheet,
   FlatList,
-  ActivityIndicator
+  ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
-import { Button, Layout } from "../../rapi_ui_components";
+import { Ionicons } from "@expo/vector-icons";
+import { Layout, useTheme } from "../../rapi_ui_components";
+import { colorTokens } from "../../theme/colorTokens";
 
-import Header from "../../components/Header";
 import ChatPreview from "../../components/ChatPreview";
-import SearchableDropdown from "../../components/SearchableDropdown";
-import HorizontalSwitch from "../../components/HorizontalSwitch";
+import Searchbar from "../../components/Searchbar";
 import EmptyState from "../../components/EmptyState";
-
-import NormalText from "../../components/NormalText";
 import MediumText from "../../components/MediumText";
-import CustomButton from "../../components/CustomButton";
+import SmallTextButton from "../../components/SmallTextButton";
+import Header1Text from "../../components/typography/Header1Text";
+import Header3Text from "../../components/typography/Header3Text";
 
 import { db } from "../../provider/Firebase";
 import firebase from "firebase/compat";
-
-import {useIsFocused} from "@react-navigation/native";
 
 export const createNewChat = (
   userIDs,
@@ -49,77 +48,18 @@ export const createNewChat = (
 };
 
 export default function ({ navigation }) {
-  // Chats with other users
-  const [selectedUsers, setSelectedUsers] = useState([]);
-  const [users, setUsers] = useState([]);
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
+
   const [groups, setGroups] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [search, setSearch] = useState("");
 
   // Current user
   const user = firebase.auth().currentUser;
-  const [userInfo, setUserInfo] = useState(null);
 
   const [loading, setLoading] = useState(true); // Loading state for the page
 
-  const createNewChatDefault = () => {
-    // Generate group id using the concatenation of all the selected usernames
-    let allUsernames = [];
-    let allNames = [];
-
-    selectedUsers.map((user) => {
-      allUsernames.push(user.username);
-      allNames.push(user.name);
-    });
-
-    allUsernames.push(userInfo.username);
-    allNames.push(userInfo.firstName + " " + userInfo.lastName);
-    const chatID = allUsernames.sort().join();
-
-    // Get all the uid in this chat
-    let allUIDs = [];
-    selectedUsers.map((user) => {
-      allUIDs.push(user.id);
-    });
-    allUIDs.push(user.uid);
-
-    // Create a new doc in the groups collection on firestore
-    db.collection("Groups")
-      .doc(chatID)
-      .set({
-        uids: allUIDs,
-        name: allNames.join(", "),
-        messages: [],
-      });
-
-    // Update each user's data to include this chat
-    allUIDs.map((uid) => {
-      db.collection("Users")
-        .doc(uid)
-        .update({
-          groupIDs: firebase.firestore.FieldValue.arrayUnion(chatID),
-        });
-    });
-
-    let name = allNames.join(", ");
-    let currUserName = userInfo.firstName + " " + userInfo.lastName
-    if(allUIDs.length >= 2) {
-      name = name.replace(currUserName + ", ", "");
-
-      if (name.endsWith(", " + currUserName)) {
-        name = name.slice(0, -1 * (currUserName.length + 2));
-      }
-    }
-
-    navigation.navigate("ChatRoom", {
-      group: {
-        groupID: chatID,
-        uids: allUIDs,
-        name,
-        messages: [],
-      },
-    });
-  };
-
-  // Get your taste buds as search suggestions
   useEffect(() => {
     db.collection("Users").doc(user.uid).update({
       hasUnreadMessages: false
@@ -127,15 +67,16 @@ export default function ({ navigation }) {
 
     db.collection("Users").doc(user.uid).onSnapshot((doc) => {
       if (doc.exists) {
-        setUserInfo(doc.data());
-
         const nameCurrent = doc.data().firstName + " " + doc.data().lastName;
-        const friends = doc.data().friendIDs;
         const groups = doc.data().groupIDs;
 
         // update the groups displayed
         let temp = [];
         let lenGroups = groups.length;
+
+        if (lenGroups === 0) {
+          setGroups([]);
+        }
 
         groups.forEach((groupID) => {
           db.collection("Groups")
@@ -195,86 +136,68 @@ export default function ({ navigation }) {
         });
 
         setLoading(false);
-
-        // prepare the list of all connections for searchbar
-        let list = [];
-        friends.forEach((uid) => {
-          db.collection("Users")
-            .doc(uid)
-            .get()
-            .then((doc) => {
-              let data = doc.data();
-              list.push({
-                id: data.id,
-                username: data.username,
-                name: data.firstName + " " + data.lastName,
-                hasImage: data.hasImage,
-                pictureID: data.id,
-              });
-            })
-            .then(() => {
-              setUsers(list);
-            });
-        });
       }
     });
+
+    // --- FRIEND REQUESTS LISTENER (for the "Requests (N)" button) ---
+    const unsubscribeRequests = db
+      .collection("User Invites")
+      .doc(user.uid)
+      .collection("Connections")
+      .onSnapshot((querySnapshot) => {
+        setRequests(querySnapshot.docs);
+      });
+
+    return () => unsubscribeRequests();
   }, []);
 
+  const filteredGroups = groups.filter((group) =>
+    group.name.toLowerCase().includes(search.trim().toLowerCase())
+  );
 
   return (
     <Layout>
-      <Header name="Messages" navigation={navigation} connections/>
-      <HorizontalSwitch
-        left="Notifications"
-        right="Messages"
-        current="right"
-        press={(val) => navigation.navigate("Notifications")}
-      />
+      <View style={styles.header}>
+        <Header1Text color={tokens.onBackground} style={{ fontSize: 30 }}>
+          Inbox
+        </Header1Text>
+        <View style={styles.headerIcons}>
+          <TouchableOpacity onPress={() => navigation.navigate("GroupChat")}>
+            <Ionicons name="pencil-outline" size={20} color={tokens.onBackground} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              alert("Archived chats are coming soon!")
+            }
+          >
+            <Ionicons name="archive-outline" size={20} color={tokens.onBackground} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <Searchbar value={search} onChangeText={setSearch} placeholder="Search" />
+
+      <View style={styles.messagesRow}>
+        <Header3Text color={tokens.onBackground}>Messages</Header3Text>
+        {requests.length > 0 && (
+          <SmallTextButton
+            text={`Requests (${requests.length})`}
+            onPress={() => navigation.navigate("Requests")}
+          />
+        )}
+      </View>
 
       <View style={styles.content}>
-        <View style={styles.searchArea}>
-          <SearchableDropdown
-            multi={true}
-            selectedItems={selectedUsers}
-            onItemSelect={(item) => {
-              setSelectedUsers([...selectedUsers, item]);
-            }}
-            containerStyle={{ padding: 0, width: "100%" }}
-            onRemoveItem={(item) => {
-              const items = selectedUsers.filter(
-                (sitem) => sitem.id !== item.id
-              );
-              setSelectedUsers(items);
-            }}
-            itemStyle={{
-              padding: 10,
-              borderWidth: 2,
-              borderColor: '#5DB075',
-              borderRadius: 5,
-              marginTop: 2,
-            }}
-            height={50}
-            itemTextStyle={{ color: "#222" }}
-            itemsContainerStyle={{ maxHeight: 140 }}
-            items={users}
-            defaultIndex={2}
-            chip={false}
-            resetValue={true}
-            textInputProps={{
-              placeholder: "Search for connections",
-            }}
-          />
-        </View>
         {loading ?
           <View style={styles.noChatsView}>
-            <ActivityIndicator size={100} color="#5DB075" />
+            <ActivityIndicator size={100} color={tokens.primary} />
             <MediumText>Hang tight ...</MediumText>
           </View>
-        : groups.length > 0 ?
+        : filteredGroups.length > 0 ?
           <FlatList
             contentContainerStyle={styles.chats}
-            keyExtractor={(item) => item.id}
-            data={groups}
+            keyExtractor={(item) => item.groupID}
+            data={filteredGroups}
             renderItem={({ item }) => (
               <ChatPreview
                 group={item}
@@ -282,16 +205,6 @@ export default function ({ navigation }) {
                   navigation.navigate("ChatRoom", {
                     group: item,
                   });
-                }}
-                click={() => {
-                  db.collection("Users")
-                    .doc(item.id)
-                    .get()
-                    .then((doc) => {
-                      navigation.navigate("FullProfile", {
-                        person: doc.data(),
-                      });
-                    });
                 }}
               />
             )}
@@ -305,16 +218,27 @@ export default function ({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  switchView: {
-    marginTop: 10,
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+  headerIcons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 20,
+  },
+  messagesRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingBottom: 10,
   },
   content: {
     flex: 1
-  },
-  searchArea: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 10,
   },
   chats: {
     paddingHorizontal: 20,
