@@ -8,13 +8,15 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import TabBarIcon from "../components/utils/TabBarIcon";
-import TabBarText from "../components/utils/TabBarText";
+import EventTabButton from "../components/utils/EventTabButton";
+import BottomTabBar from "../components/utils/BottomTabBar";
 import ProfilePic from "../components/ProfilePic";
+import { useTheme } from "../provider/ThemeProvider";
+import { colorTokens } from "../theme/colorTokens";
 
 // Screens (Make sure to import if ever adding new screen!)
 import OrganizeMain from "../screens/Organize/OrganizeMain";
 import ExploreMain from "../screens/Explore/ExploreMain";
-import HomeMain from "../screens/Home/HomeMain";
 import TryOut from "../screens/TryOut";
 import ProfileMain from "../screens/Profile/ProfileMain";
 import NotificationsMain from "../screens/Notifications/NotificationsMain";
@@ -66,6 +68,9 @@ const MainTabs = () => {
   const hasNotif = auth_context.hasNotif;
   const user = auth_context.currUser;
 
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
+
   const { syncNotificationSettings } = useNotificationSync(user.uid);
 
   // Prevent unnecessary reloads of data
@@ -100,26 +105,18 @@ const MainTabs = () => {
 
   return (
     <Tabs.Navigator
-      initialRouteName={user.uid === tryoutId ? "Explore" : "Home"}
+      initialRouteName="Explore"
+      tabBar={(props) => <BottomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         animationEnabled: false,
-        tabBarShowLabel: false,
-        tabBarStyle: [
-          {
-            backgroundColor: "#ffffff",
-          },
-          null
-        ]
       }}
     >
       <Tabs.Screen
-        name="Home"
-        component={user.uid == tryoutId ? TryOut : HomeMain}
+        name="Organize"
+        component={user.uid == tryoutId ? TryOut : OrganizeMain}
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabBarIcon focused={focused} icon={"home-outline"} title="Home" />
-          ),
+          tabBarIcon: () => <EventTabButton />,
         }}
       />
       <Tabs.Screen
@@ -129,21 +126,8 @@ const MainTabs = () => {
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               focused={focused}
-              icon={"compass-outline"}
+              icon={focused ? "sparkles" : "sparkles-outline"}
               title="Explore"
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="Organize"
-        component={user.uid == tryoutId ? TryOut : OrganizeMain}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabBarIcon
-              focused={focused}
-              icon={"create-outline"}
-              title="Organize"
             />
           ),
         }}
@@ -152,13 +136,11 @@ const MainTabs = () => {
         name="Notifs"
         component={user.uid == tryoutId ? TryOut : NotificationsMain}
         options={{
-          tabBarLabel: ({ focused }) => (
-            <TabBarText focused={focused} title="Inbox" />
-          ),
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               focused={focused}
-              icon={hasNotif ? "mail-unread-outline" : "mail-outline"}
+              icon={focused ? "mail-open" : "mail-open-outline"}
+              showBadge={hasNotif}
               title="Inbox"
             />
           ),
@@ -168,7 +150,21 @@ const MainTabs = () => {
         name="Profile"
         component={user.uid == tryoutId ? TryOut : ProfileMain}
         options={{
-          tabBarIcon: () => <ProfilePic size={38} uri={profileImageUri} />,
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              focusedColor={tokens.onBackground}
+              iconElement={
+                <ProfilePic
+                  size={32}
+                  uri={profileImageUri}
+                  bordered={focused}
+                  ringColor={tokens.onBackground}
+                />
+              }
+              title="Account"
+            />
+          ),
         }}
       />
     </Tabs.Navigator>
