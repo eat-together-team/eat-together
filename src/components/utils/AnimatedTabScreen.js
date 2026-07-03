@@ -7,11 +7,13 @@
 //native app, which this build doesn't have yet.
 
 import React, { useEffect, useRef } from "react";
-import { Animated } from "react-native";
+import { Animated, StatusBar } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
+import { useTheme } from "../../provider/ThemeProvider";
 
 export default function AnimatedTabScreen({ children }) {
   const isFocused = useIsFocused();
+  const { theme } = useTheme();
   const opacity = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
 
   useEffect(() => {
@@ -26,6 +28,15 @@ export default function AnimatedTabScreen({ children }) {
   }, [isFocused]);
 
   return (
-    <Animated.View style={{ flex: 1, opacity }}>{children}</Animated.View>
+    <Animated.View style={{ flex: 1, opacity }}>
+      {/* Reasserts the theme's status bar style on every tab focus, since
+          screens like FullProfile/Me hardcode a light-content override for
+          their own hero image and RN's StatusBar doesn't revert it once
+          that screen is left mounted in the background. */}
+      {isFocused && (
+        <StatusBar barStyle={theme === "dark" ? "light-content" : "dark-content"} />
+      )}
+      {children}
+    </Animated.View>
   );
 }

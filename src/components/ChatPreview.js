@@ -49,7 +49,11 @@ const ChatPreview = (props) => {
       <View style={styles.content}>
         <Header4Text
           color={tokens.textNormal}
-          style={fontsLoaded ? { fontFamily: "Inter_600SemiBold" } : undefined}
+          style={
+            fontsLoaded
+              ? { fontFamily: "Inter_600SemiBold", fontSize: 15 }
+              : { fontSize: 15 }
+          }
         >
           {props.group.name}
         </Header4Text>

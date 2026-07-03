@@ -1,23 +1,20 @@
 //Chat with users you have already connected with
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
   FlatList,
-  ActivityIndicator,
-  TouchableOpacity,
+  Animated,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { Layout, useTheme } from "../../rapi_ui_components";
 import { colorTokens } from "../../theme/colorTokens";
 
 import ChatPreview from "../../components/ChatPreview";
+import ChatPreviewSkeleton from "../../components/ChatPreviewSkeleton";
 import Searchbar from "../../components/Searchbar";
-import EmptyState from "../../components/EmptyState";
-import MediumText from "../../components/MediumText";
 import SmallTextButton from "../../components/SmallTextButton";
-import Header1Text from "../../components/typography/Header1Text";
+import LargeAppBar from "../../components/LargeAppBar";
 import Header3Text from "../../components/typography/Header3Text";
 
 import { db } from "../../provider/Firebase";
@@ -59,6 +56,18 @@ export default function ({ navigation }) {
   const user = firebase.auth().currentUser;
 
   const [loading, setLoading] = useState(true); // Loading state for the page
+  const contentOpacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!loading) {
+      contentOpacity.setValue(0);
+      Animated.timing(contentOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [loading]);
 
   useEffect(() => {
     db.collection("Users").doc(user.uid).update({
@@ -76,6 +85,7 @@ export default function ({ navigation }) {
 
         if (lenGroups === 0) {
           setGroups([]);
+          setLoading(false);
         }
 
         groups.forEach((groupID) => {
@@ -152,11 +162,10 @@ export default function ({ navigation }) {
                   return b.time - a.time;
                 });
                 setGroups(temp);
+                setLoading(false);
               }
             });
         });
-
-        setLoading(false);
       }
     });
 
@@ -178,23 +187,13 @@ export default function ({ navigation }) {
 
   return (
     <Layout>
-      <View style={styles.header}>
-        <Header1Text color={tokens.onBackground} style={{ fontSize: 30 }}>
-          Inbox
-        </Header1Text>
-        <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={() => navigation.navigate("GroupChat")}>
-            <Ionicons name="pencil-outline" size={20} color={tokens.onBackground} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() =>
-              alert("Archived chats are coming soon!")
-            }
-          >
-            <Ionicons name="archive-outline" size={20} color={tokens.onBackground} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <LargeAppBar
+        title="Inbox"
+        actions={[
+          { icon: "pencil-outline", onPress: () => navigation.navigate("GroupChat") },
+          { icon: "archive-outline", onPress: () => alert("Archived chats are coming soon!") },
+        ]}
+      />
 
       <Searchbar value={search} onChangeText={setSearch} placeholder="Search" />
 
@@ -210,28 +209,29 @@ export default function ({ navigation }) {
 
       <View style={styles.content}>
         {loading ?
-          <View style={styles.noChatsView}>
-            <ActivityIndicator size={100} color={tokens.primary} />
-            <MediumText>Hang tight ...</MediumText>
+          <View style={styles.chats}>
+            {Array.from({ length: 7 }).map((_, index) => (
+              <ChatPreviewSkeleton key={index} />
+            ))}
           </View>
-        : filteredGroups.length > 0 ?
-          <FlatList
-            contentContainerStyle={styles.chats}
-            keyExtractor={(item) => item.groupID}
-            data={filteredGroups}
-            renderItem={({ item }) => (
-              <ChatPreview
-                group={item}
-                onPress={() => {
-                  navigation.navigate("ChatRoom", {
-                    group: item,
-                  });
-                }}
-              />
-            )}
-          />
         :
-          <EmptyState title="No Chats" text="Make one above, or make new friends!"/>
+          <Animated.View style={{ flex: 1, opacity: contentOpacity }}>
+            <FlatList
+              contentContainerStyle={styles.chats}
+              keyExtractor={(item) => item.groupID}
+              data={filteredGroups}
+              renderItem={({ item }) => (
+                <ChatPreview
+                  group={item}
+                  onPress={() => {
+                    navigation.navigate("ChatRoom", {
+                      group: item,
+                    });
+                  }}
+                />
+              )}
+            />
+          </Animated.View>
         }
       </View>
     </Layout>
@@ -239,18 +239,6 @@ export default function ({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 10,
-  },
-  headerIcons: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 20,
-  },
   messagesRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -264,9 +252,4 @@ const styles = StyleSheet.create({
   chats: {
     paddingHorizontal: 20,
   },
-  noChatsView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  }
 });
