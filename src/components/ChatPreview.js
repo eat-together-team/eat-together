@@ -8,34 +8,44 @@ import { colorTokens } from "../theme/colorTokens";
 import { storage } from "../provider/Firebase";
 import moment from "moment";
 
-const DEFAULT_AVATAR =
-  "https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png";
+const avatarPlaceholderLight = require("../../assets/icons/avatar-placeholder-light.png");
+const avatarPlaceholderDark = require("../../assets/icons/avatar-placeholder-dark.png");
 
 const ChatPreview = (props) => {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
-  const [image, setImage] = useState(DEFAULT_AVATAR);
+  const [imageUri, setImageUri] = useState(null);
   // Figma's "Header 3" style (13px Semi Bold) and the unread "Sub body" variant
   // (12px Bold) aren't in the typography/ set, so load the extra weights here.
   const [fontsLoaded] = useFonts({ Inter_600SemiBold, Inter_700Bold });
 
   useEffect(() => {
-    if (props.group.hasImage) {
+    if (props.group.avatarUri) {
+      // 1-on-1 chat: the other person's own profile photo, resolved in Chats.js
+      setImageUri(props.group.avatarUri);
+    } else if (props.group.hasImage) {
+      // group chat: fall back to a dedicated group photo, if one was ever set
       storage
         .ref("profilePictures/" + props.group.pictureID)
         .getDownloadURL()
         .then((uri) => {
-          setImage(uri);
+          setImageUri(uri);
         });
     }
-  }, []);
+  }, [props.group.avatarUri]);
 
   const time =
     props.group.time !== "" ? moment.unix(props.group.time).fromNow(true) : "";
 
+  const avatarPlaceholder =
+    theme === "dark" ? avatarPlaceholderDark : avatarPlaceholderLight;
+
   return (
     <TouchableOpacity style={styles.row} onPress={props.onPress}>
-      <Image source={{ uri: image }} style={styles.avatar} />
+      <Image
+        source={imageUri ? { uri: imageUri } : avatarPlaceholder}
+        style={styles.avatar}
+      />
       <View style={styles.content}>
         <Header4Text
           color={tokens.textNormal}

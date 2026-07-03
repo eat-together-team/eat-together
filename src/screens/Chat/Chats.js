@@ -112,15 +112,36 @@ export default function ({ navigation }) {
                 }
               }
 
-              temp.push({
-                groupID: groupID,
-                name: name,
-                uids: data.uids,
-                hasImage: data.hasImage,
-                message: message,
-                unread: unread,
-                time: time,
-                pictureID: data.id,
+              // For a 1-on-1 chat, use the other person's own profile photo
+              // (same lookup ChatRoom.js uses) instead of a group photo, since
+              // group docs are never actually given one.
+              const otherUids = data.uids.filter((uid) => uid !== user.uid);
+              const avatarLookup =
+                otherUids.length === 1
+                  ? db
+                      .collection("Users")
+                      .doc(otherUids[0])
+                      .get()
+                      .then((userDoc) => {
+                        const userData = userDoc.data();
+                        return userData && userData.hasImage
+                          ? userData.image
+                          : null;
+                      })
+                  : Promise.resolve(null);
+
+              return avatarLookup.then((avatarUri) => {
+                temp.push({
+                  groupID: groupID,
+                  name: name,
+                  uids: data.uids,
+                  hasImage: data.hasImage,
+                  message: message,
+                  unread: unread,
+                  time: time,
+                  pictureID: data.id,
+                  avatarUri: avatarUri,
+                });
               });
             })
             .then(() => {
