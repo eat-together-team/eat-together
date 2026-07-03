@@ -10,6 +10,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import TabBarIcon from "../components/utils/TabBarIcon";
 import EventTabButton from "../components/utils/EventTabButton";
 import BottomTabBar from "../components/utils/BottomTabBar";
+import AnimatedTabScreen from "../components/utils/AnimatedTabScreen";
 import ProfilePic from "../components/ProfilePic";
 import { useTheme } from "../provider/ThemeProvider";
 import { colorTokens } from "../theme/colorTokens";
@@ -110,19 +111,25 @@ const MainTabs = () => {
       tabBar={(props) => <BottomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        animationEnabled: false,
       }}
     >
       <Tabs.Screen
         name="Organize"
-        component={user.uid == tryoutId ? TryOut : OrganizeMain}
         options={{
           tabBarIcon: () => <EventTabButton />,
         }}
-      />
+      >
+        {(props) => {
+          const Screen = user.uid == tryoutId ? TryOut : OrganizeMain;
+          return (
+            <AnimatedTabScreen>
+              <Screen {...props} />
+            </AnimatedTabScreen>
+          );
+        }}
+      </Tabs.Screen>
       <Tabs.Screen
         name="Explore"
-        component={ExploreMain}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
@@ -132,10 +139,15 @@ const MainTabs = () => {
             />
           ),
         }}
-      />
+      >
+        {(props) => (
+          <AnimatedTabScreen>
+            <ExploreMain {...props} />
+          </AnimatedTabScreen>
+        )}
+      </Tabs.Screen>
       <Tabs.Screen
         name="Notifs"
-        component={user.uid == tryoutId ? TryOut : ChatMain}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
@@ -146,10 +158,18 @@ const MainTabs = () => {
             />
           ),
         }}
-      />
+      >
+        {(props) => {
+          const Screen = user.uid == tryoutId ? TryOut : ChatMain;
+          return (
+            <AnimatedTabScreen>
+              <Screen {...props} />
+            </AnimatedTabScreen>
+          );
+        }}
+      </Tabs.Screen>
       <Tabs.Screen
         name="Profile"
-        component={user.uid == tryoutId ? TryOut : ProfileMain}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
@@ -167,7 +187,16 @@ const MainTabs = () => {
             />
           ),
         }}
-      />
+      >
+        {(props) => {
+          const Screen = user.uid == tryoutId ? TryOut : ProfileMain;
+          return (
+            <AnimatedTabScreen>
+              <Screen {...props} />
+            </AnimatedTabScreen>
+          );
+        }}
+      </Tabs.Screen>
     </Tabs.Navigator>
   );
 };
