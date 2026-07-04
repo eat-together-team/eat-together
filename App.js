@@ -4,6 +4,7 @@ import { AuthProvider } from "./src/provider/AuthProvider";
 import { ThemeProvider } from "./src/rapi_ui_components";
 import { MenuProvider } from "react-native-popup-menu";
 import { LogBox } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as Network from 'expo-network';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 import 'react-native-reanimated';
@@ -39,12 +40,14 @@ export default function App() {
   ];
 
   return (
-    <MenuProvider>
-      <ThemeProvider images={images}>
-        <AuthProvider>
-          <AppNavigator />
-        </AuthProvider>
-      </ThemeProvider>
-    </MenuProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <MenuProvider>
+        <ThemeProvider images={images}>
+          <AuthProvider>
+            <AppNavigator />
+          </AuthProvider>
+        </ThemeProvider>
+      </MenuProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -185,6 +185,17 @@ export default function ({ navigation }) {
     group.name.toLowerCase().includes(search.trim().toLowerCase())
   );
 
+  const handleDeleteChat = (groupID) => {
+    // Only drop it from the current user's own inbox — the shared Groups
+    // doc stays intact since other participants are still in the chat.
+    setGroups((prev) => prev.filter((group) => group.groupID !== groupID));
+    db.collection("Users")
+      .doc(user.uid)
+      .update({
+        groupIDs: firebase.firestore.FieldValue.arrayRemove(groupID),
+      });
+  };
+
   return (
     <Layout>
       <LargeAppBar
@@ -228,6 +239,7 @@ export default function ({ navigation }) {
                       group: item,
                     });
                   }}
+                  onDelete={() => handleDeleteChat(item.groupID)}
                 />
               )}
             />

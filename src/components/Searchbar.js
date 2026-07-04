@@ -70,7 +70,7 @@ const Searchbar = ({ value, onChangeText, placeholder = 'Search', children = nul
             styles.searchBox,
             {
               backgroundColor: theme === 'dark' ? colors.containerLow : colors.background,
-              borderColor: colors.containerMedium,
+              borderColor: isFocused ? colors.textMedium : colors.containerMedium,
               shadowColor: '#000000',
               borderRadius: showResults ? 20 : 30,
               opacity: disabled ? 0.5 : 1,
@@ -132,7 +132,8 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 13,
-    textAlignVertical: 'center',
+    paddingVertical: 0,
+    includeFontPadding: false,
   },
   resultsContainer: {
     paddingHorizontal: 12,

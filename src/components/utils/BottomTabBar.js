@@ -9,7 +9,7 @@ import RippleTouchable from "./RippleTouchable";
 
 const EVENT_ROUTE_NAME = "Organize";
 
-export default function BottomTabBar({ state, descriptors, navigation }) {
+export default function BottomTabBar({ state, descriptors, navigation, insets }) {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
 
@@ -75,7 +75,10 @@ export default function BottomTabBar({ state, descriptors, navigation }) {
           alignItems: "center",
           backgroundColor: tokens.background,
           paddingTop: 15,
-          paddingBottom: 20,
+          // Extends the bar's background all the way behind the system nav
+          // bar/home indicator instead of stopping short of it, which is
+          // what left the OS's own (grayish) edge-to-edge scrim visible.
+          paddingBottom: Math.max(insets?.bottom ?? 0, 20),
           paddingHorizontal: 30,
           overflow: "hidden",
         }}

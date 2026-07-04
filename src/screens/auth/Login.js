@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, Animated } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { db, auth } from '../../provider/Firebase';
 import firebase from 'firebase/compat';
 import 'firebase/firestore';
@@ -22,6 +22,7 @@ export default function Login({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const { theme } = useTheme();
   const colors = colorTokens[theme];
+  const insets = useSafeAreaInsets();
   const errorOpacity = useRef(new Animated.Value(0)).current;
   const errorHeight = useRef(new Animated.Value(0)).current;
 
@@ -75,7 +76,10 @@ export default function Login({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
+    >
       <SmallAppBar title="Sign in" onBack={() => navigation.goBack()} />
       <KeyboardAvoidingView
         style={styles.flex}
@@ -126,7 +130,7 @@ export default function Login({ navigation }) {
             />
           </View>
         </View>
-          <View style={styles.footer}>
+          <View style={[styles.footer, { paddingBottom: insets.bottom + 15 }]}>
             <LargeButton onPress={login} disabled={loading}>
               {loading ? 'Loading...' : 'Sign in'}
             </LargeButton>
