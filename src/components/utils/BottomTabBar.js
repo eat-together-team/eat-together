@@ -3,6 +3,7 @@
 
 import React from "react";
 import { Pressable, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../../rapi_ui_components";
 import { colorTokens } from "../../theme/colorTokens";
 import RippleTouchable from "./RippleTouchable";
@@ -49,7 +50,7 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
         key={route.key}
         onPress={onPress}
         onLongPress={onLongPress}
-        color={isAccount ? tokens.onBackground : tokens.primary}
+        variant={isAccount ? "neutral" : "primary"}
       >
         {options.tabBarIcon?.({ focused: isFocused })}
       </RippleTouchable>
@@ -60,15 +61,22 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
   const otherRoutes = state.routes.filter((r) => r.name !== EVENT_ROUTE_NAME);
 
   return (
-    <View
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2.5,
-        elevation: 4,
-      }}
-    >
+    <View style={{ position: "relative" }}>
+      {/* iOS's shadow* props and Android's elevation don't produce the same
+          look (elevation can't do a directional/negative offset shadow), so
+          use a plain gradient for a shadow that's identical on both
+          platforms instead of relying on native shadow rendering. */}
+      <LinearGradient
+        pointerEvents="none"
+        colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.04)"]}
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: -10,
+          height: 10,
+        }}
+      />
       <View
         style={{
           flexDirection: "row",

@@ -68,14 +68,15 @@ export default function({ navigation }) {
               if (!doc.data().visibleTo.includes(user.uid) && !(doc.data().hostID === user.uid)) return;
             }
 
+            const blockedIDs = userData?.blockedIDs || [];
             if (doc.data().startDate) { // Same logic as else statement, but for different data structure
               if (doc.data().startDate.toDate() > new Date() &&
-                !userData.blockedIDs.includes(doc.data().hostID)) {
+                !blockedIDs.includes(doc.data().hostID)) {
                   newEvents.push(doc.data());
               }
             } else {
               if (doc.data().date.toDate() > new Date() &&
-                !userData.blockedIDs.includes(doc.data().hostID)) {
+                !blockedIDs.includes(doc.data().hostID)) {
                   newEvents.push(doc.data());
               }
             }

@@ -1,13 +1,21 @@
 //Wraps a tab bar item with an unbounded, grainy Material 3-style ripple
 //that grows from the item's center (not the touch point) without being
-//clipped to the item's bounds. The grain texture's alpha channel masks
-//a solid color fill so the ripple color can be swapped per item.
+//clipped to the item's bounds.
+//
+//The grain texture is pre-baked in the exact color needed (green for
+//"primary", near-black/near-white for "neutral") rather than tinted at
+//runtime — Image's tintColor didn't reliably recolor it, and layering a
+//MaskedView to mask a colored fill doesn't render on Android when nested
+//inside an animated (scaled/opacity) parent, a known limitation of
+//@react-native-masked-view on that platform.
 
-import React, { useRef, useState } from "react";
-import { Animated, Easing, Image, Pressable, View } from "react-native";
-import MaskedView from "@react-native-masked-view/masked-view";
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, Easing, Image, Pressable } from "react-native";
+import { useTheme } from "../../rapi_ui_components";
 
-const grainTexture = require("../../../assets/icons/ripple-grain.png");
+const grainPrimary = require("../../../assets/icons/ripple-grain.png");
+const grainDark = require("../../../assets/icons/ripple-grain-dark.png");
+const grainLight = require("../../../assets/icons/ripple-grain-light.png");
 
 const RIPPLE_DIAMETER = 120;
 const RIPPLE_PEAK_OPACITY = 0.3;
@@ -16,9 +24,10 @@ export default function RippleTouchable({
   onPress,
   onLongPress,
   style,
-  color,
+  variant = "primary",
   children,
 }) {
+  const { theme } = useTheme();
   const [layout, setLayout] = useState({ width: 0, height: 0 });
   const scale = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -44,6 +53,8 @@ export default function RippleTouchable({
 
   const centerX = layout.width / 2;
   const centerY = layout.height / 2;
+  const grainTexture =
+    variant === "neutral" ? (theme === "dark" ? grainLight : grainDark) : grainPrimary;
 
   return (
     <Pressable
@@ -68,18 +79,11 @@ export default function RippleTouchable({
           transform: [{ scale }],
         }}
       >
-        <MaskedView
+        <Image
+          source={grainTexture}
           style={{ width: RIPPLE_DIAMETER, height: RIPPLE_DIAMETER }}
-          maskElement={
-            <Image
-              source={grainTexture}
-              style={{ width: RIPPLE_DIAMETER, height: RIPPLE_DIAMETER }}
-              resizeMode="cover"
-            />
-          }
-        >
-          <View style={{ flex: 1, backgroundColor: color }} />
-        </MaskedView>
+          resizeMode="cover"
+        />
       </Animated.View>
     </Pressable>
   );
