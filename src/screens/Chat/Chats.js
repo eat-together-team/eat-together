@@ -16,6 +16,7 @@ import Searchbar from "../../components/Searchbar";
 import SmallTextButton from "../../components/SmallTextButton";
 import LargeAppBar from "../../components/LargeAppBar";
 import Header3Text from "../../components/typography/Header3Text";
+import useChatGroups from "./useChatGroups";
 
 import { db } from "../../provider/Firebase";
 import firebase from "firebase/compat";
@@ -48,14 +49,13 @@ export default function ({ navigation }) {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
 
-  const [groups, setGroups] = useState([]);
   const [requests, setRequests] = useState([]);
   const [search, setSearch] = useState("");
 
   // Current user
   const user = firebase.auth().currentUser;
 
-  const [loading, setLoading] = useState(true); // Loading state for the page
+  const { groups, setGroups, loading } = useChatGroups(user, { archived: false });
   const contentOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -72,101 +72,6 @@ export default function ({ navigation }) {
   useEffect(() => {
     db.collection("Users").doc(user.uid).update({
       hasUnreadMessages: false
-    });
-
-    db.collection("Users").doc(user.uid).onSnapshot((doc) => {
-      if (doc.exists) {
-        const nameCurrent = doc.data().firstName + " " + doc.data().lastName;
-        const groups = doc.data().groupIDs;
-
-        // update the groups displayed
-        let temp = [];
-        let lenGroups = groups.length;
-
-        if (lenGroups === 0) {
-          setGroups([]);
-          setLoading(false);
-        }
-
-        groups.forEach((groupID) => {
-          db.collection("Groups")
-            .doc(groupID)
-            .get()
-            .then((doc) => {
-              // now store all the chat rooms
-              let data = doc.data();
-              // store most recent message in variable
-
-              let message = "";
-              let unread = false;
-
-              if (data.messages.length > 0) {
-                const lastMessage = data.messages[data.messages.length - 1];
-                message = lastMessage.message;
-                if (lastMessage.unread && lastMessage.sentBy !== user.uid) {
-                  unread = lastMessage.unread.filter(u => u.uid === user.uid)[0].unread;
-                }
-              }
-
-              let time =
-                data.messages.length != 0
-                  ? data.messages[data.messages.length - 1].sentAt
-                  : "";
-
-              // Get rid of your own name and all the ways it can be formatted in group title (if it is a DM)
-              let name = data.name;
-              if (data.uids.length >= 2) {
-                name = name.replace(nameCurrent + ", ", "");
-                if (name.endsWith(", " + nameCurrent)) {
-                  name = name.slice(0, -1 * (nameCurrent.length + 2));
-                }
-              }
-
-              // For a 1-on-1 chat, use the other person's own profile photo
-              // (same lookup ChatRoom.js uses) instead of a group photo, since
-              // group docs are never actually given one.
-              const otherUids = data.uids.filter((uid) => uid !== user.uid);
-              const avatarLookup =
-                otherUids.length === 1
-                  ? db
-                      .collection("Users")
-                      .doc(otherUids[0])
-                      .get()
-                      .then((userDoc) => {
-                        const userData = userDoc.data();
-                        return userData && userData.hasImage
-                          ? userData.image
-                          : null;
-                      })
-                  : Promise.resolve(null);
-
-              return avatarLookup.then((avatarUri) => {
-                temp.push({
-                  groupID: groupID,
-                  name: name,
-                  uids: data.uids,
-                  hasImage: data.hasImage,
-                  message: message,
-                  unread: unread,
-                  time: time,
-                  pictureID: data.id,
-                  avatarUri: avatarUri,
-                });
-              });
-            })
-            .then(() => {
-              lenGroups--;
-              if (lenGroups === 0) {
-                // sort display by time
-                temp.sort((a, b) => {
-                  return b.time - a.time;
-                });
-                setGroups(temp);
-                setLoading(false);
-              }
-            });
-        });
-      }
     });
 
     // --- FRIEND REQUESTS LISTENER (for the "Requests (N)" button) ---
@@ -188,11 +93,33 @@ export default function ({ navigation }) {
   const handleDeleteChat = (groupID) => {
     // Only drop it from the current user's own inbox — the shared Groups
     // doc stays intact since other participants are still in the chat.
+    const previousGroups = groups;
     setGroups((prev) => prev.filter((group) => group.groupID !== groupID));
     db.collection("Users")
       .doc(user.uid)
       .update({
         groupIDs: firebase.firestore.FieldValue.arrayRemove(groupID),
+        archivedGroupIDs: firebase.firestore.FieldValue.arrayRemove(groupID),
+      })
+      .catch((error) => {
+        console.error("Failed to delete chat:", error);
+        setGroups(previousGroups);
+        alert("Couldn't delete this chat: " + error.message);
+      });
+  };
+
+  const handleArchiveChat = (groupID) => {
+    const previousGroups = groups;
+    setGroups((prev) => prev.filter((group) => group.groupID !== groupID));
+    db.collection("Users")
+      .doc(user.uid)
+      .update({
+        archivedGroupIDs: firebase.firestore.FieldValue.arrayUnion(groupID),
+      })
+      .catch((error) => {
+        console.error("Failed to archive chat:", error);
+        setGroups(previousGroups);
+        alert("Couldn't archive this chat: " + error.message);
       });
   };
 
@@ -202,7 +129,7 @@ export default function ({ navigation }) {
         title="Inbox"
         actions={[
           { icon: "pencil-outline", onPress: () => navigation.navigate("GroupChat") },
-          { icon: "archive-outline", onPress: () => alert("Archived chats are coming soon!") },
+          { icon: "archive-outline", onPress: () => navigation.navigate("ArchivedChats") },
         ]}
       />
 
@@ -240,6 +167,11 @@ export default function ({ navigation }) {
                     });
                   }}
                   onDelete={() => handleDeleteChat(item.groupID)}
+                  archiveAction={{
+                    label: "Archive chat",
+                    icon: "archive-outline",
+                    onPress: () => handleArchiveChat(item.groupID),
+                  }}
                 />
               )}
             />

@@ -4,15 +4,28 @@
 import React from "react";
 import { Pressable, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import { useTheme } from "../../rapi_ui_components";
 import { colorTokens } from "../../theme/colorTokens";
 import RippleTouchable from "./RippleTouchable";
 
 const EVENT_ROUTE_NAME = "Organize";
+// Nested screens (inside a tab's own stack) that should hide the whole nav
+// bar rather than just sit underneath it. bottom-tabs always calls a custom
+// tabBar render prop regardless of a screen's tabBarStyle:{display:'none'}
+// (that convention only self-enforces inside the library's own default
+// BottomTabBar), so a custom tabBar has to opt itself out.
+const HIDDEN_ON_ROUTES = ["ArchivedChats"];
 
 export default function BottomTabBar({ state, descriptors, navigation, insets }) {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
+
+  const focusedRoute = state.routes[state.index];
+  const focusedRouteName = getFocusedRouteNameFromRoute(focusedRoute);
+  if (HIDDEN_ON_ROUTES.includes(focusedRouteName)) {
+    return null;
+  }
 
   const renderTab = (route) => {
     const index = state.routes.indexOf(route);
@@ -65,10 +78,17 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
       {/* iOS's shadow* props and Android's elevation don't produce the same
           look (elevation can't do a directional/negative offset shadow), so
           use a plain gradient for a shadow that's identical on both
-          platforms instead of relying on native shadow rendering. */}
+          platforms instead of relying on native shadow rendering. A
+          black-based gradient reads as a shadow against a light background,
+          but is invisible against an already-dark one — dark themes need a
+          lighter tint to read as "elevated" instead. */}
       <LinearGradient
         pointerEvents="none"
-        colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.04)"]}
+        colors={
+          theme === "dark"
+            ? ["rgba(255,255,255,0)", "rgba(255,255,255,0.06)"]
+            : ["rgba(0,0,0,0)", "rgba(0,0,0,0.04)"]
+        }
         style={{
           position: "absolute",
           left: 0,
