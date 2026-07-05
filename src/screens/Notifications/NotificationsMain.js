@@ -1,5 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "../../navigation/useScreenOptions";
 import Notifications from "./Notifications";
 import NotificationFull from "./NotificationFull";
 import ReportInvite from "./ReportInvite";
@@ -19,11 +20,7 @@ export default function ({ route }) {
   return (
     <Stack.Navigator
       initialRouteName="Notifications"
-      screenOptions={{
-        headerShown: false,
-        animation: "simple_push",
-        animationDuration: 175,
-      }}
+      screenOptions={useScreenOptions()}
     >
       <Stack.Screen name="Notifications">
         {props => <Notifications {...props} fromNav={route.params ? route.params.fromNav : true}/>}

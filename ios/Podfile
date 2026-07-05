@@ -60,13 +60,10 @@ target 'EatTogether' do
       :ccache_enabled => ccache_enabled?(podfile_properties),
     )
 
-    # Some pods (e.g. ReachabilitySwift) hardcode an old deployment target in
-    # their own podspec that isn't overridden by the `platform :ios` line
-    # above, which newer Xcode versions reject outright.
     installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |config|
-        if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.1
-          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+      target.build_configurations.each do |build_config|
+        if build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.1
+          build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
         end
       end
     end

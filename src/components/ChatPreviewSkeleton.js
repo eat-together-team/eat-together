@@ -33,8 +33,11 @@ const ChatPreviewSkeleton = () => {
     <Animated.View style={[styles.row, { opacity }]}>
       <View style={[styles.avatar, blockStyle]} />
       <View style={styles.content}>
-        <View style={[styles.bar, blockStyle, { width: "70%" }]} />
-        <View style={[styles.bar, blockStyle, { width: "45%" }]} />
+        <View style={[styles.titleBar, blockStyle, { width: "65%" }]} />
+        <View style={styles.subtitleGroup}>
+          <View style={[styles.subtitleBar, blockStyle, { width: "55%" }]} />
+          <View style={[styles.subtitleBar, blockStyle, { width: "85%" }]} />
+        </View>
       </View>
     </Animated.View>
   );
@@ -57,9 +60,16 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 10,
   },
-  bar: {
-    height: 12,
-    borderRadius: 6,
+  titleBar: {
+    height: 14,
+    borderRadius: 7,
+  },
+  subtitleGroup: {
+    gap: 6,
+  },
+  subtitleBar: {
+    height: 10,
+    borderRadius: 5,
   },
 });
 

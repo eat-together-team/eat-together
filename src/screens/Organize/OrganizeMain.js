@@ -1,5 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "../../navigation/useScreenOptions";
 import Organize from "./Organize";
 import InvitePeople from "./InvitePeople";
 import FullProfile from "../Explore/People/FullProfile";
@@ -14,11 +15,7 @@ export default function () {
   return (
     <Stack.Navigator
       initialRouteName="Organize"
-      screenOptions={{
-        headerShown: false,
-        animation: "simple_push",
-        animationDuration: 175,
-      }}
+      screenOptions={useScreenOptions()}
     >
       <Stack.Screen name="Organize" component={Organize} />
       <Stack.Screen name="InvitePeople" component={InvitePeople} />

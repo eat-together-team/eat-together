@@ -1,5 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "../../navigation/useScreenOptions";
 import Me from "./Me";
 import Edit from "./Edit";
 import EditTags from "./EditTags";
@@ -23,11 +24,7 @@ export default function () {
   return (
     <Stack.Navigator
       initialRouteName="Me"
-      screenOptions={{
-        headerShown: false,
-        animation: "simple_push",
-        animationDuration: 175,
-      }}
+      screenOptions={useScreenOptions()}
     >
       {/* Main pages */}
       <Stack.Screen name="Me" component={Me} />

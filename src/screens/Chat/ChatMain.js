@@ -1,5 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "../../navigation/useScreenOptions";
 
 import Chats from "./Chats";
 import ArchivedChats from "./ArchivedChats";
@@ -24,11 +25,7 @@ export default function () {
   return (
     <Stack.Navigator
       initialRouteName="Chats"
-      screenOptions={{
-        headerShown: false,
-        animation: "simple_push",
-        animationDuration: 175,
-      }}
+      screenOptions={useScreenOptions()}
     >
       <Stack.Screen name="Chats" component={Chats} />
       <Stack.Screen name="ArchivedChats" component={ArchivedChats} />

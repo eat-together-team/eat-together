@@ -15,7 +15,7 @@ const EVENT_ROUTE_NAME = "Organize";
 // tabBar render prop regardless of a screen's tabBarStyle:{display:'none'}
 // (that convention only self-enforces inside the library's own default
 // BottomTabBar), so a custom tabBar has to opt itself out.
-const HIDDEN_ON_ROUTES = ["ArchivedChats", "ChatRoom", "ChatSettings", "ImageViewer"];
+const HIDDEN_ON_ROUTES = ["ArchivedChats", "ChatRoom", "ChatSettings", "ImageViewer", "NewChat"];
 
 export default function BottomTabBar({ state, descriptors, navigation, insets }) {
   const { theme } = useTheme();

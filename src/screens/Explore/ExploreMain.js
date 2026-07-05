@@ -1,5 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "../../navigation/useScreenOptions";
 
 import Explore from "./Explore";
 import FullCard from "./FullCard";
@@ -16,22 +17,18 @@ export default function () {
   return (
     <Stack.Navigator
       initialRouteName="Explore"
-      screenOptions={{
-        headerShown: false,
-        animation: "simple_push",
-        animationDuration: 175,
-      }}
+      screenOptions={useScreenOptions()}
     >
       <Stack.Screen name="Explore" component={Explore} />
       <Stack.Screen name="FullCard" component={FullCard} />
-      <Stack.Screen name="People" component={PeopleMain} screenOptions={{ animation: "simple_push", animationDuration: 175 }} />
+      <Stack.Screen name="People" component={PeopleMain} />
       <Stack.Screen name="FullProfile">
         {props => <FullProfile {...props} blockBack="Explore" />}
       </Stack.Screen>
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
       <Stack.Screen name="ReportEvent" component={ReportEvent}/>
-      <Stack.Screen name="Restaurant" component={RestaurantMain} screenOptions={{ animation: "simple_push", animationDuration: 175 }} />
+      <Stack.Screen name="Restaurant" component={RestaurantMain} />
     </Stack.Navigator>
   );
 }

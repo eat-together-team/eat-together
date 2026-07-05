@@ -6,6 +6,7 @@ import { Alert, Linking } from "react-native";
 import "firebase/firestore";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "./useScreenOptions";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import TabBarIcon from "../components/utils/TabBarIcon";
 import EventTabButton from "../components/utils/EventTabButton";
@@ -50,11 +51,7 @@ const MainStack = createNativeStackNavigator();
 const Main = () => {
   return (
     <MainStack.Navigator
-      screenOptions={{
-        headerShown: false,
-        animation: "simple_push",
-        animationDuration: 175,
-      }}
+      screenOptions={useScreenOptions()}
     >
       <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
       <MainStack.Screen name="Notifications" component={NotificationsMain} />
@@ -207,8 +204,28 @@ export default () => {
   const user = auth_context.user;
   const currUser = auth_context.currUser;
 
+  // NavigationContainer defaults to its own light theme (white background)
+  // when no theme prop is given — react-navigation's native-stack uses
+  // `colors.background` from THIS theme (not our app's own colorTokens) as
+  // the base background behind every screen during a transition, which is
+  // what was still showing through as a white flash in dark mode even after
+  // each screen's own contentStyle was fixed.
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
+  const navigationTheme = {
+    dark: theme === "dark",
+    colors: {
+      primary: tokens.primary,
+      background: tokens.background,
+      card: tokens.background,
+      text: tokens.onBackground,
+      border: tokens.outline,
+      notification: tokens.error,
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navigationTheme}>
       {user === null && <Loading />}
       {user === false && <Auth />}
       {user === true &&

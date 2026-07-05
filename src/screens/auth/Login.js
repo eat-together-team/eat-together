@@ -13,6 +13,7 @@ import SmallTextButton from '../../components/SmallTextButton';
 import LargeButton from '../../components/LargeButton';
 import InformationCard from '../../components/InformationCard';
 import DeviceToken from '../../utils/DeviceToken';
+import { bridgeSignIn } from '../../utils/nativeAuthBridge';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
@@ -63,6 +64,7 @@ export default function Login({ navigation }) {
     setLoading(true);
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password);
+      await bridgeSignIn(email, password);
       const user = auth.currentUser;
       if (DeviceToken.getToken() != null) {
         await db.collection('Users').doc(user.uid).update({

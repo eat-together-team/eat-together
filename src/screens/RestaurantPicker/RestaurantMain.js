@@ -1,5 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "../../navigation/useScreenOptions";
 
 import Restaurant from "./Restaurant";
 
@@ -9,11 +10,7 @@ export default function () {
   return (
     <Stack.Navigator
       initialRouteName="Restaurant"
-      screenOptions={{
-        headerShown: false,
-        animation: "simple_push",
-        animationDuration: 175,
-      }}
+      screenOptions={useScreenOptions()}
     >
         <Stack.Screen name="Restaurant" component={Restaurant}></Stack.Screen>
     </Stack.Navigator>

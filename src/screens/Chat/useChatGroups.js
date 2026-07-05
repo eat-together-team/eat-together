@@ -2,12 +2,15 @@
 //same Firestore enrichment logic, just filtered to archived vs non-archived
 //groupIDs (Users/{uid}.archivedGroupIDs is a subset of Users/{uid}.groupIDs).
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { db } from "../../provider/Firebase";
 
 export default function useChatGroups(user, { archived = false, enabled = true } = {}) {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
+  // groupID -> enriched group object, kept across re-subscriptions so a
+  // single group's update doesn't require re-deriving every other group.
+  const groupsMapRef = useRef({});
 
   useEffect(() => {
     // Deferring this until `enabled` (e.g. until the screen's nav transition
@@ -16,7 +19,19 @@ export default function useChatGroups(user, { archived = false, enabled = true }
     // animation itself look janky.
     if (!enabled) return;
 
-    const unsubscribe = db
+    // groupID -> unsubscribe fn. Each Groups/{groupID} doc is watched live
+    // (not just read once) so a new message updates the inbox preview
+    // immediately instead of only refreshing whenever the user's own
+    // groupIDs array happens to change (chat created/deleted/archived).
+    let groupUnsubscribes = {};
+
+    const publish = () => {
+      const list = Object.values(groupsMapRef.current);
+      list.sort((a, b) => b.time - a.time);
+      setGroups(list);
+    };
+
+    const userUnsubscribe = db
       .collection("Users")
       .doc(user.uid)
       .onSnapshot((doc) => {
@@ -29,21 +44,38 @@ export default function useChatGroups(user, { archived = false, enabled = true }
           ? allGroupIDs.filter((id) => archivedGroupIDs.includes(id))
           : allGroupIDs.filter((id) => !archivedGroupIDs.includes(id));
 
-        let temp = [];
-        let remaining = groupIDs.length;
+        // Tear down listeners for groups no longer in the list (deleted,
+        // archived/unarchived elsewhere, etc.).
+        Object.keys(groupUnsubscribes).forEach((groupID) => {
+          if (!groupIDs.includes(groupID)) {
+            groupUnsubscribes[groupID]();
+            delete groupUnsubscribes[groupID];
+            delete groupsMapRef.current[groupID];
+          }
+        });
 
-        if (remaining === 0) {
-          setGroups([]);
+        if (groupIDs.length === 0) {
+          publish();
           setLoading(false);
           return;
         }
 
+        const pendingFirstLoad = new Set(
+          groupIDs.filter((groupID) => !groupUnsubscribes[groupID])
+        );
+        if (pendingFirstLoad.size === 0) {
+          setLoading(false);
+        }
+
         groupIDs.forEach((groupID) => {
-          db.collection("Groups")
+          if (groupUnsubscribes[groupID]) return; // already has a live listener
+
+          groupUnsubscribes[groupID] = db
+            .collection("Groups")
             .doc(groupID)
-            .get()
-            .then((doc) => {
-              let data = doc.data();
+            .onSnapshot((groupDoc) => {
+              const data = groupDoc.data();
+              if (!data) return;
 
               let message = "";
               let unread = false;
@@ -88,8 +120,8 @@ export default function useChatGroups(user, { archived = false, enabled = true }
                       })
                   : Promise.resolve(null);
 
-              return avatarLookup.then((avatarUri) => {
-                temp.push({
+              avatarLookup.then((avatarUri) => {
+                groupsMapRef.current[groupID] = {
                   groupID: groupID,
                   name: name,
                   uids: data.uids,
@@ -99,21 +131,24 @@ export default function useChatGroups(user, { archived = false, enabled = true }
                   time: time,
                   pictureID: data.id,
                   avatarUri: avatarUri,
-                });
+                };
+                publish();
+
+                if (pendingFirstLoad.has(groupID)) {
+                  pendingFirstLoad.delete(groupID);
+                  if (pendingFirstLoad.size === 0) {
+                    setLoading(false);
+                  }
+                }
               });
-            })
-            .then(() => {
-              remaining--;
-              if (remaining === 0) {
-                temp.sort((a, b) => b.time - a.time);
-                setGroups(temp);
-                setLoading(false);
-              }
             });
         });
       });
 
-    return () => unsubscribe();
+    return () => {
+      userUnsubscribe();
+      Object.values(groupUnsubscribes).forEach((unsubscribe) => unsubscribe());
+    };
   }, [user.uid, archived, enabled]);
 
   return { groups, setGroups, loading };

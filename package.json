@@ -14,6 +14,9 @@
     "@expo/metro-runtime": "~55.0.6",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.6.0",
+    "@react-native-firebase/app": "^25.1.0",
+    "@react-native-firebase/auth": "^25.1.0",
+    "@react-native-firebase/storage": "^25.1.0",
     "@react-navigation/bottom-tabs": "^6.4.0",
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.11.0",
@@ -89,6 +92,17 @@
     "react-native-svg-transformer": "^1.5.3",
     "react-test-renderer": "19.0.0",
     "typescript": "~5.9.2"
+  },
+  "expo": {
+    "autolinking": {
+      "ios": {
+        "exclude": [
+          "@react-native-firebase/app",
+          "@react-native-firebase/auth",
+          "@react-native-firebase/storage"
+        ]
+      }
+    }
   },
   "private": true,
   "name": "eat-together",

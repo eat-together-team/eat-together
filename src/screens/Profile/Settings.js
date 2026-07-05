@@ -16,6 +16,7 @@ import "firebase/firestore"
 import MediumText from "../../components/MediumText";
 import NormalText from "../../components/NormalText";
 import DeviceToken from "../../utils/DeviceToken";
+import { bridgeSignOut } from "../../utils/nativeAuthBridge";
 import { Link } from "@react-navigation/native";
 import Switch from "../../components/Switch";
 
@@ -119,6 +120,7 @@ export default function ({ navigation }) {
             });
 
             await firebase.auth().signOut();
+            await bridgeSignOut();
         }
     }
 

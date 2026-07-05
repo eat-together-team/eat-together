@@ -33,11 +33,14 @@ const ChatBubble = (props) => {
     prevMessageDate === "" ||
     getDate(messageDate) !== getDate(prevMessageDate);
 
+  // Consecutive messages from the same sender within 10 minutes of each
+  // other are treated as one "burst" — only the last one in that burst shows
+  // a timestamp, rather than every message getting its own.
+  const TEN_MINUTES_IN_SECONDS = 10 * 60;
   const showTimestamp =
     !props.nextMessage ||
     props.nextMessage.sentBy !== props.sentBy ||
-    nextMessageDate === "" ||
-    getTime(messageDate) !== getTime(nextMessageDate);
+    props.nextMessage.sentAt - props.sentAt > TEN_MINUTES_IN_SECONDS;
 
   return (
     <View>
