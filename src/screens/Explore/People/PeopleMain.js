@@ -1,5 +1,5 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import People from "./People";
 import ReportPerson from "./ReportPerson";
@@ -8,7 +8,7 @@ import FullCard from '../FullCard';
 import ReportEvent from "../../Home/ReportEvent";
 import MeetupArchive from "../../Profile/MeetupArchive";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function () {
   return (
@@ -16,7 +16,8 @@ export default function () {
       initialRouteName="People"
       screenOptions={{
         headerShown: false,
-        animationEnabled: false,
+        animation: "simple_push",
+        animationDuration: 175,
       }}
     >
       <Stack.Screen name="People" component={People} />

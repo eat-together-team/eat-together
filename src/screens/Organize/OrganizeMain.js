@@ -1,5 +1,5 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Organize from "./Organize";
 import InvitePeople from "./InvitePeople";
 import FullProfile from "../Explore/People/FullProfile";
@@ -8,7 +8,7 @@ import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import MeetupArchive from "../Profile/MeetupArchive";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function () {
   return (
@@ -16,7 +16,8 @@ export default function () {
       initialRouteName="Organize"
       screenOptions={{
         headerShown: false,
-        animationEnabled: false,
+        animation: "simple_push",
+        animationDuration: 175,
       }}
     >
       <Stack.Screen name="Organize" component={Organize} />

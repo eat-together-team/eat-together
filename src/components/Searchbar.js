@@ -70,7 +70,7 @@ const Searchbar = ({ value, onChangeText, placeholder = 'Search', children = nul
             styles.searchBox,
             {
               backgroundColor: theme === 'dark' ? colors.containerLow : colors.background,
-              borderColor: isFocused ? colors.textMedium : colors.containerMedium,
+              borderColor: isFocused ? `${colors.textMedium}CC` : colors.containerMedium,
               shadowColor: '#000000',
               borderRadius: showResults ? 20 : 30,
               opacity: disabled ? 0.5 : 1,

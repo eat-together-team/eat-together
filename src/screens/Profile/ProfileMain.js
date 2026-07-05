@@ -1,5 +1,5 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Me from "./Me";
 import Edit from "./Edit";
 import EditTags from "./EditTags";
@@ -17,7 +17,7 @@ import EventGallery from "../Home/EventGallery";
 import Gallery from "../Home/Gallery";
 import MeetupArchive from "./MeetupArchive";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function () {
   return (
@@ -25,7 +25,8 @@ export default function () {
       initialRouteName="Me"
       screenOptions={{
         headerShown: false,
-        animationEnabled: false,
+        animation: "simple_push",
+        animationDuration: 175,
       }}
     >
       {/* Main pages */}

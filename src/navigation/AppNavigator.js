@@ -5,7 +5,7 @@ import { useEffect, useContext } from "react";
 import { Alert, Linking } from "react-native";
 import "firebase/firestore";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import TabBarIcon from "../components/utils/TabBarIcon";
 import EventTabButton from "../components/utils/EventTabButton";
@@ -46,13 +46,14 @@ Notifications.setNotificationHandler({
 });
 
 //The experience of logged in user!!
-const MainStack = createStackNavigator();
+const MainStack = createNativeStackNavigator();
 const Main = () => {
   return (
     <MainStack.Navigator
       screenOptions={{
         headerShown: false,
-        animationEnabled: true,
+        animation: "simple_push",
+        animationDuration: 175,
       }}
     >
       <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>

@@ -8,28 +8,26 @@ import ChatPreview from "../../components/ChatPreview";
 import ChatPreviewSkeleton from "../../components/ChatPreviewSkeleton";
 import SmallAppBar from "../../components/SmallAppBar";
 import useChatGroups from "./useChatGroups";
+import useDeferredReady from "../../utils/useDeferredReady";
+import { deleteChat } from "./Chats";
 
 import { db } from "../../provider/Firebase";
 import firebase from "firebase/compat";
 
 export default function ArchivedChats({ navigation }) {
   const user = firebase.auth().currentUser;
-  const { groups, setGroups, loading } = useChatGroups(user, { archived: true });
+  const ready = useDeferredReady();
+  const { groups, setGroups, loading } = useChatGroups(user, { archived: true, enabled: ready });
 
   const handleDeleteChat = (groupID) => {
+    const group = groups.find((g) => g.groupID === groupID);
     const previousGroups = groups;
-    setGroups((prev) => prev.filter((group) => group.groupID !== groupID));
-    db.collection("Users")
-      .doc(user.uid)
-      .update({
-        groupIDs: firebase.firestore.FieldValue.arrayRemove(groupID),
-        archivedGroupIDs: firebase.firestore.FieldValue.arrayRemove(groupID),
-      })
-      .catch((error) => {
-        console.error("Failed to delete chat:", error);
-        setGroups(previousGroups);
-        alert("Couldn't delete this chat: " + error.message);
-      });
+    setGroups((prev) => prev.filter((g) => g.groupID !== groupID));
+    deleteChat(user, group).catch((error) => {
+      console.error("Failed to delete chat:", error);
+      setGroups(previousGroups);
+      alert("Couldn't delete this chat: " + error.message);
+    });
   };
 
   const handleUnarchiveChat = (groupID) => {

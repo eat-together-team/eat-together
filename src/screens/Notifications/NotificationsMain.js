@@ -1,5 +1,5 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Notifications from "./Notifications";
 import NotificationFull from "./NotificationFull";
 import ReportInvite from "./ReportInvite";
@@ -13,7 +13,7 @@ import MeetupArchive from "../Profile/MeetupArchive";
 
 import Recommendation from "../Recommendations/Recommendation";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function ({ route }) {
   return (
@@ -21,7 +21,8 @@ export default function ({ route }) {
       initialRouteName="Notifications"
       screenOptions={{
         headerShown: false,
-        animationEnabled: false,
+        animation: "simple_push",
+        animationDuration: 175,
       }}
     >
       <Stack.Screen name="Notifications">

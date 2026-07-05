@@ -2,7 +2,7 @@
 //remaining tabs are centered as a group in the leftover space.
 
 import React from "react";
-import { Pressable, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import { useTheme } from "../../rapi_ui_components";
@@ -15,7 +15,7 @@ const EVENT_ROUTE_NAME = "Organize";
 // tabBar render prop regardless of a screen's tabBarStyle:{display:'none'}
 // (that convention only self-enforces inside the library's own default
 // BottomTabBar), so a custom tabBar has to opt itself out.
-const HIDDEN_ON_ROUTES = ["ArchivedChats"];
+const HIDDEN_ON_ROUTES = ["ArchivedChats", "ChatRoom", "ChatSettings", "ImageViewer"];
 
 export default function BottomTabBar({ state, descriptors, navigation, insets }) {
   const { theme } = useTheme();
@@ -78,15 +78,15 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
       {/* iOS's shadow* props and Android's elevation don't produce the same
           look (elevation can't do a directional/negative offset shadow), so
           use a plain gradient for a shadow that's identical on both
-          platforms instead of relying on native shadow rendering. A
-          black-based gradient reads as a shadow against a light background,
-          but is invisible against an already-dark one — dark themes need a
-          lighter tint to read as "elevated" instead. */}
+          platforms instead of relying on native shadow rendering. A fully
+          black-based gradient blends into an already-near-black background,
+          so dark mode fades to a lighter gray (still a "dark" shadow tone,
+          just distinguishable from the background behind it) instead. */}
       <LinearGradient
         pointerEvents="none"
         colors={
           theme === "dark"
-            ? ["rgba(255,255,255,0)", "rgba(255,255,255,0.06)"]
+            ? [`${tokens.containerMedium}00`, `${tokens.containerMedium}33`]
             : ["rgba(0,0,0,0)", "rgba(0,0,0,0.04)"]
         }
         style={{
@@ -106,7 +106,10 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
           // Extends the bar's background all the way behind the system nav
           // bar/home indicator instead of stopping short of it, which is
           // what left the OS's own (grayish) edge-to-edge scrim visible.
-          paddingBottom: Math.max(insets?.bottom ?? 0, 20),
+          // Android gets a little extra on top of that to clear its system
+          // gesture/nav bar UI more comfortably.
+          paddingBottom:
+            Math.max(insets?.bottom ?? 0, 20) + (Platform.OS === "android" ? 5 : 0),
           paddingHorizontal: 30,
           overflow: "hidden",
         }}

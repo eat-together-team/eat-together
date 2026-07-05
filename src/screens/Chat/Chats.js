@@ -17,6 +17,7 @@ import SmallTextButton from "../../components/SmallTextButton";
 import LargeAppBar from "../../components/LargeAppBar";
 import Header3Text from "../../components/typography/Header3Text";
 import useChatGroups from "./useChatGroups";
+import useDeferredReady from "../../utils/useDeferredReady";
 
 import { db } from "../../provider/Firebase";
 import firebase from "firebase/compat";
@@ -45,6 +46,52 @@ export const createNewChat = (
   }
 };
 
+// Deletes a chat from the current user's perspective. A 1-on-1 chat is
+// removed outright — once you're gone there's no other stakeholder left to
+// keep it around for, same as the cleanup already done when blocking a user
+// (see databaseStoreBlockAction in FullProfile.js). A group chat just drops
+// the current user from it, leaving everyone else's copy intact. Without
+// this distinction, "deleting" a 1-on-1 chat only unlinked it from your own
+// groupIDs — the Groups doc (and all its messages) stuck around forever, so
+// starting a "new" chat with that same person just reopened the old thread
+// instead of actually starting fresh.
+export const deleteChat = (user, group) => {
+  const cleanup =
+    group.uids.length === 2
+      ? db
+          .collection("Groups")
+          .doc(group.groupID)
+          .delete()
+          .then(() => {
+            const otherUid = group.uids.find((uid) => uid !== user.uid);
+            if (!otherUid) return;
+            return db
+              .collection("Users")
+              .doc(otherUid)
+              .update({
+                groupIDs: firebase.firestore.FieldValue.arrayRemove(group.groupID),
+                archivedGroupIDs: firebase.firestore.FieldValue.arrayRemove(group.groupID),
+              });
+          })
+      : db
+          .collection("Groups")
+          .doc(group.groupID)
+          .update({
+            uids: firebase.firestore.FieldValue.arrayRemove(user.uid),
+          });
+
+  return Promise.all([
+    cleanup,
+    db
+      .collection("Users")
+      .doc(user.uid)
+      .update({
+        groupIDs: firebase.firestore.FieldValue.arrayRemove(group.groupID),
+        archivedGroupIDs: firebase.firestore.FieldValue.arrayRemove(group.groupID),
+      }),
+  ]);
+};
+
 export default function ({ navigation }) {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
@@ -55,7 +102,8 @@ export default function ({ navigation }) {
   // Current user
   const user = firebase.auth().currentUser;
 
-  const { groups, setGroups, loading } = useChatGroups(user, { archived: false });
+  const ready = useDeferredReady();
+  const { groups, setGroups, loading } = useChatGroups(user, { archived: false, enabled: ready });
   const contentOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -70,6 +118,8 @@ export default function ({ navigation }) {
   }, [loading]);
 
   useEffect(() => {
+    if (!ready) return;
+
     db.collection("Users").doc(user.uid).update({
       hasUnreadMessages: false
     });
@@ -84,28 +134,21 @@ export default function ({ navigation }) {
       });
 
     return () => unsubscribeRequests();
-  }, []);
+  }, [ready]);
 
   const filteredGroups = groups.filter((group) =>
     group.name.toLowerCase().includes(search.trim().toLowerCase())
   );
 
   const handleDeleteChat = (groupID) => {
-    // Only drop it from the current user's own inbox — the shared Groups
-    // doc stays intact since other participants are still in the chat.
+    const group = groups.find((g) => g.groupID === groupID);
     const previousGroups = groups;
-    setGroups((prev) => prev.filter((group) => group.groupID !== groupID));
-    db.collection("Users")
-      .doc(user.uid)
-      .update({
-        groupIDs: firebase.firestore.FieldValue.arrayRemove(groupID),
-        archivedGroupIDs: firebase.firestore.FieldValue.arrayRemove(groupID),
-      })
-      .catch((error) => {
-        console.error("Failed to delete chat:", error);
-        setGroups(previousGroups);
-        alert("Couldn't delete this chat: " + error.message);
-      });
+    setGroups((prev) => prev.filter((g) => g.groupID !== groupID));
+    deleteChat(user, group).catch((error) => {
+      console.error("Failed to delete chat:", error);
+      setGroups(previousGroups);
+      alert("Couldn't delete this chat: " + error.message);
+    });
   };
 
   const handleArchiveChat = (groupID) => {
@@ -128,7 +171,7 @@ export default function ({ navigation }) {
       <LargeAppBar
         title="Inbox"
         actions={[
-          { icon: "pencil-outline", onPress: () => navigation.navigate("GroupChat") },
+          { icon: "pencil-outline", onPress: () => navigation.navigate("NewChat") },
           { icon: "archive-outline", onPress: () => navigation.navigate("ArchivedChats") },
         ]}
       />

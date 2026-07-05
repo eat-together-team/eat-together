@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import firebase from "firebase/compat";
 
 // Landing page
@@ -19,7 +19,7 @@ import { db, auth, storage } from "../provider/Firebase";
 
 import ExploreCopy from "../screens/Experiment/ExploreCopy";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 const Auth = () => {
   // Name.js
   const [firstName, setFirstName] = useState("");
@@ -187,6 +187,8 @@ const Auth = () => {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+        animation: "simple_push",
+        animationDuration: 175,
       }}
       initialRouteName="Landing"
     >

@@ -30,8 +30,15 @@ const avatarPlaceholderDark = require("../../assets/icons/avatar-placeholder-dar
 //
 // Swipe toward the end (left, revealing the trailing/right side) = delete.
 // Swipe toward the start (right, revealing the leading/left side) = archive.
-const OPEN_COMMIT_RATIO = 0.4;
-const OPEN_COMMIT_VELOCITY = 0.5;
+//
+// A half swipe settles at a small peek of the action card (tap it to act);
+// a full swipe (or a fast enough flick) slides the row all the way off and
+// fires the action immediately, no separate tap needed.
+const PEEK_RATIO = 0.25;
+const PEEK_COMMIT_RATIO = 0.15;
+const PEEK_COMMIT_VELOCITY = 0.5;
+const DISMISS_COMMIT_RATIO = 0.5;
+const DISMISS_COMMIT_VELOCITY = 1.2;
 
 const ChatPreview = (props) => {
   const { theme } = useTheme();
@@ -85,25 +92,52 @@ const ChatPreview = (props) => {
   };
 
   // Positive translateX reveals the leading (left) side: archive.
-  const openArchive = () => {
+  const peekArchive = () => {
     openSideRef.current = "archive";
     setOpenSide("archive");
     Animated.spring(translateX, {
-      toValue: rowWidthRef.current || 300,
+      toValue: (rowWidthRef.current || 300) * PEEK_RATIO,
       useNativeDriver: true,
       bounciness: 0,
     }).start();
   };
 
   // Negative translateX reveals the trailing (right) side: delete.
-  const openDelete = () => {
+  const peekDelete = () => {
     openSideRef.current = "delete";
     setOpenSide("delete");
     Animated.spring(translateX, {
-      toValue: -(rowWidthRef.current || 300),
+      toValue: -(rowWidthRef.current || 300) * PEEK_RATIO,
       useNativeDriver: true,
       bounciness: 0,
     }).start();
+  };
+
+  // Slides the row the rest of the way off (past the peek) and fires the
+  // action once it's fully out of view — used for both a full swipe and for
+  // tapping an already-peeking card, so both paths end the same way.
+  const dismissArchive = () => {
+    openSideRef.current = "archive";
+    setOpenSide("archive");
+    Animated.timing(translateX, {
+      toValue: rowWidthRef.current || 300,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (finished) props.archiveAction?.onPress();
+    });
+  };
+
+  const dismissDelete = () => {
+    openSideRef.current = "delete";
+    setOpenSide("delete");
+    Animated.timing(translateX, {
+      toValue: -(rowWidthRef.current || 300),
+      duration: 200,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (finished) props.onDelete?.();
+    });
   };
 
   const panResponder = useRef(
@@ -134,15 +168,25 @@ const ChatPreview = (props) => {
           Math.max(minBound, startValueRef.current + gesture.dx)
         );
         if (
-          current < -maxSwipe * OPEN_COMMIT_RATIO ||
-          gesture.vx < -OPEN_COMMIT_VELOCITY
+          current < -maxSwipe * DISMISS_COMMIT_RATIO ||
+          gesture.vx < -DISMISS_COMMIT_VELOCITY
         ) {
-          openDelete();
+          dismissDelete();
         } else if (
           canArchive &&
-          (current > maxSwipe * OPEN_COMMIT_RATIO || gesture.vx > OPEN_COMMIT_VELOCITY)
+          (current > maxSwipe * DISMISS_COMMIT_RATIO || gesture.vx > DISMISS_COMMIT_VELOCITY)
         ) {
-          openArchive();
+          dismissArchive();
+        } else if (
+          current < -maxSwipe * PEEK_COMMIT_RATIO ||
+          gesture.vx < -PEEK_COMMIT_VELOCITY
+        ) {
+          peekDelete();
+        } else if (
+          canArchive &&
+          (current > maxSwipe * PEEK_COMMIT_RATIO || gesture.vx > PEEK_COMMIT_VELOCITY)
+        ) {
+          peekArchive();
         } else {
           closeRow();
         }
@@ -201,7 +245,7 @@ const ChatPreview = (props) => {
         >
           <TouchableOpacity
             style={styles.bannerTouchable}
-            onPress={props.archiveAction.onPress}
+            onPress={dismissArchive}
           >
             {/* Archive is revealed from the left edge inward, so the icon
                 (closest to that edge) should show up first. */}
@@ -223,7 +267,7 @@ const ChatPreview = (props) => {
           { opacity: deleteOpacity, backgroundColor: tokens.errorContainer },
         ]}
       >
-        <TouchableOpacity style={styles.bannerTouchable} onPress={() => props.onDelete?.()}>
+        <TouchableOpacity style={styles.bannerTouchable} onPress={dismissDelete}>
           {/* Delete is revealed from the right edge inward, so the icon
               (closest to that edge) should show up first. */}
           <SubBodyText color={tokens.error} style={{ fontSize: 15 }}>
@@ -239,7 +283,13 @@ const ChatPreview = (props) => {
           { backgroundColor: tokens.background, transform: [{ translateX }] },
         ]}
       >
-        <Pressable style={styles.rowPressable} onPress={handleRowPress}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.rowPressable,
+            pressed && { backgroundColor: tokens.containerMedium },
+          ]}
+          onPress={handleRowPress}
+        >
           {/* expo-image caches to disk/memory by uri, so returning to this list
               (e.g. backing out of a chat) doesn't re-fetch the photo, and the
               placeholder shows until the cached/fetched photo is ready. */}
@@ -296,7 +346,6 @@ const styles = StyleSheet.create({
   },
   row: {
     width: "100%",
-    paddingVertical: 10,
     // The visible seam during a partial swipe is this row's own trailing
     // edge sliding away, not the banner's bounding-box corner underneath —
     // rounding it here is what makes the reveal itself look rounded rather
@@ -308,6 +357,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 18,
+    borderRadius: 12,
+    // This padding used to live on the outer row instead — moving it here
+    // (onto the element that actually paints the press highlight) makes the
+    // highlighted area bigger than the tight content bounds without
+    // changing the row's total height, so spacing between chat items in the
+    // list stays the same.
+    paddingVertical: 10,
+    // Only the end (right) side gets the extra breathing room — the start
+    // (left) side stays flush so the avatar's edge lines up with the
+    // Searchbar/"Messages" text above it, which have no such inset.
+    paddingStart: 0,
+    paddingEnd: 8,
   },
   avatar: {
     width: 63,

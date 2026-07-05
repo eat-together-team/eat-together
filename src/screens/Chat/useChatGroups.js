@@ -5,11 +5,17 @@
 import { useEffect, useState } from "react";
 import { db } from "../../provider/Firebase";
 
-export default function useChatGroups(user, { archived = false } = {}) {
+export default function useChatGroups(user, { archived = false, enabled = true } = {}) {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Deferring this until `enabled` (e.g. until the screen's nav transition
+    // has finished) keeps the fetch + list-render work from competing with
+    // the transition's own JS-thread work, which is what was making the
+    // animation itself look janky.
+    if (!enabled) return;
+
     const unsubscribe = db
       .collection("Users")
       .doc(user.uid)
@@ -44,7 +50,7 @@ export default function useChatGroups(user, { archived = false } = {}) {
 
               if (data.messages.length > 0) {
                 const lastMessage = data.messages[data.messages.length - 1];
-                message = lastMessage.message;
+                message = lastMessage.message || (lastMessage.url ? "Image" : "");
                 if (lastMessage.unread && lastMessage.sentBy !== user.uid) {
                   unread = lastMessage.unread.filter(u => u.uid === user.uid)[0].unread;
                 }
@@ -108,7 +114,7 @@ export default function useChatGroups(user, { archived = false } = {}) {
       });
 
     return () => unsubscribe();
-  }, [user.uid, archived]);
+  }, [user.uid, archived, enabled]);
 
   return { groups, setGroups, loading };
 }

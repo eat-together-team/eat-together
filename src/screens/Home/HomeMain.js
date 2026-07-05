@@ -1,5 +1,5 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import Home from "./Home";
 import WhileYouEat from "./WhileYouEat";
@@ -22,7 +22,7 @@ import Question from "./WouldYouRather/Question";
 import Discussion from "./WouldYouRather/Discussion";
 import EndGame from "./WouldYouRather/EndGame";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function () {
   return (
@@ -30,7 +30,8 @@ export default function () {
       initialRouteName="Home"
       screenOptions={{
         headerShown: false,
-        animationEnabled: true,
+        animation: "simple_push",
+        animationDuration: 175,
       }}
     >
       <Stack.Screen name="Home" component={Home} />

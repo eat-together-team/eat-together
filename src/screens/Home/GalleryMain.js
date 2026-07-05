@@ -1,7 +1,7 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Gallery from "./Gallery";
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function(){
     return(
@@ -9,7 +9,8 @@ export default function(){
       initialRouteName="Gallery"
       screenOptions={{
         headerShown: false,
-        animationEnabled: false,
+        animation: "simple_push",
+        animationDuration: 175,
       }}
     >
       <Stack.Screen name="Gallery" component={Gallery} />

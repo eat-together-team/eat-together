@@ -1,9 +1,9 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import Restaurant from "./Restaurant";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function () {
   return (
@@ -11,7 +11,8 @@ export default function () {
       initialRouteName="Restaurant"
       screenOptions={{
         headerShown: false,
-        animationEnabled: true,
+        animation: "simple_push",
+        animationDuration: 175,
       }}
     >
         <Stack.Screen name="Restaurant" component={Restaurant}></Stack.Screen>
