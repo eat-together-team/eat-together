@@ -26,6 +26,7 @@ import { AntDesign } from '@expo/vector-icons';
 import FunFact from "../../components/FunFact";
 import GalleryRow from "../../components/GalleryRow";
 import EventsRow from "../../components/EventsRow";
+import RestaurantsRow from "../../components/RestaurantsRow";
 
 import { compareDates } from "../../utils/methods";
 import SmallText from "../../components/SmallText";
@@ -360,6 +361,35 @@ export default function ({ navigation }) {
               onEventPress={(event) => {
                 navigation.navigate("FullCard", { event });
               }}
+            />
+          </View>
+        )}
+
+        {/* starred restaurants */}
+        {(userInfo.starredRestaurants || []).length > 0 && (
+          <View style={styles.eventRecordBackground} marginTop={50}>
+            <View style={styles.eventsHeader}>
+              <NormalText>Starred Restaurants</NormalText>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("StarredRestaurants", {
+                    restaurants: userInfo.starredRestaurants || [],
+                    isOwnProfile: true,
+                  })
+                }
+              >
+                <NormalText color="grey">View all</NormalText>
+              </TouchableOpacity>
+            </View>
+            <RestaurantsRow
+              restaurants={userInfo.starredRestaurants || []}
+              onRestaurantPress={(r) =>
+                navigation.navigate("StarredRestaurants", {
+                  restaurants: userInfo.starredRestaurants || [],
+                  isOwnProfile: true,
+                  openRestaurantId: r.id,
+                })
+              }
             />
           </View>
         )}

@@ -57,53 +57,50 @@ const useNotificationSync = (userId) => {
    * @param {*} userId - The ID of the user to sync notifications for.
    */
   const syncNotificationSettings = async (userId) => {
-    if (Device.isDevice) { // Check if the device is a physical device
-      try {
-        // Check current notification permissions
-        const { status } = await Notifications.getPermissionsAsync();
-        let finalStatus = status;
+    if (!Device.isDevice) {
+      console.log('Skipping push notification registration: not running on a physical device.');
+      return;
+    }
 
-        // Fetch the current notification status
+    try {
+      const { status } = await Notifications.getPermissionsAsync();
+      let finalStatus = status;
+
         const previousStatus = await AsyncStorage.getItem(`notif_status_${userId}`);
 
-        // Only run if status actually changed
-        if (status !== previousStatus) {
-          if (finalStatus !== 'granted') {
-            const { status: newStatus } = await Notifications.requestPermissionsAsync(); // Request permissions if not already granted
-            finalStatus = newStatus;
-          }
-
-          const projectId =
-            Constants?.expoConfig?.extra?.eas?.projectId ?? "605daf62-9a09-4742-8204-1f8dfb5e4363";
-
-          if (!projectId) {
-            handleRegistrationError('Project ID not found');
-          }
-        
-          await AsyncStorage.setItem(`notif_status_${userId}`, finalStatus);
-
-          // If notifications are now enabled, get fresh token
-          if (finalStatus === 'granted') {
-            const token = (
-              await Notifications.getExpoPushTokenAsync({
-                projectId,
-              })
-            ).data;
-            DeviceToken.setToken(token);
-
-            await db
-              .collection("Users")
-              .doc(userId)
-              .update({
-                pushTokens: firebase.firestore.FieldValue.arrayUnion(token)
-              });
-          }
+      if (status !== previousStatus) {
+        if (finalStatus !== 'granted') {
+          const { status: newStatus } = await Notifications.requestPermissionsAsync(); // Request permissions if not already granted
+          finalStatus = newStatus;
         }
-      } catch (e) {
-        handleRegistrationError(`${e}`);
+
+        const projectId =
+          Constants?.expoConfig?.extra?.eas?.projectId ?? "605daf62-9a09-4742-8204-1f8dfb5e4363";
+
+        if (!projectId) {
+          handleRegistrationError('Project ID not found');
+        }
+      
+        await AsyncStorage.setItem(`notif_status_${userId}`, finalStatus);
+
+        if (finalStatus === 'granted') {
+          const token = (
+            await Notifications.getExpoPushTokenAsync({
+              projectId,
+            })
+          ).data;
+          DeviceToken.setToken(token);
+
+          await db
+            .collection("Users")
+            .doc(userId)
+            .update({
+              pushTokens: firebase.firestore.FieldValue.arrayUnion(token)
+            });
+        }
       }
-    } else {
-      handleRegistrationError('Must use physical device for push notifications');
+    } catch (e) {
+      handleRegistrationError(`${e}`);
     }
   };
 

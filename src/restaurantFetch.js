@@ -3,28 +3,75 @@ import axios from "axios/dist/axios.min.js";
 
 const apiKey = YELP_API_KEY;
 
-//Format the response from Yelp API
-  const extractRestaurantInfo = (businesses) => {
-    if (!businesses || businesses.length === 0) {
-      return [];
-    }
-
-    return businesses.map(business => {
-      return {
-        id: business.id,
-        name: business.name,
-        rating: business.rating,
-        reviewCount: business.review_count,
-        price: business.price,
-        categories: business.categories.map(cat => cat.title).join(', '),
-        address: business.location.display_address.join(', '),
-        phone: business.display_phone,
-        serviceOptions: business.transactions.join(', '),
-        imageUrl: business.image_url,
-        url: business.url
-      };
+// fetch detailed business info for a given business
+const fetchBusinessDetails = async (businessId) => {
+  const detailsEndpoint = `https://api.yelp.com/v3/businesses/${businessId}`;
+  try {
+    const response = await axios.get(detailsEndpoint, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
     });
-  };
+    return response.data;
+  } catch (err) {
+    console.log('Error fetching business details', err?.message || err);
+    return null;
+  }
+};
+
+// Format the response from Yelp API
+const extractRestaurantInfo = async (businesses) => {
+  if (!businesses || businesses.length === 0) {
+    return [];
+  }
+
+  const detailsList = await Promise.all(
+    businesses.map((b) => fetchBusinessDetails(b.id))
+  );
+
+  return businesses.map((business, index) => {
+    const details = detailsList[index] || {};
+    return {
+      id: business.id,
+      name: business.name,
+      rating: business.rating,
+      reviewCount: business.review_count,
+      price: business.price,
+      categories: business.categories.map((cat) => cat.title).join(', '),
+      address: business.location.display_address.join(', '),
+      phone: business.display_phone,
+      serviceOptions: business.transactions.join(', '),
+      imageUrl: business.image_url,
+      url: business.url,
+      hours: details.hours || null,
+      photos: Array.isArray(details.photos) ? details.photos.slice(0, 3) : [],
+    };
+  });
+};
+
+// Format the response from Yelp API using only the /businesses/search results.
+// This avoids extra per-business detail requests that can trigger 429 rate limits.
+const extractRestaurantInfoFromSearch = (businesses) => {
+  if (!businesses || businesses.length === 0) {
+    return [];
+  }
+
+  return businesses.map((business) => ({
+    id: business.id,
+    name: business.name,
+    rating: business.rating,
+    reviewCount: business.review_count,
+    price: business.price,
+    categories: (business.categories || []).map((cat) => cat.title).join(', '),
+    address: (business.location?.display_address || []).join(', '),
+    phone: business.display_phone,
+    serviceOptions: (business.transactions || []).join(', '),
+    imageUrl: business.image_url,
+    url: business.url,
+    hours: null,
+    photos: [],
+  }));
+};
 
 const restaurant = async (categoryParams, priceRange) => {
 
@@ -52,7 +99,7 @@ const restaurant = async (categoryParams, priceRange) => {
     params.price = priceRange.toString();
   }
 
-  let businesses;
+  let businesses = [];
 
   await axios.get(search_endpoint, {
     headers: {
@@ -60,13 +107,17 @@ const restaurant = async (categoryParams, priceRange) => {
     },
     params,
   }).then(response => {
-    businesses = response.data.businesses;
+    businesses = response.data.businesses || [];
   }).catch(error => {
-    console.log(error);
+    console.log('Error fetching restaurant search results', error?.message || error);
   });
 
-  const formattedBusinesses = await extractRestaurantInfo(businesses);
-  return formattedBusinesses;
+  try {
+    return await extractRestaurantInfo(businesses);
+  } catch (err) {
+    console.log('Error enriching restaurant details, falling back to basic data', err?.message || err);
+    return extractRestaurantInfoFromSearch(businesses);
+  }
 }
 
 export default restaurant;
