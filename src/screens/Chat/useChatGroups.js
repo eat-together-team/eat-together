@@ -1,11 +1,15 @@
-//Shared chat-list data fetching for Chats.js (inbox) and ArchivedChats.js —
-//same Firestore enrichment logic, just filtered to archived vs non-archived
-//groupIDs (Users/{uid}.archivedGroupIDs is a subset of Users/{uid}.groupIDs).
+//Shared chat-list data fetching for Chats.js (inbox), ArchivedChats.js, and
+//MessageRequests.js — same Firestore enrichment logic, just sourced from a
+//different groupID list: archived vs non-archived groupIDs (Users/{uid}
+//.archivedGroupIDs is a subset of Users/{uid}.groupIDs), or, for `pending`,
+//Users/{uid}.pendingRequestGroupIDs (a separate field entirely — groupIDs a
+//still-pending message request's recipient hasn't accepted into their real
+//groupIDs yet).
 
 import { useEffect, useRef, useState } from "react";
 import { db } from "../../provider/Firebase";
 
-export default function useChatGroups(user, { archived = false, enabled = true } = {}) {
+export default function useChatGroups(user, { archived = false, pending = false, enabled = true } = {}) {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   // groupID -> enriched group object, kept across re-subscriptions so a
@@ -40,12 +44,17 @@ export default function useChatGroups(user, { archived = false, enabled = true }
         const nameCurrent = doc.data().firstName + " " + doc.data().lastName;
         const allGroupIDs = doc.data().groupIDs || [];
         const archivedGroupIDs = doc.data().archivedGroupIDs || [];
-        const groupIDs = archived
+        const groupIDs = pending
+          ? doc.data().pendingRequestGroupIDs || []
+          : archived
           ? allGroupIDs.filter((id) => archivedGroupIDs.includes(id))
           : allGroupIDs.filter((id) => !archivedGroupIDs.includes(id));
 
         // Tear down listeners for groups no longer in the list (deleted,
-        // archived/unarchived elsewhere, etc.).
+        // left, archived/unarchived elsewhere, etc.) — published right away
+        // regardless of whether other groups remain, otherwise a removal
+        // sits stale in `groups` until some *other* group's snapshot happens
+        // to fire and incidentally re-publishes.
         Object.keys(groupUnsubscribes).forEach((groupID) => {
           if (!groupIDs.includes(groupID)) {
             groupUnsubscribes[groupID]();
@@ -53,9 +62,9 @@ export default function useChatGroups(user, { archived = false, enabled = true }
             delete groupsMapRef.current[groupID];
           }
         });
+        publish();
 
         if (groupIDs.length === 0) {
-          publish();
           setLoading(false);
           return;
         }
@@ -82,7 +91,9 @@ export default function useChatGroups(user, { archived = false, enabled = true }
 
               if (data.messages.length > 0) {
                 const lastMessage = data.messages[data.messages.length - 1];
-                message = lastMessage.message || (lastMessage.url ? "Image" : "");
+                message =
+                  lastMessage.message ||
+                  (lastMessage.url ? "Image" : lastMessage.type === "system" ? lastMessage.text : "");
                 if (lastMessage.unread && lastMessage.sentBy !== user.uid) {
                   unread = lastMessage.unread.filter(u => u.uid === user.uid)[0].unread;
                 }
@@ -93,20 +104,28 @@ export default function useChatGroups(user, { archived = false, enabled = true }
                   ? data.messages[data.messages.length - 1].sentAt
                   : "";
 
-              // Get rid of your own name and all the ways it can be formatted in group title (if it is a DM)
+              // Group chats only: strip your own name out of the stored,
+              // comma-joined title. A 1-on-1 chat skips this entirely (see
+              // below) rather than relying on it.
               let name = data.name;
-              if (data.uids.length >= 2) {
+              if (data.uids.length > 2) {
                 name = name.replace(nameCurrent + ", ", "");
                 if (name.endsWith(", " + nameCurrent)) {
                   name = name.slice(0, -1 * (nameCurrent.length + 2));
                 }
               }
 
-              // For a 1-on-1 chat, use the other person's own profile photo
-              // (same lookup ChatRoom.js uses) instead of a group photo, since
-              // group docs are never actually given one.
+              // For a 1-on-1 chat, read the other person's name AND photo
+              // straight off their own profile doc instead of string-
+              // stripping the group's stored `name` field — that field is a
+              // plain "A, B" string frozen at chat-creation time, so it
+              // silently shows BOTH names if either one's firstName/lastName
+              // ever had different whitespace than what's computed here
+              // (e.g. a stray double space), and it never reflects a later
+              // name change either way. The other user's own doc is always
+              // authoritative.
               const otherUids = data.uids.filter((uid) => uid !== user.uid);
-              const avatarLookup =
+              const lookup =
                 otherUids.length === 1
                   ? db
                       .collection("Users")
@@ -114,16 +133,19 @@ export default function useChatGroups(user, { archived = false, enabled = true }
                       .get()
                       .then((userDoc) => {
                         const userData = userDoc.data();
-                        return userData && userData.hasImage
-                          ? userData.image
-                          : null;
+                        return {
+                          name: userData
+                            ? userData.firstName + " " + userData.lastName
+                            : name,
+                          avatarUri: userData && userData.hasImage ? userData.image : null,
+                        };
                       })
-                  : Promise.resolve(null);
+                  : Promise.resolve({ name, avatarUri: null });
 
-              avatarLookup.then((avatarUri) => {
+              lookup.then(({ name: resolvedName, avatarUri }) => {
                 groupsMapRef.current[groupID] = {
                   groupID: groupID,
-                  name: name,
+                  name: resolvedName,
                   uids: data.uids,
                   hasImage: data.hasImage,
                   message: message,
@@ -149,7 +171,7 @@ export default function useChatGroups(user, { archived = false, enabled = true }
       userUnsubscribe();
       Object.values(groupUnsubscribes).forEach((unsubscribe) => unsubscribe());
     };
-  }, [user.uid, archived, enabled]);
+  }, [user.uid, archived, pending, enabled]);
 
   return { groups, setGroups, loading };
 }

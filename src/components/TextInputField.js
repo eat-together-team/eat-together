@@ -14,6 +14,7 @@ const TextInputField = ({
   secureTextEntry = false,
   keyboardType = 'default',
   autoCapitalize = 'none',
+  textAlign = 'left',
   style,
   onFocus,
   onBlur,
@@ -34,7 +35,7 @@ const TextInputField = ({
     }, style]}>
       {leadingIcon && <View style={styles.iconWrap}>{leadingIcon}</View>}
       <RNTextInput
-        style={[styles.input, { fontFamily, color: colors.onBackground }]}
+        style={[styles.input, { fontFamily, color: colors.onBackground, textAlign }]}
         value={value}
         onChangeText={onChangeText}
         placeholder={hint}

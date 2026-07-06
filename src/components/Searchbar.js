@@ -70,9 +70,13 @@ const Searchbar = ({ value, onChangeText, placeholder = 'Search', children = nul
             styles.searchBox,
             {
               backgroundColor: theme === 'dark' ? colors.containerLow : colors.background,
-              borderColor: isFocused ? `${colors.textMedium}CC` : colors.containerHigh,
+              borderColor: isFocused ? `${colors.textMedium}80` : colors.containerHigh,
               shadowColor: '#000000',
-              borderRadius: showResults ? 20 : 30,
+              // Only square off when there's an actual results panel rendered
+              // inside the box (the `children` slot) — with no children,
+              // squaring on typing makes no sense since nothing's dropping
+              // down from it.
+              borderRadius: showResults && children ? 20 : 30,
               opacity: disabled ? 0.5 : 1,
             },
           ]}

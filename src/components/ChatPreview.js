@@ -12,6 +12,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFonts, Inter_600SemiBold, Inter_700Bold } from "@expo-google-fonts/inter";
 import Header4Text from "./typography/Header4Text";
 import SubBodyText from "./typography/SubBodyText";
+import OutlinePillButton from "./OutlinePillButton";
+import GroupAvatarPlaceholder from "./GroupAvatarPlaceholder";
 import { useTheme } from "../rapi_ui_components";
 import { colorTokens } from "../theme/colorTokens";
 import { storage } from "../provider/Firebase";
@@ -61,6 +63,7 @@ const ChatPreview = (props) => {
   // explicitly gated by which side is currently open.
   const [openSide, setOpenSide] = useState("none");
   const canArchive = !!props.archiveAction;
+  const isGroupChat = props.group.uids?.length > 2;
 
   useEffect(() => {
     rowWidthRef.current = rowWidth;
@@ -79,7 +82,7 @@ const ChatPreview = (props) => {
           setImageUri(uri);
         });
     }
-  }, [props.group.avatarUri]);
+  }, [props.group.avatarUri, props.group.hasImage, props.group.pictureID]);
 
   const closeRow = () => {
     openSideRef.current = "none";
@@ -239,7 +242,7 @@ const ChatPreview = (props) => {
             {
               opacity: archiveOpacity,
               backgroundColor:
-                theme === "dark" ? tokens.containerMedium : tokens.containerLow,
+                theme === "dark" ? tokens.containerHigh : tokens.containerMedium,
             },
           ]}
         >
@@ -250,7 +253,7 @@ const ChatPreview = (props) => {
             {/* Archive is revealed from the left edge inward, so the icon
                 (closest to that edge) should show up first. */}
             <Ionicons
-              name={props.archiveAction.icon || "archive-outline"}
+              name={props.archiveAction.icon || "archive"}
               size={20}
               color={tokens.onBackground}
             />
@@ -269,11 +272,14 @@ const ChatPreview = (props) => {
       >
         <TouchableOpacity style={styles.bannerTouchable} onPress={dismissDelete}>
           {/* Delete is revealed from the right edge inward, so the icon
-              (closest to that edge) should show up first. */}
+              (closest to that edge) should show up first. Swiping a group
+              chat only ever removes you from it (everyone else's copy is
+              untouched), same as "Leave group" in GroupSettings.js — so it's
+              labeled that way here too, rather than "Delete chat". */}
           <SubBodyText color={tokens.error} style={{ fontSize: 15 }}>
-            Delete chat
+            {props.deleteLabel || (isGroupChat ? "Leave group" : "Delete chat")}
           </SubBodyText>
-          <Ionicons name="trash-outline" size={20} color={tokens.error} />
+          <Ionicons name={isGroupChat ? "log-out" : "trash"} size={20} color={tokens.error} />
         </TouchableOpacity>
       </Animated.View>
       <Animated.View
@@ -290,18 +296,26 @@ const ChatPreview = (props) => {
           ]}
           onPress={handleRowPress}
         >
-          {/* expo-image caches to disk/memory by uri, so returning to this list
-              (e.g. backing out of a chat) doesn't re-fetch the photo, and the
-              placeholder shows until the cached/fetched photo is ready. */}
-          <Image
-            source={imageUri ? { uri: imageUri } : undefined}
-            placeholder={avatarPlaceholder}
-            placeholderContentFit="cover"
-            contentFit="cover"
-            cachePolicy="memory-disk"
-            transition={200}
-            style={styles.avatar}
-          />
+          {!imageUri && props.group.uids?.length > 2 ? (
+            // Group chat with no custom photo set — the illustrated default
+            // rather than the single-person silhouette placeholder below,
+            // which is meant for 1-on-1s.
+            <GroupAvatarPlaceholder size={63} />
+          ) : (
+            // expo-image caches to disk/memory by uri, so returning to this
+            // list (e.g. backing out of a chat) doesn't re-fetch the photo,
+            // and the placeholder shows until the cached/fetched photo is
+            // ready.
+            <Image
+              source={imageUri ? { uri: imageUri } : undefined}
+              placeholder={avatarPlaceholder}
+              placeholderContentFit="cover"
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              transition={200}
+              style={styles.avatar}
+            />
+          )}
           <View style={styles.content}>
             <Header4Text
               color={tokens.textNormal}
@@ -333,6 +347,17 @@ const ChatPreview = (props) => {
               )}
             </View>
           </View>
+
+          {props.trailingButton && (
+            // A sibling touchable inside the same Pressable's hit area —
+            // RN's responder system gives it its own tap independent of the
+            // row's own onPress, no propagation-stopping needed.
+            <OutlinePillButton
+              label={props.trailingButton.label}
+              onPress={props.trailingButton.onPress}
+              color={tokens.outline}
+            />
+          )}
         </Pressable>
       </Animated.View>
     </View>

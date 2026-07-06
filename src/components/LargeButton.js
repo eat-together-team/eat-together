@@ -32,7 +32,10 @@ const LargeButton = ({ onPress, outlined = false, color = 'green', children, dis
 
   const isGray = color === 'gray';
   const isGreen = color === 'green';
-  const accentColor = isGray ? colors.outline : isGreen ? colors.primary : color;
+  // The standard "gray" accent across all outlined/gray buttons — textMedium
+  // at 70% opacity (hex B3), darker/more legible than the old plain outline
+  // gray.
+  const accentColor = isGray ? `${colors.textMedium}B3` : isGreen ? colors.primary : color;
 
   const wrapperStyle = outlined
     ? { backgroundColor: 'transparent', borderWidth: 2, borderColor: accentColor }
@@ -40,7 +43,7 @@ const LargeButton = ({ onPress, outlined = false, color = 'green', children, dis
 
   const textColor = outlined ? accentColor : colors.onPrimary;
   const rippleColor = outlined
-    ? (isGray ? 'rgba(187,187,187,0.22)' : isGreen ? 'rgba(93,176,117,0.22)' : `${accentColor}38`)
+    ? (isGreen ? 'rgba(93,176,117,0.22)' : `${accentColor}38`)
     : 'rgba(255,255,255,0.3)';
 
   const fontFamily = fontsLoaded

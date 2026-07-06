@@ -7,7 +7,10 @@ import ArchivedChats from "./ArchivedChats";
 import ChatRoom from "./ChatRoom";
 import ChatRoomDetails from "./ChatRoomDetails";
 import ChatSettings from "./ChatSettings";
+import GroupSettings from "./GroupSettings";
+import AddGroupMembers from "./AddGroupMembers";
 import NewChat from "./NewChat";
+import MessageRequests from "./MessageRequests";
 import ImageViewer from "./ImageViewer";
 import FullProfile from "../Explore/People/FullProfile";
 
@@ -32,7 +35,10 @@ export default function () {
       <Stack.Screen name="ChatRoom" component={ChatRoom} />
       <Stack.Screen name="ChatRoomDetails" component={ChatRoomDetails}/>
       <Stack.Screen name="ChatSettings" component={ChatSettings}/>
+      <Stack.Screen name="GroupSettings" component={GroupSettings}/>
+      <Stack.Screen name="AddGroupMembers" component={AddGroupMembers}/>
       <Stack.Screen name="NewChat" component={NewChat}/>
+      <Stack.Screen name="MessageRequests" component={MessageRequests}/>
       <Stack.Screen name="ImageViewer" component={ImageViewer}/>
       <Stack.Screen name="FullProfile">
         {props => <FullProfile {...props} blockBack="Chats" />}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,19 +20,32 @@ export default function ChatSettings({ route, navigation }) {
   const tokens = colorTokens[theme];
   const { group, otherUser, otherImage } = route.params;
   const avatarPlaceholder = theme === "dark" ? avatarPlaceholderDark : avatarPlaceholderLight;
+  const user = auth.currentUser;
+
+  const [isArchived, setIsArchived] = useState(false);
+
+  useEffect(() => {
+    db.collection("Users")
+      .doc(user.uid)
+      .get()
+      .then((doc) => {
+        setIsArchived((doc.data()?.archivedGroupIDs || []).includes(group.groupID));
+      });
+  }, []);
 
   const handleArchive = () => {
-    const user = auth.currentUser;
     db.collection("Users")
       .doc(user.uid)
       .update({
-        archivedGroupIDs: firebase.firestore.FieldValue.arrayUnion(group.groupID),
+        archivedGroupIDs: isArchived
+          ? firebase.firestore.FieldValue.arrayRemove(group.groupID)
+          : firebase.firestore.FieldValue.arrayUnion(group.groupID),
       })
       .then(() => {
         navigation.navigate("Chats");
       })
       .catch((error) => {
-        alert("Couldn't archive this chat: " + error.message);
+        alert(`Couldn't ${isArchived ? "unarchive" : "archive"} this chat: ` + error.message);
       });
   };
 
@@ -73,12 +86,12 @@ export default function ChatSettings({ route, navigation }) {
             leadingIcon={<Ionicons name="archive-outline" size={16} color={tokens.primary} />}
             onPress={handleArchive}
           >
-            Archive chat
+            {isArchived ? "Unarchive chat" : "Archive chat"}
           </LargeButton>
           <LargeButton
             outlined
             color="gray"
-            leadingIcon={<Ionicons name="alert-circle-outline" size={16} color={tokens.outline} />}
+            leadingIcon={<Ionicons name="alert-circle-outline" size={16} color={`${tokens.textMedium}B3`} />}
             onPress={reportPerson}
           >
             Report

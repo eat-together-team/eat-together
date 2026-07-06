@@ -39,9 +39,15 @@ import { radiusTokens } from "../../theme/radiusTokens";
 
 import RecTutorialMessage from "../../components/RecTutorialMessage";
 import ChatBubble from "../../components/ChatBubble";
+import SystemMessage from "../../components/SystemMessage";
 import ChatMessageSkeleton from "../../components/ChatMessageSkeleton";
 import ChatComposer from "../../components/ChatComposer";
 import Header3Text from "../../components/typography/Header3Text";
+import Header4Text from "../../components/typography/Header4Text";
+import SubBodyText from "../../components/typography/SubBodyText";
+import getDate from "../../utils/getDate";
+import getTime from "../../utils/getTime";
+import { deleteChat, acceptMessageRequest } from "./Chats";
 
 import { db, auth, storage } from "../../provider/Firebase";
 
@@ -72,6 +78,11 @@ export default function ({ route, navigation }) {
 
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]); // Users in group chat
+  // Seeded from route params (set when NewChat.js just created the request,
+  // so the very first render already knows) — the live snapshot below keeps
+  // both in sync with the doc from then on (e.g. flips to false on accept).
+  const [pending, setPending] = useState(route.params.group.pending || false);
+  const [requestedBy, setRequestedBy] = useState(route.params.group.requestedBy || null);
   const [message, setMessage] = useState(""); // Text input for message
   const [pendingImages, setPendingImages] = useState([]); // Local URIs picked but not sent yet
   const [sending, setSending] = useState(false); // True while an upload/send is in flight
@@ -80,6 +91,14 @@ export default function ({ route, navigation }) {
   const [otherUser, setOtherUser] = useState(); // other user for which to load profile photo
   const [otherImage, setOtherImage] = useState("");
   const [otherUserData, setOtherUserData] = useState(null); // full profile doc, for FullProfile/ChatSettings
+  // uid -> { firstName, image } for every group member — the header
+  // subtitle's roster and each ChatBubble's per-sender name/avatar both
+  // read from this one map instead of two separate fetches.
+  const [memberInfoByUid, setMemberInfoByUid] = useState({});
+  // Group chats default to "New group" at creation (see NewChat.js) and can
+  // be renamed later from GroupSettings.js — tracked live here rather than
+  // hardcoded so a rename shows up immediately.
+  const [groupName, setGroupName] = useState(route.params.group.name);
 
   const group = route.params.group;
 
@@ -145,6 +164,9 @@ export default function ({ route, navigation }) {
     messageRef.onSnapshot((doc) => {
       if (doc.data()) { // Checks if doc exists (used to prevent crash after blocking a user)
         setUsers(doc.data().uids); // Users in group
+        setPending(doc.data().pending || false);
+        setRequestedBy(doc.data().requestedBy || null);
+        if (doc.data().uids.length > 2) setGroupName(doc.data().name);
 
         const otherUsers = doc.data().uids.filter(u => u !== user.uid)
         setOtherUser(otherUsers[0])
@@ -178,7 +200,13 @@ export default function ({ route, navigation }) {
           setRead(temp);
         }
       } else {
+        // Doc's gone (declined/withdrawn, or blocked) — nothing left to be
+        // pending about, so reset these too rather than leaving them stale
+        // and rendering a pending-request footer against an empty message
+        // list.
         setMessages([]);
+        setPending(false);
+        setRequestedBy(null);
       }
       // Resolve loading regardless of whether the doc has any messages yet
       // (or briefly doesn't exist, e.g. right after blocking a user) — a
@@ -197,6 +225,33 @@ export default function ({ route, navigation }) {
       })
     }
   }, [otherUser]);
+
+  // Group chats (3+ people) show the group's name (see groupName state) with
+  // a member roster underneath instead of one other person's name/photo —
+  // there's no single "other person" to link a profile-photo header to.
+  useEffect(() => {
+    const uids = users.length > 0 ? users : group.uids;
+    if (uids.length <= 2) return;
+
+    // Firestore 'in' queries cap at 10 values, so chunk larger rosters.
+    const chunks = [];
+    for (let i = 0; i < uids.length; i += 10) chunks.push(uids.slice(i, i + 10));
+
+    Promise.all(
+      chunks.map((chunk) =>
+        db.collection("Users").where(firebase.firestore.FieldPath.documentId(), "in", chunk).get()
+      )
+    ).then((snapshots) => {
+      const info = {};
+      snapshots.forEach((snapshot) =>
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          info[doc.id] = { firstName: data.firstName, image: data.hasImage ? data.image : null };
+        })
+      );
+      setMemberInfoByUid(info);
+    });
+  }, [users, group.uids]);
 
   // Tapping the image button opens the gallery directly — images are staged
   // as previews in the composer rather than uploaded/sent immediately, so
@@ -374,6 +429,49 @@ export default function ({ route, navigation }) {
     }
   };
 
+  // A still-pending chat (message request) shows a different footer instead
+  // of the normal composer, depending on which side of the request this
+  // user is on — see the render below for exactly which state renders what.
+  const isPendingSender = pending && requestedBy === user.uid;
+  const isPendingReceiver =
+    pending && requestedBy !== null && requestedBy !== user.uid && messages.length > 0;
+  const requestGroup = { groupID: group.groupID, uids: users.length ? users : group.uids };
+  const groupUids = users.length > 0 ? users : group.uids;
+  const isGroupChat = groupUids.length > 2;
+  const groupMemberNames = groupUids.map((uid) => memberInfoByUid[uid]?.firstName).filter(Boolean);
+  const groupSubtitle =
+    groupMemberNames.slice(0, 2).join(", ") +
+    (groupMemberNames.length > 2 ? `, +${groupMemberNames.length - 2}` : "");
+
+  const handleWithdraw = async () => {
+    try {
+      await deleteChat(user, requestGroup);
+      navigation.navigate("Chats");
+    } catch (error) {
+      console.error("Failed to withdraw request:", error);
+      Alert.alert("Couldn't withdraw request", error.message || "Something went wrong.");
+    }
+  };
+
+  const handleDecline = async () => {
+    try {
+      await deleteChat(user, requestGroup);
+      navigation.navigate("Chats");
+    } catch (error) {
+      console.error("Failed to decline request:", error);
+      Alert.alert("Couldn't decline request", error.message || "Something went wrong.");
+    }
+  };
+
+  const handleAccept = async () => {
+    try {
+      await acceptMessageRequest(user, requestGroup);
+    } catch (error) {
+      console.error("Failed to accept request:", error);
+      Alert.alert("Couldn't accept request", error.message || "Something went wrong.");
+    }
+  };
+
   // TUTORIAL FUNCTIONS
 
   // Fetch data from Firestore to see if the user has seen the tutorial before or not
@@ -406,6 +504,9 @@ export default function ({ route, navigation }) {
 
   const avatarPlaceholder = theme === "dark" ? avatarPlaceholderDark : avatarPlaceholderLight;
   const canSend = message.trim().length > 0 || pendingImages.length > 0;
+  const bottomPadding = keyboardVisible
+    ? 10
+    : Math.max(insets.bottom, 20) + (Platform.OS === "android" ? 5 : 0);
 
   return (
     <Layout>
@@ -429,34 +530,52 @@ export default function ({ route, navigation }) {
         </TouchableOpacity>
 
         <View style={styles.centerAbsolute} pointerEvents="box-none">
-          <TouchableOpacity
-            style={styles.headerCenter}
-            onPress={() => navigation.navigate("FullProfile", { person: otherUserData })}
-            disabled={!otherUserData}
-          >
-            <Image
-              source={otherImage ? { uri: otherImage } : undefined}
-              placeholder={avatarPlaceholder}
-              placeholderContentFit="cover"
-              contentFit="cover"
-              cachePolicy="memory-disk"
-              transition={200}
-              style={styles.avatar}
-            />
-            <Header3Text
-              color={tokens.onBackground}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              style={styles.headerName}
+          {isGroupChat ? (
+            <View style={styles.groupHeaderCenter}>
+              <Header3Text color={tokens.onBackground} numberOfLines={1} center>
+                {groupName}
+              </Header3Text>
+              <SubBodyText
+                color={tokens.textMedium}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                center
+              >
+                {groupSubtitle}
+              </SubBodyText>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.headerCenter}
+              onPress={() => navigation.navigate("FullProfile", { person: otherUserData })}
+              disabled={!otherUserData}
             >
-              {group.name}
-            </Header3Text>
-          </TouchableOpacity>
+              <Image
+                source={otherImage ? { uri: otherImage } : undefined}
+                placeholder={avatarPlaceholder}
+                placeholderContentFit="cover"
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                transition={200}
+                style={styles.avatar}
+              />
+              <Header3Text
+                color={tokens.onBackground}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={styles.headerName}
+              >
+                {group.name}
+              </Header3Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate("ChatSettings", { group, otherUser: otherUserData, otherImage })
+            isGroupChat
+              ? navigation.navigate("GroupSettings", { group: requestGroup, name: groupName })
+              : navigation.navigate("ChatSettings", { group, otherUser: otherUserData, otherImage })
           }
           hitSlop={8}
         >
@@ -475,50 +594,100 @@ export default function ({ route, navigation }) {
         ) : (
           <FlatList
             data={messages}
-            renderItem={({ item }) => <ChatBubble {...item} navigation={navigation} />}
+            renderItem={({ item }) =>
+              item.type === "system" ? (
+                <SystemMessage text={item.text} sentAt={item.sentAt} />
+              ) : (
+                <ChatBubble
+                  {...item}
+                  navigation={navigation}
+                  isGroupChat={isGroupChat}
+                  senderImage={memberInfoByUid[item.sentBy]?.image}
+                />
+              )
+            }
             inverted={true}
             keyExtractor={(item) => item.sentAt.toString()}
             contentContainerStyle={styles.messageList}
           />
         )}
 
-        <View
-          style={[
-            styles.inputRow,
-            {
-              paddingBottom: keyboardVisible
-                ? 10
-                : Math.max(insets.bottom, 20) + (Platform.OS === "android" ? 5 : 0),
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: tokens.containerHigh }]}
-            onPress={handleChoosePhoto}
-          >
-            <Ionicons name="images" size={22} color={tokens.onBackground} />
-          </TouchableOpacity>
+        {isPendingReceiver ? (
+          // Not accepted yet, viewed from the recipient's side — no
+          // composer at all until they act on it.
+          <View style={[styles.requestFooter, { paddingBottom: bottomPadding }]}>
+            <SubBodyText color={tokens.textNormal} center>
+              {group.name} requested to message you
+            </SubBodyText>
+            <SubBodyText color={tokens.textLight} center style={styles.requestTimestamp}>
+              {getDate(moment.unix(messages[0].sentAt).toDate(), false)} ·{" "}
+              {getTime(moment.unix(messages[0].sentAt).toDate())}
+            </SubBodyText>
+            <View style={styles.requestButtonsRow}>
+              <TouchableOpacity
+                style={[styles.requestButton, { borderWidth: 2, borderColor: tokens.error }]}
+                onPress={handleDecline}
+              >
+                <Header4Text color={tokens.error}>Decline</Header4Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.requestButton, { borderWidth: 2, borderColor: tokens.primary }]}
+                onPress={handleAccept}
+              >
+                <Header4Text color={tokens.primary}>Accept</Header4Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : isPendingSender && messages.length > 0 ? (
+          // The sender's one allowed message has already gone out — no more
+          // composer until the other side accepts (or they withdraw it).
+          <View style={[styles.requestFooter, { paddingBottom: bottomPadding }]}>
+            <SubBodyText color={tokens.textNormal} center>
+              You requested to message {group.name}
+            </SubBodyText>
+            <SubBodyText color={tokens.textLight} center style={styles.requestTimestamp}>
+              {getDate(moment.unix(messages[0].sentAt).toDate(), false)} ·{" "}
+              {getTime(moment.unix(messages[0].sentAt).toDate())}
+            </SubBodyText>
+            <TouchableOpacity
+              style={[styles.withdrawButton, { borderColor: tokens.outline }]}
+              onPress={handleWithdraw}
+            >
+              <Header4Text color={tokens.textMedium}>Withdraw request</Header4Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          // Normal composer — also what a pending sender sees for their one
+          // allowed message, before they've sent it.
+          <View style={[styles.inputRow, { paddingBottom: bottomPadding }]}>
+            <TouchableOpacity
+              style={[styles.iconButton, { backgroundColor: tokens.containerHigh }]}
+              onPress={handleChoosePhoto}
+            >
+              <Ionicons name="images" size={22} color={tokens.onBackground} />
+            </TouchableOpacity>
 
-          <ChatComposer
-            style={styles.textInput}
-            value={message}
-            onChangeText={setMessage}
-            attachments={pendingImages}
-            onRemoveAttachment={removePendingImage}
-          />
+            <ChatComposer
+              style={styles.textInput}
+              value={message}
+              onChangeText={setMessage}
+              attachments={pendingImages}
+              onRemoveAttachment={removePendingImage}
+            />
 
-          <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: tokens.primary, opacity: canSend ? 1 : 0.5 }]}
-            onPress={handleSend}
-            disabled={!canSend || sending}
-          >
-            {sending ? (
-              <ActivityIndicator size="small" color={tokens.onPrimary} />
-            ) : (
-              <Ionicons name="paper-plane" size={20} color={tokens.onPrimary} />
-            )}
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={[styles.iconButton, { backgroundColor: tokens.primary, opacity: canSend ? 1 : 0.5 }]}
+              onPress={handleSend}
+              disabled={!canSend || sending}
+            >
+              {sending ? (
+                <ActivityIndicator size="small" color={tokens.onPrimary} />
+              ) : (
+                <Ionicons name="paper-plane" size={20} color={tokens.onPrimary} />
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
       </KeyboardWrapper>
     </Layout>
   );
@@ -546,6 +715,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 15,
+    maxWidth: "100%",
+  },
+  groupHeaderCenter: {
+    alignItems: "center",
     maxWidth: "100%",
   },
   avatar: {
@@ -580,5 +753,32 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
+  },
+  requestFooter: {
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    gap: 4,
+  },
+  requestTimestamp: {
+    marginBottom: 20,
+  },
+  requestButtonsRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 12,
+  },
+  requestButton: {
+    flex: 1,
+    borderRadius: radiusTokens.small,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  withdrawButton: {
+    borderWidth: 2,
+    borderRadius: radiusTokens.small + 3,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

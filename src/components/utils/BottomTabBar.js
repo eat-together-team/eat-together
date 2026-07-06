@@ -10,20 +10,34 @@ import { colorTokens } from "../../theme/colorTokens";
 import RippleTouchable from "./RippleTouchable";
 
 const EVENT_ROUTE_NAME = "Organize";
-// Nested screens (inside a tab's own stack) that should hide the whole nav
-// bar rather than just sit underneath it. bottom-tabs always calls a custom
-// tabBar render prop regardless of a screen's tabBarStyle:{display:'none'}
-// (that convention only self-enforces inside the library's own default
-// BottomTabBar), so a custom tabBar has to opt itself out.
-const HIDDEN_ON_ROUTES = ["ArchivedChats", "ChatRoom", "ChatSettings", "ImageViewer", "NewChat"];
+// The bar only ever shows on these three tabs' own root screen — Explore,
+// Inbox, and Account (your own profile) are the actual "home" flow.
+// Organize/Event and every nested screen everywhere (someone else's
+// FullProfile, all settings screens, chat sub-screens, etc.) are each their
+// own page, not part of that persistent home experience, so they hide it.
+// This is an allowlist rather than a blocklist of nested screen names on
+// purpose — a blocklist has to be remembered and extended for every new
+// nested screen added later; this way new screens are hidden by default.
+const HOME_ROOT_SCREEN_BY_TAB = {
+  Explore: "Explore",
+  Notifs: "Chats",
+  Profile: "Me",
+};
 
 export default function BottomTabBar({ state, descriptors, navigation, insets }) {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
 
-  const focusedRoute = state.routes[state.index];
-  const focusedRouteName = getFocusedRouteNameFromRoute(focusedRoute);
-  if (HIDDEN_ON_ROUTES.includes(focusedRouteName)) {
+  const focusedTab = state.routes[state.index];
+  // getFocusedRouteNameFromRoute returns undefined until the nested
+  // navigator's state actually exists — treated the same as "at its own
+  // root" here, since that's exactly what an uninitialized nested stack is.
+  const focusedRouteName = getFocusedRouteNameFromRoute(focusedTab);
+  const homeRootScreen = HOME_ROOT_SCREEN_BY_TAB[focusedTab.name];
+  const isAtHomeRoot =
+    !!homeRootScreen && (focusedRouteName === undefined || focusedRouteName === homeRootScreen);
+
+  if (!isAtHomeRoot) {
     return null;
   }
 
