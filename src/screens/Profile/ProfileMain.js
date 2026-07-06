@@ -17,6 +17,7 @@ import ColorSelector from "./ColorSelector";
 import EventGallery from "../Home/EventGallery";
 import Gallery from "../Home/Gallery";
 import MeetupArchive from "./MeetupArchive";
+import StarredRestaurants from "./StarredRestaurants";
 
 const Stack = createNativeStackNavigator();
 
@@ -51,6 +52,7 @@ export default function () {
       <Stack.Screen name="Gallery" component={Gallery} />
       <Stack.Screen name="EventGallery" component={EventGallery} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
+      <Stack.Screen name="StarredRestaurants" component={StarredRestaurants} />
     </Stack.Navigator>
   );
 }

@@ -2,7 +2,7 @@
 // Sets up login permissions
 
 import { useEffect, useContext } from "react";
-import { Alert, Linking } from "react-native";
+import { Alert, Linking, View, StyleSheet } from "react-native";
 import "firebase/firestore";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -109,7 +109,18 @@ const MainTabs = () => {
       tabBar={(props) => <BottomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-      }}
+        animationEnabled: false,
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          backgroundColor: "transparent",
+          borderTopWidth: 0,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        tabBarBackground: () => (
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: "#ffffff" }]} />
+        ),
+        sceneContainerStyle: { backgroundColor: "#ffffff" },      }}
     >
       <Tabs.Screen
         name="Organize"
