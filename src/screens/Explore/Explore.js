@@ -1,356 +1,250 @@
-//Display upcoming events to join
+//Discovery feed: a preview of upcoming events and suggested people, each with a "View all" to the full list.
 
-import React, { useEffect, useState, useRef } from "react";
-import { StyleSheet, FlatList, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { StyleSheet, View, ScrollView, Animated } from "react-native";
 import { Layout } from "../../rapi_ui_components";
-import RBSheet from "react-native-raw-bottom-sheet";
-import { Ionicons } from '@expo/vector-icons';
 
-import EventCard from "../../components/EventCard";
-import Header from "../../components/Header";
-import HorizontalSwitch from "../../components/HorizontalSwitch";
-import Searchbar from "../../components/Searchbar";
-import HorizontalRow from "../../components/HorizontalRow";
-import Filter from "../../components/Filter";
-import EmptyState from "../../components/EmptyState";
-import LoadingView from "../../components/LoadingView";
-import Link from "../../components/Link";
-import Button from "../../components/Button";
-import discoverPhoto from "../../../assets/group.png";
+import LargeAppBar from "../../components/LargeAppBar";
+import ExploreSectionHeader from "../../components/ExploreSectionHeader";
+import ExploreSectionHeaderSkeleton from "../../components/ExploreSectionHeaderSkeleton";
+import EventPreviewCard from "../../components/EventPreviewCard";
+import EventPreviewCardSkeleton from "../../components/EventPreviewCardSkeleton";
+import SuggestedPersonRow from "../../components/SuggestedPersonRow";
+import SuggestedPersonRowSkeleton from "../../components/SuggestedPersonRowSkeleton";
+import PromoImageCard from "../../components/PromoImageCard";
+import PromoImageCardSkeleton from "../../components/PromoImageCardSkeleton";
 
-import { getTimeOfDay, isAvailable, compareDates } from "../../utils/methods";
+import useDeferredReady from "../../utils/useDeferredReady";
+import { compareDates } from "../../utils/methods";
+import { tryoutId } from "../../utils/constants";
 import { auth, db } from "../../provider/Firebase";
 
-export default function({ navigation }) {
-    const tryoutId = 'knVtYe1mtpaZ9D8XLDrS7FCImtm2'; // ID of test user
+const restaurantPickerImage = require("../../../assets/restaurantPicker.png");
+const diningDollarExchangeImage = require("../../../assets/diningDollarExchange.png");
 
-    // Fetch current user
-    const user = auth.currentUser;
-    const [userInfo, setUserInfo] = useState({});
-    const [unread, setUnread] = useState(false); // See if we need to display unread notif icon
+const PREVIEW_COUNT = 3;
 
-    const [events, setEvents] = useState([]); // All public events
-    const [filteredEvents, setFilteredEvents] = useState([]); // Filtered events
-    const [filteredSearchedEvents, setFilteredSearchedEvents] = useState([]); // Events that are filtered and search-queried
+export default function ({ navigation }) {
+  const user = auth.currentUser;
 
-    const [searchQuery, setSearchQuery] = useState("");
+  const [hasNotif, setHasNotif] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [people, setPeople] = useState([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [peopleLoading, setPeopleLoading] = useState(true);
+  const loading = eventsLoading || peopleLoading;
 
-    // Filters
-    const [popularity, setPopularity] = useState(false);
-    const [available, setAvailable] = useState(false);
-    const [fromFriends, setFromFriends] = useState(false);
-    const [friendsAttending, setFriendsAttending] = useState(false);
-    const [morning, setMorning] = useState(false);
-    const [afternoon, setAfternoon] = useState(false);
-    const [evening, setEvening] = useState(false);
+  const ready = useDeferredReady();
+  const contentOpacity = useRef(new Animated.Value(0)).current;
 
-    // Display a bottom drawer showing more filters
-    const showTimeFilterRef = useRef();
-
-    const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
-
-    useEffect(() => { // updates stuff right after React makes changes to the DOM
-      async function fetchData() {
-        let userData;
-        await db.collection("Users").doc(user.uid).get().then(doc => {
-          if (doc.exists) {
-            userData = doc.data();
-            setUserInfo(doc.data());
-            setUnread(doc.data().hasNotif);
-          }
-        });
-        
-        const ref = db.collection("Public Events");
-        await ref.onSnapshot((query) => {
-          let newEvents = [];
-          query.forEach((doc) => {
-            if (doc.data().visibleTo != null) { // For events that are visible to friends only
-              if (!doc.data().visibleTo.includes(user.uid) && !(doc.data().hostID === user.uid)) return;
-            }
-
-            if (doc.data().startDate) { // Same logic as else statement, but for different data structure
-              if (doc.data().startDate.toDate() > new Date() &&
-                !userData.blockedIDs.includes(doc.data().hostID)) {
-                  newEvents.push(doc.data());
-              }
-            } else {
-              if (doc.data().date.toDate() > new Date() &&
-                !userData.blockedIDs.includes(doc.data().hostID)) {
-                  newEvents.push(doc.data());
-              }
-            }
-          });
-          
-          // Sort events by date
-          newEvents = newEvents.sort((a, b) => {
-            return compareDates(a, b);
-          });
-          setEvents(newEvents);
-          setFilteredEvents(newEvents);
-          setFilteredSearchedEvents(newEvents);
-          setLoading(false);
-        });
-      }
-
-      fetchData();
-    }, []);
-
-    useEffect(() => { // Looks for changes to notifications in real-time
-      db.collection("Users").doc(user.uid).onSnapshot(doc => {
-        if (doc.exists) {
-          setUnread(doc.data().hasNotif);
-        }
-      });
-    }, []);
-
-    // For filters
-    useEffect(() => {
-      async function filter() {
-        setLoading(true);
-        let newEvents = [...events];
-
-        if (popularity) {
-          newEvents = sortByPopularity(newEvents);
-        }
-
-        if (available) {
-          newEvents = filterByAvailability(newEvents);
-        }
-
-        if (fromFriends) {
-          newEvents = filterByFriendsHosting(newEvents);
-        }
-
-        if (friendsAttending) {
-          newEvents = filterByFriendsAttending(newEvents);
-        }
-
-        if (morning) {
-          newEvents = filterByTime("morning", newEvents);
-        }
-
-        if (afternoon) {
-          newEvents = filterByTime("afternoon", newEvents);
-        }
-
-        if (evening) {
-          newEvents = filterByTime("evening", newEvents);
-        }
-
-        setFilteredEvents(newEvents);
-
-        const newSearchedEvents = search(newEvents, searchQuery);
-        setFilteredSearchedEvents(newSearchedEvents);
-      }
-
-      if (events.length > 0) {
-        filter().then(() => setLoading(false));
-      }
-    }, [
-      popularity,
-      available,
-      fromFriends,
-      friendsAttending,
-      morning,
-      afternoon,
-      evening,
-    ]);
-
-    // Method to filter out events
-    const search = (newEvents, text) => {
-      return newEvents.filter((e) => isMatch(e, text));
-    };
-
-    // Determines if an event matches search query or not
-    const isMatch = (event, text) => {
-      // Name
-      if (event.name.toLowerCase().includes(text.toLowerCase())) {
-        return true;
-      }
-
-      // Tags
-      if (event.tags.some(tag => tag.toLowerCase().includes(text.toLowerCase()))) {
-        return true;
-      }
-
-      // Host
-      if (event.hostName) {
-        return event.hostName.toLowerCase().includes(text.toLowerCase());
-      }
-
-      const fullName = event.hostFirstName + " " + event.hostLastName;
-      return fullName.toLowerCase().includes(text.toLowerCase());
-    };
-
-    // Method called when a new query is typed in/deleted
-    const onChangeText = (text) => {
-      setSearchQuery(text);
-      const newEvents = search(filteredEvents, text);
-      setFilteredSearchedEvents(newEvents);
-    };
-
-    // Sort events by popularity
-    const sortByPopularity = (newEvents) => {
-      newEvents = newEvents.sort(
-        (a, b) => b.attendees.length - a.attendees.length
-      );
-      return newEvents;
-    };
-
-    // Display events that match the user's availabilities
-    const filterByAvailability = (newEvents) => {
-      return newEvents.filter(e => isAvailable(userInfo, e));
+  useEffect(() => {
+    if (!loading) {
+      contentOpacity.setValue(0);
+      Animated.timing(contentOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
     }
+  }, [loading]);
 
-    // Display events that friends are hosting
-    const filterByFriendsHosting = (newEvents) => {
-      newEvents = newEvents.filter((e) => userInfo.friendIDs.includes(e.hostID));
-      return newEvents;
-    };
+  // Looks for changes to notifications in real-time
+  useEffect(() => {
+    if (!ready) return;
 
-    // Display events that friends are attending
-    const filterByFriendsAttending = (newEvents) => {
-      newEvents = newEvents.filter((e) => {
-        let included = false;
+    const unsubscribe = db.collection("Users").doc(user.uid).onSnapshot((doc) => {
+      if (doc.exists) {
+        setHasNotif(doc.data().hasNotif);
+      }
+    });
 
-        e.attendees.forEach((a) => {
-          if (userInfo.friendIDs.includes(a)) {
-            included = true;
-            return;
+    return () => unsubscribe();
+  }, [ready]);
+
+  // Previews of upcoming events and suggested people (filtered the same way
+  // as AllEvents.js and People.js's full lists, just capped to a few rows).
+  useEffect(() => {
+    if (!ready) return;
+
+    let cancelled = false;
+    let unsubscribeEvents = () => {};
+    let unsubscribePeople = () => {};
+
+    db.collection("Users").doc(user.uid).get().then((doc) => {
+      if (cancelled) return;
+      const userData = doc.data() || {};
+      const blockedIDs = userData.blockedIDs || [];
+      const friendIDs = userData.friendIDs || [];
+
+      unsubscribeEvents = db.collection("Public Events").onSnapshot((query) => {
+        let upcoming = [];
+        query.forEach((eventDoc) => {
+          const data = eventDoc.data();
+          if (data.visibleTo != null && !data.visibleTo.includes(user.uid) && data.hostID !== user.uid) return;
+          if (blockedIDs.includes(data.hostID)) return;
+
+          const eventDate = data.startDate ? data.startDate.toDate() : data.date.toDate();
+          if (eventDate > new Date()) upcoming.push(data);
+        });
+
+        upcoming.sort(compareDates);
+        setEvents(upcoming.slice(0, PREVIEW_COUNT));
+        setEventsLoading(false);
+      });
+
+      unsubscribePeople = db.collection("Users").onSnapshot((query) => {
+        let suggestions = [];
+        query.forEach((personDoc) => {
+          const data = personDoc.data();
+          if (
+            data.id !== user.uid &&
+            data.id !== tryoutId &&
+            data.verified &&
+            !data.settings?.privateAccount &&
+            !blockedIDs.includes(data.id) &&
+            !(data.blockedIDs || []).includes(user.uid) &&
+            !friendIDs.includes(data.id)
+          ) {
+            suggestions.push(data);
           }
         });
 
-        return included;
+        setPeople(suggestions.slice(0, PREVIEW_COUNT));
+        setPeopleLoading(false);
       });
+    });
 
-      return newEvents;
+    return () => {
+      cancelled = true;
+      unsubscribeEvents();
+      unsubscribePeople();
     };
+  }, [ready]);
 
-    // Filter events by time of day
-    const filterByTime = (time, newEvents) => {
-      newEvents = newEvents.filter(e => getTimeOfDay(e.startDate.toDate()) === time);
-      return newEvents;
-    }
-
-    return (
-      <Layout>
-        <Header name="Explore" navigation={navigation} hasNotif={unread} notifs/>
-        <HorizontalSwitch
-          left="Meals"
-          right="People"
-          current="left"
-          press={() => navigation.navigate("People")}
-        />
-
-        <View style={{ paddingHorizontal: 20 }}>
-          <Searchbar placeholder="Search by name, tags, or host name"
-            value={searchQuery} onChangeText={onChangeText}/>
-          
-          {user.uid !== tryoutId && <HorizontalRow>
-            <Filter checked={available}
-              onPress={() => setAvailable(!available)} text="Fits schedule"/>
-            <Filter checked={morning || afternoon || evening}
-              onPress={() => showTimeFilterRef.current.open()}
-              text={morning ? "Morning" : 
-                afternoon ? "Afternoon" : 
-                evening ? "Evening" : "Time of day"}/>
-            <Filter checked={popularity}
-              onPress={() => setPopularity(!popularity)}
-              text="Popularity"/>
-            <Filter checked={fromFriends}
-              onPress={() => setFromFriends(!fromFriends)} text="From friends"/>
-            <Filter checked={friendsAttending}
-              onPress={() => setFriendsAttending(!friendsAttending)} text="Friends attending"/>
-          </HorizontalRow>}
-        </View>
-
-        <RBSheet
-          height={300}
-          ref={showTimeFilterRef}
-          closeOnDragDown={true}
-          closeOnPressMask={false}
-          customStyles={{
-              wrapper: {
-                  backgroundColor: "rgba(0,0,0,0.5)",
-              },
-              draggableIcon: {
-                  backgroundColor: "black"
-              },
-              container: {
-                  borderTopLeftRadius: 20,
-                  borderTopRightRadius: 20,
-                  padding: 10
+  return (
+    <Layout>
+      <LargeAppBar
+        title="Explore"
+        actions={[
+          {
+            icon: hasNotif ? "notifications" : "notifications-outline",
+            onPress: () => {
+              if (user.uid === tryoutId) {
+                alert("Please log in to view notifications!");
+              } else {
+                navigation.navigate("Notifications", { fromNav: false });
               }
-          }}>
-          <Filter checked={morning} text="Morning" marginBottom={5}
-            onPress={() => {
-              setMorning(!morning);
-              setAfternoon(false);
-              setEvening(false);
-              showTimeFilterRef.current.close();
-            }}/>
-          <Filter checked={afternoon} text="Afternoon" marginBottom={5}
-            onPress={() => {
-              setAfternoon(!afternoon);
-              setMorning(false);
-              setEvening(false);
-              showTimeFilterRef.current.close();
-            }}/>
-          <Filter checked={evening} text="Evening" marginBottom={20}
-            onPress={() => {
-              setEvening(!evening);
-              setMorning(false);
-              setAfternoon(false);
-              showTimeFilterRef.current.close();
-            }}/>
-          <Link onPress={() => {
-            setMorning(false);
-            setAfternoon(false);
-            setEvening(false);
-            showTimeFilterRef.current.close();
-          }}
-        >
-          Clear
-        </Link>
-      </RBSheet> 
+            },
+          },
+        ]}
+      />
 
-      <View style={{ flex: 1 }}>
-        {loading ?
-          <LoadingView/>
-        : filteredSearchedEvents.length > 0 ? 
-          <FlatList contentContainerStyle={styles.cards} keyExtractor={item => item.id}
-            data={filteredSearchedEvents} renderItem={({item}) =>
-              <EventCard event={item} click={() => {
-                navigation.navigate("FullCard", {
-                  event: item
-                });
-              }}/>
-          }/>
-        :
-          <EmptyState title="No Meals" text="Organize your own, or start making new friends!"/>
-        }
-      </View>
-      <View style={styles.button}>
-        <Button icon={(
-          <Ionicons name="copy-outline" color="white" size={20}/>
-        )} onPress={() => navigation.navigate("Restaurant")}>
-          Discover
-        </Button>
-      </View>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {loading ? (
+          <View style={styles.skeletonSections}>
+            <View style={styles.eventsSection}>
+              <ExploreSectionHeaderSkeleton />
+              <View style={styles.eventsRow}>
+                <EventPreviewCardSkeleton />
+                <EventPreviewCardSkeleton />
+                <EventPreviewCardSkeleton />
+              </View>
+            </View>
+
+            <PromoImageCardSkeleton />
+
+            <View style={styles.section}>
+              <ExploreSectionHeaderSkeleton />
+              <View style={styles.peopleList}>
+                <SuggestedPersonRowSkeleton />
+                <SuggestedPersonRowSkeleton />
+                <SuggestedPersonRowSkeleton />
+              </View>
+            </View>
+
+            <PromoImageCardSkeleton />
+          </View>
+        ) : (
+          <Animated.View style={[styles.sections, { opacity: contentOpacity }]}>
+            {events.length > 0 && (
+              <View style={styles.eventsSection}>
+                <ExploreSectionHeader title="Events" onViewAll={() => navigation.navigate("AllEvents")} />
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.eventsRow}
+                >
+                  {events.map((event) => (
+                    <EventPreviewCard
+                      key={event.id}
+                      event={event}
+                      onPress={() => navigation.navigate("FullCard", { event })}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            <PromoImageCard
+              image={restaurantPickerImage}
+              title="Restaurant Picker"
+              subtitle="Tell us what you like and we’ll match you with the right restaurants"
+              buttonLabel="Get recommended"
+              onPress={() => navigation.navigate("Restaurant")}
+            />
+
+            {people.length > 0 && (
+              <View style={styles.section}>
+                <ExploreSectionHeader title="People" onViewAll={() => navigation.navigate("People")} />
+                <View style={styles.peopleList}>
+                  {people.map((person) => (
+                    <SuggestedPersonRow
+                      key={person.id}
+                      person={person}
+                      onPress={() => navigation.navigate("FullProfile", { person })}
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
+
+            <PromoImageCard
+              image={diningDollarExchangeImage}
+              title="Dining Dollar Exchange"
+              subtitle="Request and offer up your extra campus dining dollars for cash or payment"
+              buttonLabel="Check it out"
+              onPress={() => alert("Coming soon!")}
+            />
+          </Animated.View>
+        )}
+      </ScrollView>
     </Layout>
   );
 }
 
 const styles = StyleSheet.create({
-  cards: {
-    alignItems: "center",
-    paddingTop: 10,
-    paddingBottom: 20,
+  content: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 30,
   },
-  button: {
-    position: "absolute",
-    bottom: 10,
-    right: 10,
-    zIndex: 1,
-  }
+  sections: {
+    gap: 22,
+  },
+  skeletonSections: {
+    gap: 22,
+  },
+  section: {
+    gap: 9,
+  },
+  eventsSection: {
+    gap: 14,
+  },
+  eventsRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  peopleList: {
+    gap: 16,
+  },
 });

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "./useScreenOptions";
 import firebase from "firebase/compat";
 
 // Landing page
@@ -16,10 +17,11 @@ import EditUserTags from "../screens/auth/Registration/EditUserTags";
 import Experiment from "../screens/Experiment";
 
 import { db, auth, storage } from "../provider/Firebase";
+import { bridgeSignUp } from "../utils/nativeAuthBridge";
 
 import ExploreCopy from "../screens/Experiment/ExploreCopy";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 const Auth = () => {
   // Name.js
   const [firstName, setFirstName] = useState("");
@@ -72,6 +74,7 @@ const Auth = () => {
           email,
           password
         );
+        await bridgeSignUp(email, password);
 
         if (response.user.uid) {
           const { uid } = response.user;
@@ -185,9 +188,7 @@ const Auth = () => {
 
   return (
     <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
+      screenOptions={useScreenOptions()}
       initialRouteName="Landing"
     >
       <Stack.Screen name="Landing" component={Landing} />

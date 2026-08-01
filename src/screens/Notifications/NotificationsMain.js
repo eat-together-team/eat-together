@@ -1,5 +1,6 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "../../navigation/useScreenOptions";
 import Notifications from "./Notifications";
 import NotificationFull from "./NotificationFull";
 import ReportInvite from "./ReportInvite";
@@ -13,16 +14,13 @@ import MeetupArchive from "../Profile/MeetupArchive";
 
 import Recommendation from "../Recommendations/Recommendation";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function ({ route }) {
   return (
     <Stack.Navigator
       initialRouteName="Notifications"
-      screenOptions={{
-        headerShown: false,
-        animationEnabled: false,
-      }}
+      screenOptions={useScreenOptions()}
     >
       <Stack.Screen name="Notifications">
         {props => <Notifications {...props} fromNav={route.params ? route.params.fromNav : true}/>}

@@ -1,6 +1,7 @@
 import React from "react";
-import { StatusBar, useColorScheme } from "react-native";
+import { Platform, StatusBar, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import * as NavigationBar from "expo-navigation-bar";
 import useCachedResources from "../hooks/useCachedResources";
 
 const THEME_COLORS = {
@@ -50,6 +51,16 @@ const ThemeProvider = (props: {
 
   const isLoadingComplete = useCachedResources(props.images, props.fonts);
   const isDarkmode = theme === "dark";
+
+  React.useEffect(() => {
+    // Android's edge-to-edge enforcement means the nav bar background can no
+    // longer be colored (it's always transparent), but the icon style is
+    // still ours to set — keep it legible against our own light/dark content
+    // showing through behind it.
+    if (Platform.OS === "android") {
+      NavigationBar.setStyle(isDarkmode ? "light" : "dark");
+    }
+  }, [isDarkmode]);
 
   const themeDefaults = THEME_COLORS[theme];
   return (

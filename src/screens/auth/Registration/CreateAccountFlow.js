@@ -7,7 +7,7 @@ import {
   Dimensions,
   Animated,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
 import { colorTokens } from '../../../theme/colorTokens';
 import { radiusTokens } from '../../../theme/radiusTokens';
@@ -57,6 +57,7 @@ export default function CreateAccountFlow({
   const [agreedToToS, setAgreedToToS] = useState(false);
   const { theme } = useTheme();
   const colors = colorTokens[theme];
+  const insets = useSafeAreaInsets();
   const [fontsLoaded] = useFonts({ Inter_400Regular });
   const contentOpacity = useRef(new Animated.Value(1)).current;
 
@@ -136,7 +137,8 @@ export default function CreateAccountFlow({
   };
 
   const handleNext = async () => {
-    if (!validateStep()) {
+    const isValid = validateStep();
+    if (isNextDisabled() || !isValid) {
       return;
     }
     if (currentStep < TOTAL_STEPS) {
@@ -214,7 +216,10 @@ export default function CreateAccountFlow({
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
+    >
       <SmallAppBar title="Create account" onBack={handleBack} />
 
       <Animated.View style={[styles.contentContainer, { opacity: contentOpacity }]}>
@@ -222,7 +227,16 @@ export default function CreateAccountFlow({
       </Animated.View>
 
       {/* Fixed bottom sheet */}
-      <View style={[styles.bottomSheet, { backgroundColor: colors.background, shadowColor: `${colors.onBackground}4D` }]}>
+      <View
+        style={[
+          styles.bottomSheet,
+          {
+            backgroundColor: colors.background,
+            shadowColor: `${colors.onBackground}4D`,
+            paddingBottom: insets.bottom + 5,
+          },
+        ]}
+      >
         <ProgressBar progress={currentStep / TOTAL_STEPS} />
         <View style={styles.bottomButtons}>
           <View style={styles.sideButton}>
@@ -234,7 +248,7 @@ export default function CreateAccountFlow({
             {currentStep} of {TOTAL_STEPS}
           </Text>
         <View style={[styles.sideButton, { opacity: isNextDisabled() ? 0.4 : 1 }]}>
-            <LargeButton onPress={handleNext}>
+            <LargeButton onPress={handleNext} disabled={isNextDisabled() || loading}>
               {currentStep === TOTAL_STEPS ? (loading ? 'Loading...' : 'Finish') : 'Next'}
             </LargeButton>
           </View>

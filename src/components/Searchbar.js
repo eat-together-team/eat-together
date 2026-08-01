@@ -18,7 +18,18 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const Searchbar = ({ value, onChangeText, placeholder = 'Search', children = null, disabled = false, onDisabledPress }) => {
+const Searchbar = ({
+  value,
+  onChangeText,
+  placeholder = 'Search',
+  children = null,
+  disabled = false,
+  onDisabledPress,
+  onFocus,
+  onBlur,
+  onSubmitEditing,
+  containerStyle,
+}) => {
   const { theme } = useTheme();
   const colors = colorTokens[theme];
   const [fontsLoaded] = useFonts({ Inter_500Medium });
@@ -59,7 +70,7 @@ const Searchbar = ({ value, onChangeText, placeholder = 'Search', children = nul
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       <TouchableOpacity
         activeOpacity={1}
         onPress={disabled ? onDisabledPress : undefined}
@@ -70,9 +81,13 @@ const Searchbar = ({ value, onChangeText, placeholder = 'Search', children = nul
             styles.searchBox,
             {
               backgroundColor: theme === 'dark' ? colors.containerLow : colors.background,
-              borderColor: colors.containerMedium,
+              borderColor: isFocused ? `${colors.textMedium}80` : colors.containerHigh,
               shadowColor: '#000000',
-              borderRadius: showResults ? 20 : 30,
+              // Only square off when there's an actual results panel rendered
+              // inside the box (the `children` slot) — with no children,
+              // squaring on typing makes no sense since nothing's dropping
+              // down from it.
+              borderRadius: showResults && children ? 20 : 30,
               opacity: disabled ? 0.5 : 1,
             },
           ]}
@@ -91,8 +106,9 @@ const Searchbar = ({ value, onChangeText, placeholder = 'Search', children = nul
               placeholderTextColor={colors.textLight}
               value={value}
               onChangeText={handleChangeText}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
+              onFocus={(e) => { setIsFocused(true); onFocus?.(e); }}
+              onBlur={(e) => { setIsFocused(false); onBlur?.(e); }}
+              onSubmitEditing={onSubmitEditing}
               editable={!disabled}
             />
           </View>
@@ -114,11 +130,10 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   searchBox: {
-    borderWidth: 1,
+    borderWidth: 1.5,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 3.7,
-    elevation: 3,
     overflow: 'hidden',
   },
   inputRow: {
@@ -132,7 +147,8 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 13,
-    textAlignVertical: 'center',
+    paddingVertical: 0,
+    includeFontPadding: false,
   },
   resultsContainer: {
     paddingHorizontal: 12,

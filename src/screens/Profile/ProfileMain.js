@@ -1,5 +1,6 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "../../navigation/useScreenOptions";
 import Me from "./Me";
 import Edit from "./Edit";
 import EditTags from "./EditTags";
@@ -18,16 +19,13 @@ import Gallery from "../Home/Gallery";
 import MeetupArchive from "./MeetupArchive";
 import StarredRestaurants from "./StarredRestaurants";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function () {
   return (
     <Stack.Navigator
       initialRouteName="Me"
-      screenOptions={{
-        headerShown: false,
-        animationEnabled: false,
-      }}
+      screenOptions={useScreenOptions()}
     >
       {/* Main pages */}
       <Stack.Screen name="Me" component={Me} />

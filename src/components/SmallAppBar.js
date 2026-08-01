@@ -5,7 +5,10 @@ import Header3Text from './typography/Header3Text';
 import { colorTokens } from '../theme/colorTokens';
 import { useTheme } from '../rapi_ui_components';
 
-const SmallAppBar = ({ title = 'Title', onBack }) => {
+// "Small app bar" — use at the top of pages that are secondary within the
+// navigation hierarchy. Pass 0-2 actions (icon name + onPress) for the
+// trailing icons (e.g. plus, checkmark).
+const SmallAppBar = ({ title = 'Title', onBack, actions = [] }) => {
   const { theme } = useTheme();
   const colors = colorTokens[theme];
 
@@ -24,6 +27,15 @@ const SmallAppBar = ({ title = 'Title', onBack }) => {
           {title}
         </Header3Text>
       </View>
+      {actions.length > 0 && (
+        <View style={styles.actions}>
+          {actions.map(({ icon, onPress }, index) => (
+            <TouchableOpacity key={index} onPress={onPress}>
+              <Ionicons name={icon} size={23} color={colors.onBackground} />
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
     </View>
   );
 };
@@ -34,6 +46,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 25,
   },
   backButton: {
@@ -44,6 +57,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    zIndex: 1,
   },
 });
 

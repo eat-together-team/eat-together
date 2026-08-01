@@ -132,6 +132,18 @@ const FilterChip = ({ text, type = 'Display', color = 'Clear', onPress, onRemove
     );
   }
 
+  // Plain 'Display' chips are static by default (e.g. read-only tag
+  // display), but become a toggle when the caller passes onPress — used by
+  // the People screen's quick filters and filter sheet, where a chip's
+  // selected/unselected look is just its `color`, not a distinct type.
+  if (onPress) {
+    return (
+      <Pressable onPress={onPress} onPressIn={handlePressIn} hitSlop={8}>
+        {chipContent}
+      </Pressable>
+    );
+  }
+
   return chipContent;
 };
 
@@ -162,4 +174,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FilterChip;
+export default React.memo(FilterChip);

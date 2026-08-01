@@ -1,0 +1,165 @@
+//Custom bottom tab bar: the Event pill sits fixed on the left, the
+//remaining tabs are centered as a group in the leftover space.
+
+import React, { useRef } from "react";
+import { Platform, Pressable, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+import { useTheme } from "../../rapi_ui_components";
+import { colorTokens } from "../../theme/colorTokens";
+import RippleTouchable from "./RippleTouchable";
+import { useGenieTransition } from "./GenieTransition";
+
+const EVENT_ROUTE_NAME = "Organize";
+// The bar only ever shows on these three tabs' own root screen — Explore,
+// Inbox, and Account (your own profile) are the actual "home" flow.
+// Organize/Event and every nested screen everywhere (someone else's
+// FullProfile, all settings screens, chat sub-screens, etc.) are each their
+// own page, not part of that persistent home experience, so they hide it.
+// This is an allowlist rather than a blocklist of nested screen names on
+// purpose — a blocklist has to be remembered and extended for every new
+// nested screen added later; this way new screens are hidden by default.
+const HOME_ROOT_SCREEN_BY_TAB = {
+  Explore: "Explore",
+  Notifs: "Chats",
+  Profile: "Me",
+};
+
+export default function BottomTabBar({ state, descriptors, navigation, insets }) {
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
+  const triggerGenie = useGenieTransition();
+  const eventButtonRef = useRef(null);
+
+  const focusedTab = state.routes[state.index];
+  // getFocusedRouteNameFromRoute returns undefined until the nested
+  // navigator's state actually exists — treated the same as "at its own
+  // root" here, since that's exactly what an uninitialized nested stack is.
+  const focusedRouteName = getFocusedRouteNameFromRoute(focusedTab);
+  const homeRootScreen = HOME_ROOT_SCREEN_BY_TAB[focusedTab.name];
+  const isAtHomeRoot =
+    !!homeRootScreen && (focusedRouteName === undefined || focusedRouteName === homeRootScreen);
+
+  if (!isAtHomeRoot) {
+    return null;
+  }
+
+  const renderTab = (route) => {
+    const index = state.routes.indexOf(route);
+    const isFocused = state.index === index;
+    const { options } = descriptors[route.key];
+    const isEvent = route.name === EVENT_ROUTE_NAME;
+    const isAccount = route.name === "Profile";
+
+    const onPress = () => {
+      const event = navigation.emit({
+        type: "tabPress",
+        target: route.key,
+        canPreventDefault: true,
+      });
+
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      if (isEvent) {
+        eventButtonRef.current?.measureInWindow((x, y, width, height) => {
+          triggerGenie?.({ x, y, width, height });
+        });
+      }
+
+      if (!isFocused) {
+        navigation.navigate(route.name);
+      }
+    };
+
+    const onLongPress = () => {
+      navigation.emit({ type: "tabLongPress", target: route.key });
+    };
+
+    if (isEvent) {
+      return (
+        <Pressable
+          key={route.key}
+          ref={eventButtonRef}
+          onPress={onPress}
+          onLongPress={onLongPress}
+        >
+          {options.tabBarIcon?.({ focused: isFocused })}
+        </Pressable>
+      );
+    }
+
+    return (
+      <RippleTouchable
+        key={route.key}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        variant={isAccount ? "neutral" : "primary"}
+      >
+        {options.tabBarIcon?.({ focused: isFocused })}
+      </RippleTouchable>
+    );
+  };
+
+  const eventRoute = state.routes.find((r) => r.name === EVENT_ROUTE_NAME);
+  const otherRoutes = state.routes.filter((r) => r.name !== EVENT_ROUTE_NAME);
+
+  return (
+    <View style={{ position: "relative" }}>
+      {/* iOS's shadow* props and Android's elevation don't produce the same
+          look (elevation can't do a directional/negative offset shadow), so
+          use a plain gradient for a shadow that's identical on both
+          platforms instead of relying on native shadow rendering. A fully
+          black-based gradient blends into an already-near-black background,
+          so dark mode fades to a lighter gray (still a "dark" shadow tone,
+          just distinguishable from the background behind it) instead. */}
+      <LinearGradient
+        pointerEvents="none"
+        colors={
+          theme === "dark"
+            ? [`${tokens.containerMedium}00`, `${tokens.containerMedium}33`]
+            : ["rgba(0,0,0,0)", "rgba(0,0,0,0.04)"]
+        }
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: -10,
+          height: 10,
+        }}
+      />
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          backgroundColor: tokens.background,
+          paddingTop: 15,
+          // Extends the bar's background all the way behind the system nav
+          // bar/home indicator instead of stopping short of it, which is
+          // what left the OS's own (grayish) edge-to-edge scrim visible.
+          // Android gets a little extra on top of that to clear its system
+          // gesture/nav bar UI more comfortably.
+          paddingBottom:
+            Math.max(insets?.bottom ?? 0, 20) + (Platform.OS === "android" ? 5 : 0),
+          paddingHorizontal: 30,
+          overflow: "hidden",
+        }}
+      >
+        {eventRoute && renderTab(eventRoute)}
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 36,
+            marginLeft: 24,
+          }}
+        >
+          {otherRoutes.map(renderTab)}
+        </View>
+      </View>
+    </View>
+  );
+}

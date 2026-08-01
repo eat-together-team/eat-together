@@ -56,6 +56,7 @@ module.exports = {
         }
       ],
       "expo-font",
+      "expo-image",
       [
         "expo-build-properties",
         {
@@ -67,7 +68,8 @@ module.exports = {
       "expo-web-browser",
       [
         "@react-native-community/datetimepicker"
-      ]
+      ],
+      "./plugins/withIosPodfileFixes"
     ],
     "extra": {
       "eas": {

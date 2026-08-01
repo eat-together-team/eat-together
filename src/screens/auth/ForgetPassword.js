@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import firebase from 'firebase/compat';
 import { Ionicons } from '@expo/vector-icons';
 import { colorTokens } from '../../theme/colorTokens';
@@ -17,6 +17,7 @@ export default function ForgetPassword({ navigation }) {
   const [error, setError] = useState('');
   const { theme } = useTheme();
   const colors = colorTokens[theme];
+  const insets = useSafeAreaInsets();
 
   async function submit() {
     setError('');
@@ -33,13 +34,16 @@ export default function ForgetPassword({ navigation }) {
 
   if (submitted) {
     return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        style={[styles.safeArea, { backgroundColor: colors.background }]}
+      >
         <SmallAppBar title="Reset password" onBack={() => navigation.goBack()} />
         <View style={styles.content}>
           <View style={styles.topSection}>
             <InformationCard text="Check your inbox for a link to reset your password" />
           </View>
-          <View style={styles.footer}>
+          <View style={[styles.footer, { paddingBottom: insets.bottom + 15 }]}>
             <LargeButton
               outlined
               color="gray"
@@ -87,7 +91,7 @@ export default function ForgetPassword({ navigation }) {
               autoCapitalize="none"
             />
           </View>
-          <View style={styles.footer}>
+          <View style={[styles.footer, { paddingBottom: insets.bottom + 15 }]}>
             <LargeButton onPress={submit} disabled={loading}>
               {loading ? 'Loading...' : 'Submit'}
             </LargeButton>

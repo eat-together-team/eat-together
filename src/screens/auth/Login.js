@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, Animated } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { db, auth } from '../../provider/Firebase';
 import firebase from 'firebase/compat';
 import 'firebase/firestore';
@@ -13,6 +13,7 @@ import SmallTextButton from '../../components/SmallTextButton';
 import LargeButton from '../../components/LargeButton';
 import InformationCard from '../../components/InformationCard';
 import DeviceToken from '../../utils/DeviceToken';
+import { bridgeSignIn } from '../../utils/nativeAuthBridge';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
@@ -22,6 +23,7 @@ export default function Login({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const { theme } = useTheme();
   const colors = colorTokens[theme];
+  const insets = useSafeAreaInsets();
   const errorOpacity = useRef(new Animated.Value(0)).current;
   const errorHeight = useRef(new Animated.Value(0)).current;
 
@@ -62,6 +64,7 @@ export default function Login({ navigation }) {
     setLoading(true);
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password);
+      await bridgeSignIn(email, password);
       const user = auth.currentUser;
       if (DeviceToken.getToken() != null) {
         await db.collection('Users').doc(user.uid).update({
@@ -75,7 +78,10 @@ export default function Login({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
+    >
       <SmallAppBar title="Sign in" onBack={() => navigation.goBack()} />
       <KeyboardAvoidingView
         style={styles.flex}
@@ -126,7 +132,7 @@ export default function Login({ navigation }) {
             />
           </View>
         </View>
-          <View style={styles.footer}>
+          <View style={[styles.footer, { paddingBottom: insets.bottom + 15 }]}>
             <LargeButton onPress={login} disabled={loading}>
               {loading ? 'Loading...' : 'Sign in'}
             </LargeButton>

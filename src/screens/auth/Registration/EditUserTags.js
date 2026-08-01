@@ -8,7 +8,7 @@ import {
   LayoutAnimation,
   UIManager,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
 import { colorTokens } from '../../../theme/colorTokens';
 import { useTheme } from '../../../rapi_ui_components';
@@ -29,6 +29,7 @@ export default function EditUserTags({ navigation, route }) {
   const [showError, setShowError] = useState(false);
   const { theme } = useTheme();
   const colors = colorTokens[theme];
+  const insets = useSafeAreaInsets();
   const [fontsLoaded] = useFonts({ Inter_400Regular });
 
   const allTags = category === 'food' ? foodTags : category === 'hobby' ? hobbyTags : schoolTags;
@@ -106,7 +107,10 @@ export default function EditUserTags({ navigation, route }) {
 
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={[styles.safeArea, { backgroundColor: colors.background, paddingBottom: insets.bottom }]}
+    >
       <SmallAppBar title={`Edit ${title}`} onBack={handleBack} />
 
       <View style={styles.infoCardContainer}>

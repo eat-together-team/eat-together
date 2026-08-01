@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TextInput as RNTextInput, StyleSheet, Platform, Pressable } from 'react-native';
 import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
 import { colorTokens } from '../theme/colorTokens';
@@ -14,11 +14,15 @@ const TextInputField = ({
   secureTextEntry = false,
   keyboardType = 'default',
   autoCapitalize = 'none',
+  textAlign = 'left',
   style,
+  onFocus,
+  onBlur,
 }) => {
   const [fontsLoaded] = useFonts({ Inter_400Regular });
   const { theme } = useTheme();
   const colors = colorTokens[theme];
+  const [isFocused, setIsFocused] = useState(false);
 
   const fontFamily = fontsLoaded
     ? 'Inter_400Regular'
@@ -26,12 +30,12 @@ const TextInputField = ({
 
   return (
     <View style={[styles.container, {
-      borderColor: colors.outline,
+      borderColor: isFocused ? `${colors.textMedium}CC` : colors.outline,
       backgroundColor: colors.background,
     }, style]}>
       {leadingIcon && <View style={styles.iconWrap}>{leadingIcon}</View>}
       <RNTextInput
-        style={[styles.input, { fontFamily, color: colors.onBackground }]}
+        style={[styles.input, { fontFamily, color: colors.onBackground, textAlign }]}
         value={value}
         onChangeText={onChangeText}
         placeholder={hint}
@@ -40,6 +44,14 @@ const TextInputField = ({
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         autoCorrect={false}
+        onFocus={(e) => {
+          setIsFocused(true);
+          onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setIsFocused(false);
+          onBlur?.(e);
+        }}
       />
       {trailingIcon && (
         <Pressable style={styles.iconWrap} onPress={trailingIcon?.props?.onPress} hitSlop={8}>

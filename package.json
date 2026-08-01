@@ -14,10 +14,12 @@
     "@expo/metro-runtime": "~55.0.6",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.6.0",
-    "@react-native-masked-view/masked-view": "0.3.2",
+    "@react-native-firebase/app": "^25.1.0",
+    "@react-native-firebase/auth": "^25.1.0",
+    "@react-native-firebase/storage": "^25.1.0",
     "@react-navigation/bottom-tabs": "^6.4.0",
     "@react-navigation/native": "^6.0.13",
-    "@react-navigation/stack": "^6.3.0",
+    "@react-navigation/native-stack": "^6.11.0",
     "axios": "^1.13.5",
     "dotenv": "^16.0.3",
     "eslint": "^8.22.0",
@@ -31,9 +33,11 @@
     "expo-dev-client": "~55.0.19",
     "expo-device": "~55.0.9",
     "expo-font": "~55.0.4",
+    "expo-image": "~55.0.11",
     "expo-image-picker": "~55.0.10",
     "expo-linear-gradient": "~55.0.8",
     "expo-media-library": "~55.0.9",
+    "expo-navigation-bar": "~55.0.14",
     "expo-network": "~55.0.8",
     "expo-notifications": "~55.0.10",
     "expo-random": "~14.0.1",
@@ -88,6 +92,17 @@
     "react-native-svg-transformer": "^1.5.3",
     "react-test-renderer": "19.0.0",
     "typescript": "~5.9.2"
+  },
+  "expo": {
+    "autolinking": {
+      "ios": {
+        "exclude": [
+          "@react-native-firebase/app",
+          "@react-native-firebase/auth",
+          "@react-native-firebase/storage"
+        ]
+      }
+    }
   },
   "private": true,
   "name": "eat-together",

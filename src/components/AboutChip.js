@@ -44,7 +44,10 @@ const AboutChip = ({ text, color = 'Purple', type = 'Display', onRemove }) => {
         },
       ]}
     >
-      <Text style={[styles.text, { color: colorScheme.text, fontFamily }]}>
+      <Text
+        style={[styles.text, { color: colorScheme.text, fontFamily }]}
+        numberOfLines={1}
+      >
         {text}
       </Text>
       {isRemovable && (
@@ -63,6 +66,10 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
+    // Without this, a chip inside a row (e.g. SuggestedPersonRow's tags
+    // list) gets squeezed to fit the available space instead of keeping its
+    // natural size, which wraps its text onto a second line.
+    flexShrink: 0,
   },
   text: {
     fontSize: 11,
