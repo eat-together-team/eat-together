@@ -18,7 +18,18 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const Searchbar = ({ value, onChangeText, placeholder = 'Search', children = null, disabled = false, onDisabledPress }) => {
+const Searchbar = ({
+  value,
+  onChangeText,
+  placeholder = 'Search',
+  children = null,
+  disabled = false,
+  onDisabledPress,
+  onFocus,
+  onBlur,
+  onSubmitEditing,
+  containerStyle,
+}) => {
   const { theme } = useTheme();
   const colors = colorTokens[theme];
   const [fontsLoaded] = useFonts({ Inter_500Medium });
@@ -59,7 +70,7 @@ const Searchbar = ({ value, onChangeText, placeholder = 'Search', children = nul
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       <TouchableOpacity
         activeOpacity={1}
         onPress={disabled ? onDisabledPress : undefined}
@@ -95,8 +106,9 @@ const Searchbar = ({ value, onChangeText, placeholder = 'Search', children = nul
               placeholderTextColor={colors.textLight}
               value={value}
               onChangeText={handleChangeText}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
+              onFocus={(e) => { setIsFocused(true); onFocus?.(e); }}
+              onBlur={(e) => { setIsFocused(false); onBlur?.(e); }}
+              onSubmitEditing={onSubmitEditing}
               editable={!disabled}
             />
           </View>

@@ -1,95 +1,156 @@
-//Meet other people
+//Discover and filter suggested people, with search.
 
-import React, { useEffect, useState } from "react";
-import { FlatList, View, ActivityIndicator, StyleSheet } from "react-native";
-import { Layout } from "../../../rapi_ui_components";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { View, StyleSheet, FlatList, TouchableOpacity, Keyboard, LayoutAnimation, Animated, Dimensions } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import RBSheet from "react-native-raw-bottom-sheet";
+import { Layout, useTheme } from "../../../rapi_ui_components";
 
+import SmallAppBar from "../../../components/SmallAppBar";
 import Searchbar from "../../../components/Searchbar";
-import ProfileBubble from "../../../components/ProfileBubble";
-import Header from "../../../components/Header";
-import HorizontalRow from "../../../components/HorizontalRow";
-import HorizontalSwitch from "../../../components/HorizontalSwitch";
-import Filter from "../../../components/Filter";
+import FilterChip from "../../../components/FilterChip";
+import QuickFilterChipsSkeleton from "../../../components/QuickFilterChipsSkeleton";
+import SuggestedPersonRow from "../../../components/SuggestedPersonRow";
+import SuggestedPersonRowSkeleton from "../../../components/SuggestedPersonRowSkeleton";
+import SmallUserListItem from "../../../components/SmallUserListItem";
+import SmallUserListItemSkeleton from "../../../components/SmallUserListItemSkeleton";
 import EmptyState from "../../../components/EmptyState";
-import LoadingView from "../../../components/LoadingView";
+import PeopleFilterSheet from "./PeopleFilterSheet";
 
-import { generateColor, randomize3, getCommonTags } from "../../../utils/methods";
-import { db, auth } from "../../../provider/Firebase";
+import { colorTokens } from "../../../theme/colorTokens";
 import { sortBySimilarInterests } from "../../../utils/methods";
 import { tryoutId } from "../../../utils/constants";
+import { db, auth } from "../../../provider/Firebase";
+
+const BROWSE_SKELETON_ROWS = 10;
+const SEARCH_SKELETON_ROWS = 6;
+
+// Stable across renders — passed straight through to FlatList so unrelated
+// state changes (typing, focus, filters) don't force every visible row to
+// re-render on scroll.
+const personKeyExtractor = (item) => item.id;
+
+// RBSheet only supports a fixed pixel `height`, no content-hugging mode — so
+// to make it hug anyway, an invisible off-screen copy of the same sheet
+// content is rendered purely to measure its natural height (see the
+// `sheetMeasurer` render below), and that measurement (plus this fixed
+// drag-handle + padding chrome, from RBSheet's own default styles) becomes
+// the real sheet's height. Capped so very long content (e.g. someone with
+// many tags) scrolls instead of pushing the sheet past the top of the screen.
+const SHEET_CHROME_HEIGHT = 65; // drag handle (25) + top/bottom padding (20 + 20)
+const MAX_SHEET_HEIGHT = Dimensions.get("window").height * 0.85;
+const FALLBACK_SHEET_HEIGHT = 400;
 
 export default function ({ navigation }) {
-  // Fetch current user
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
   const user = auth.currentUser;
+  const canFilter = user.uid !== tryoutId;
+
   const [userInfo, setUserInfo] = useState({});
-  const [unread, setUnread] = useState(false); // See if we need to display unread notif icon
-
   const [mutuals, setMutuals] = useState([]); // Mutual friends
-
-  const [people, setPeople] = useState([]); // List of all users
-  const [filteredPeople, setFilteredPeople] = useState([]); // List of filtered users
-  const [filteredSearchedPeople, setFilteredSearchPeople] = useState([]); // List of users with filters and search query on
-
-  const [searchQuery, setSearchQuery] = useState("");
+  const [allUsers, setAllUsers] = useState([]); // Every searchable user (includes existing friends/private accounts)
+  const [people, setPeople] = useState([]); // Suggested-people pool: allUsers minus friends and private accounts
+  const [filteredPeople, setFilteredPeople] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filtering, setFiltering] = useState(false);
 
   // Filters
-  const [similarInterests, setSimilarInterests] = useState(false);
-  const [mutualFriends, setMutualFriends] = useState(false);
+  const [mutualFriendsOn, setMutualFriendsOn] = useState(false);
+  const [similarInterestsOn, setSimilarInterestsOn] = useState(false);
+  const [selectedTagFilters, setSelectedTagFilters] = useState([]);
 
-  const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
+  // Search — `searchQuery` is the live text in the box; `submittedQuery` only
+  // updates on Enter, and is what actually drives results/header collapse,
+  // so typing alone never re-runs the search.
+  const [searchQuery, setSearchQuery] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
+  const hasQuery = submittedQuery.trim().length > 0;
+  const resultsOpacity = useRef(new Animated.Value(0)).current;
+  const browseOpacity = useRef(new Animated.Value(0)).current;
 
-  // Fetch all users
+  const filterSheetRef = useRef();
+  const [sheetHeight, setSheetHeight] = useState(FALLBACK_SHEET_HEIGHT);
+
+  const handleMeasureSheetContent = (e) => {
+    const measured = Math.min(e.nativeEvent.layout.height + SHEET_CHROME_HEIGHT, MAX_SHEET_HEIGHT);
+    setSheetHeight(measured);
+  };
+
+  // Animates the header collapsing/expanding and the quick filters
+  // hiding/showing whenever entering or exiting search — otherwise those
+  // layout changes just snap instantly.
+  const animateLayout = () => {
+    LayoutAnimation.configureNext({
+      duration: 300,
+      create: { type: "easeInEaseOut", property: "opacity" },
+      update: { type: "easeInEaseOut" },
+      delete: { type: "easeInEaseOut", property: "opacity" },
+    });
+  };
+
   useEffect(() => {
-    // updates stuff right after React makes changes to the DOM
+    if (hasQuery) {
+      resultsOpacity.setValue(0);
+      Animated.timing(resultsOpacity, {
+        toValue: 1,
+        duration: 280,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [hasQuery, submittedQuery, loading]);
+
+  // Fades the browse list in once the skeleton rows are replaced by real
+  // ones, instead of an instant swap — same pattern as resultsOpacity above.
+  useEffect(() => {
+    if (!hasQuery && !loading && !filtering) {
+      browseOpacity.setValue(0);
+      Animated.timing(browseOpacity, {
+        toValue: 1,
+        duration: 280,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [hasQuery, loading, filtering]);
+
+  // Fetch every searchable user + this user's mutual friends. This is
+  // intentionally broader than the "suggested people" pool below — search
+  // needs to find someone regardless of whether you're already friends with
+  // them or their account is private, neither of which should make them
+  // unfindable by name.
+  useEffect(() => {
     async function fetchData() {
       const ref = db.collection("Users");
       let userData;
 
-      // Finds mutual friends
-      await ref
-        .doc(user.uid)
-        .get()
-        .then((doc) => {
-          setUserInfo(doc.data());
-          userData = doc.data();
-          setUnread(doc.data().hasNotif);
+      await ref.doc(user.uid).get().then((doc) => {
+        userData = doc.data();
+        setUserInfo(doc.data());
 
-          doc.data().friendIDs.forEach((id) => {
-            db.collection("Users")
-              .doc(id)
-              .get()
-              .then((doc) => {
-                if (doc && doc.data().friendIDs) { // Necessary check to prevent crash
-                  setMutuals((mutuals) =>
-                    mutuals.concat(doc.data().friendIDs)
-                  );
-                }
-              });
+        (doc.data().friendIDs || []).forEach((id) => {
+          db.collection("Users").doc(id).get().then((friendDoc) => {
+            if (friendDoc && friendDoc.data()?.friendIDs) {
+              setMutuals((prev) => prev.concat(friendDoc.data().friendIDs));
+            }
           });
         });
-      
-      // Get all users
+      });
+
       await ref.onSnapshot((query) => {
         let users = [];
         query.forEach((doc) => {
-          let data = doc.data();
-          if (data.id !== user.uid && data.verified && !userData.blockedIDs.includes(doc.data().id) && data.id !== tryoutId
-            && !doc.data().blockedIDs.includes(user.uid) && !userData.friendIDs.includes(doc.data().id)) { // Only show verified + unblocked + non-friend users + non-private accounts
-            data.inCommon = getCommonTags(userData, data);
-            data.color = generateColor();
-            data.selectedTags = randomize3(data.tags);
+          const data = doc.data();
+          if (
+            data.id !== user.uid &&
+            data.id !== tryoutId &&
+            data.verified &&
+            !(userData.blockedIDs || []).includes(data.id) &&
+            !(data.blockedIDs || []).includes(user.uid)
+          ) {
             users.push(data);
           }
         });
-
-        setPeople(users);
-        setFilteredPeople(users);
-        setFilteredSearchPeople(
-          users.filter(
-            (person) =>
-              !person.settings?.privateAccount
-          )
-        );
+        setAllUsers(users);
         setLoading(false);
       });
     }
@@ -97,132 +158,305 @@ export default function ({ navigation }) {
     fetchData();
   }, []);
 
-
-  // Filters
+  // Suggested-people pool for the browse list/filters — narrower than
+  // allUsers since discovery shouldn't suggest people you already know or
+  // who've set their account private.
   useEffect(() => {
-    async function filter() {
-      setLoading(true);
-      let newPeople = [...people];
-  
-      if (similarInterests) {
-        newPeople = await sortBySimilarInterests(userInfo, newPeople);
-      }
-  
-      if (mutualFriends) {
-        newPeople = filterByMutualFriends(newPeople);
-      }
-
-      setFilteredPeople(newPeople);
-      const newSearchedPeople = search(newPeople, searchQuery);
-      setFilteredSearchPeople(newSearchedPeople);
-    }
-
-    if (people.length > 0) {
-      filter().then(() => {
-        setLoading(false);
-      });
-    }
-  }, [similarInterests, mutualFriends]);
-
-  // Method to filter out people based on name, username, or tags
-  const search = (newPeople, text) => {
-    return newPeople.filter((p) => isMatch(p, text));
-  };
-
-  // Determines if a person matches the search query or not
-  const isMatch = (person, text) => {
-    // Name
-    const fullName = person.firstName + " " + person.lastName;
-    if (fullName.toLowerCase().includes(text.toLowerCase())) {
-      return true;
-    }
-
-    // Username
-    if (person.username.toLowerCase().includes(text.toLowerCase())) {
-      return true;
-    }
-
-    // Tags
-    return person.tags.some((tag) =>
-      tag.tag.toLowerCase().includes(text.toLowerCase())
+    setPeople(
+      allUsers.filter(
+        (p) => !p.settings?.privateAccount && !(userInfo.friendIDs || []).includes(p.id)
+      )
     );
+  }, [allUsers, userInfo]);
+
+  // Apply Mutual friends / tag filters, then Similar interests re-sort —
+  // same pipeline shape as the old People.js's filter effect.
+  useEffect(() => {
+    async function applyFilters() {
+      setFiltering(true);
+      let result = [...people];
+
+      if (mutualFriendsOn) {
+        result = result.filter((p) => mutuals.includes(p.id));
+      }
+
+      if (selectedTagFilters.length > 0) {
+        result = result.filter((p) =>
+          (p.tags || []).some((tag) => selectedTagFilters.includes(tag.tag))
+        );
+      }
+
+      if (similarInterestsOn) {
+        result = await sortBySimilarInterests(userInfo, result);
+      }
+
+      setFilteredPeople(result);
+      setFiltering(false);
+    }
+
+    applyFilters();
+  }, [people, mutualFriendsOn, selectedTagFilters, similarInterestsOn, mutuals]);
+
+  const isMatch = (person, text) => {
+    const fullName = person.firstName + " " + person.lastName;
+    if (fullName.toLowerCase().includes(text.toLowerCase())) return true;
+    if (person.username && person.username.toLowerCase().includes(text.toLowerCase())) return true;
+    return (person.tags || []).some((tag) => tag.tag.toLowerCase().includes(text.toLowerCase()));
   };
 
-  // Method called when a new query is typed in/deleted
-  const onChangeText = (text) => {
+  const searchResults = useMemo(() => {
+    const text = submittedQuery.trim();
+    if (!text) return [];
+    return allUsers.filter((p) => isMatch(p, text));
+  }, [submittedQuery, allUsers]);
+
+  const onToggleTag = useCallback((tagString) => {
+    setSelectedTagFilters((prev) =>
+      prev.includes(tagString) ? prev.filter((t) => t !== tagString) : [...prev, tagString]
+    );
+  }, []);
+
+  const onClearFilters = () => {
+    setMutualFriendsOn(false);
+    setSimilarInterestsOn(false);
+    setSelectedTagFilters([]);
+  };
+
+  const handleChangeSearchText = (text) => {
     setSearchQuery(text);
-    const searchedPeople = search(filteredPeople, text);
-    const newPeople = searchedPeople.filter(person => (person.settings?.privateAccount == null || text === person.username))
-    setFilteredSearchPeople(newPeople);
+    // Clearing the box exits search immediately rather than leaving stale
+    // results up until another Enter press.
+    if (text.trim().length === 0 && hasQuery) {
+      animateLayout();
+      setSubmittedQuery("");
+    }
   };
 
-  // Display people who are mutual friends
-  const filterByMutualFriends = (newPeople) => {
-    return newPeople.filter((p) => mutuals.includes(p.id));
+  const handleSubmitSearch = () => {
+    if (!hasQuery) animateLayout();
+    setSubmittedQuery(searchQuery);
+    Keyboard.dismiss();
+  };
+
+  const exitSearch = () => {
+    animateLayout();
+    setSearchQuery("");
+    setSubmittedQuery("");
+    Keyboard.dismiss();
+  };
+
+  // Stable reference so SuggestedPersonRow/SmallUserListItem (both
+  // React.memo'd) can skip re-rendering on scroll when unrelated screen
+  // state changes.
+  const goToProfile = useCallback(
+    (person) => navigation.navigate("FullProfile", { person }),
+    [navigation]
+  );
+
+  const renderPersonRow = useCallback(
+    ({ item }) => <SuggestedPersonRow person={item} onPress={goToProfile} />,
+    [goToProfile]
+  );
+
+  const renderSearchResultRow = useCallback(
+    ({ item }) => <SmallUserListItem person={item} onPress={goToProfile} />,
+    [goToProfile]
+  );
+
+  const filterSheetProps = {
+    userTags: userInfo.tags || [],
+    mutualFriends: mutualFriendsOn,
+    onToggleMutualFriends: () => setMutualFriendsOn((v) => !v),
+    similarInterests: similarInterestsOn,
+    onToggleSimilarInterests: () => setSimilarInterestsOn((v) => !v),
+    selectedTagFilters,
+    onToggleTag,
+    onClear: onClearFilters,
   };
 
   return (
     <Layout>
-      <Header name="Explore" navigation={navigation} hasNotif={unread} notifs/>
-      <HorizontalSwitch
-        left="Meals"
-        right="People"
-        current="right"
-        press={() => navigation.navigate("Explore")}
-      />
+      {!hasQuery && <SmallAppBar title="People" onBack={() => navigation.goBack()} />}
 
-      <View style={{ paddingHorizontal: 20 }}>
-        <Searchbar
-          placeholder="Search by name, username, or tags"
-          value={searchQuery}
-          onChangeText={onChangeText}
-        />
+      <View style={styles.searchSection}>
+        <View style={styles.searchRow}>
+          {hasQuery && (
+            <TouchableOpacity onPress={exitSearch}>
+              <Ionicons name="arrow-back" size={24} color={tokens.onBackground} />
+            </TouchableOpacity>
+          )}
+          <Searchbar
+            value={searchQuery}
+            onChangeText={handleChangeSearchText}
+            placeholder="Search by name, tags & more"
+            onSubmitEditing={handleSubmitSearch}
+            containerStyle={styles.searchbarContainer}
+          />
+          {canFilter && !hasQuery && (
+            <TouchableOpacity onPress={() => filterSheetRef.current?.open()}>
+              <Ionicons name="funnel-outline" size={24} color={tokens.onBackground} />
+            </TouchableOpacity>
+          )}
+        </View>
 
-        {user.uid !== tryoutId && <HorizontalRow>
-          <Filter
-            checked={similarInterests}
-            onPress={() => setSimilarInterests(!similarInterests)}
-            text="Sort by similar interests"
-          />
-          <Filter
-            checked={mutualFriends}
-            onPress={() => setMutualFriends(!mutualFriends)}
-            text="Mutual friends"
-          />
-        </HorizontalRow>}
+        {canFilter && !hasQuery && (
+          loading ? (
+            <QuickFilterChipsSkeleton />
+          ) : (
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.quickFilters}
+              keyExtractor={(item) => item}
+              data={["Mutual friends", "Similar interests", ...(userInfo.tags || []).map((t) => t.tag)]}
+              renderItem={({ item }) => {
+                if (item === "Mutual friends") {
+                  return (
+                    <FilterChip
+                      text="Mutual friends"
+                      type="Display"
+                      color={mutualFriendsOn ? "Purple" : "Clear"}
+                      onPress={() => setMutualFriendsOn((v) => !v)}
+                    />
+                  );
+                }
+                if (item === "Similar interests") {
+                  return (
+                    <FilterChip
+                      text="Similar interests"
+                      type="Display"
+                      color={similarInterestsOn ? "Purple" : "Clear"}
+                      onPress={() => setSimilarInterestsOn((v) => !v)}
+                    />
+                  );
+                }
+                return (
+                  <FilterChip
+                    text={item}
+                    type="Display"
+                    color={selectedTagFilters.includes(item) ? "Purple" : "Clear"}
+                    onPress={() => onToggleTag(item)}
+                  />
+                );
+              }}
+            />
+          )
+        )}
       </View>
 
-      <View style={{ flex: 1, alignItems: "center" }}>
-        {loading || people.length === 0 ?
-          <LoadingView/>
-        : filteredSearchedPeople.length > 0 ? 
-          <FlatList
-            contentContainerStyle={styles.people}
-            keyExtractor={(item) => item.id}
-            data={filteredSearchedPeople}
-            renderItem={({ item }) => (
-              <ProfileBubble
-                person={item}
-                click={() => {
-                  navigation.navigate("FullProfile", {
-                    person: item,
-                  });
-                }}
+      <View style={styles.content}>
+        {hasQuery ? (
+          <Animated.View style={[styles.content, { opacity: resultsOpacity }]}>
+            {loading ? (
+              <View style={styles.list}>
+                {Array.from({ length: SEARCH_SKELETON_ROWS }).map((_, index) => (
+                  <SmallUserListItemSkeleton key={index} />
+                ))}
+              </View>
+            ) : searchResults.length > 0 ? (
+              <FlatList
+                contentContainerStyle={styles.list}
+                keyExtractor={personKeyExtractor}
+                data={searchResults}
+                renderItem={renderSearchResultRow}
+                initialNumToRender={10}
+                maxToRenderPerBatch={10}
+                windowSize={7}
               />
+            ) : (
+              <EmptyState title="No results" text={`No one matches "${submittedQuery.trim()}"`} />
             )}
-          />
-        : 
-          <EmptyState title="Empty" text="No results :("/>
-        }
+          </Animated.View>
+        ) : loading || filtering ? (
+          <View style={styles.list}>
+            {Array.from({ length: BROWSE_SKELETON_ROWS }).map((_, index) => (
+              <SuggestedPersonRowSkeleton key={index} />
+            ))}
+          </View>
+        ) : (
+          <Animated.View style={[styles.content, { opacity: browseOpacity }]}>
+            {filteredPeople.length > 0 ? (
+              <FlatList
+                contentContainerStyle={styles.list}
+                keyExtractor={personKeyExtractor}
+                data={filteredPeople}
+                renderItem={renderPersonRow}
+                initialNumToRender={8}
+                maxToRenderPerBatch={8}
+                windowSize={7}
+              />
+            ) : (
+              <EmptyState title="No people found" text="Try adjusting your filters." />
+            )}
+          </Animated.View>
+        )}
       </View>
+
+      {/* Invisible off-screen copy of the sheet content, purely to measure
+          its natural height (see SHEET_CHROME_HEIGHT comment above) — kept
+          the same width as the real sheet's content area so text/chip
+          wrapping (and therefore height) measures identically. */}
+      <View style={styles.sheetMeasurer} pointerEvents="none" onLayout={handleMeasureSheetContent}>
+        <PeopleFilterSheet {...filterSheetProps} />
+      </View>
+
+      <RBSheet
+        ref={filterSheetRef}
+        height={sheetHeight}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        customStyles={{
+          wrapper: { backgroundColor: "rgba(0,0,0,0.5)" },
+          draggableIcon: { backgroundColor: tokens.textLight },
+          container: {
+            backgroundColor: tokens.background,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            padding: 20,
+          },
+        }}
+      >
+        <PeopleFilterSheet {...filterSheetProps} />
+      </RBSheet>
     </Layout>
   );
 }
 
 const styles = StyleSheet.create({
-  people: {
+  sheetMeasurer: {
+    position: "absolute",
+    top: 0,
+    left: 20,
+    right: 20,
+    opacity: 0,
+  },
+  searchSection: {
+    paddingHorizontal: 20,
+    paddingTop: 15,
+    gap: 15,
+  },
+  searchRow: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: 20,
+  },
+  searchbarContainer: {
+    flex: 1,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+  },
+  quickFilters: {
+    flexDirection: "row",
+    gap: 10,
+    paddingBottom: 15,
+  },
+  content: {
+    flex: 1,
+  },
+  list: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
     paddingBottom: 20,
-    paddingHorizontal: 20
-  }
-})
+    gap: 20,
+  },
+});

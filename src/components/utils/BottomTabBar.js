@@ -1,13 +1,14 @@
 //Custom bottom tab bar: the Event pill sits fixed on the left, the
 //remaining tabs are centered as a group in the leftover space.
 
-import React from "react";
+import React, { useRef } from "react";
 import { Platform, Pressable, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import { useTheme } from "../../rapi_ui_components";
 import { colorTokens } from "../../theme/colorTokens";
 import RippleTouchable from "./RippleTouchable";
+import { useGenieTransition } from "./GenieTransition";
 
 const EVENT_ROUTE_NAME = "Organize";
 // The bar only ever shows on these three tabs' own root screen — Explore,
@@ -27,6 +28,8 @@ const HOME_ROOT_SCREEN_BY_TAB = {
 export default function BottomTabBar({ state, descriptors, navigation, insets }) {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
+  const triggerGenie = useGenieTransition();
+  const eventButtonRef = useRef(null);
 
   const focusedTab = state.routes[state.index];
   // getFocusedRouteNameFromRoute returns undefined until the nested
@@ -55,7 +58,17 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
         canPreventDefault: true,
       });
 
-      if (!isFocused && !event.defaultPrevented) {
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      if (isEvent) {
+        eventButtonRef.current?.measureInWindow((x, y, width, height) => {
+          triggerGenie?.({ x, y, width, height });
+        });
+      }
+
+      if (!isFocused) {
         navigation.navigate(route.name);
       }
     };
@@ -66,7 +79,12 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
 
     if (isEvent) {
       return (
-        <Pressable key={route.key} onPress={onPress} onLongPress={onLongPress}>
+        <Pressable
+          key={route.key}
+          ref={eventButtonRef}
+          onPress={onPress}
+          onLongPress={onLongPress}
+        >
           {options.tabBarIcon?.({ focused: isFocused })}
         </Pressable>
       );

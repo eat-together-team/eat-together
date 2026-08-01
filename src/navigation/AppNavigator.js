@@ -12,6 +12,7 @@ import TabBarIcon from "../components/utils/TabBarIcon";
 import EventTabButton from "../components/utils/EventTabButton";
 import BottomTabBar from "../components/utils/BottomTabBar";
 import AnimatedTabScreen from "../components/utils/AnimatedTabScreen";
+import GenieTransitionProvider from "../components/utils/GenieTransition";
 import ProfilePic from "../components/ProfilePic";
 import { useTheme } from "../provider/ThemeProvider";
 import { colorTokens } from "../theme/colorTokens";
@@ -225,19 +226,21 @@ export default () => {
   };
 
   return (
-    <NavigationContainer theme={navigationTheme}>
-      {user === null && <Loading />}
-      {user === false && <Auth />}
-      {user === true &&
-        currUser &&
-        !currUser.emailVerified &&
-        currUser.email !== "rachelhu@uw.edu" &&
-        currUser.email !== "calebcile@gmail.com" ? (
-          <VerifyEmail setCurrUser={auth_context.setCurrUser}/>
-        ) : (
-          user === true && <Main />
-        )
-      }
-    </NavigationContainer>
+    <GenieTransitionProvider>
+      <NavigationContainer theme={navigationTheme}>
+        {user === null && <Loading />}
+        {user === false && <Auth />}
+        {user === true &&
+          currUser &&
+          !currUser.emailVerified &&
+          currUser.email !== "rachelhu@uw.edu" &&
+          currUser.email !== "calebcile@gmail.com" ? (
+            <VerifyEmail setCurrUser={auth_context.setCurrUser}/>
+          ) : (
+            user === true && <Main />
+          )
+        }
+      </NavigationContainer>
+    </GenieTransitionProvider>
   );
 };
