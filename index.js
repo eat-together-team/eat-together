@@ -1,3 +1,7 @@
+if (typeof global._getAnimationTimestamp !== 'function') {
+  global._getAnimationTimestamp = () => Date.now();
+}
+
 import { registerRootComponent } from 'expo';
 
 import App from './App';

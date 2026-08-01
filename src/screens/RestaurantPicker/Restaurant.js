@@ -13,31 +13,49 @@ import SwipeDeck from './NewSwipeDeck';
 import Results from './Results';
 import restaurant from '../../restaurantFetch';
 import weighRestaurant from '../../restaurantSorting';
+import foodTagsToYelpCategories from '../../yelpTags';
 
 // Renders card carousel and handles business logic 
-export default function ({navigation}) {
+export default function ({navigation, route}) {
 
   const [categoryAliases, setCategoryAliases] = useState([]);
   const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
   const [priceRange, setPriceRange] = useState();
   const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
+
+  useEffect(() => {
+    const params = route.params || {};
+    if (params.cuisineTagSelected != null) {
+      setCuisineTagSelected(params.cuisineTagSelected);
+      navigation.setParams({ cuisineTagSelected: undefined });
+    }
+    if (params.selectedDietaryTags != null) {
+      setSelectedDietaryTags(params.selectedDietaryTags);
+      navigation.setParams({ selectedDietaryTags: undefined });
+    }
+  }, [route.params?.cuisineTagSelected, route.params?.selectedDietaryTags]);
+  
   const [index, setIndex] = useState(0); // Index for card carousel
   const [pressedFinished, setPressedFinished] = useState(false);
-  const[result, setResult] = useState(null); 
-  const[userResults, setUserResults] = useState([]);
-  const[loading, setLoading] = useState(true); 
+  const [result, setResult] = useState(null); 
+  const [userResults, setUserResults] = useState([]);
+  const [loading, setLoading] = useState(true); 
   const [userSkipped, setUserSkipped] = useState(false);
   const [pressedStart, setPressedStart] = useState(false);
   const [progress, setProgress] = useState(0.33);
   const [swipingFinished, setSwipingFinished] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0); // Index for list of restaurants
   const [resultVisible, setResultVisible] = useState(true);
+  const [swipeCardExpanded, setSwipeCardExpanded] = useState(false);
 
   //Queries Yelp restaurant data
   const findRestaurant = async() =>{
     
-    //combine category params
-    const categoryParams = categoryAliases.concat(selectedDietaryTags);
+    //combine category params (map dietary display names to Yelp aliases)
+    const dietaryAliases = selectedDietaryTags
+      .map((tag) => foodTagsToYelpCategories[tag])
+      .filter(Boolean);
+    const categoryParams = categoryAliases.concat(dietaryAliases);
     
     try{
 
@@ -153,12 +171,14 @@ export default function ({navigation}) {
       decrementIndex = {decrementIndex}
     />,
     <CuisineCard 
+      navigation={navigation}
       setCategoryAliases = {setCategoryAliases} 
       categoryAliases = {categoryAliases} 
       setCuisineTagSelected = {setCuisineTagSelected} 
       cuisineTagSelected = {cuisineTagSelected}
     />, 
     <DietaryPref 
+      navigation={navigation}
       setSelectedDietaryTags = {setSelectedDietaryTags} 
       selectedDietaryTags = {selectedDietaryTags}
     />, 
@@ -179,6 +199,7 @@ export default function ({navigation}) {
       setUserSkipped = {setUserSkipped}
       setPressedStart = {setPressedStart}
       setResult = {setResult}
+      onExpandedChange={setSwipeCardExpanded}
     />,
     <Results 
       userResults = {userResults}
@@ -191,13 +212,15 @@ export default function ({navigation}) {
   return (
     <Layout>
       <TopNav
-        middleContent={<MediumText size = {17}>Discover Places To Eat</MediumText>}
-        leftContent={<Ionicons name="chevron-back" size={20} />}
+        middleContent={<MediumText size = {17}>Discover Restaurants</MediumText>}
+        leftContent={<Ionicons name="arrow-back" size={20} />}
         leftAction={() => navigation.goBack()}
       />
-      <ScrollView 
+      <ScrollView
         keyboardShouldPersistTaps="handled"
-        >
+        contentContainerStyle={styles.scrollContent}
+        scrollEnabled={index > 4 && (index !== 5 || swipeCardExpanded)}
+      >
       <View style = {styles.outerContainer}>
         <CardCarousel 
           cards = {cards} 
@@ -218,12 +241,17 @@ export default function ({navigation}) {
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 100,
+  },
+  
   outerContainer:{
     flex:1,
     justifyContent:'center',
     alignItems:'center',
-    marginTop:-20,
+    paddingTop: 20,
   },
+  
   buttonContainer:{
     display:'flex',
     flexDirection:'row',

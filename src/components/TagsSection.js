@@ -1,10 +1,9 @@
-// Note: this is a modification of the library https://github.com/zubairpaizer/react-native-searchable-dropdown
-
 import React, { Component } from 'react';
 import {
   FlatList,
   View,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Keyboard,
   StyleSheet
 } from 'react-native';
@@ -190,13 +189,32 @@ export default class TagsSection extends Component {
       }
     });
 
-    return (
+    if (this.props.onInputPress) {
+      return (
+        <TouchableOpacity
+          onPress={this.props.onInputPress}
+          style={[styles.searchBarButton, this.props.mainContainerStyle]}
+          activeOpacity={1}
+        >
+          <NormalText
+            size={14}
+            color="#999"
+            style={styles.searchBarPlaceholder}
+          >
+            {this.props.placeholder != null ? this.props.placeholder : "Add a cuisine"}
+          </NormalText>
+        </TouchableOpacity>
+      );
+    }
+
+    const input = (
       <TextInput
         { ...textInputProps }
-        placeholder="Type a tag..."
-        iconLeft="pricetag"
-        iconLeftFontSize={20}
+        placeholder={this.props.placeholder != null ? this.props.placeholder : "Add a cuisine"}
+        height={44}
         width="100%"
+        borderColor="#A9A9A9"
+        mainContainerStyle={{ paddingLeft: 2, ...this.props.mainContainerStyle }}
         onBlur={(e) => {
             if (this.props.onBlur) {
                 this.props.onBlur(e);
@@ -210,14 +228,15 @@ export default class TagsSection extends Component {
         }}
         marginBottom={10}
       />
-    )
+    );
+    return input;
   }
 
   render = () => {
     return (
       <View
         keyboardShouldPersist="always"
-        style={{ padding: 0 }}
+        style={styles.container}
       >
         { this.renderTextInput() }
         { this.renderListType() }
@@ -235,7 +254,17 @@ export default class TagsSection extends Component {
         return (
           <View style={styles.itemDisplay}>
             { items.map((tag, i) => 
-              <Tag key={i} text={tag} remove={() => this.props.onRemoveItem(tag, i)}/>
+              <Tag
+                key={i}
+                text={tag}
+                remove={() => this.props.onRemoveItem(tag, i)}
+                backgroundColor="rgba(93, 176, 117, 0.3)"
+                color="black"
+                plain
+                justifySpaceBetween
+                closeIconColor="black"
+                style={styles.selectedTag}
+              />
             )}
           </View>
         );
@@ -245,6 +274,33 @@ export default class TagsSection extends Component {
 }
 
 const styles = StyleSheet.create({
+    container: {
+      padding: 0,
+      marginHorizontal: 10,
+      alignItems: 'center',
+    },
+
+    searchBarButton: {
+      height: 44,
+      width: 260,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#fff',
+      borderWidth: 2,
+      borderColor: '#A9A9A9',
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      marginBottom: 10,
+    },
+
+    searchBarIcon: {
+      marginRight: 10,
+    },
+
+    searchBarPlaceholder: {
+      color: '#999',
+    },
+
     item: {
         flex: 1,
         flexDirection: 'row',
@@ -261,6 +317,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingBottom: 10,
         marginTop: 5
+    },
+
+    selectedTag: {
+        width: 255,
+        borderRadius: 10,
+        justifyContent: 'center',
+        minHeight: 42,
+        paddingVertical: 10,
     },
 
     tag: {

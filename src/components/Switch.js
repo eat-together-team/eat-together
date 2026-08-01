@@ -6,6 +6,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  runOnUI,
 } from 'react-native-reanimated';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -29,7 +30,10 @@ const Switch = ({
 
   // Update the shared value when the boolean value prop changes
   useEffect(() => {
-    isOn.value = withTiming(value ? 1 : 0, { duration });
+    runOnUI(() => {
+      'worklet';
+      isOn.value = withTiming(value ? 1 : 0, { duration });
+    })();
   }, [value]);
 
   const trackAnimatedStyle = useAnimatedStyle(() => {
@@ -68,8 +72,12 @@ const Switch = ({
     <Pressable onPress={handlePress}>
       <Animated.View
         onLayout={(e) => {
-          height.value = e.nativeEvent.layout.height;
-          width.value = e.nativeEvent.layout.width;
+          const { height: h, width: w } = e.nativeEvent.layout;
+          runOnUI(() => {
+            'worklet';
+            height.value = h;
+            width.value = w;
+          })();
         }}
         style={[switchStyles.track, style, trackAnimatedStyle]}>
         <Animated.View
