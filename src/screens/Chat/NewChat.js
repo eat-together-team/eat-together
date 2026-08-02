@@ -105,6 +105,7 @@ export default function NewChat({ navigation }) {
     name: data.firstName + " " + data.lastName,
     image: data.hasImage ? data.image : null,
     blockedIDs: data.blockedIDs || [],
+    allowMessageRequests: data.settings?.allowMessageRequests ?? true,
   });
 
   useEffect(() => {
@@ -310,6 +311,11 @@ export default function NewChat({ navigation }) {
         return;
       }
 
+      // Only new requests are gated — an already-existing thread (handled
+      // above) stays reachable even if the other person later turns this
+      // off, same as the UI hiding the Request pill but not old chats.
+      if (!person.allowMessageRequests) return;
+
       await createMessageRequest(user, userData, person, chatID);
       navigation.navigate("ChatRoom", {
         group: {
@@ -386,14 +392,14 @@ export default function NewChat({ navigation }) {
                         size={26}
                         color={selected ? tokens.primary : tokens.onContainerHigh}
                       />
-                    ) : (
+                    ) : item.allowMessageRequests ? (
                       <OutlinePillButton
                         label="Request"
                         onPress={() => handleRequest(item)}
                         disabled={requestingIds.includes(item.id)}
                         color={tokens.primary}
                       />
-                    )
+                    ) : null
                   }
                 />
               );

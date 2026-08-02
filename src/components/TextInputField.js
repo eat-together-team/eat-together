@@ -15,6 +15,7 @@ const TextInputField = ({
   keyboardType = 'default',
   autoCapitalize = 'none',
   textAlign = 'left',
+  multiline = false,
   style,
   onFocus,
   onBlur,
@@ -29,13 +30,13 @@ const TextInputField = ({
     : Platform.OS === 'ios' ? 'AppleSDGothicNeo-Regular' : 'sans-serif';
 
   return (
-    <View style={[styles.container, {
+    <View style={[styles.container, multiline && styles.containerMultiline, {
       borderColor: isFocused ? `${colors.textMedium}CC` : colors.outline,
       backgroundColor: colors.background,
     }, style]}>
       {leadingIcon && <View style={styles.iconWrap}>{leadingIcon}</View>}
       <RNTextInput
-        style={[styles.input, { fontFamily, color: colors.onBackground, textAlign }]}
+        style={[styles.input, { fontFamily, color: colors.onBackground, textAlign }, multiline && styles.inputMultiline]}
         value={value}
         onChangeText={onChangeText}
         placeholder={hint}
@@ -44,6 +45,8 @@ const TextInputField = ({
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         autoCorrect={false}
+        multiline={multiline}
+        textAlignVertical={multiline ? 'top' : 'center'}
         onFocus={(e) => {
           setIsFocused(true);
           onFocus?.(e);
@@ -72,6 +75,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 10,
   },
+  containerMultiline: {
+    height: undefined,
+    alignItems: 'flex-start',
+    paddingVertical: 15,
+  },
   iconWrap: {
     opacity: 0.5,
   },
@@ -79,6 +87,9 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
     padding: 0,
+  },
+  inputMultiline: {
+    alignSelf: 'stretch',
   },
 });
 

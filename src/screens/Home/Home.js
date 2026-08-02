@@ -128,13 +128,21 @@ export default function ({ navigation }) {
     async function fetchRecs() {
       await db.collection("Users").doc(user.uid).onSnapshot((doc) => {
         if (doc.data()) {
+          // Skip entirely if the user turned off "Personalize suggestions"
+          // in Settings > Recommendations.
+          const getRecommendations = doc.data().settings?.getRecommendations ?? true;
+
           // Gather the recommendation IDs for each recommendation the user has
           let recIDs = [];
-          doc.data().notifications.forEach(notif => {
-            if(notif.type === "recommendation") recIDs.push(notif.id);
-          });
+          if (getRecommendations) {
+            doc.data().notifications.forEach(notif => {
+              if(notif.type === "recommendation") recIDs.push(notif.id);
+            });
+          }
 
           if (recIDs.length === 0) {
+            setHasRec(false);
+            setRecommendations([]);
             setLoading(false);
             return;
           }

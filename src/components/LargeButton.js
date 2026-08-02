@@ -1,34 +1,16 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { View, Pressable, Animated, Platform, Text } from 'react-native';
 import { useFonts, Inter_600SemiBold } from '@expo-google-fonts/inter';
 import { colorTokens } from '../theme/colorTokens';
 import { radiusTokens } from '../theme/radiusTokens';
 import { useTheme } from '../rapi_ui_components';
-
-const RIPPLE_SIZE = 80;
+import useRipple from './utils/useRipple';
 
 const LargeButton = ({ onPress, outlined = false, color = 'green', children, disabled, style, leadingIcon }) => {
-  const [ripplePos, setRipplePos] = useState({ x: 0, y: 0 });
-  const rippleScale = useRef(new Animated.Value(0)).current;
-  const rippleOpacity = useRef(new Animated.Value(0)).current;
-  const buttonWidth = useRef(300);
+  const { onLayout, onPressIn, rippleStyle } = useRipple();
   const [fontsLoaded] = useFonts({ Inter_600SemiBold });
   const { theme } = useTheme();
   const colors = colorTokens[theme];
-
-  const handlePressIn = (event) => {
-    const { locationX, locationY } = event.nativeEvent;
-    setRipplePos({ x: locationX, y: locationY });
-
-    const scaleTo = (buttonWidth.current * 2.5) / RIPPLE_SIZE;
-    rippleScale.setValue(0);
-    rippleOpacity.setValue(0.5);
-
-    Animated.parallel([
-      Animated.timing(rippleScale, { toValue: scaleTo, duration: 400, useNativeDriver: true }),
-      Animated.timing(rippleOpacity, { toValue: 0, duration: 400, useNativeDriver: true }),
-    ]).start();
-  };
 
   const isGray = color === 'gray';
   const isGreen = color === 'green';
@@ -51,24 +33,9 @@ const LargeButton = ({ onPress, outlined = false, color = 'green', children, dis
     : Platform.OS === 'ios' ? 'AppleSDGothicNeo-SemiBold' : 'sans-serif-medium';
 
   return (
-    <View
-      style={[styles.wrapper, wrapperStyle, style]}
-      onLayout={(e) => { buttonWidth.current = e.nativeEvent.layout.width; }}
-    >
-      <Pressable onPress={onPress} onPressIn={handlePressIn} disabled={disabled} style={styles.inner}>
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.rippleCircle,
-            {
-              left: ripplePos.x - RIPPLE_SIZE / 2,
-              top: ripplePos.y - RIPPLE_SIZE / 2,
-              backgroundColor: rippleColor,
-              opacity: rippleOpacity,
-              transform: [{ scale: rippleScale }],
-            },
-          ]}
-        />
+    <View style={[styles.wrapper, wrapperStyle, style]} onLayout={onLayout}>
+      <Pressable onPress={onPress} onPressIn={onPressIn} disabled={disabled} style={styles.inner}>
+        <Animated.View pointerEvents="none" style={[rippleStyle, { backgroundColor: rippleColor }]} />
         {leadingIcon ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             {leadingIcon}
@@ -95,12 +62,6 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-  },
-  rippleCircle: {
-    position: 'absolute',
-    width: RIPPLE_SIZE,
-    height: RIPPLE_SIZE,
-    borderRadius: RIPPLE_SIZE / 2,
   },
 };
 

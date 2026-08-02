@@ -60,13 +60,17 @@ export default function (props) {
         const notifications = data.notifications || [];
         setNotifications(notifications);
 
+        // Skip recommendation entries entirely if the user turned off
+        // "Personalize suggestions" in Settings > Recommendations.
+        const getRecommendations = data.settings?.getRecommendations ?? true;
+
         const newReadNotifs = [];
         const newUnreadNotifs = [];
         const newRecommendations = [];
 
         notifications.forEach((notif) => {
           if (notif.type === "recommendation") {
-            newRecommendations.push(notif);
+            if (getRecommendations) newRecommendations.push(notif);
           } else if (notif.readAt && notif.type !== "user profile") {
             newReadNotifs.push(notif);
           } else if (!notif.readAt && notif.type !== "user profile") {

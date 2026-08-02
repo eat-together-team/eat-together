@@ -11,6 +11,9 @@ import Settings from "./Settings";
 import FullCard from "./FullCard";
 import ReportBug from "./ReportBug";
 import SuggestIdea from "./SuggestIdea";
+import Recommendations from "./Recommendations";
+import AccountPrivacy from "./AccountPrivacy";
+import NotificationsSettings from "./Notifications";
 import FullProfile from "../Explore/People/FullProfile";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ColorSelector from "./ColorSelector";
@@ -42,6 +45,9 @@ export default function () {
       <Stack.Screen name="FullCard" component={FullCard} />
       <Stack.Screen name="Report Bug" component={ReportBug} />
       <Stack.Screen name="Suggest Idea" component={SuggestIdea} />
+      <Stack.Screen name="Recommendations" component={Recommendations} />
+      <Stack.Screen name="Account Privacy" component={AccountPrivacy} />
+      <Stack.Screen name="Notifications" component={NotificationsSettings} />
       <Stack.Screen name="FullProfile">
         {props => <FullProfile {...props} blockBack="Me" />}
       </Stack.Screen>

@@ -1,5 +1,6 @@
 import React from "react";
-import { Platform, StatusBar, useColorScheme } from "react-native";
+import { Platform, useColorScheme } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as NavigationBar from "expo-navigation-bar";
 import useCachedResources from "../hooks/useCachedResources";
@@ -67,7 +68,7 @@ const ThemeProvider = (props: {
     <ThemeContext.Provider value={{ theme, isDarkmode, setTheme }}>
       <StatusBar
         backgroundColor={themeDefaults.statusBarColor}
-        barStyle={isDarkmode ? "light-content" : "dark-content"}
+        style={isDarkmode ? "light" : "dark"}
       />
       <SafeAreaProvider
         style={{

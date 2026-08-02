@@ -380,8 +380,10 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           <TagsList tags={person.tags} filterType="school" />
         </View>
 
-        {/* gallery */}
-        {personData.gallery && personData.gallery.length > 0 && (
+        {/* gallery — hidden from non-connections if the owner turned on
+        "Hide gallery" in Account Privacy */}
+        {personData.gallery && personData.gallery.length > 0 &&
+          (!personData.settings?.hideGallery || status === "Connections") && (
           <View style={styles.galleryBackground}>
             <View style={styles.galleryHeader}>
               <NormalText>Gallery</NormalText>

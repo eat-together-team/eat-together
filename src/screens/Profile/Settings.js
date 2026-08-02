@@ -1,443 +1,235 @@
-import React, { useState, useEffect } from "react";
-import {
-    View,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    Alert, Linking
-} from 'react-native';
-import { Layout, TopNav } from "../../rapi_ui_components";
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from "react";
+import { View, ScrollView, StyleSheet, Linking } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import { db, auth } from "../../provider/Firebase";
 import firebase from "firebase/compat";
-import "firebase/firestore"
+import "firebase/firestore";
 
-import MediumText from "../../components/MediumText";
-import NormalText from "../../components/NormalText";
+import { Layout, useTheme } from "../../rapi_ui_components";
+import { colorTokens } from "../../theme/colorTokens";
 import DeviceToken from "../../utils/DeviceToken";
 import { bridgeSignOut } from "../../utils/nativeAuthBridge";
-import { Link } from "@react-navigation/native";
-import Switch from "../../components/Switch";
 
-export default function ({ navigation }) {
+import SmallAppBar from "../../components/SmallAppBar";
+import SettingsRow from "../../components/SettingsRow";
+import Divider from "../../components/Divider";
+import Dialog from "../../components/Dialog";
+import DialogOverlay from "../../components/DialogOverlay";
+import LabelText from "../../components/typography/LabelText";
+import SubBodyText from "../../components/typography/SubBodyText";
+
+export default function Settings({ navigation }) {
+    const { theme } = useTheme();
+    const tokens = colorTokens[theme];
     const user = auth.currentUser;
-    const [userInfo, setUserInfo] = useState({});
-    let [notifs, setNotifs] = useState(false);
-    let [privAcct, setPrivAcct] = useState(false);
-    let [getRecommendations, setGetRecommendations] = useState(false);
-    let [logoutDisabled, setLogoutDisabled] = useState(false); // Prevent the user from logging out "more than once"
+    // Prevent the user from logging out "more than once"
+    const [logoutDisabled, setLogoutDisabled] = useState(false);
+    const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
+    const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+    const [tutorialDialogVisible, setTutorialDialogVisible] = useState(false);
 
-    // Fetch current user info
-    useEffect(() => {
-        if (user) {
-            db.collection("Users").doc(user.uid).get().then(doc => {
-                if (doc.exists) {
-                    setUserInfo(doc.data());
-                    setNotifs(doc.data().settings.notifications);
-                    setGetRecommendations(doc.data().settings.getRecommendations);
-                    setPrivAcct(doc.data().settings.privateAccount ? doc.data().settings.privateAccount : false);
-                }
-            });
-        }
-    });
+    async function performSignOut() {
+        if (logoutDisabled) return;
+        setLogoutDisabled(true);
 
-    // Changes if user gets notifications or not
-    function changeNotifSettings() {
-        Linking.openSettings();
-    }
-
-    // Changes if user's acount is private or not
-    function changePrivacySettings() {
-        const willEnable = !privAcct;
-    
-        Alert.alert(
-            willEnable ? "Enable Private Account" : "Disable Private Account",
-            willEnable
-                ? "Would you like to make your account private? This will prevent your profile from matching with other users on the Explore page."
-                : "Are you sure you want to make your account public?",
-            [
-                {
-                    text: "Confirm",
-                    onPress: async () => {
-                        try {
-                            await db.collection("Users").doc(user.uid).update({
-                                "settings.privateAccount": willEnable
-                            });
-    
-                            setPrivAcct(willEnable);
-                        } catch (error) {
-                            console.error("Error updating private account:", error);
-                        }
-                    }
-                },
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                }
-            ]
-        );
-    }
-
-
-    // Changes if user gets recommendations or not
-    function changeRecommendationSettings() {
-        const willEnable = !getRecommendations;
-    
-        Alert.alert(
-            willEnable ? "Enable Recommendations" : "Disable Recommendations",
-            willEnable
-                ? "Would you like to receive weekly meetup recommendations? You’ll be paired with 3 other users based on your schedule and interests."
-                : "Are you sure you want to stop receiving weekly meetup recommendations?",
-            [
-                {
-                    text: "Confirm",
-                    onPress: async () => {
-                        try {
-                            await db.collection("Users").doc(user.uid).update({
-                                "settings.getRecommendations": willEnable
-                            });
-    
-                            setGetRecommendations(willEnable);
-                        } catch (error) {
-                            console.error("Error updating recommendations:", error);
-                        }
-                    }
-                },
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                }
-            ]
-        );
-    }
-
-    async function signOut() {
-        if (!logoutDisabled) {
-            setLogoutDisabled(true);
-            if (DeviceToken.getToken()) await db.collection("Users").doc(user.uid).update({
+        if (DeviceToken.getToken()) {
+            await db.collection("Users").doc(user.uid).update({
                 pushTokens: firebase.firestore.FieldValue.arrayRemove(DeviceToken.getToken())
             });
+        }
 
-            await firebase.auth().signOut();
-            await bridgeSignOut();
+        await firebase.auth().signOut();
+        await bridgeSignOut();
+    }
+
+    function handleLogoutConfirm() {
+        setLogoutDialogVisible(false);
+        performSignOut();
+    }
+
+    async function handleDeleteConfirm() {
+        setDeleteDialogVisible(false);
+        try {
+            await user.delete();
+            await performSignOut();
+            alert("Account deleted successfully. Sorry to see you go :(");
+        } catch (error) {
+            await performSignOut();
+            alert("You need to sign in again to proceed.");
         }
     }
 
-    function deleteAccount() {
-        Alert.alert(
-            "Are you sure?",
-            "Deleting your account cannot be reversed. Are you sure you want to continue?",
-            [
-                {
-                    text: "No",
-                    onPress: () => { },
-                    style: "cancel"
-                },
-                {
-                    text: "Yes",
-                    onPress: async () => {
-                        await user.delete().then(() => {
-                            signOut();
-                            alert("Account deleted successfully. Sorry to see you go :(");
-                        }).catch((error) => {
-                            signOut().then(() => {
-                                alert("You need to sign in again to proceed.");
-                            });
-                        });
-                    },
-                    style: "destructive"
-                }
-            ]
-        );
+    function handleTutorialYes() {
+        setTutorialDialogVisible(false);
+        db.collection("Users").doc(user.uid).update({
+            "settings.attendingEvent": false,
+            "settings.attendingTutorial": true,
+            "settings.tabsTutorial": true,
+            "settings.completedTutorial": false,
+        });
+        alert("Reload the app to see the tutorial again!");
     }
 
-    function changeTutorialSettings() {
-        // if yes, set attendingTutorial and tabsTutorial to true, and completeTutorial to false
-        // if no, set attendingTutorial and tabsTutorial to false, and completeTutorial to true
-        Alert.alert(
-            "Tutorial",
-            "Would you like to see the tutorial again?",
-            [
-                {
-                    text: "Yes",
-                    onPress: async () => {
-                        await db.collection("Users").doc(user.uid).update({
-                            "settings.attendingEvent": false,
-                            "settings.attendingTutorial": true,
-                            "settings.tabsTutorial": true,
-                            "settings.completedTutorial": false
-                        });
-
-                        alert("Reload the app to see the tutorial again!");
-                    }
-                },
-                {
-                    text: "No",
-                    onPress: async () => {
-                        await db.collection("Users").doc(user.uid).update({
-                            "settings.attendingEvent": true,
-                            "settings.attendingTutorial": false,
-                            "settings.tabsTutorial": false,
-                            "settings.completedTutorial": true
-                        });
-                    }
-                }
-            ]
-        );
+    function handleTutorialNo() {
+        setTutorialDialogVisible(false);
+        db.collection("Users").doc(user.uid).update({
+            "settings.attendingEvent": true,
+            "settings.attendingTutorial": false,
+            "settings.tabsTutorial": false,
+            "settings.completedTutorial": true,
+        });
     }
 
-    const buttons = [
-        {
-            name: "Notifications",
-            section: "General",
-            description: "These include chat messages, meetup recommendations, and event updates",
-            toggleState: notifs,
-            func: () => changeNotifSettings()
-        },
-        {
-            name: "Private account",
-            section: "General",
-            description: "Prevent your profile from being discovered in public search and recommendations",
-            toggleState: privAcct,
-            func: () => changePrivacySettings()
-        },
-        {
-            name: "Recommendations",
-            section: "General",
-            description: "Receive personalized suggestions for meetups happening around you",
-            toggleState: getRecommendations,
-            func: () => changeRecommendationSettings()
-        },
-        {
-            name: "Launch tutorial",
-            section: "General",
-            description: "Learn about the core features of the app and how to get the most out of them",
-            icon: "return-up-forward-outline",
-            func: () => changeTutorialSettings()
-        },
-        {
-            name: "Privacy Policy",
-            section: "Support",
-            icon: "shield-outline",
-            func: () => { Linking.openURL("https://www.eat-together.org/privacy-policy") }
-        },
-        {
-            name: "Suggest an Idea",
-            section: "Support",
-            icon: "bulb-outline",
-            func: () => { navigation.navigate("Suggest Idea") }
-        },
-        {
-            name: "Report a Bug",
-            section: "Support",
-            icon: "bug-outline",
-            func: () => { navigation.navigate("Report Bug") }
-        },
-        {
-            name: "Log out",
-            section: "Account",
-            func: () => signOut()
-        },
-        {
-            name: "Delete account",
-            section: "Account",
-            func: () => deleteAccount()
-        }
-    ];
-
-    const sections = [
-        { title: "General", data: buttons.filter(b => b.section === "General") },
-        { title: "Support", data: buttons.filter(b => b.section === "Support") },
-        { title: "Account", data: buttons.filter(b => b.section === "Account") },
-    ];
-
-    const renderButton = ({ item }) => {
-        if (item.section === "General") {
-            const isToggle = item.toggleState !== undefined;
-            const toggleActive = isToggle && !!item.toggleState;
-            const listViewStyle = [
-                styles.generalListView,
-                toggleActive ? { backgroundColor: "#5DB07521" } : null
-            ];
-            return (
-                <TouchableOpacity onPress={item.func} key={item.name}>
-                    <View style={listViewStyle}>
-                        <View style={styles.textContainer}>
-                            <NormalText size={13} color="black">
-                                {item.name}
-                            </NormalText>
-                            {item.description && (
-                                <NormalText size={12} color="gray" style={styles.descriptionText}>
-                                    {item.description}
-                                </NormalText>
-                            )}
-                        </View>
-                        <View style={styles.actionContainer}>
-                            {isToggle ? (
-                                <Switch value={item.toggleState} onValueChange={item.func} />
-                            ) : (
-                                item.icon && (
-                                    <Ionicons
-                                        name={item.icon}
-                                        size={20}
-                                        color={item.name.toLowerCase().includes("delete") ? "red" : "black"}
-                                    />
-                                )
-                            )}
-                        </View>
-                    </View>
-                </TouchableOpacity>
-            );
-        }
-        if (item.section === "Support") {
-            return (
-                <TouchableOpacity onPress={item.func} key={item.name}>
-                    <View style={styles.supportListView}>
-                        <View style={styles.textContainer}>
-                            <NormalText size={13} color="black">
-                                {item.name}
-                            </NormalText>
-                            {item.description && (
-                                <NormalText size={12} color="gray" style={styles.descriptionText}>
-                                    {item.description}
-                                </NormalText>
-                            )}
-                        </View>
-                        <View style={styles.actionContainer}>
-                            {item.toggleState !== undefined ? (
-                                <Switch value={item.toggleState} onValueChange={item.func} />
-                            ) : (
-                                item.icon && (
-                                    <Ionicons
-                                        name={item.icon}
-                                        size={20}
-                                        color={item.name.toLowerCase().includes("delete") ? "red" : "black"}
-                                    />
-                                )
-                            )}
-                        </View>
-                    </View>
-                </TouchableOpacity>
-            );
-        }
-        if (item.section === "Account") {
-            return (
-                <TouchableOpacity onPress={item.func} key={item.name}>
-                    <View style={[styles.accountListView, { borderColor: item.name === "Delete account" ? "red" : "#5DB075" }]}>
-                        <View style={styles.accountTextContainer}>
-                            <MediumText size={13} color={item.name === "Delete account" ? "red" : "#5DB075"}>
-                                {item.name}
-                            </MediumText>
-                        </View>
-                    </View>
-                </TouchableOpacity>
-            );
-        }
-
-    }
     return (
-        <Layout>
-            <TopNav
-                middleContent={
-                    <MediumText center>Settings</MediumText>
-                }
-                leftContent={
-                    <Ionicons
-                        name="chevron-back"
-                        size={20}
+        <Layout style={styles.screen}>
+            <SmallAppBar title="Settings" onBack={() => navigation.goBack()} />
+            <ScrollView contentContainerStyle={styles.content}>
+                <View style={styles.section}>
+                    <LabelText color={tokens.onBackground} style={styles.sectionLabel}>
+                        General
+                    </LabelText>
+                    <SettingsRow
+                        testID="settings-row-notifications"
+                        icon="notifications-outline"
+                        title="Notifications"
+                        subtitle="Chats, meetups, and updates"
+                        onPress={() => navigation.navigate("Notifications")}
                     />
-                }
-                leftAction={() => navigation.goBack()}
-            />
-            <ScrollView
-                style={styles.flatlist}
-                contentContainerStyle={styles.flatListContent}
-            >
-                {sections.map((section) => (
-                    <View key={section.title}>
-                        {section.title === "Account" ? (
-                            <View style={{ borderBottomWidth: 0, marginVertical: 4 }} />
-                        ) : (
-                            <NormalText style={styles.sectionHeader}>{section.title}</NormalText>
-                        )}
-                        {section.data.map((item, index) => (
-                            <View key={item.name + index}>
-                                {renderButton({ item })}
-                            </View>
-                        ))}
-                    </View>
-                ))}
+                    <SettingsRow
+                        testID="settings-row-account-privacy"
+                        icon="lock-closed-outline"
+                        title="Account privacy"
+                        subtitle="Visibility, messages, profile"
+                        onPress={() => navigation.navigate("Account Privacy")}
+                    />
+                    <SettingsRow
+                        testID="settings-row-recommendations"
+                        icon="sparkles-outline"
+                        title="Recommendations"
+                        subtitle="Personalized meetup suggestions"
+                        onPress={() => navigation.navigate("Recommendations")}
+                    />
+                </View>
+
+                <Divider />
+
+                <View style={styles.section}>
+                    <LabelText color={tokens.onBackground} style={styles.sectionLabel}>
+                        Support
+                    </LabelText>
+                    <SettingsRow
+                        testID="settings-row-launch-tutorial"
+                        icon="open-outline"
+                        title="Launch tutorial"
+                        onPress={() => setTutorialDialogVisible(true)}
+                    />
+                    <SettingsRow
+                        testID="settings-row-privacy-policy"
+                        icon="shield-checkmark-outline"
+                        title="Privacy policy"
+                        onPress={() => Linking.openURL("https://www.eat-together.org/privacy-policy")}
+                    />
+                    <SettingsRow
+                        testID="settings-row-suggest-idea"
+                        icon="flask-outline"
+                        title="Suggest an idea"
+                        onPress={() => navigation.navigate("Suggest Idea")}
+                    />
+                    <SettingsRow
+                        testID="settings-row-report-bug"
+                        icon="bug-outline"
+                        title="Report a bug"
+                        onPress={() => navigation.navigate("Report Bug")}
+                    />
+                </View>
+
+                <Divider />
+
+                <View style={styles.section}>
+                    <LabelText color={tokens.onBackground} style={styles.sectionLabel}>
+                        Account Settings
+                    </LabelText>
+                    <SettingsRow
+                        testID="settings-row-logout"
+                        title="Logout"
+                        accessory="none"
+                        onPress={() => setLogoutDialogVisible(true)}
+                    />
+                    <SettingsRow
+                        testID="settings-row-delete-account"
+                        title="Delete account"
+                        accessory="none"
+                        destructive
+                        onPress={() => setDeleteDialogVisible(true)}
+                    />
+                </View>
             </ScrollView>
+
+            <DialogOverlay visible={logoutDialogVisible} onDismiss={() => setLogoutDialogVisible(false)}>
+                <Dialog
+                    type="Informative"
+                    title="Log out"
+                    icon={<Ionicons name="log-out-outline" size={40} color={tokens.onBackground} />}
+                    primaryButtonText="Log out"
+                    secondaryButtonText="Cancel"
+                    onPrimaryPress={handleLogoutConfirm}
+                    onSecondaryPress={() => setLogoutDialogVisible(false)}
+                >
+                    <SubBodyText color={tokens.onBackground} center>
+                        Are you sure you want to log out?
+                    </SubBodyText>
+                </Dialog>
+            </DialogOverlay>
+
+            <DialogOverlay visible={deleteDialogVisible} onDismiss={() => setDeleteDialogVisible(false)}>
+                <Dialog
+                    type="Destructive with icon"
+                    title="Delete account"
+                    icon={<Ionicons name="trash" size={40} color={tokens.onBackground} />}
+                    primaryButtonText="Delete account"
+                    secondaryButtonText="Cancel"
+                    onPrimaryPress={handleDeleteConfirm}
+                    onSecondaryPress={() => setDeleteDialogVisible(false)}
+                >
+                    <SubBodyText color={tokens.onBackground} center>
+                        Are you sure you want to delete your account? This action is not reversible and
+                        you will not be able to recover your data after proceeding
+                    </SubBodyText>
+                </Dialog>
+            </DialogOverlay>
+
+            <DialogOverlay visible={tutorialDialogVisible} onDismiss={() => setTutorialDialogVisible(false)}>
+                <Dialog
+                    type="Informative"
+                    title="Launch tutorial"
+                    icon={<Ionicons name="school-outline" size={40} color={tokens.onBackground} />}
+                    primaryButtonText="Yes"
+                    secondaryButtonText="No"
+                    onPrimaryPress={handleTutorialYes}
+                    onSecondaryPress={handleTutorialNo}
+                >
+                    <SubBodyText color={tokens.onBackground} center>
+                        Would you like to see the tutorial again?
+                    </SubBodyText>
+                </Dialog>
+            </DialogOverlay>
         </Layout>
     );
 }
-const styles = StyleSheet.create({
-    flatlist: {
-    },
-    flatListContent: {
-        paddingVertical: 8,
-        paddingHorizontal: 18,
-        paddingBottom: 20
-    },
 
-    generalListView: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#80808021",
-        borderRadius: 12,
-        marginBottom: 9,
-        maxHeight: 75
-    },
-    supportListView: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#80808021",
-        borderRadius: 12,
-        marginBottom: 9,
-        maxHeight: 55
-    },
-    accountListView: {
-        flexDirection: "column",
-        alignItems: "center",
-        borderRadius: 10,
-        borderWidth: 2,
-        marginBottom: 9,
-        maxHeight: 41
-    },
-    iconContainer: {
-        marginRight: 18
-    },
-    textContainer: {
+const styles = StyleSheet.create({
+    screen: {
         flex: 1,
-        flexDirection: "column",
-        paddingHorizontal: 16,  
-        paddingVertical: 13,
-        justifyContent: "center"
     },
-    actionContainer: {
-        alignItems: "center",
-        justifyContent: "center",
-        minWidth: 44,
-        paddingRight: 16,
+    content: {
+        padding: 20,
+        gap: 15,
     },
-    accountTextContainer: {
-        paddingHorizontal: 65,  
-        paddingVertical: 5,
-        justifyContent: "center"
+    section: {
+        gap: 4,
     },
-    titleText: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: "#000"
+    sectionLabel: {
+        marginBottom: 4,
     },
-    sectionHeader: {
-        color: "#000",
-        fontWeight: "700",
-        fontSize: 11,
-        opacity: 0.5,
-        marginTop: 11,
-        marginBottom: 7,
-        paddingHorizontal: 2
-    }
 });
