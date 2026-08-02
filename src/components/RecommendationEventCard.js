@@ -19,6 +19,7 @@ const RecommendationEventCard = ({ event, onPress }) => {
   const tokens = colorTokens[theme];
 
   const eventDate = event.startDate ? event.startDate.toDate() : event.date.toDate();
+  const eventEndDate = event.endDate ? event.endDate.toDate() : null;
 
   return (
     <TouchableOpacity
@@ -37,7 +38,10 @@ const RecommendationEventCard = ({ event, onPress }) => {
         <View style={styles.metaRow}>
           <Header4Text color={tokens.outline}>{getDate(eventDate, false)}</Header4Text>
           <View style={[styles.dot, { backgroundColor: tokens.outline }]} />
-          <Header4Text color={tokens.outline}>{getTime(eventDate)}</Header4Text>
+          <Header4Text color={tokens.outline}>
+            {getTime(eventDate)}
+            {eventEndDate ? ` - ${getTime(eventEndDate)}` : ""}
+          </Header4Text>
           <View style={[styles.dot, { backgroundColor: tokens.outline }]} />
           <Header4Text color={tokens.outline} numberOfLines={1} style={styles.location}>
             {event.location}

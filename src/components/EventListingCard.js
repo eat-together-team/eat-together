@@ -27,6 +27,7 @@ const EventListingCard = ({ event, onPress }) => {
   const tokens = colorTokens[theme];
 
   const eventDate = event.startDate ? event.startDate.toDate() : event.date.toDate();
+  const eventEndDate = event.endDate ? event.endDate.toDate() : null;
   const hostName = event.hostFirstName
     ? `${event.hostFirstName} ${event.hostLastName.substring(0, 1)}.`
     : event.hostName;
@@ -44,7 +45,10 @@ const EventListingCard = ({ event, onPress }) => {
         <View style={styles.metaRow}>
           <Header4Text color={tokens.textMedium}>{getDate(eventDate, false)}</Header4Text>
           <Dot color={tokens.textMedium} />
-          <Header4Text color={tokens.textMedium}>{getTime(eventDate)}</Header4Text>
+          <Header4Text color={tokens.textMedium}>
+            {getTime(eventDate)}
+            {eventEndDate ? ` - ${getTime(eventEndDate)}` : ""}
+          </Header4Text>
           <Dot color={tokens.textMedium} />
           <Header4Text color={tokens.textMedium} numberOfLines={1} style={styles.location}>
             {event.location}

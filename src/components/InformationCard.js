@@ -16,6 +16,7 @@ const InformationCard = ({ type = 'Informative', text = 'Information message', a
 
   const bgColor = isError ? colors.errorContainer : colors.containerMedium;
   const textColor = isError ? colors.onErrorContainer : colors.onContainerMedium;
+  const actionColor = isError ? colors.onErrorContainer : colors.onPrimaryContainer;
   const iconColor = textColor;
 
   const fontRegular = fontsLoaded
@@ -36,7 +37,7 @@ const InformationCard = ({ type = 'Informative', text = 'Information message', a
           {text}
         </Text>
         {isAction && (
-          <Text style={[styles.actionText, { fontFamily: fontSemiBold, color: textColor, opacity: 0.75 }]} onPress={onAction}>
+          <Text style={[styles.actionText, { fontFamily: fontSemiBold, color: actionColor, opacity: 0.75 }]} onPress={onAction}>
             {actionText}
           </Text>
         )}
