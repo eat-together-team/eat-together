@@ -135,9 +135,14 @@ export default function ({ navigation }) {
       const data = doc.data();
       if (!data) return;
 
-      const recIDs = (data.notifications || [])
-        .filter((notif) => notif.type === "recommendation")
-        .map((notif) => notif.id);
+      // Skip entirely if the user turned off "Personalize suggestions" in
+      // Settings > Recommendations.
+      const getRecommendations = data.settings?.getRecommendations ?? true;
+      const recIDs = getRecommendations
+        ? (data.notifications || [])
+            .filter((notif) => notif.type === "recommendation")
+            .map((notif) => notif.id)
+        : [];
 
       if (recIDs.length === 0) {
         setRecommendations([]);

@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { Layout, useTheme } from "../../rapi_ui_components";
 import { colorTokens } from "../../theme/colorTokens";
 import { radiusTokens } from "../../theme/radiusTokens";
+import { db, auth } from "../../provider/Firebase";
 
 import SmallAppBar from "../../components/SmallAppBar";
 import SettingsRow from "../../components/SettingsRow";
@@ -12,7 +13,21 @@ import SettingsRow from "../../components/SettingsRow";
 export default function Recommendations({ navigation }) {
     const { theme } = useTheme();
     const tokens = colorTokens[theme];
+    const user = auth.currentUser;
     const [personalizeSuggestions, setPersonalizeSuggestions] = useState(true);
+
+    useEffect(() => {
+        db.collection("Users").doc(user.uid).get().then((doc) => {
+            setPersonalizeSuggestions(doc.data()?.settings?.getRecommendations ?? true);
+        });
+    }, []);
+
+    const handleValueChange = (value) => {
+        setPersonalizeSuggestions(value);
+        db.collection("Users").doc(user.uid).update({
+            "settings.getRecommendations": value,
+        });
+    };
 
     return (
         <Layout style={styles.screen}>
@@ -39,7 +54,7 @@ export default function Recommendations({ navigation }) {
                     subtitle="Receive personalized suggestions for meetups happening around you"
                     accessory="switch"
                     value={personalizeSuggestions}
-                    onValueChange={setPersonalizeSuggestions}
+                    onValueChange={handleValueChange}
                 />
             </View>
         </Layout>

@@ -1,15 +1,17 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, StyleSheet, Linking } from "react-native";
 import * as Notifications from "expo-notifications";
 import { useFocusEffect } from "@react-navigation/native";
 
 import { Layout } from "../../rapi_ui_components";
+import { db, auth } from "../../provider/Firebase";
 
 import SmallAppBar from "../../components/SmallAppBar";
 import SettingsRow from "../../components/SettingsRow";
 import InformationCard from "../../components/InformationCard";
 
 export default function NotificationsSettings({ navigation }) {
+    const user = auth.currentUser;
     const [permissionGranted, setPermissionGranted] = useState(true);
     const [chatMessages, setChatMessages] = useState(true);
     const [events, setEvents] = useState(true);
@@ -25,6 +27,27 @@ export default function NotificationsSettings({ navigation }) {
             });
         }, [])
     );
+
+    useEffect(() => {
+        db.collection("Users").doc(user.uid).get().then((doc) => {
+            const notifications = doc.data()?.settings?.notifications || {};
+            setChatMessages(notifications.chatMessages ?? true);
+            setEvents(notifications.events ?? true);
+            setDiningExchanges(notifications.diningExchanges ?? true);
+            setFriendRequests(notifications.friendRequests ?? true);
+        });
+    }, []);
+
+    // These preferences aren't enforced anywhere yet — this app has no push
+    // notification sending in place (tokens are collected but never used),
+    // so there's nothing to actually gate on them today. They're persisted
+    // so the choice is remembered for whenever that's built.
+    const updatePreference = (field, setter) => (value) => {
+        setter(value);
+        db.collection("Users").doc(user.uid).update({
+            [`settings.notifications.${field}`]: value,
+        });
+    };
 
     return (
         <Layout style={styles.screen}>
@@ -48,7 +71,7 @@ export default function NotificationsSettings({ navigation }) {
                         subtitle="Receive notifications when you receive messages and message requests"
                         accessory="switch"
                         value={permissionGranted && chatMessages}
-                        onValueChange={setChatMessages}
+                        onValueChange={updatePreference("chatMessages", setChatMessages)}
                     />
                     <SettingsRow
                         testID="settings-row-events"
@@ -56,7 +79,7 @@ export default function NotificationsSettings({ navigation }) {
                         subtitle="Receive notifications about event invites and recommendations"
                         accessory="switch"
                         value={permissionGranted && events}
-                        onValueChange={setEvents}
+                        onValueChange={updatePreference("events", setEvents)}
                     />
                     <SettingsRow
                         testID="settings-row-dining-exchanges"
@@ -64,7 +87,7 @@ export default function NotificationsSettings({ navigation }) {
                         subtitle="Get notified about the status of ongoing exchanges and when someone requests to exchange"
                         accessory="switch"
                         value={permissionGranted && diningExchanges}
-                        onValueChange={setDiningExchanges}
+                        onValueChange={updatePreference("diningExchanges", setDiningExchanges)}
                     />
                     <SettingsRow
                         testID="settings-row-friend-requests"
@@ -72,7 +95,7 @@ export default function NotificationsSettings({ navigation }) {
                         subtitle="Receive notifications when others request to connect with you"
                         accessory="switch"
                         value={permissionGranted && friendRequests}
-                        onValueChange={setFriendRequests}
+                        onValueChange={updatePreference("friendRequests", setFriendRequests)}
                     />
                 </View>
             </View>
