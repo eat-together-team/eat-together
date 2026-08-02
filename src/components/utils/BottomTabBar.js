@@ -1,19 +1,19 @@
 //Custom bottom tab bar: the Event pill sits fixed on the left, the
 //remaining tabs are centered as a group in the leftover space.
 
-import React, { useRef } from "react";
-import { Platform, Pressable, View } from "react-native";
+import React from "react";
+import { Platform, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import { useTheme } from "../../rapi_ui_components";
 import { colorTokens } from "../../theme/colorTokens";
 import RippleTouchable from "./RippleTouchable";
-import { useGenieTransition } from "./GenieTransition";
+import EventTabButton from "./EventTabButton";
 
-const EVENT_ROUTE_NAME = "Organize";
 // The bar only ever shows on these three tabs' own root screen — Explore,
 // Inbox, and Account (your own profile) are the actual "home" flow.
-// Organize/Event and every nested screen everywhere (someone else's
+// Organize/Event (a top-level MainStack screen, not a tab — see
+// AppNavigator.js) and every other nested screen everywhere (someone else's
 // FullProfile, all settings screens, chat sub-screens, etc.) are each their
 // own page, not part of that persistent home experience, so they hide it.
 // This is an allowlist rather than a blocklist of nested screen names on
@@ -28,8 +28,6 @@ const HOME_ROOT_SCREEN_BY_TAB = {
 export default function BottomTabBar({ state, descriptors, navigation, insets }) {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
-  const triggerGenie = useGenieTransition();
-  const eventButtonRef = useRef(null);
 
   const focusedTab = state.routes[state.index];
   // getFocusedRouteNameFromRoute returns undefined until the nested
@@ -44,11 +42,20 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
     return null;
   }
 
+  // Organize lives on the outer MainStack (see AppNavigator.js) rather than
+  // as a tab, so pressing back from it pops back to Home instead of hitting
+  // the tab navigator's exit-the-app back behavior, and it gets the same
+  // default push transition as every other MainStack screen. navigate()
+  // still finds it fine from here — React Navigation walks up to the
+  // nearest ancestor navigator that has a matching route name.
+  const handleEventPress = () => {
+    navigation.navigate("Organize");
+  };
+
   const renderTab = (route) => {
     const index = state.routes.indexOf(route);
     const isFocused = state.index === index;
     const { options } = descriptors[route.key];
-    const isEvent = route.name === EVENT_ROUTE_NAME;
     const isAccount = route.name === "Profile";
 
     const onPress = () => {
@@ -62,12 +69,6 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
         return;
       }
 
-      if (isEvent) {
-        eventButtonRef.current?.measureInWindow((x, y, width, height) => {
-          triggerGenie?.({ x, y, width, height });
-        });
-      }
-
       if (!isFocused) {
         navigation.navigate(route.name);
       }
@@ -76,19 +77,6 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
     const onLongPress = () => {
       navigation.emit({ type: "tabLongPress", target: route.key });
     };
-
-    if (isEvent) {
-      return (
-        <Pressable
-          key={route.key}
-          ref={eventButtonRef}
-          onPress={onPress}
-          onLongPress={onLongPress}
-        >
-          {options.tabBarIcon?.({ focused: isFocused })}
-        </Pressable>
-      );
-    }
 
     return (
       <RippleTouchable
@@ -101,9 +89,6 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
       </RippleTouchable>
     );
   };
-
-  const eventRoute = state.routes.find((r) => r.name === EVENT_ROUTE_NAME);
-  const otherRoutes = state.routes.filter((r) => r.name !== EVENT_ROUTE_NAME);
 
   return (
     <View style={{ position: "relative" }}>
@@ -146,7 +131,9 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
           overflow: "hidden",
         }}
       >
-        {eventRoute && renderTab(eventRoute)}
+        <RippleTouchable onPress={handleEventPress} variant="primary">
+          <EventTabButton />
+        </RippleTouchable>
         <View
           style={{
             flex: 1,
@@ -157,7 +144,7 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
             marginLeft: 24,
           }}
         >
-          {otherRoutes.map(renderTab)}
+          {state.routes.map(renderTab)}
         </View>
       </View>
     </View>
