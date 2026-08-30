@@ -342,7 +342,15 @@ const FullCard = ({ route, navigation }) => {
             <View style={styles.photosSection}>
               <View style={styles.photosHeader}>
                 <Header4Text color={titleColor}>Event photos</Header4Text>
-                <TouchableOpacity onPress={() => navigation.navigate("EventGallery", { event })}>
+                <TouchableOpacity
+                  onPress={() =>
+                    // This screen only ever shows public events (see the
+                    // inviteFriends comment above) — event.type is undefined
+                    // on some older docs, which would send EventGallery.js
+                    // looking in "Private Events" instead and find nothing.
+                    navigation.navigate("EventGallery", { event: { ...event, type: "public" } })
+                  }
+                >
                   <SubBodyText color={tokens.textMedium} style={styles.viewAll}>View all</SubBodyText>
                 </TouchableOpacity>
               </View>
