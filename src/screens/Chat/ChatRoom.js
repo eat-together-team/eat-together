@@ -37,7 +37,6 @@ import { Layout, useTheme } from "../../rapi_ui_components";
 import { colorTokens } from "../../theme/colorTokens";
 import { radiusTokens } from "../../theme/radiusTokens";
 
-import RecTutorialMessage from "../../components/RecTutorialMessage";
 import ChatBubble from "../../components/ChatBubble";
 import SystemMessage from "../../components/SystemMessage";
 import ChatMessageSkeleton from "../../components/ChatMessageSkeleton";
@@ -106,9 +105,6 @@ export default function ({ route, navigation }) {
   const [userInfo, setUserInfo] = useState({});
 
   const messageRef = db.collection("Groups").doc(group.groupID);
-
-  // Keep track of tutorial state
-  const [attendingTutorial, setAttendingTutorial] = useState(false);
 
   // The safe-area bottom inset (home indicator clearance) only needs to be
   // reserved when the keyboard is hidden — once the keyboard is up it already
@@ -472,36 +468,6 @@ export default function ({ route, navigation }) {
     }
   };
 
-  // TUTORIAL FUNCTIONS
-
-  // Fetch data from Firestore to see if the user has seen the tutorial before or not
-  useEffect(() => {
-    const fetchData = async () => {
-      const docRef = db.collection('Users').doc(user.uid);
-      const doc = await docRef.get();
-
-      if (doc.exists) {
-        const data = doc.data();
-
-        if (data.settings?.attendingTutorial !== undefined) {
-          setAttendingTutorial(data.settings.attendingTutorial);
-        }
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const chatStep = [
-    {
-      title: 'Meal Chat',
-      content: 'It can be hard to find each other for the first time when the meetup starts. These following topics can help: Which table you’re sitting at, what clothes you’re wearing today, how far away you are from the location, etc.',
-      enableNext: true,
-      goHome: true,
-      bottom: "5%",
-    },
-  ];
-
   const avatarPlaceholder = theme === "dark" ? avatarPlaceholderDark : avatarPlaceholderLight;
   const canSend = message.trim().length > 0 || pendingImages.length > 0;
   const bottomPadding = keyboardVisible
@@ -510,17 +476,6 @@ export default function ({ route, navigation }) {
 
   return (
     <Layout>
-      {attendingTutorial &&
-        <RecTutorialMessage
-          userId={user.uid}
-          title={chatStep[0].title}
-          content={chatStep[0].content}
-          bottom={chatStep[0].bottom}
-          navigation={navigation}
-          goHome={chatStep[0].goHome}
-        />
-      }
-
       <View style={[styles.header, { backgroundColor: tokens.background, borderBottomColor: tokens.containerMedium }]}>
         <TouchableOpacity onPress={() => {
           // Temporary fix with invalid chat preview, to be fixed in the future for better speed.

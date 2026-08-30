@@ -18,6 +18,7 @@ import useDeferredReady from "../../utils/useDeferredReady";
 import { compareDates } from "../../utils/methods";
 import { tryoutId } from "../../utils/constants";
 import { auth, db } from "../../provider/Firebase";
+import { useTutorial, useTutorialTarget } from "../../provider/TutorialProvider";
 
 const restaurantPickerImage = require("../../../assets/restaurantPicker.png");
 const diningDollarExchangeImage = require("../../../assets/diningDollarExchange.png");
@@ -36,6 +37,9 @@ export default function ({ navigation }) {
 
   const ready = useDeferredReady();
   const contentOpacity = useRef(new Animated.Value(0)).current;
+
+  const { startTutorial } = useTutorial();
+  const notificationsTargetRef = useTutorialTarget("notifications");
 
   useEffect(() => {
     if (!loading) {
@@ -75,6 +79,17 @@ export default function ({ navigation }) {
       const userData = doc.data() || {};
       const blockedIDs = userData.blockedIDs || [];
       const friendIDs = userData.friendIDs || [];
+
+      // Show the guided tour the first time a user lands here — either
+      // right after account creation or on their first login since this
+      // feature shipped — and never again automatically after that
+      // (settings.hasSeenTutorial flips true once they finish or skip it;
+      // "Launch tutorial" in Settings re-triggers it directly rather than
+      // through this flag). Folded into this existing user-doc read rather
+      // than a dedicated one, since this effect already fetches it.
+      if (!userData.settings?.hasSeenTutorial) {
+        startTutorial();
+      }
 
       unsubscribeEvents = db.collection("Public Events").onSnapshot((query) => {
         let upcoming = [];
@@ -128,6 +143,7 @@ export default function ({ navigation }) {
         actions={[
           {
             icon: hasNotif ? "notifications" : "notifications-outline",
+            targetRef: notificationsTargetRef,
             onPress: () => {
               if (user.uid === tryoutId) {
                 alert("Please log in to view notifications!");

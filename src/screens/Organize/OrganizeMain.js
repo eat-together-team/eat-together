@@ -7,6 +7,7 @@ import FullProfile from "../Explore/People/FullProfile";
 
 import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
+import EventGallery from "../Home/EventGallery";
 import MeetupArchive from "../Profile/MeetupArchive";
 
 const Stack = createNativeStackNavigator();
@@ -24,6 +25,7 @@ export default function () {
       </Stack.Screen>
 
       <Stack.Screen name="FullCard" component={FullCard} />
+      <Stack.Screen name="EventGallery" component={EventGallery} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
     </Stack.Navigator>

@@ -9,6 +9,7 @@ import { useTheme } from "../../rapi_ui_components";
 import { colorTokens } from "../../theme/colorTokens";
 import RippleTouchable from "./RippleTouchable";
 import EventTabButton from "./EventTabButton";
+import { useTutorial, useTutorialTarget } from "../../provider/TutorialProvider";
 
 // The bar only ever shows on these three tabs' own root screen — Explore,
 // Inbox, and Account (your own profile) are the actual "home" flow.
@@ -28,6 +29,17 @@ const HOME_ROOT_SCREEN_BY_TAB = {
 export default function BottomTabBar({ state, descriptors, navigation, insets }) {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
+
+  // Hooks must run on every render regardless of the early "not at home
+  // root" return below, so the tutorial target refs (and the tab bar's own
+  // registration of them) are grabbed up front.
+  const { activeTargetKey } = useTutorial();
+  const newEventTargetRef = useTutorialTarget("newEvent");
+  const targetRefByRoute = {
+    Explore: useTutorialTarget("Explore"),
+    Notifs: useTutorialTarget("Notifs"),
+    Profile: useTutorialTarget("Profile"),
+  };
 
   const focusedTab = state.routes[state.index];
   // getFocusedRouteNameFromRoute returns undefined until the nested
@@ -54,7 +66,11 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
 
   const renderTab = (route) => {
     const index = state.routes.indexOf(route);
-    const isFocused = state.index === index;
+    // Force the "focused" (colored) icon style while this tab is the
+    // tutorial's current target, even if it isn't the actually-focused tab
+    // (e.g. highlighting Inbox/Account while still on Explore) — mirrors
+    // what the highlighted tab looks like once you actually switch to it.
+    const isFocused = state.index === index || activeTargetKey === route.name;
     const { options } = descriptors[route.key];
     const isAccount = route.name === "Profile";
 
@@ -69,7 +85,7 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
         return;
       }
 
-      if (!isFocused) {
+      if (state.index !== index) {
         navigation.navigate(route.name);
       }
     };
@@ -81,6 +97,7 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
     return (
       <RippleTouchable
         key={route.key}
+        ref={targetRefByRoute[route.name]}
         onPress={onPress}
         onLongPress={onLongPress}
         variant={isAccount ? "neutral" : "primary"}
@@ -131,7 +148,7 @@ export default function BottomTabBar({ state, descriptors, navigation, insets })
           overflow: "hidden",
         }}
       >
-        <RippleTouchable onPress={handleEventPress} variant="primary">
+        <RippleTouchable ref={newEventTargetRef} onPress={handleEventPress} variant="primary">
           <EventTabButton />
         </RippleTouchable>
         <View

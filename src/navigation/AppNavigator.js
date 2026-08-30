@@ -14,6 +14,8 @@ import AnimatedTabScreen from "../components/utils/AnimatedTabScreen";
 import ProfilePic from "../components/ProfilePic";
 import { useTheme } from "../provider/ThemeProvider";
 import { colorTokens } from "../theme/colorTokens";
+import { TutorialProvider } from "../provider/TutorialProvider";
+import TutorialOverlay from "../components/Tutorial/TutorialOverlay";
 
 // Screens (Make sure to import if ever adding new screen!)
 import OrganizeMain from "../screens/Organize/OrganizeMain";
@@ -64,13 +66,16 @@ function OrganizeScreen(props) {
 const MainStack = createNativeStackNavigator();
 const Main = () => {
   return (
-    <MainStack.Navigator
-      screenOptions={useScreenOptions()}
-    >
-      <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
-      <MainStack.Screen name="Notifications" component={NotificationsMain} />
-      <MainStack.Screen name="Organize" component={OrganizeScreen} />
-    </MainStack.Navigator>
+    <TutorialProvider>
+      <MainStack.Navigator
+        screenOptions={useScreenOptions()}
+      >
+        <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
+        <MainStack.Screen name="Notifications" component={NotificationsMain} />
+        <MainStack.Screen name="Organize" component={OrganizeScreen} />
+      </MainStack.Navigator>
+      <TutorialOverlay />
+    </TutorialProvider>
   );
 };
 

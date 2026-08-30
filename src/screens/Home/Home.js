@@ -13,8 +13,6 @@ import HorizontalRow from "../../components/HorizontalRow";
 import Filter from "../../components/Filter";
 import EmptyState from "../../components/EmptyState";
 import LoadingView from "../../components/LoadingView";
-import TutorialMessage from "../../components/TutorialMessage";
-import RecTutorialMessage from "../../components/RecTutorialMessage";
 import Link from "../../components/Link";
 import Button from "../../components/Button"
 
@@ -33,8 +31,6 @@ export default function ({ navigation }) {
   const user = auth.currentUser;
 
   const [userInfo, setUserInfo] = useState(null);
-  const [step, setStep] = useState(0); // Used to display tutorial message
-  const [recStep, setRecStep] = useState(0);  // Used to display rec tutorial message
 
   const [events, setEvents] = useState([]); // All personal events
   const [filteredEvents, setFilteredEvents] = useState([]); // Filtered events
@@ -57,12 +53,6 @@ export default function ({ navigation }) {
   const [loading, setLoading] = useState(true); // State variable to show loading screen when fetching data
 
   const updateProfileImg = useContext(AuthContext).updateProfileImg; // Used to update profile image in navbar on load
-
-  const [tabsTutorial, setTabsTutorial] = useState(true);  // State to see if we should show the tabs tutorial
-  const [attendingTutorial, setAttendingTutorial] = useState(true);  // State to see if we should show the attending an event tutorial
-
-  const [isDataFetched, setIsDataFetched] = useState(false);  // State to track whether data has been fetched
-  const [showTutorial, setShowTutorial] = useState(true);
 
   // Display a bottom drawer showing more filters
   const showTypeRef = useRef();
@@ -459,298 +449,13 @@ export default function ({ navigation }) {
     }
   };
 
-  const incrementStep = () => {
-    setStep(prevStep => prevStep + 1);
-  }
-
-  const decrementStep = () => {
-    setStep(prevStep => prevStep - 1);
-  }
-
-
-  // Add tutorial step
-  // If a certain step -> call onPress fucntion
-  // In TutorialMessage.js, if on a certain step (flagged) -> make it a touchable opacity
-
-  const tutorialSteps = [
-    {
-      title: 'Welcome to Eat Together!',
-      type: "intro",
-      content: 'We’re so happy you decided to join us and begin discovering new food and friends!',
-      subContent: 'Would you like to begin with an optional walkthrough of the app?',
-      disableBack: true,
-      bottom: "30%",
-      noModal: true,
-    },
-    {
-      title: 'Home',
-      content: 'Here, you’ll find upcoming & recommended meetups, and the ability to search by location, host, and attendees',
-      disableBack: true,
-      angle: -143,  // Angle of the arrow
-      length: 24.5,  // Length of the arrow
-      bottom: "10%",
-      cutout: { x: 12, y: 766, width: 54, height: 46, padding: 4, borderRadius: 5 },
-    },
-    {
-      title: 'Explore',
-      content: 'This tab displays all meetups with extended filtering options to find events that fit your schedule & preferences. You can also find people and add new connections here!',
-      angle: -160,
-      length: 21,
-      bottom: "10%",
-      cutout: { x: 89, y: 766, width: 54, height: 46, padding: 4, borderRadius: 5 },
-    },
-    {
-      title: 'Organize',
-      content: 'Use this tab to create new meetups and invite others! Here, you have full control over where, when and the type of meetup that you want to create.',
-      angle: -180,
-      length: 20,
-      bottom: "10%",
-      cutout: { x: 167, y: 766, width: 54, height: 46, padding: 4, borderRadius: 5 },
-    },
-    {
-      title: 'Inbox',
-      content: 'This is where all of your updates will live - notifications, new messages from your friends, and friend requests.',
-      angle: -200,
-      length: 21,
-      bottom: "10%",
-      cutout: { x: 246, y: 766, width: 54, height: 46, padding: 4, borderRadius: 5 },
-    },
-    {
-      title: 'Account',
-      content: 'Here, you can customize your profile, edit your bio & tags, see your connections, and access the app settings.',
-      angle: 0,
-      length: 0,
-      bottom: "10%",
-      cutout: { x: 319, y: 766, width: 54, height: 46, padding: 4, borderRadius: 5 },
-    },
-    {
-      title: 'Event Filtering',
-      content: 'The chips below the search bar allow you to quickly filter events to better find ones that suit your preferences and schedule Click on the chip above to continue',
-      angle: 0,
-      length: 0,
-      bottom: "40%",
-      noModal: true,
-      cutout: {
-        x: 22, y: 163, width: 106, height: 46, padding: 4, borderRadius: 5,
-        onPress: () => {
-          incrementStep();
-          setShowTutorial(false);
-          setTimeout(() => {
-            showTypeRef.current.open();
-          }, 100);
-          setTimeout(() => {
-            setShowTutorial(true);
-          }, 200);
-        },
-      },
-    },
-    {
-      title: 'Filter options',
-      content: 'Here you can find options that let you filter the recommended meetups! Click on a filter type to continue',
-      angle: 0,
-      length: 0,
-      bottom: "33%",
-      noModal: true,
-      // cutout: { x: 8, y: 580, width: 375, height: 101, padding: 4, borderRadius: 5 },
-    },
-    {
-      title: 'Event details',
-      content: 'Click on the event recommendation above to learn more details about the food and how to attend',
-      angle: 0,
-      length: 0,
-      bottom: "15%",
-      cutout: {
-        x: 20, y: 254, width: 353, height: 224, padding: 4, borderRadius: 5,
-        onPress: () => {
-          if (recommendations.length > 0) {
-            incrementStep();
-            navigation.navigate("Recommendation", {
-              event: recommendations[0],
-              userData: userInfo,
-              tutorialStep: 9,
-            });
-          }
-        },
-      },
-    },
-    {
-      title: 'Attend',
-      content: 'When viewing event details, you can use this button to sign up as an attendee! Don’t worry if it’s by mistake - you can always withdraw if you need to',
-      angle: 0,
-      length: 0,
-      bottom: "27.5%",
-      cutout: { x: 110, y: 693, width: 172, height: 77, padding: 4, borderRadius: 5 },
-    },
-    {
-      title: 'Groupchat',
-      content: 'This button allows you to chat with others who are attending the event - use this to get to know each other and break the ice!',
-      angle: 0,
-      length: 0,
-      bottom: "40%",
-      cutout: { x: 274, y: 575, width: 74, height: 74, padding: 4, borderRadius: 5 },
-    },
-    {
-      title: 'Tutorial complete',
-      type: "outro",
-      content: 'If you need, you can always start the tutorial again in settings',
-      disableNext: true,
-      disableBack: true,
-      angle: -217,
-      length: 24.5,
-      bottom: "40%",
-    },
-  ];
-
-  // recommended tutorial steps
-  const recTutorialSteps = [
-    {
-      title: 'Getting Started',
-      content: 'Click on the selection above to discover a curated meetup just for you! You\'ll get a new one every Sunday!',
-      bottom: "2%",
-    },
-    {
-      title: 'Homepage',
-      content: 'Now click on the meetup you just signed for below in "Your Meals" to see more details!',
-      bottom: "72%",
-    },
-    {
-      title: 'Have Fun Eating Together!',
-      content: "This is just the tip of the iceberg. Enjoy everything this app has to offer!",
-      bottom: "2%",
-      completed: true,
-    }
-  ];
-
-
-  // Callback function to update user info
-  const setuserInfoCallBack = () => {
-    // Create a new object rather than mutating the existing one to ensure React updates the component
-    const updatedUserInfo = { ...userInfo, tutorial: false };
-    setUserInfo(updatedUserInfo);
-
-    // Set tabsTutorial to false and attendingTutorial to true to initiate RecTutorialMessage
-    setTabsTutorial(false);
-    setAttendingTutorial(true);
-
-    // Update the database with new values for tabsTutorial and attendingTutorial
-    db.collection('Users').doc(user.uid).set({
-      settings: {
-        tabsTutorial: false,
-        attendingTutorial: true,
-      },
-    }, { merge: true });
-  };
-
-
-  // Fetch data from Firestore to see if the user has seen the tutorial before or not
-  useEffect(() => {
-    const fetchData = async () => {
-      const docRef = db.collection('Users').doc(user.uid);
-      const doc = await docRef.get();
-
-      if (doc.exists) {
-        const data = doc.data();
-
-        if (data.settings?.tabsTutorial !== undefined) {
-          setTabsTutorial(data.settings.tabsTutorial);
-        }
-
-        if (data.settings?.attendingTutorial !== undefined) {
-          setAttendingTutorial(data.settings.attendingTutorial);
-        }
-
-      } else {
-        console.log('No such document!');
-      }
-      setIsDataFetched(true); // Set the fetched state to true after fetching is complete
-    };
-
-    fetchData();
-  }, []);
-
-
-  // Listen for changes in the attendingEvent value in Firestore and update the recStep accordingly
-  useEffect(() => {
-    // Fetch the attendingEvent value from Firebase here
-    const docRef = db.collection('Users').doc(user.uid);
-
-    // Listen for real-time updates
-    const unsubscribe = docRef.onSnapshot((doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        const attendingEvent = data?.settings?.attendingEvent; // Correct path to attendingEvent
-        const completedTutorial = data?.settings?.completedTutorial; // Correct path to attendingTutorial
-
-        // Change the recStep based on attendingEvent value
-        if (attendingEvent) {
-          setRecStep((prevRecStep) => {
-            const newRecStep = Math.min(prevRecStep + 1, recTutorialSteps.length - 1);
-            return newRecStep;
-          });
-        } else if (completedTutorial) {
-          // Set the recStep to the last step if the user has completed the tutorial
-          setRecStep(recTutorialSteps.length - 1);
-        } else {
-          //  Reset to the first step
-          setRecStep(0);
-        }
-      }
-    });
-
-    // Clean up the listener when the component unmounts
-    return () => unsubscribe();
-
-  }, []);
-
-  if (!isDataFetched) return null; // Don't render anything if data hasn't been fetched
-
   return (
     <Layout>
-      {userInfo && /*!userInfo.tutorial && */ tabsTutorial && showTutorial && // NOTE: set "userInfo.tutorial" to "!userInfo.tutorial" to see the tutorial
-        <>
-          <TutorialMessage
-            userId={user.uid}
-            type={tutorialSteps[step].type}
-            bottom={tutorialSteps[step].bottom}
-            modalHeight={tutorialSteps[step].modalHeight}
-            title={tutorialSteps[step].title}
-            content={tutorialSteps[step].content}
-            subContent={tutorialSteps[step].subContent}
-            nextText={tutorialSteps[step].nextText}
-            angle={tutorialSteps[step].angle}
-            length={tutorialSteps[step].length}
-            next={!tutorialSteps[step].disableNext ? incrementStep : null}
-            back={!tutorialSteps[step].disableBack ? decrementStep : null}
-            disableNext={tutorialSteps[step].disableNext}
-            disableBack={tutorialSteps[step].disableBack}
-            callback={setuserInfoCallBack}
-            progress={ ((step + 1) / tutorialSteps.length) * 100 }
-            cutout={tutorialSteps[step].cutout}
-            noModal={tutorialSteps[step].noModal}
-          />
-        </>
-      }
-
-      {userInfo && !tabsTutorial && attendingTutorial &&
-        <>
-          <RecTutorialMessage
-            userId={user.uid}
-            title={recTutorialSteps[recStep].title}
-            content={recTutorialSteps[recStep].content}
-            bottom={recTutorialSteps[recStep].bottom}
-            nextText={recTutorialSteps[recStep].nextText}
-            completedTutorial={recTutorialSteps[recStep].completed}
-            callback={setuserInfoCallBack}
-          />
-        </>
-      }
-
       <Header name="Your Meals" navigation={navigation} hasNotif={unread} notifs/>
 
       <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
         <Searchbar
           placeholder="Search by name, tags, or host name"
-          // placeholder={step}
           value={searchQuery}
           onChangeText={onChangeText}
         />

@@ -19,7 +19,6 @@ import PeopleList from "../../components/PeopleList";
 import Icebreaker from "../../components/Icebreaker";
 import TagsList from "../../components/TagsList";
 import CircularButton from "../../components/CircularButton";
-import RecTutorialMessage from "../../components/RecTutorialMessage";  // Tutorial message for recommendations
 
 import LargeText from "../../components/LargeText";
 import MediumText from "../../components/MediumText";
@@ -60,12 +59,6 @@ const WhileYouEat = ({ route, navigation }) => {
   // Get the current user
   const user = auth.currentUser;
   const [groupChat, setGroupChat] = useState(null); // Info for the group chat
-
-  // Get the tutorial state
-  const [attendingTutorial, setAttendingTutorial] = useState(true);  // State to see if we should show the attending an event tutorial
-  const [isDataFetched, setIsDataFetched] = useState(false);  // State to track whether data has been fetched
-
-  const [recSteps, setRecSteps] =  useState(0); // Tutorial steps for meetup
 
   // Image Carousel
   const [imageGallery, setImageGallery] = useState([{imageUrl:"../../../assets/foodBackground.png", imagePermissions:'filler'}]);
@@ -181,16 +174,6 @@ const WhileYouEat = ({ route, navigation }) => {
       navigation.navigate("ChatRoom", {
         group: groupChat
       });
-
-      try {
-        await db.collection("Users").doc(user.uid).update({
-          'settings.completedTutorial': true,
-        });
-      } catch (error) {
-        console.error("Error updating document: ", error);
-        // Handle the error appropriately
-      }
-
     } else {
       alert("This feature is still in development and will be applied to your future events!")
     }
@@ -407,83 +390,8 @@ const WhileYouEat = ({ route, navigation }) => {
     return friend;
   };
 
-  // TUTORIAL FUNCTIONS
-
-  // Fetch data from Firestore to see if the user has seen the tutorial before or not
-  useEffect(() => {
-    const fetchData = async () => {
-      const docRef = db.collection('Users').doc(user.uid);
-      const doc = await docRef.get();
-
-      if (doc.exists) {
-        const data = doc.data();
-
-        if (data.settings?.attendingTutorial !== undefined) {
-          setAttendingTutorial(data.settings.attendingTutorial);
-        }
-
-      } else {
-        console.log('No such document!');
-      }
-      setIsDataFetched(true); // Set the fetched state to true after fetching is complete
-    };
-
-    fetchData();
-  }, []);
-
-  const incrementStep = () => {
-    setRecSteps((prevStep) => prevStep + 1);
-  }
-
-  const decrementStep = () => {
-    setRecSteps((prevStep) => prevStep - 1);
-  }
-
-
-  // Tutorial message for meetup details
-  const recTutSteps = [
-    {
-      title: 'Details',
-      content: 'Here you can view the meetup details, an attendance checklist, along with some ice-breaker questions to bond over!',
-      enableNext: true,
-      bottom: "2%",
-    },
-    {
-      title: 'Make Changes',
-      content: 'Find some extra features in the \"...\" to edit your meetup details, withdraw from the meetup, and more.',
-      enableBack: true,
-      enableNext: true,
-      bottom: "2%",
-    },
-    {
-      title: 'Meal Chat',
-      content: "You can also chat with your fellow attendees in the meal chat! Tap the chat icon in the bottom right to get started.",
-      enableBack: true,
-      bottom: "20%",
-      backdrop: true,
-      arrow: true,
-    }
-  ];
-
   return (
     <Layout>
-
-    {attendingTutorial && !route.params?.tutorialStep &&
-        <>
-          <RecTutorialMessage
-            userId={user.uid}
-            title={recTutSteps[recSteps].title}
-            content={recTutSteps[recSteps].content}
-            nextText={recTutSteps[recSteps].nextText}
-            enableNext={recTutSteps[recSteps].enableNext}
-            enableBack={recTutSteps[recSteps].enableBack}
-            onNext={incrementStep}
-            onBack={decrementStep}
-            bottom={recTutSteps[recSteps].bottom}
-          />
-        </>
-      }
-
       <TopNav
         middleContent={<MediumText center>Your Meal</MediumText>}
         leftContent={

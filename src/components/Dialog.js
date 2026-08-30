@@ -13,7 +13,7 @@ const Dialog = ({
   children,
   icon,
   primaryButtonText = 'Button',
-  secondaryButtonText = 'Cancel',
+  secondaryButtonText,
   onPrimaryPress,
   onSecondaryPress,
 }) => {
@@ -56,13 +56,15 @@ const Dialog = ({
         >
           {primaryButtonText}
         </LargeButton>
-        <LargeButton
-          outlined
-          color={colors.outline}
-          onPress={onSecondaryPress}
-        >
-          {secondaryButtonText}
-        </LargeButton>
+        {secondaryButtonText && (
+          <LargeButton
+            outlined
+            color={colors.outline}
+            onPress={onSecondaryPress}
+          >
+            {secondaryButtonText}
+          </LargeButton>
+        )}
       </View>
     </View>
   );

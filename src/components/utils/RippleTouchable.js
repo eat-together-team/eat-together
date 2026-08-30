@@ -20,13 +20,13 @@ const grainLight = require("../../../assets/icons/ripple-grain-light.png");
 const RIPPLE_DIAMETER = 120;
 const RIPPLE_PEAK_OPACITY = 0.3;
 
-export default function RippleTouchable({
+export default React.forwardRef(function RippleTouchable({
   onPress,
   onLongPress,
   style,
   variant = "primary",
   children,
-}) {
+}, ref) {
   const { theme } = useTheme();
   const [layout, setLayout] = useState({ width: 0, height: 0 });
   const scale = useRef(new Animated.Value(0)).current;
@@ -58,6 +58,7 @@ export default function RippleTouchable({
 
   return (
     <Pressable
+      ref={ref}
       onPress={onPress}
       onLongPress={onLongPress}
       onPressIn={handlePressIn}
@@ -87,4 +88,4 @@ export default function RippleTouchable({
       </Animated.View>
     </Pressable>
   );
-}
+});

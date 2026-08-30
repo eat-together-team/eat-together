@@ -18,8 +18,8 @@ const LargeAppBar = ({ title = 'Title', actions = [] }) => {
       </Header1Text>
       {actions.length > 0 && (
         <View style={styles.actions}>
-          {actions.map(({ icon, onPress }, index) => (
-            <TouchableOpacity key={index} onPress={onPress}>
+          {actions.map(({ icon, onPress, targetRef }, index) => (
+            <TouchableOpacity key={index} ref={targetRef} onPress={onPress}>
               <Ionicons name={icon} size={25} color={colors.onBackground} />
             </TouchableOpacity>
           ))}
