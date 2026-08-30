@@ -18,6 +18,7 @@ import FullProfile from "../Explore/People/FullProfile";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ColorSelector from "./ColorSelector";
 import EventGallery from "../Home/EventGallery";
+import EventPhotoViewer from "../Home/EventPhotoViewer";
 import Gallery from "../Home/Gallery";
 import MeetupArchive from "./MeetupArchive";
 import StarredRestaurants from "./StarredRestaurants";
@@ -57,6 +58,7 @@ export default function () {
       {/* Photo Gallery */}
       <Stack.Screen name="Gallery" component={Gallery} />
       <Stack.Screen name="EventGallery" component={EventGallery} />
+      <Stack.Screen name="EventPhotoViewer" component={EventPhotoViewer} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="StarredRestaurants" component={StarredRestaurants} />
     </Stack.Navigator>

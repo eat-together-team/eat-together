@@ -10,6 +10,7 @@ import FullProfile from "../Explore/People/FullProfile";
 
 import Gallery from "./Gallery";
 import EventGallery from "./EventGallery";
+import EventPhotoViewer from "./EventPhotoViewer";
 import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import MeetupArchive from "../Profile/MeetupArchive";
@@ -48,6 +49,7 @@ export default function () {
 
       <Stack.Screen name="Gallery" component={Gallery} />
       <Stack.Screen name="EventGallery" component={EventGallery} />
+      <Stack.Screen name="EventPhotoViewer" component={EventPhotoViewer} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       {/* WYR Game Screens */}
       <Stack.Screen name="StartGame" component={StartGame}/>

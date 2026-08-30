@@ -13,14 +13,13 @@ export const CARD_SIZE = (screenWidth - GRID_PADDING * 2 - GRID_GAP) / 2;
 
 // Grid card for the Event photos gallery page. `onDelete` is only passed for
 // photos the current user uploaded (the design's own-photo trash
-// affordance) — tapping a card to view the photo full-size isn't wired up
-// yet.
-const EventPhotoCard = ({ photo, onDelete }) => {
+// affordance). `onPress` opens the photo full-size in EventPhotoViewer.
+const EventPhotoCard = ({ photo, onPress, onDelete }) => {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
       <Image source={{ uri: photo.imageUrl }} contentFit="cover" style={styles.image} />
       {onDelete && (
         <TouchableOpacity
@@ -31,7 +30,7 @@ const EventPhotoCard = ({ photo, onDelete }) => {
           <Ionicons name="trash-outline" size={16} color={tokens.onBackground} />
         </TouchableOpacity>
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 

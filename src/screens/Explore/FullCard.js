@@ -374,8 +374,15 @@ const FullCard = ({ route, navigation }) => {
                       <Header4Text color={tokens.outline}>Add photo</Header4Text>
                     </TouchableOpacity>
                   )}
-                  {imageGallery.map((photo) => (
-                    <Image key={photo.imageId} source={{ uri: photo.imageUrl }} style={styles.photoThumb} />
+                  {imageGallery.map((photo, photoIndex) => (
+                    <TouchableOpacity
+                      key={photo.imageId}
+                      onPress={() =>
+                        navigation.navigate("EventPhotoViewer", { photos: imageGallery, initialIndex: photoIndex })
+                      }
+                    >
+                      <Image source={{ uri: photo.imageUrl }} style={styles.photoThumb} />
+                    </TouchableOpacity>
                   ))}
                 </ScrollView>
               )}

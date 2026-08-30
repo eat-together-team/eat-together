@@ -10,6 +10,7 @@ import FullProfile from "./People/FullProfile";
 import ReportPerson from "../Explore/People/ReportPerson";
 import ReportEvent from "../Home/ReportEvent";
 import EventGallery from "../Home/EventGallery";
+import EventPhotoViewer from "../Home/EventPhotoViewer";
 import InvitePeople from "../Organize/InvitePeople";
 import MeetupArchive from "../Profile/MeetupArchive";
 import RestaurantMain from "../RestaurantPicker/RestaurantMain";
@@ -35,6 +36,7 @@ export default function () {
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
       <Stack.Screen name="ReportEvent" component={ReportEvent}/>
       <Stack.Screen name="EventGallery" component={EventGallery} />
+      <Stack.Screen name="EventPhotoViewer" component={EventPhotoViewer} />
       <Stack.Screen name="InvitePeople" component={InvitePeople} />
       <Stack.Screen name="Restaurant" component={RestaurantMain} />
     </Stack.Navigator>

@@ -88,10 +88,13 @@ export default function EventGallery({ route, navigation }) {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.grid}>
-          {imageGallery.map((photo) => (
+          {imageGallery.map((photo, photoIndex) => (
             <EventPhotoCard
               key={photo.imageId}
               photo={photo}
+              onPress={() =>
+                navigation.navigate("EventPhotoViewer", { photos: imageGallery, initialIndex: photoIndex })
+              }
               onDelete={photo.userUploaded === user.uid ? () => handleDeletePhoto(photo) : undefined}
             />
           ))}

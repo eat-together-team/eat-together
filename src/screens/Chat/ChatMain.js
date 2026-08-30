@@ -21,6 +21,7 @@ import ReportPerson from "../Explore/People/ReportPerson";
 import MeetupArchive from "../Profile/MeetupArchive";
 import ReportEvent from "../Home/ReportEvent";
 import EventGallery from "../Home/EventGallery";
+import EventPhotoViewer from "../Home/EventPhotoViewer";
 import InvitePeople from "../Organize/InvitePeople";
 import GroupChat from "./GroupChat";
 
@@ -52,6 +53,7 @@ export default function () {
       </Stack.Screen>
       <Stack.Screen name="FullCard" component={FullCard}/>
       <Stack.Screen name="EventGallery" component={EventGallery} />
+      <Stack.Screen name="EventPhotoViewer" component={EventPhotoViewer} />
       <Stack.Screen name="InvitePeople" component={InvitePeople} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="GroupChat" component={GroupChat}/>
