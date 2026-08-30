@@ -1,431 +1,361 @@
-//Display upcoming events to join
+// Invite friends to an event — reused for two flows that both end in the
+// same "send invites" action: 1) finishing creating a brand-new event
+// (Organize.js's last step, invite.from is unset) which creates the event
+// once invites go out, and 2) inviting more people into an event that
+// already exists (WhileYouEat.js and the event view's "..." menu both pass
+// invite.from === "WhileYouEat"), which only sends invite docs.
+//
+// UI mirrors NewChat.js: connections load first, the full user base is only
+// fetched lazily once someone searches, and picks show as animated chips
+// above the search bar.
 
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList, ActivityIndicator,Platform} from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { View, StyleSheet, FlatList, ScrollView, Animated, LayoutAnimation } from "react-native";
+import { Layout, useTheme } from "../../rapi_ui_components";
+import { colorTokens } from "../../theme/colorTokens";
+import { Ionicons } from "@expo/vector-icons";
+
+import SmallAppBar from "../../components/SmallAppBar";
+import Searchbar from "../../components/Searchbar";
+import UserListItem from "../../components/UserListItem";
+import UserListItemSkeleton from "../../components/UserListItemSkeleton";
+import SelectedUserChip, { EXIT_DURATION } from "../../components/SelectedUserChip";
+import Header3Text from "../../components/typography/Header3Text";
 
 import { db, auth, storage } from "../../provider/Firebase";
-import { TopNav, Layout } from "../../rapi_ui_components";
-import { Ionicons } from "@expo/vector-icons";
 import firebase from "firebase/compat";
-
-import Button from "../../components/Button";
-import MediumText from "../../components/MediumText";
-import InvitePerson from "../../components/InvitePerson";
-import Searchbar from "../../components/Searchbar";
-import HorizontalRow from "../../components/HorizontalRow";
-import Filter from "../../components/Filter";
-
-import { sortBySimilarInterests, randomize3 } from "../../utils/methods";
 import { createNewChat } from "../Chat/Chats";
 import { tryoutId } from "../../utils/constants";
 
-// Stores image in Firebase Storage
-const storeImage = async (uri, event_id) => {
-  const response = await fetch(uri);
-  const blob = await response.blob();
+const CHIP_ROW_HEIGHT = 94;
 
-  let ref = storage.ref().child("eventPictures/" + event_id);
-  return ref.put(blob);
-};
+const storeImage = (uri, eventId) =>
+  fetch(uri)
+    .then((response) => response.blob())
+    .then((blob) => storage.ref().child("eventPictures/" + eventId).put(blob));
 
-// Fetches image from Firebase Storage
-const fetchImage = async (id) => {
-  let ref = storage.ref().child("eventPictures/" + id);
-  return ref.getDownloadURL();
-};
+const fetchImage = (eventId) => storage.ref().child("eventPictures/" + eventId).getDownloadURL();
 
-// Send invites to the selected user
-async function sendInvitation(ref, invite, user, id) {
-  await ref
-    .collection("Invites")
-    .add({
-      type: invite.type,
-      startDate: invite.startDate,
-      endDate: invite.endDate,
-      description: invite.additionalInfo,
-      hostID: user.id,
-      hostFirstName: user.firstName,
-      hostLastName: user.lastName,
-      hasImage: invite.hasImage,
-      image: invite.image,
-      hasHostImage: user.hasImage,
-      hostImage: user.image,
-      location: invite.location,
-      name: invite.name,
-      inviteID: id,
-    });
+// One invite doc for one person — same shape/destination as the original
+// screen's write, whichever flow triggered it.
+async function sendInvitation(person, invite, host) {
+  // Firestore rejects `undefined` field values outright, and some older
+  // event/user docs are missing optional fields (e.g. no stored `type`,
+  // no additionalInfo) — default each one so a legacy doc can't crash this
+  // write.
+  await db.collection("User Invites").doc(person.id).collection("Invites").add({
+    type: invite.type ?? null,
+    startDate: invite.startDate ?? null,
+    endDate: invite.endDate ?? null,
+    description: invite.additionalInfo ?? "",
+    hostID: host.id ?? null,
+    hostFirstName: host.firstName ?? "",
+    hostLastName: host.lastName ?? "",
+    hasImage: invite.hasImage ?? false,
+    image: invite.image ?? "",
+    hasHostImage: host.hasImage ?? false,
+    hostImage: host.image ?? "",
+    location: invite.location ?? "",
+    name: invite.name ?? "",
+    inviteID: invite.id ?? null,
+  });
 }
 
-async function sendInvites(
-  attendees,
-  invite,
-  navigation,
-  user,
-  id,
-  image,
-  icebreakers,
-  clearAll
-) {
-  // Create the event in the database
+// Creates the event, invites the selected people, and starts the event's
+// group chat — the "finishing event creation" path.
+async function createEventAndInvite(selected, invite, navigation, host, id, image) {
+  const table = invite.type === "public" ? "Public Events" : "Private Events";
   const chatID = String(invite.startDate) + invite.name;
-  let table = "Private Events";
-  if (invite.type === "public") {
-    table = "Public Events";
-  }
 
-  await db
-    .collection(table)
-    .doc(id)
-    .set({
-      id,
-      name: invite.name,
-      hostID: user.id,
-      hostFirstName: user.firstName,
-      hostLastName: user.lastName,
-      hasHostImage: user.hasImage,
-      hostImage: user.image,
-      location: invite.location,
-      startDate: invite.startDate,
-      endDate: invite.endDate,
-      additionalInfo: invite.additionalInfo,
-      ice: icebreakers,
-      attendees: [user.id], // ONLY start by putting the current user as an attendee
-      hasImage: invite.hasImage,
-      image,
-      chatID: chatID,
-      type: invite.type // public or private
-    })
-    .then(async (docRef) => {
-      await Promise.all(attendees.map(async(attendee) => {
-        const ref = db.collection("User Invites").doc(attendee.id);
-        return ref.get().then(async (docRef) => {
-          if (attendee.id !== user.id) {
-            await sendInvitation(ref, invite, user, id);
-          }
-        });
-      }));
+  await db.collection(table).doc(id).set({
+    id,
+    name: invite.name ?? "",
+    hostID: host.id ?? null,
+    hostFirstName: host.firstName ?? "",
+    hostLastName: host.lastName ?? "",
+    hasHostImage: host.hasImage ?? false,
+    hostImage: host.image ?? "",
+    location: invite.location ?? "",
+    startDate: invite.startDate ?? null,
+    endDate: invite.endDate ?? null,
+    additionalInfo: invite.additionalInfo ?? "",
+    ice: invite.icebreakers ?? [],
+    attendees: [host.id], // Only the host starts out attending
+    hasImage: invite.hasImage ?? false,
+    image: image ?? "",
+    chatID,
+    type: invite.type ?? "private",
+  });
 
-      const storeID = {
-        type: invite.type, // public or private
-        id,
-      };
+  await Promise.all(selected.map((person) => sendInvitation(person, invite, host)));
 
-      await db
-        .collection("Users")
-        .doc(user.id)
-        .update({
-          hostedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
-          attendingEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
-          attendedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
-        });
+  const storeID = { type: invite.type, id };
+  await db.collection("Users").doc(host.id).update({
+    hostedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
+    attendingEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
+    attendedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
+  });
 
-      // Create the in-event group chat
-      let userIDs = attendees.map(attendee => attendee.id);
-      userIDs.push(user.id);
-      createNewChat(userIDs, chatID, invite.name, false);
-      
-      navigation.goBack();
-      if (clearAll) {
-        clearAll();
+  const uids = [...selected.map((person) => person.id), host.id];
+  createNewChat(uids, chatID, invite.name, false);
+
+  navigation.goBack();
+  invite.clearAll?.();
+  alert("Invitations sent! Make sure to do attendance when the meal starts!");
+}
+
+export default function InvitePeople({ route, navigation }) {
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
+  const user = auth.currentUser;
+  const invite = route.params;
+  const isExistingEvent = invite.from === "WhileYouEat";
+  const alreadyAttending = invite.attendees || [];
+
+  const [connections, setConnections] = useState([]);
+  const [allUsers, setAllUsers] = useState(null);
+  const [blockedIDs, setBlockedIDs] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [exitingIds, setExitingIds] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const chipRowHeight = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(chipRowHeight, {
+      toValue: selectedUsers.length > 0 ? CHIP_ROW_HEIGHT : 0,
+      duration: 220,
+      useNativeDriver: false,
+    }).start();
+  }, [selectedUsers.length]);
+
+  const toPerson = (data) => ({
+    id: data.id,
+    username: data.username,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    name: data.firstName + " " + data.lastName,
+    image: data.hasImage ? data.image : null,
+    hasImage: data.hasImage,
+    blockedIDs: data.blockedIDs || [],
+  });
+
+  // Connections (from friendIDs), same lazy-full-search pattern as NewChat —
+  // fetching every user up front just to show a handful of connections is
+  // what made that screen slow to open, same fix applies here.
+  useEffect(() => {
+    const unsubscribeUser = db.collection("Users").doc(user.uid).onSnapshot((doc) => {
+      if (!doc.exists) return;
+      const ids = (doc.data().friendIDs || []).filter((id) => !alreadyAttending.includes(id));
+      setBlockedIDs(doc.data().blockedIDs || []);
+
+      if (ids.length === 0) {
+        setConnections([]);
+        setLoading(false);
+        return;
       }
 
-      alert("Invitations sent! Make sure to do attendance when the meal starts!");
+      // Firestore 'in' queries cap at 10 values, so chunk larger friend lists.
+      const chunks = [];
+      for (let i = 0; i < ids.length; i += 10) chunks.push(ids.slice(i, i + 10));
+
+      Promise.all(
+        chunks.map((chunk) =>
+          db.collection("Users").where(firebase.firestore.FieldPath.documentId(), "in", chunk).get()
+        )
+      ).then((snapshots) => {
+        const people = [];
+        snapshots.forEach((snapshot) => snapshot.forEach((doc) => people.push(toPerson(doc.data()))));
+        setConnections(people);
+        setLoading(false);
+      });
     });
-}
 
-// Determines if a person matches the search query or not
-const isMatch = (person, text) => {
-  // Name
-  const fullName = person.firstName + " " + person.lastName;
-  if (fullName.toLowerCase().includes(text.toLowerCase())) {
-    return true;
-  }
-
-  // Username
-  if (person.username.toLowerCase().includes(text.toLowerCase())) {
-    return true;
-  }
-
-  // Tags
-  return person.tags.some((tag) =>
-    tag.tag.toLowerCase().includes(text.toLowerCase())
-  );
-};
-
-////////////////////////
-// COMPONENT STARTS HERE
-////////////////////////
-export default function ({ route, navigation }) {
-  // Current user
-  const user = auth.currentUser;
-  const [userInfo, setUserInfo] = useState([]);
-
-  // Other users
-  const [users, setUsers] = useState([]); // All users
-  const [filteredUsers, setFilteredUsers] = useState([]); // Filtered users
-  const [filteredSearchedUsers, setFilteredSearchedUsers] = useState([]); // Users that are filtered and search-queried
-
-  // Disable button or not
-  const [disabled, setDisabled] = useState(true);
-  const [loading, setLoading] = useState(false);
-
-  // Filters
-  const [curSearch, setCurSearch] = useState("");
-  const [friendsOnly, setFriendsOnly] = useState(false);
-  const [similarInterests, setSimilarInterests] = useState(false);
-  const [mutualFriends, setMutualFriends] = useState(false);
-
-  const [mutuals, setMutuals] = useState([]); // Mutual friends
-  const [loadingScreen, setLoadingScreen] = useState(true); // Loading screen for filter calculations
-
-  // Fetch users
-  useEffect(() => {
-    async function fetchData() {
-      // Fetch users
-      const ref = db.collection("Users");
-
-      // Current user
-      let currUser;
-      await ref.doc(user.uid).get().then((doc) => {
-        currUser = doc.data();
-        setUserInfo(currUser);
-
-        currUser.friendIDs.forEach((id) => { // Fetching mutual friends
-          db.collection("Users")
-            .doc(id)
-            .get()
-            .then((doc) => {
-              if (doc) {
-                if (doc.data().friendIDs) {
-                  setMutuals((mutuals) =>
-                    mutuals.concat(doc.data().friendIDs)
-                  );
-                }
-              }
-            });
-        });
-      });
-
-      // Fetch other users
-      await ref.onSnapshot((query) => {
-        const list = [];
-        query.forEach((doc) => {
-          let data = doc.data();
-          if (data.verified && data.id !== user.uid
-              && data.id !== tryoutId
-              && !route.params.attendees.includes(data.id)
-              && !currUser.blockedIDs.includes(data.id)
-              && !data.blockedIDs.includes(user.uid)
-              && (!data.settings.privateAccount || currUser.friendIDs.includes(data.id))) { // Only show verified + unblocked + nonprivate users
-            data.invited = false;
-            data.selectedTags = randomize3(data.tags);
-            list.push(data);
-          }
-        });
-
-        setUsers(list);
-        setFilteredUsers(list);
-        setFilteredSearchedUsers(list);
-      });
-    }
-
-    fetchData().then(() => setLoadingScreen(false));
+    return () => unsubscribeUser();
   }, []);
 
-  // Filters
+  const query = search.trim().toLowerCase();
+
   useEffect(() => {
-    async function filter() {
-      let newUsers = [...users];
-  
-      if (similarInterests) {
-        newUsers = await sortBySimilarInterests(userInfo, newUsers);
-      }
+    if (query === "" || allUsers !== null) return;
 
-      if (friendsOnly) {
-        newUsers = filterByFriendsOnly(newUsers);
-      }
-  
-      if (mutualFriends) {
-        newUsers = filterByMutualFriends(newUsers);
-      }
+    db.collection("Users").get().then((snapshot) => {
+      const people = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.id === user.uid || data.id === tryoutId) return;
+        if (alreadyAttending.includes(data.id)) return;
+        people.push(toPerson(data));
+      });
+      setAllUsers(people);
+    });
+  }, [query, allUsers]);
 
-      setFilteredUsers(newUsers);
-
-      const newSearchedUsers = search(newUsers, curSearch);
-      setFilteredSearchedUsers(newSearchedUsers);
+  const displayList = useMemo(() => {
+    if (query === "") {
+      return [...connections].sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    setLoadingScreen(true);
-    filter().then(() => {
-      setLoadingScreen(false);
-    });
-  }, [similarInterests, friendsOnly, mutualFriends]);
+    const source = allUsers ?? connections;
+    const visible = source.filter(
+      (person) => !blockedIDs.includes(person.id) && !person.blockedIDs.includes(user.uid)
+    );
 
-  // Disabling/undisabling the invite button
-  useEffect(() => {
-    const invitedUsers = users.filter((user) => user.invited);
-    setDisabled(invitedUsers.length === 0);
-  }, [users]);
+    return visible
+      .filter(
+        (person) =>
+          person.name.toLowerCase().includes(query) || person.username.toLowerCase().includes(query)
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [connections, allUsers, blockedIDs, query]);
 
-  // Toggle a user's invite status
-  const toggleInvite = (id) => {
-    const newUsers = [...users];
-    const newFilteredUsers = [...filteredUsers];
-    const newFilteredSearchedUsers = [...filteredSearchedUsers];
-
-    const index = newUsers.findIndex((user) => user.id === id);
-    newUsers[index].invited = !newUsers[index].invited;
-
-    const index2 = newFilteredUsers.findIndex((user) => user.id === id);
-    newFilteredUsers[index2].invited = !newFilteredUsers[index2].invited;
-
-    const index3 = newFilteredSearchedUsers.findIndex((user) => user.id === id);
-    newFilteredSearchedUsers[index3].invited = !newFilteredSearchedUsers[index3].invited;
-
-    setUsers(newUsers);
-    setFilteredUsers(newFilteredUsers);
-    setFilteredSearchedUsers(newFilteredSearchedUsers);
-  }
-
-  // For searching
-  const onChangeText = (text) => {
-    setCurSearch(text);
-    const newUsers = search(filteredUsers, text);
-    setFilteredSearchedUsers(newUsers);
+  const handleSearchChange = (text) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setSearch(text);
   };
 
-  const search = (newUsers, text) => {
-    return newUsers.filter((e) => isMatch(e, text));
+  const toggleSelect = (person) => {
+    const alreadySelected = selectedUsers.some((p) => p.id === person.id);
+    if (!alreadySelected) {
+      setSelectedUsers((prev) => [...prev, person]);
+      return;
+    }
+
+    if (exitingIds.includes(person.id)) return;
+    setExitingIds((prev) => [...prev, person.id]);
+    setTimeout(() => {
+      setSelectedUsers((prev) => prev.filter((p) => p.id !== person.id));
+      setExitingIds((prev) => prev.filter((id) => id !== person.id));
+    }, EXIT_DURATION);
   };
 
-  // Display friends only
-  const filterByFriendsOnly = (newUsers) => {
-    return newUsers.filter(u => userInfo.friendIDs.includes(u.id));
-  }
+  const handleSend = async () => {
+    if (selectedUsers.length === 0 || sending) return;
+    setSending(true);
 
-  // Display people who are mutual friends
-  const filterByMutualFriends = (newUsers) => {
-    return newUsers.filter((p) => mutuals.includes(p.id));
+    try {
+      const hostDoc = await db.collection("Users").doc(user.uid).get();
+      const host = hostDoc.data();
+
+      if (isExistingEvent) {
+        await Promise.all(selectedUsers.map((person) => sendInvitation(person, invite, host)));
+        navigation.goBack();
+        alert("Invitations sent! Make sure to do attendance when the meal starts!");
+        return;
+      }
+
+      const id = Date.now() + user.uid;
+      const image = invite.hasImage ? await storeImage(invite.image, id).then(() => fetchImage(id)) : "";
+      await createEventAndInvite(selectedUsers, invite, navigation, host, id, image);
+    } catch (error) {
+      console.error("Failed to send invites:", error);
+      alert("Couldn't send invites: " + error.message);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
-    <Layout style={{ flex: 1 }}>
-      <TopNav
-        middleContent={<MediumText center>Suggested People</MediumText>}
-        leftContent={<Ionicons name="chevron-back" size={20} />}
-        leftAction={() => navigation.goBack()}
+    <Layout>
+      <SmallAppBar
+        title="Invite friends"
+        onBack={() => navigation.goBack()}
+        actions={selectedUsers.length > 0 ? [{ icon: "paper-plane-outline", onPress: handleSend }] : []}
       />
 
-      <View style={{ padding: 20 }}>
-        <Searchbar
-          placeholder="Search by name, username, or tags"
-          value={curSearch}
-          onChangeText={onChangeText}
-        />
-
-        <HorizontalRow>
-          <Filter
-            checked={friendsOnly}
-            onPress={() => setFriendsOnly(!friendsOnly)}
-            text="Friends only"
-          />
-          <Filter
-            checked={similarInterests}
-            onPress={() => setSimilarInterests(!similarInterests)}
-            text={"Sort by similar interests"}
-          />
-          <Filter
-            checked={mutualFriends}
-            onPress={() => setMutualFriends(!mutualFriends)}
-            text="Mutual friends"
-          />
-        </HorizontalRow>
-      </View>
-
-      {loadingScreen || users.length === 0 ?
-        <View style={{ flex: 1, justifyContent: "center" }}>
-          <ActivityIndicator size={100} color="#5DB075" />
-          <MediumText center>Hang tight ...</MediumText>
-        </View>
-        : filteredSearchedUsers.length > 0 ? (<FlatList
-          contentContainerStyle={styles.invites}
-          keyExtractor={(item) => item.id}
-          data={filteredSearchedUsers}
-          renderItem={({ item }) => (
-            <InvitePerson
-              navigation={navigation}
-              person={item}
-              toggleInvite={toggleInvite}
+      <Animated.View style={[styles.chipRowWrap, { height: chipRowHeight }]}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.chipScroll}
+          contentContainerStyle={styles.chipRow}
+        >
+          {selectedUsers.map((person) => (
+            <SelectedUserChip
+              key={person.id}
+              person={person}
+              exiting={exitingIds.includes(person.id)}
+              onRemove={toggleSelect}
             />
-          )}
-        />)
-        : (<View style={{ flex: 1, justifyContent: "center" }}>
-          <MediumText center>Empty 🍽️</MediumText>
-        </View>)}
+          ))}
+        </ScrollView>
+      </Animated.View>
 
-      <Button
-        disabled={disabled || loading}
-        onPress={() => {
-          setLoading(true);
+      <View style={styles.content}>
+        <Searchbar value={search} onChangeText={handleSearchChange} placeholder="Search" />
 
-          // Check which page the user came from (WhileYouEat or Organize)
-          if (route.params.from === "WhileYouEat") {
-            users.filter((user) => user.invited).forEach((attendee) => {
-              const ref = db.collection("User Invites").doc(attendee.id);
-              ref.get().then(async (docRef) => {
-                if (attendee.id !== user.id) {
-                  await sendInvitation(ref, route.params, userInfo, route.params.id);
-                }
-              });
-            });
+        {loading || (query !== "" && allUsers === null) ? (
+          <View style={styles.list}>
+            {Array.from({ length: 7 }).map((_, index) => (
+              <UserListItemSkeleton key={index} />
+            ))}
+          </View>
+        ) : (
+          <FlatList
+            contentContainerStyle={[styles.list, displayList.length === 0 && styles.listEmpty]}
+            data={displayList}
+            keyExtractor={(item) => item.id}
+            keyboardShouldPersistTaps="handled"
+            renderItem={({ item }) => {
+              const selected =
+                selectedUsers.some((p) => p.id === item.id) && !exitingIds.includes(item.id);
 
-            navigation.goBack();
-            alert("Invitations sent! Make sure to do attendance when the meal starts!");
-          } else {
-            let id = Date.now() + user.uid; // Generate a unique ID for the event
-
-            if (route.params.hasImage) {
-              storeImage(route.params.image, id).then(() => {
-                fetchImage(id).then((uri) => {
-                  sendInvites(
-                    users.filter((user) => user.invited),
-                    route.params,
-                    navigation,
-                    userInfo,
-                    id,
-                    uri,
-                    route.params.icebreakers,
-                    route.params.clearAll
-                  ).then(() => {
-                    setLoading(false);
-                  });
-                });
-              });
-            } else {
-              sendInvites(
-                users.filter((user) => user.invited),
-                route.params,
-                navigation,
-                userInfo,
-                id,
-                "",
-                route.params.icebreakers,
-                route.params.clearAll
-              ).then(() => {
-                setLoading(false);
-              });
+              return (
+                <UserListItem
+                  person={item}
+                  onPress={toggleSelect}
+                  renderRight={
+                    <Ionicons
+                      name={selected ? "checkmark-circle" : "add-circle-outline"}
+                      size={26}
+                      color={selected ? tokens.primary : tokens.onContainerHigh}
+                    />
+                  }
+                />
+              );
+            }}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Header3Text color={tokens.textLight} center>
+                  {query === "" ? "No connections to invite yet" : "No results found"}
+                </Header3Text>
+              </View>
             }
-          }
-        }}
-      >
-       {loading ? "Sending ..." : "Send Invites"}
-      </Button>
+          />
+        )}
+      </View>
     </Layout>
   );
 }
 
 const styles = StyleSheet.create({
-  invites: {
+  content: {
+    flex: 1,
+  },
+  list: {
+    paddingHorizontal: 20,
+  },
+  listEmpty: {
+    flexGrow: 1,
+  },
+  emptyState: {
+    flex: 1,
     alignItems: "center",
+    justifyContent: "center",
+    gap: 20,
+  },
+  chipRowWrap: {
+    overflow: "hidden",
+  },
+  chipScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
+  chipRow: {
+    gap: 14,
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    paddingBottom: 4,
   },
 });

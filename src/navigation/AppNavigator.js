@@ -9,13 +9,13 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import useScreenOptions from "./useScreenOptions";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import TabBarIcon from "../components/utils/TabBarIcon";
-import EventTabButton from "../components/utils/EventTabButton";
 import BottomTabBar from "../components/utils/BottomTabBar";
 import AnimatedTabScreen from "../components/utils/AnimatedTabScreen";
-import GenieTransitionProvider from "../components/utils/GenieTransition";
 import ProfilePic from "../components/ProfilePic";
 import { useTheme } from "../provider/ThemeProvider";
 import { colorTokens } from "../theme/colorTokens";
+import { TutorialProvider } from "../provider/TutorialProvider";
+import TutorialOverlay from "../components/Tutorial/TutorialOverlay";
 
 // Screens (Make sure to import if ever adding new screen!)
 import OrganizeMain from "../screens/Organize/OrganizeMain";
@@ -47,16 +47,35 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// A real page on the outer stack rather than a bottom tab — pressing back
+// (Android hardware back, or the iOS swipe-back gesture) pops it back to
+// MainTabs like any other stack screen, instead of the tab navigator's
+// back-behavior (which would exit the app, since Organize was the first/
+// only tab with no history to fall back to). Registered the same way as
+// "Notifications" below — no options override — so it gets the exact same
+// default push transition (useScreenOptions' simple_push) already used
+// going from Organize to Notifications.
+function OrganizeScreen(props) {
+  const auth_context = useContext(AuthContext);
+  const user = auth_context.currUser;
+  const Screen = user.uid === tryoutId ? TryOut : OrganizeMain;
+  return <Screen {...props} />;
+}
+
 //The experience of logged in user!!
 const MainStack = createNativeStackNavigator();
 const Main = () => {
   return (
-    <MainStack.Navigator
-      screenOptions={useScreenOptions()}
-    >
-      <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
-      <MainStack.Screen name="Notifications" component={NotificationsMain} />
-    </MainStack.Navigator>
+    <TutorialProvider>
+      <MainStack.Navigator
+        screenOptions={useScreenOptions()}
+      >
+        <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
+        <MainStack.Screen name="Notifications" component={NotificationsMain} />
+        <MainStack.Screen name="Organize" component={OrganizeScreen} />
+      </MainStack.Navigator>
+      <TutorialOverlay />
+    </TutorialProvider>
   );
 };
 
@@ -123,21 +142,6 @@ const MainTabs = () => {
         ),
         sceneContainerStyle: { backgroundColor: "#ffffff" },      }}
     >
-      <Tabs.Screen
-        name="Organize"
-        options={{
-          tabBarIcon: () => <EventTabButton />,
-        }}
-      >
-        {(props) => {
-          const Screen = user.uid == tryoutId ? TryOut : OrganizeMain;
-          return (
-            <AnimatedTabScreen>
-              <Screen {...props} />
-            </AnimatedTabScreen>
-          );
-        }}
-      </Tabs.Screen>
       <Tabs.Screen
         name="Explore"
         options={{
@@ -237,21 +241,19 @@ export default () => {
   };
 
   return (
-    <GenieTransitionProvider>
-      <NavigationContainer theme={navigationTheme}>
-        {user === null && <Loading />}
-        {user === false && <Auth />}
-        {user === true &&
-          currUser &&
-          !currUser.emailVerified &&
-          currUser.email !== "rachelhu@uw.edu" &&
-          currUser.email !== "calebcile@gmail.com" ? (
-            <VerifyEmail setCurrUser={auth_context.setCurrUser}/>
-          ) : (
-            user === true && <Main />
-          )
-        }
-      </NavigationContainer>
-    </GenieTransitionProvider>
+    <NavigationContainer theme={navigationTheme}>
+      {user === null && <Loading />}
+      {user === false && <Auth />}
+      {user === true &&
+        currUser &&
+        !currUser.emailVerified &&
+        currUser.email !== "rachelhu@uw.edu" &&
+        currUser.email !== "calebcile@gmail.com" ? (
+          <VerifyEmail setCurrUser={auth_context.setCurrUser}/>
+        ) : (
+          user === true && <Main />
+        )
+      }
+    </NavigationContainer>
   );
 };

@@ -152,16 +152,12 @@ const Auth = () => {
       metWith: [],
       metAt: [],
       settings: {
-        tabsTutorial: true,
-        attendingTutorial: true,
-        attendingEvent: false,
-        completedTutorial: false,
+        hasSeenTutorial: false,
         getRecommendations: true
       },
       hasNotif: false,
       pushTokens: [],
       verified: false,
-      tutorial: true,
     };
 
     await db.collection("Users").doc(`${uid}`).set(userData);

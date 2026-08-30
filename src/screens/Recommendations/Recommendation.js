@@ -16,7 +16,6 @@ import TagsList from "../../components/TagsList";
 import Link from "../../components/Link";
 import Toggle from "../../components/Toggle";
 import CircularButton from "../../components/CircularButton";
-import RecTutorialMessage from "../../components/RecTutorialMessage";  // Tutorial message for recommendations
 
 import getDate from "../../utils/getDate";
 import getTime from "../../utils/getTime";
@@ -39,10 +38,6 @@ const Recommendation = ({ route, navigation }) => {
 
   const [openMenu, setOpenMenu] = useState(false);
   const [loading, setLoading] = useState(true); // Loading state for the button
-
-  const [recSteps, setRecSteps] =  useState(0); // Tutorial steps for recommendations
-  const [attendingTutorial, setAttendingTutorial] = useState(true);  // State to see if we should show the attending an event tutorial
-  const scrollRef = useRef();
 
   const showTimeFilterRef = useRef();
   const [monday, setMonday] = useState(false);
@@ -153,7 +148,6 @@ const Recommendation = ({ route, navigation }) => {
       db.collection("Users").doc(user.uid).update({
         attendingEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
         attendedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
-        "settings.attendingEvent": true
       }).then(() => {
         navigation.goBack();
         alert("You are signed up :)");
@@ -171,7 +165,6 @@ const Recommendation = ({ route, navigation }) => {
     db.collection("Users").doc(user.uid).update({
       attendingEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
       attendedEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
-      "settings.attendingEvent": false
     }).then(() => {
       db.collection("Private Events").doc(route.params.event.id).update({
         attendees: firebase.firestore.FieldValue.arrayRemove(user.uid)
@@ -188,16 +181,6 @@ const Recommendation = ({ route, navigation }) => {
       navigation.navigate("ChatRoom", {
         group: groupChat
       });
-
-      try {
-        await db.collection("Users").doc(user.uid).update({
-          'settings.completedTutorial': true,
-        });
-      } catch (error) {
-        console.error("Error updating document: ", error);
-        // Handle the error appropriately
-      }
-
     } else {
       alert("This feature is still in development and will be applied to your future events!")
     }
@@ -339,84 +322,8 @@ const Recommendation = ({ route, navigation }) => {
     return eventData.userVotes?.[userId] || {};
   }
 
-  // Fetch data from Firestore to see if the user has seen the tutorial before or not
-  useEffect(() => {
-    const fetchData = async () => {
-      const docRef = db.collection('Users').doc(user.uid);
-      const doc = await docRef.get();
-
-      if (doc.exists) {
-        const data = doc.data();
-
-        if (data.settings?.attendingTutorial !== undefined) {
-          setAttendingTutorial(data.settings.attendingTutorial);
-        }
-
-      } else {
-        console.log('No such document!');
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    if (route.params?.tutorialStep === 9) {
-      setTimeout(() => {
-        scrollRef.current?.scrollTo({ y: 73, animated: true }); // tune this
-      }, 300);
-    }
-    if (route.params?.tutorialStep === 10) {
-      setTimeout(() => {
-        scrollRef.current?.scrollTo({ y: 500, animated: true }); // tune this
-      }, 300);
-    }
-  }, []);
-
-
-  const incrementStep = () => {
-    setRecSteps((prevStep) => prevStep + 1);
-  }
-
-  const decrementStep = () => {
-    setRecSteps((prevStep) => prevStep - 1);
-  }
-
-
-  // Tutorial message for recommendations
-  const recTutSteps = [
-    {
-      title: 'Recommendation',
-      content: 'You can see the details of the location, date, time, and people you\'re meeting with.',
-      enableNext: true,
-      bottom: "8%",
-    },
-    {
-      title: 'Recommendation',
-      content: 'Click the \"Attend!\" button if you\'re interested in the event. You can always withdraw later if you change your mind.',
-      enableBack: true,
-      bottom: "63%",
-    }
-  ];
-
   return (
     <Layout>
-      {attendingTutorial && !route.params?.tutorialStep &&
-        <>
-          <RecTutorialMessage
-            userId={user.uid}
-            title={recTutSteps[recSteps].title}
-            content={recTutSteps[recSteps].content}
-            nextText={recTutSteps[recSteps].nextText}
-            enableNext={recTutSteps[recSteps].enableNext}
-            enableBack={recTutSteps[recSteps].enableBack}
-            onNext={incrementStep}
-            onBack={decrementStep}
-            bottom={recTutSteps[recSteps].bottom}
-          />
-        </>
-      }
-
       <TopNav
         middleContent={
           <MediumText center>Recommendation</MediumText>
@@ -430,7 +337,7 @@ const Recommendation = ({ route, navigation }) => {
         leftAction={() => navigation.goBack()}
       />
 
-      <ScrollView ref={scrollRef}>
+      <ScrollView>
         <View style={styles.infoContainer}>
           <Container>
             <Image

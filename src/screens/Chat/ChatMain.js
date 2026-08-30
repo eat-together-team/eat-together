@@ -20,6 +20,8 @@ import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import MeetupArchive from "../Profile/MeetupArchive";
 import ReportEvent from "../Home/ReportEvent";
+import EventGallery from "../Home/EventGallery";
+import InvitePeople from "../Organize/InvitePeople";
 import GroupChat from "./GroupChat";
 
 const Stack = createNativeStackNavigator();
@@ -49,6 +51,8 @@ export default function () {
         {props => <Requests {...props} back="Chats"/>}
       </Stack.Screen>
       <Stack.Screen name="FullCard" component={FullCard}/>
+      <Stack.Screen name="EventGallery" component={EventGallery} />
+      <Stack.Screen name="InvitePeople" component={InvitePeople} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="GroupChat" component={GroupChat}/>
       <Stack.Screen name="ReportPerson" component={ReportPerson}/>

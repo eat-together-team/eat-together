@@ -18,6 +18,7 @@ import Dialog from "../../components/Dialog";
 import DialogOverlay from "../../components/DialogOverlay";
 import LabelText from "../../components/typography/LabelText";
 import SubBodyText from "../../components/typography/SubBodyText";
+import { useTutorial } from "../../provider/TutorialProvider";
 
 export default function Settings({ navigation }) {
     const { theme } = useTheme();
@@ -27,7 +28,7 @@ export default function Settings({ navigation }) {
     const [logoutDisabled, setLogoutDisabled] = useState(false);
     const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
-    const [tutorialDialogVisible, setTutorialDialogVisible] = useState(false);
+    const { startTutorial } = useTutorial();
 
     async function performSignOut() {
         if (logoutDisabled) return;
@@ -60,25 +61,13 @@ export default function Settings({ navigation }) {
         }
     }
 
-    function handleTutorialYes() {
-        setTutorialDialogVisible(false);
-        db.collection("Users").doc(user.uid).update({
-            "settings.attendingEvent": false,
-            "settings.attendingTutorial": true,
-            "settings.tabsTutorial": true,
-            "settings.completedTutorial": false,
-        });
-        alert("Reload the app to see the tutorial again!");
-    }
-
-    function handleTutorialNo() {
-        setTutorialDialogVisible(false);
-        db.collection("Users").doc(user.uid).update({
-            "settings.attendingEvent": true,
-            "settings.attendingTutorial": false,
-            "settings.tabsTutorial": false,
-            "settings.completedTutorial": true,
-        });
+    function handleLaunchTutorial() {
+        // The tour's targets (notifications bell, tab bar buttons) only
+        // exist while on Explore, so hop there before starting it — this
+        // also finds "Explore" by walking up to the tab navigator, same
+        // pattern as OrganizeScreen's cross-navigator navigate() elsewhere.
+        navigation.navigate("Explore");
+        startTutorial();
     }
 
     return (
@@ -122,7 +111,7 @@ export default function Settings({ navigation }) {
                         testID="settings-row-launch-tutorial"
                         icon="open-outline"
                         title="Launch tutorial"
-                        onPress={() => setTutorialDialogVisible(true)}
+                        onPress={handleLaunchTutorial}
                     />
                     <SettingsRow
                         testID="settings-row-privacy-policy"
@@ -195,22 +184,6 @@ export default function Settings({ navigation }) {
                     <SubBodyText color={tokens.onBackground} center>
                         Are you sure you want to delete your account? This action is not reversible and
                         you will not be able to recover your data after proceeding
-                    </SubBodyText>
-                </Dialog>
-            </DialogOverlay>
-
-            <DialogOverlay visible={tutorialDialogVisible} onDismiss={() => setTutorialDialogVisible(false)}>
-                <Dialog
-                    type="Informative"
-                    title="Launch tutorial"
-                    icon={<Ionicons name="school-outline" size={40} color={tokens.onBackground} />}
-                    primaryButtonText="Yes"
-                    secondaryButtonText="No"
-                    onPrimaryPress={handleTutorialYes}
-                    onSecondaryPress={handleTutorialNo}
-                >
-                    <SubBodyText color={tokens.onBackground} center>
-                        Would you like to see the tutorial again?
                     </SubBodyText>
                 </Dialog>
             </DialogOverlay>
