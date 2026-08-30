@@ -56,7 +56,7 @@ export default function EventGallery({ route, navigation }) {
           onPress: async () => {
             try {
               await storage.ref().child(`eventGallery/${event.id}/${photo.imageId}`).delete();
-              await db.collection(dbNameForEvent(photo)).doc(event.id).update({
+              await db.collection(dbNameForEvent(event)).doc(event.id).update({
                 eventGallery: firebase.firestore.FieldValue.arrayRemove(photo),
               });
             } catch (error) {
