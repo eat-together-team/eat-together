@@ -21,6 +21,7 @@ const uploadEventPhoto = async (uri, event, user) => {
     eventId: event.id,
     imagePermissions: event.type,
     imageCaption: "Click the Add/Edit Button to insert a caption!",
+    taggedUserIds: [],
   };
 
   await db.collection(dbNameForEvent(event)).doc(event.id).update({

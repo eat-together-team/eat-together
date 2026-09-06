@@ -153,6 +153,8 @@ export default function useChatGroups(user, { archived = false, pending = false,
                   time: time,
                   pictureID: data.id,
                   avatarUri: avatarUri,
+                  eventID: data.eventID || null,
+                  eventType: data.eventType || null,
                 };
                 publish();
 

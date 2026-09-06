@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, StyleSheet, Alert } from "react-native";
+import { View, ScrollView, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 import { Layout, useTheme } from "../../rapi_ui_components";
 
 import SmallAppBar from "../../components/SmallAppBar";
 import EventPhotoCard from "../../components/EventPhotoCard";
 import EventGallerySkeleton from "../../components/EventGallerySkeleton";
+import Dialog from "../../components/Dialog";
+import DialogOverlay from "../../components/DialogOverlay";
 import Header4Text from "../../components/typography/Header4Text";
 import SubBodyText from "../../components/typography/SubBodyText";
+import { radiusTokens } from "../../theme/radiusTokens";
 
 import { auth, db, storage } from "../../provider/Firebase";
 import * as firebase from "firebase/compat";
 import { pickAndUploadEventPhoto } from "../../utils/eventGallery";
+import { fetchPeopleByIds } from "../../utils/fetchPeopleByIds";
 import { colorTokens } from "../../theme/colorTokens";
 
 const dbNameForEvent = (event) => (event.type === "public" ? "Public Events" : "Private Events");
@@ -25,6 +30,8 @@ export default function EventGallery({ route, navigation }) {
   const [event] = useState(route.params.event);
   const [imageGallery, setImageGallery] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [taggedPeopleById, setTaggedPeopleById] = useState({});
 
   const canManage = event.hostID === user.uid || (event.attendees || []).includes(user.uid);
 
@@ -38,35 +45,44 @@ export default function EventGallery({ route, navigation }) {
     return () => unsubscribe();
   }, [event.id, event.type]);
 
+  // Small avatars for tagged people are shown on each grid card — fetched
+  // once per unique tagged id across the whole gallery (rather than per
+  // card) so re-tagging one photo doesn't refetch everyone else's.
+  useEffect(() => {
+    const allTaggedIds = [...new Set(imageGallery.flatMap((photo) => photo.taggedUserIds || []))];
+    const missingIds = allTaggedIds.filter((id) => !taggedPeopleById[id]);
+    if (missingIds.length === 0) return;
+
+    fetchPeopleByIds(missingIds).then((people) => {
+      setTaggedPeopleById((prev) => {
+        const next = { ...prev };
+        people.forEach((person) => {
+          next[person.id] = person;
+        });
+        return next;
+      });
+    });
+  }, [imageGallery]);
+
   const handleAddPhoto = () => {
     pickAndUploadEventPhoto(event, user).catch((error) => {
       console.error("Image upload failed: ", error);
     });
   };
 
-  const handleDeletePhoto = (photo) => {
-    Alert.alert(
-      "Delete this photo?",
-      "This can't be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await storage.ref().child(`eventGallery/${event.id}/${photo.imageId}`).delete();
-              await db.collection(dbNameForEvent(event)).doc(event.id).update({
-                eventGallery: firebase.firestore.FieldValue.arrayRemove(photo),
-              });
-            } catch (error) {
-              console.error("Error deleting image: ", error);
-            }
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+  const handleDeletePhoto = (photo) => setDeleteTarget(photo);
+
+  const confirmDeletePhoto = async () => {
+    const photo = deleteTarget;
+    setDeleteTarget(null);
+    try {
+      await storage.ref().child(`eventGallery/${event.id}/${photo.imageId}`).delete();
+      await db.collection(dbNameForEvent(event)).doc(event.id).update({
+        eventGallery: firebase.firestore.FieldValue.arrayRemove(photo),
+      });
+    } catch (error) {
+      console.error("Error deleting image: ", error);
+    }
   };
 
   return (
@@ -92,14 +108,30 @@ export default function EventGallery({ route, navigation }) {
             <EventPhotoCard
               key={photo.imageId}
               photo={photo}
+              taggedPeople={(photo.taggedUserIds || []).map((id) => taggedPeopleById[id]).filter(Boolean)}
               onPress={() =>
-                navigation.navigate("EventPhotoViewer", { photos: imageGallery, initialIndex: photoIndex })
+                navigation.navigate("EventPhotoViewer", { photos: imageGallery, initialIndex: photoIndex, event })
               }
               onDelete={photo.userUploaded === user.uid ? () => handleDeletePhoto(photo) : undefined}
             />
           ))}
         </ScrollView>
       )}
+
+      <DialogOverlay visible={!!deleteTarget} onDismiss={() => setDeleteTarget(null)}>
+        <Dialog
+          type="Destructive"
+          title="Remove image?"
+          primaryButtonText="Remove"
+          secondaryButtonText="Cancel"
+          onPrimaryPress={confirmDeletePhoto}
+          onSecondaryPress={() => setDeleteTarget(null)}
+        >
+          {deleteTarget && (
+            <Image source={{ uri: deleteTarget.imageUrl }} contentFit="cover" style={styles.previewImage} />
+          )}
+        </Dialog>
+      </DialogOverlay>
     </Layout>
   );
 }
@@ -110,6 +142,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 14,
+  },
+  previewImage: {
+    width: "100%",
+    height: 253,
+    borderRadius: radiusTokens.small,
   },
   empty: {
     flex: 1,

@@ -8,7 +8,7 @@ import Connections from "../Connections/Connections";
 import Requests from "../Connections/Requests";
 
 import Settings from "./Settings";
-import FullCard from "./FullCard";
+import FullCard from "../Explore/FullCard";
 import ReportBug from "./ReportBug";
 import SuggestIdea from "./SuggestIdea";
 import Recommendations from "./Recommendations";
@@ -19,8 +19,14 @@ import ReportPerson from "../Explore/People/ReportPerson";
 import ColorSelector from "./ColorSelector";
 import EventGallery from "../Home/EventGallery";
 import EventPhotoViewer from "../Home/EventPhotoViewer";
+import AddTaggedPerson from "../Home/AddTaggedPerson";
+import ChatRoom from "../Chat/ChatRoom";
+import GroupSettings from "../Chat/GroupSettings";
+import ChatSettings from "../Chat/ChatSettings";
 import Gallery from "../Home/Gallery";
 import MeetupArchive from "./MeetupArchive";
+import MyEvents from "./MyEvents";
+import OrganizeFlow from "../Organize/NewEvent/OrganizeFlow";
 import StarredRestaurants from "./StarredRestaurants";
 
 const Stack = createNativeStackNavigator();
@@ -44,6 +50,9 @@ export default function () {
       {/* For settings */}
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="FullCard" component={FullCard} />
+      <Stack.Screen name="ChatRoom" component={ChatRoom} />
+      <Stack.Screen name="GroupSettings" component={GroupSettings} />
+      <Stack.Screen name="ChatSettings" component={ChatSettings} />
       <Stack.Screen name="Report Bug" component={ReportBug} />
       <Stack.Screen name="Suggest Idea" component={SuggestIdea} />
       <Stack.Screen name="Recommendations" component={Recommendations} />
@@ -59,7 +68,10 @@ export default function () {
       <Stack.Screen name="Gallery" component={Gallery} />
       <Stack.Screen name="EventGallery" component={EventGallery} />
       <Stack.Screen name="EventPhotoViewer" component={EventPhotoViewer} />
+      <Stack.Screen name="AddTaggedPerson" component={AddTaggedPerson} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
+      <Stack.Screen name="MyEvents" component={MyEvents} />
+      <Stack.Screen name="OrganizeFlow" component={OrganizeFlow} />
       <Stack.Screen name="StarredRestaurants" component={StarredRestaurants} />
     </Stack.Navigator>
   );

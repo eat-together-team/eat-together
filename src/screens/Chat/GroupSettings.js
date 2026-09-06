@@ -20,6 +20,7 @@ import SmallAppBar from "../../components/SmallAppBar";
 import TextInputField from "../../components/TextInputField";
 import LargeButton from "../../components/LargeButton";
 import GroupAvatarPlaceholder from "../../components/GroupAvatarPlaceholder";
+import EventListingCard from "../../components/EventListingCard";
 import Header4Text from "../../components/typography/Header4Text";
 
 import { db, auth, storage } from "../../provider/Firebase";
@@ -46,6 +47,7 @@ export default function GroupSettings({ route, navigation }) {
   const [uploading, setUploading] = useState(false);
   const [members, setMembers] = useState([]);
   const [firstName, setFirstName] = useState("");
+  const [event, setEvent] = useState(null);
 
   useEffect(() => {
     db.collection("Groups")
@@ -59,6 +61,18 @@ export default function GroupSettings({ route, navigation }) {
             .getDownloadURL()
             .then(setImageUri)
             .catch(() => {});
+        }
+        // Event chats (see startEventChat in Chats.js) carry a pointer back
+        // to the event they were created for — fetch it so its details can
+        // be shown here.
+        if (data?.eventID) {
+          const collectionName = data.eventType === "private" ? "Private Events" : "Public Events";
+          db.collection(collectionName)
+            .doc(data.eventID)
+            .get()
+            .then((eventDoc) => {
+              if (eventDoc.exists) setEvent({ ...eventDoc.data(), type: data.eventType });
+            });
         }
       });
   }, []);
@@ -239,6 +253,13 @@ export default function GroupSettings({ route, navigation }) {
           textAlign="center"
           style={styles.nameInput}
         />
+
+        {event && (
+          <>
+            <Header4Text color={tokens.onBackground}>Event</Header4Text>
+            <EventListingCard event={event} onPress={() => navigation.navigate("FullCard", { event })} />
+          </>
+        )}
 
         <Header4Text color={tokens.onBackground}>People</Header4Text>
 

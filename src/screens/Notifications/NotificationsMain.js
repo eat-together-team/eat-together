@@ -8,9 +8,11 @@ import Requests from "../Connections/Requests";
 import ChatMain from "../Chat/ChatMain";
 import ChatRoom from "../Chat/ChatRoom";
 
-import FullCard from "../Profile/FullCard";
+import FullCard from "../Explore/FullCard";
 import FullProfile from "../Explore/People/FullProfile";
 import MeetupArchive from "../Profile/MeetupArchive";
+import MyEvents from "../Profile/MyEvents";
+import OrganizeFlow from "../Organize/NewEvent/OrganizeFlow";
 
 import Recommendation from "../Recommendations/Recommendation";
 
@@ -29,6 +31,8 @@ export default function ({ route }) {
       <Stack.Screen name="FullCard" component={FullCard} />
       <Stack.Screen name="FullProfile" component={FullProfile} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
+      <Stack.Screen name="MyEvents" component={MyEvents} />
+      <Stack.Screen name="OrganizeFlow" component={OrganizeFlow} />
 
       <Stack.Screen name="Recommendation" component={Recommendation} />
       

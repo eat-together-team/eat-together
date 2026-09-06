@@ -14,6 +14,7 @@ import Header4Text from "./typography/Header4Text";
 import SubBodyText from "./typography/SubBodyText";
 import OutlinePillButton from "./OutlinePillButton";
 import GroupAvatarPlaceholder from "./GroupAvatarPlaceholder";
+import EventChip from "./EventChip";
 import { useTheme } from "../rapi_ui_components";
 import { colorTokens } from "../theme/colorTokens";
 import { storage } from "../provider/Firebase";
@@ -317,6 +318,7 @@ const ChatPreview = (props) => {
             />
           )}
           <View style={styles.content}>
+            {props.group.eventID && <EventChip />}
             <Header4Text
               color={tokens.textNormal}
               style={

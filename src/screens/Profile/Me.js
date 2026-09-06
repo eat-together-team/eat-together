@@ -15,6 +15,7 @@ import { Layout } from "../../rapi_ui_components";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import Constants from 'expo-constants';
 import { db, auth } from "../../provider/Firebase";
+import FastFoodIcon from "../../components/icons/FastFoodIcon";
 
 // import WithBadge from "../../components/WithBadge";
 import LargeText from "../../components/LargeText";
@@ -226,15 +227,19 @@ export default function ({ navigation }) {
             name="arrow-back-sharp"
             size={24}
             color="white"
-            onPress={() => {
-              navigation.navigate("Home");
-            }}
+            onPress={() => navigation.goBack()}
           ></Ionicons>
         </View>
 
         {/* <View style={styles.badge}>
           <WithBadge mealsAttended={mealsAttended} mealsSignedUp={mealsSignedUp}/>
         </View> */}
+
+        <View style={[styles.myEvents, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
+          <TouchableOpacity onPress={() => navigation.navigate("MyEvents", { userId: user.uid })}>
+            <FastFoodIcon size={22} color="white" />
+          </TouchableOpacity>
+        </View>
 
         <View style={[styles.settings, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
           <Ionicons
@@ -486,6 +491,12 @@ const styles = StyleSheet.create({
   settings: {
     position: "absolute",
     right: 20,
+    alignItems: "center",
+  },
+
+  myEvents: {
+    position: "absolute",
+    right: 60,
     alignItems: "center",
   },
 

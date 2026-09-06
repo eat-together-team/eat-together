@@ -28,7 +28,15 @@ export const yelpSearch = async (term, options) => {
         limit: options.maxSearchResultsSize
       }
     });
-    return response.data.businesses.map(business => ({id: business.id, name: business.name + " (" + business.location.address1+")" }));
+    return response.data.businesses.map(business => ({
+      id: business.id,
+      name: business.name,
+      address: `${business.location.address1}, ${business.location.city} ${business.location.state}, ${business.location.zip_code}`,
+      // Carried through so a static map pin can be rendered without a
+      // separate geocoding call — Yelp already gives us this for free.
+      lat: business.coordinates?.latitude ?? null,
+      lng: business.coordinates?.longitude ?? null,
+    }));
   } catch {
     return [];
   }

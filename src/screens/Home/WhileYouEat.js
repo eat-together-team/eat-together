@@ -119,6 +119,11 @@ const WhileYouEat = ({ route, navigation }) => {
       db.collection("Groups")
         .doc(event.chatID)
         .onSnapshot((doc) => {
+          // The event's chat doesn't exist yet until someone taps "Event
+          // chat" on the event view for the first time (FullCard.js) —
+          // `event.chatID` is just its reserved future id until then.
+          if (!doc.exists) return;
+
           // Determine unread status
           let unread = false;
           if (doc.data().messages.length > 0) {
@@ -138,7 +143,9 @@ const WhileYouEat = ({ route, navigation }) => {
             uids: doc.data().uids,
             name: doc.data().name,
             messages: doc.data().messages,
-            unread: unread
+            unread: unread,
+            eventID: doc.data().eventID,
+            eventType: doc.data().eventType,
           };
 
           setGroupChat(group);
@@ -170,7 +177,10 @@ const WhileYouEat = ({ route, navigation }) => {
 
   // Function to navigate to the chat for this event
   const goToEventChat = async () => {
-    if (event.chatID) {
+    // groupChat only ever populates once the chat has actually been
+    // started (from the event view's "Event chat" button) — before that,
+    // event.chatID is just a reserved id with no Groups doc behind it yet.
+    if (event.chatID && groupChat) {
       navigation.navigate("ChatRoom", {
         group: groupChat
       });

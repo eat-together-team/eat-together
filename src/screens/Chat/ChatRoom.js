@@ -100,6 +100,11 @@ export default function ({ route, navigation }) {
   const [groupName, setGroupName] = useState(route.params.group.name);
 
   const group = route.params.group;
+  // An event's chat (see startEventChat in Chats.js) always gets the group
+  // chat treatment — name/settings/roster — even while it only has one or
+  // two members, since it's conceptually tied to the event rather than to
+  // whoever happens to be in it at the moment.
+  const isEventChat = !!group.eventID;
 
   const user = auth.currentUser;
   const [userInfo, setUserInfo] = useState({});
@@ -162,7 +167,7 @@ export default function ({ route, navigation }) {
         setUsers(doc.data().uids); // Users in group
         setPending(doc.data().pending || false);
         setRequestedBy(doc.data().requestedBy || null);
-        if (doc.data().uids.length > 2) setGroupName(doc.data().name);
+        if (doc.data().uids.length > 2 || isEventChat) setGroupName(doc.data().name);
 
         const otherUsers = doc.data().uids.filter(u => u !== user.uid)
         setOtherUser(otherUsers[0])
@@ -222,12 +227,13 @@ export default function ({ route, navigation }) {
     }
   }, [otherUser]);
 
-  // Group chats (3+ people) show the group's name (see groupName state) with
-  // a member roster underneath instead of one other person's name/photo —
-  // there's no single "other person" to link a profile-photo header to.
+  // Group chats (3+ people, or any event chat regardless of size) show the
+  // group's name (see groupName state) with a member roster underneath
+  // instead of one other person's name/photo — there's no single "other
+  // person" to link a profile-photo header to.
   useEffect(() => {
     const uids = users.length > 0 ? users : group.uids;
-    if (uids.length <= 2) return;
+    if (uids.length <= 2 && !isEventChat) return;
 
     // Firestore 'in' queries cap at 10 values, so chunk larger rosters.
     const chunks = [];
@@ -433,7 +439,7 @@ export default function ({ route, navigation }) {
     pending && requestedBy !== null && requestedBy !== user.uid && messages.length > 0;
   const requestGroup = { groupID: group.groupID, uids: users.length ? users : group.uids };
   const groupUids = users.length > 0 ? users : group.uids;
-  const isGroupChat = groupUids.length > 2;
+  const isGroupChat = groupUids.length > 2 || isEventChat;
   const groupMemberNames = groupUids.map((uid) => memberInfoByUid[uid]?.firstName).filter(Boolean);
   const groupSubtitle =
     groupMemberNames.slice(0, 2).join(", ") +

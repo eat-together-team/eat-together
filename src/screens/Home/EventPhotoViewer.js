@@ -19,6 +19,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Layout, useTheme } from "../../rapi_ui_components";
 import { colorTokens } from "../../theme/colorTokens";
 import { radiusTokens } from "../../theme/radiusTokens";
+import Dialog from "../../components/Dialog";
+import DialogOverlay from "../../components/DialogOverlay";
+import PeopleInPhotoSheet from "../../components/PeopleInPhotoSheet";
+import TaggedAvatarStack from "../../components/TaggedAvatarStack";
+import Header4Text from "../../components/typography/Header4Text";
+import { auth, db, storage } from "../../provider/Firebase";
+import * as firebase from "firebase/compat";
+import { fetchPeopleByIds } from "../../utils/fetchPeopleByIds";
+
+// Same "trust event.type, default to public" convention FullCard.js's
+// delete-event uses — this screen can be reached for both public and
+// private events (MyEvents.js routes both types through FullCard, which is
+// where the gallery is opened from).
+const dbNameForEvent = (event) => (event?.type === "private" ? "Private Events" : "Public Events");
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MIN_SCALE = 1;
@@ -55,13 +69,23 @@ const distanceBetween = (touches) => {
 };
 
 export default function EventPhotoViewer({ route, navigation }) {
-  const { photos, initialIndex } = route.params;
+  const { photos, initialIndex, event } = route.params;
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
   const insets = useSafeAreaInsets();
 
   const [index, setIndex] = useState(initialIndex || 0);
-  const photo = photos[index];
+  // Local, mutable copy of `photos` so tagging a person can update this
+  // photo's `taggedUserIds` in place without needing a live Firestore
+  // listener on this screen — `route.params.photos` is only a one-time
+  // snapshot from whichever screen navigated here.
+  const [photoList, setPhotoList] = useState(photos);
+  const photo = photoList[index];
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+  const [peopleSheetVisible, setPeopleSheetVisible] = useState(false);
+  const [taggedPeople, setTaggedPeople] = useState([]);
+  const isOwnPhoto = photo.userUploaded === auth.currentUser?.uid;
+  const taggedUserIds = photo.taggedUserIds || [];
 
   // The PanResponder below is created once (via the useRef/.current pattern
   // ImageViewer.js also uses) so its callbacks close over stale state —
@@ -146,6 +170,46 @@ export default function EventPhotoViewer({ route, navigation }) {
       previewIndexRef.current = candidate;
       setPreviewIndex(candidate);
     }
+  };
+
+  const confirmDeletePhoto = async () => {
+    setDeleteDialogVisible(false);
+    try {
+      await storage.ref().child(`eventGallery/${event.id}/${photo.imageId}`).delete();
+      await db.collection(dbNameForEvent(event)).doc(event.id).update({
+        eventGallery: firebase.firestore.FieldValue.arrayRemove(photo),
+      });
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error deleting image: ", error);
+    }
+  };
+
+  // Refreshes this screen's local photo data (in particular, taggedUserIds)
+  // whenever it regains focus — covers coming back from AddTaggedPerson,
+  // since that screen writes straight to Firestore and just goes back
+  // rather than passing anything through params.
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      db.collection(dbNameForEvent(event)).doc(event.id).get().then((doc) => {
+        const gallery = (doc.data() && doc.data().eventGallery) || [];
+        setPhotoList((prev) => prev.map((p) => gallery.find((g) => g.imageId === p.imageId) || p));
+      });
+    });
+    return unsubscribe;
+  }, [navigation, event]);
+
+  useEffect(() => {
+    if (taggedUserIds.length === 0) {
+      setTaggedPeople([]);
+      return;
+    }
+    fetchPeopleByIds(taggedUserIds).then(setTaggedPeople);
+  }, [taggedUserIds.join(",")]);
+
+  const handleAddPeoplePress = () => {
+    setPeopleSheetVisible(false);
+    navigation.navigate("AddTaggedPerson", { event, photo });
   };
 
   const panResponder = useRef(
@@ -288,12 +352,29 @@ export default function EventPhotoViewer({ route, navigation }) {
   const previewPhoto = previewIndex !== null ? photos[previewIndex] : null;
   const previewBaseOffset = previewIndex !== null ? (previewIndex > index ? SCREEN_WIDTH : -SCREEN_WIDTH) : 0;
 
+  const taggedSummaryLabel =
+    taggedPeople.length === 1
+      ? taggedPeople[0].id === auth.currentUser?.uid
+        ? "You"
+        : [taggedPeople[0].firstName, taggedPeople[0].lastName].filter(Boolean).join(" ")
+      : `${taggedPeople.length} people`;
+
   return (
     <Layout>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8}>
           <Ionicons name="arrow-back" size={23} color={tokens.onBackground} />
         </TouchableOpacity>
+        {isOwnPhoto && (
+          <View style={styles.headerActions}>
+            <TouchableOpacity hitSlop={8} onPress={() => setPeopleSheetVisible(true)}>
+              <Ionicons name="people-outline" size={23} color={tokens.onBackground} />
+            </TouchableOpacity>
+            <TouchableOpacity hitSlop={8} onPress={() => setDeleteDialogVisible(true)}>
+              <Ionicons name="trash-outline" size={23} color={tokens.onBackground} />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       <View style={styles.body} {...panResponder.panHandlers}>
@@ -329,8 +410,18 @@ export default function EventPhotoViewer({ route, navigation }) {
         </Animated.View>
       </View>
 
-      {photos.length > 1 && (
-        <View style={[styles.thumbRow, { paddingBottom: insets.bottom + 20 }]}>
+      {taggedPeople.length > 0 && (
+        <TouchableOpacity
+          style={styles.taggedSummary}
+          onPress={() => setPeopleSheetVisible(true)}
+          activeOpacity={0.7}
+        >
+          <TaggedAvatarStack people={taggedPeople} borderColor={tokens.background} />
+          <Header4Text color={tokens.textMedium}>{taggedSummaryLabel}</Header4Text>
+        </TouchableOpacity>
+      )}
+
+      <View style={[styles.thumbRow, { paddingBottom: insets.bottom + 20 }]}>
           <Animated.ScrollView
             ref={thumbRowRef}
             horizontal
@@ -394,8 +485,33 @@ export default function EventPhotoViewer({ route, navigation }) {
               style={StyleSheet.absoluteFill}
             />
           </Animated.View>
-        </View>
-      )}
+      </View>
+
+      <DialogOverlay visible={deleteDialogVisible} onDismiss={() => setDeleteDialogVisible(false)}>
+        <Dialog
+          type="Destructive"
+          title="Remove image?"
+          primaryButtonText="Remove"
+          secondaryButtonText="Cancel"
+          onPrimaryPress={confirmDeletePhoto}
+          onSecondaryPress={() => setDeleteDialogVisible(false)}
+        >
+          <Image source={{ uri: photo.imageUrl }} contentFit="cover" style={styles.deletePreview} />
+        </Dialog>
+      </DialogOverlay>
+
+      <PeopleInPhotoSheet
+        visible={peopleSheetVisible}
+        event={event}
+        photo={photo}
+        canAdd={isOwnPhoto}
+        onAddPress={handleAddPeoplePress}
+        onDismiss={() => setPeopleSheetVisible(false)}
+        onPhotoUpdated={(updatedPhoto) =>
+          setPhotoList((prev) => prev.map((p) => (p.imageId === updatedPhoto.imageId ? updatedPhoto : p)))
+        }
+        navigation={navigation}
+      />
     </Layout>
   );
 }
@@ -403,8 +519,15 @@ export default function EventPhotoViewer({ route, navigation }) {
 const styles = StyleSheet.create({
   header: {
     height: 60,
-    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 25,
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 24,
   },
   body: {
     flex: 1,
@@ -423,6 +546,13 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
+  },
+  taggedSummary: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingTop: 18,
   },
   thumbRow: {
     paddingTop: 12,
@@ -457,5 +587,10 @@ const styles = StyleSheet.create({
   },
   edgeFadeRight: {
     right: 0,
+  },
+  deletePreview: {
+    width: "100%",
+    height: 253,
+    borderRadius: radiusTokens.small,
   },
 });

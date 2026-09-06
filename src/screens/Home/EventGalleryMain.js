@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import useScreenOptions from "../../navigation/useScreenOptions";
 import EventGallery from "./EventGallery";
 import EventPhotoViewer from "./EventPhotoViewer";
+import AddTaggedPerson from "./AddTaggedPerson";
 
 const Stack = createNativeStackNavigator();
 
@@ -14,6 +15,7 @@ export default function(){
     >
       <Stack.Screen name="EventGallery" component={EventGallery} />
       <Stack.Screen name="EventPhotoViewer" component={EventPhotoViewer} />
+      <Stack.Screen name="AddTaggedPerson" component={AddTaggedPerson} />
     </Stack.Navigator>
   );
 }

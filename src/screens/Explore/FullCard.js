@@ -1,26 +1,31 @@
 // Full event page ("View Event")
 
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, StyleSheet, Image, TouchableOpacity, Linking, LayoutAnimation } from "react-native";
+import { View, ScrollView, StyleSheet, Image, TouchableOpacity, Linking, LayoutAnimation, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Layout, useTheme } from "../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
-import Svg, { Path } from "react-native-svg";
 
 import SmallAppBar from "../../components/SmallAppBar";
+import FastFoodIcon from "../../components/icons/FastFoodIcon";
 import LargeButton from "../../components/LargeButton";
 import SmallTextButton from "../../components/SmallTextButton";
 import AboutChip from "../../components/AboutChip";
 import AttendeeListItem from "../../components/AttendeeListItem";
 import EventViewSkeleton from "../../components/EventViewSkeleton";
 import Menu from "../../components/Menu";
+import Dialog from "../../components/Dialog";
+import DialogOverlay from "../../components/DialogOverlay";
+import StaticMapImage from "../../components/StaticMapImage";
 import Header2Text from "../../components/typography/Header2Text";
 import Header4Text from "../../components/typography/Header4Text";
 import SubBodyText from "../../components/typography/SubBodyText";
 
 import getTime from "../../utils/getTime";
 import { pickAndUploadEventPhoto } from "../../utils/eventGallery";
+import parseLocation from "../../utils/parseLocation";
 
+import { startEventChat, addAttendeeToEventChat, removeAttendeeFromEventChat } from "../Chat/Chats";
 import { db, auth } from "../../provider/Firebase";
 import * as firebase from "firebase/compat";
 import openMap from "react-native-open-maps";
@@ -30,69 +35,6 @@ import { radiusTokens } from "../../theme/radiusTokens";
 
 const foodBackground = require("../../../assets/foodBackground.png");
 const PHOTO_TILE_SIZE = 130;
-
-// Attend button icon — the design's fast-food glyph, not Ionicons' built-in
-// one (that one's filled; this is the outlined version from Figma).
-const FastFoodIcon = ({ size = 16, color = "white" }) => (
-  <Svg width={size} height={size} viewBox="0 0 16 16" fill="none">
-    <Path
-      d="M10.0643 13.0029C10.0643 14.1079 9.41886 15.0034 8.31393 15.0034H4.18803C3.08311 15.0034 2.43765 14.1079 2.43765 13.0029"
-      stroke={color}
-      strokeWidth={1.00189}
-      strokeMiterlimit={10}
-      strokeLinecap="round"
-    />
-    <Path
-      d="M10.5017 10.502C11.054 10.502 11.5019 11.0618 11.5019 11.7522C11.5019 12.4427 11.054 13.0025 10.5017 13.0025H1.99981C1.4475 13.0025 0.999588 12.4427 0.999588 11.7522C0.999588 11.0618 1.4475 10.502 1.99981 10.502"
-      stroke={color}
-      strokeWidth={1.00189}
-      strokeMiterlimit={10}
-      strokeLinecap="round"
-    />
-    <Path
-      d="M10.7517 10.5023H5.60403C5.5378 10.5023 5.47429 10.5286 5.42743 10.5754L4.58881 11.414C4.5772 11.4257 4.56341 11.4349 4.54823 11.4412C4.53305 11.4475 4.51678 11.4507 4.50035 11.4507C4.48392 11.4507 4.46765 11.4475 4.45247 11.4412C4.4373 11.4349 4.42351 11.4257 4.41189 11.414L3.57327 10.5754C3.52642 10.5286 3.4629 10.5023 3.39667 10.5023H1.74975C1.5508 10.5023 1.35999 10.4232 1.21931 10.2826C1.07862 10.1419 0.999588 9.95107 0.999588 9.75212V9.75212C0.999588 9.55316 1.07862 9.36235 1.21931 9.22167C1.35999 9.08099 1.5508 9.00195 1.74975 9.00195H10.7517C10.9507 9.00195 11.1415 9.08099 11.2822 9.22167C11.4228 9.36235 11.5019 9.55316 11.5019 9.75212C11.5019 9.95107 11.4228 10.1419 11.2822 10.2826C11.1415 10.4232 10.9507 10.5023 10.7517 10.5023Z"
-      stroke={color}
-      strokeWidth={1.00189}
-      strokeMiterlimit={10}
-      strokeLinecap="round"
-    />
-    <Path
-      d="M2.00026 8.62655V8.61967C2.00026 6.90055 3.40682 6.00098 5.12594 6.00098H7.37643C9.09556 6.00098 10.5021 6.90742 10.5021 8.62655V8.61967"
-      stroke={color}
-      strokeWidth={1.00189}
-      strokeMiterlimit={10}
-      strokeLinecap="round"
-    />
-    <Path
-      d="M7.53258 3.50049L7.7653 5.50146"
-      stroke={color}
-      strokeWidth={1.00189}
-      strokeMiterlimit={10}
-      strokeLinecap="round"
-    />
-    <Path
-      d="M8.00131 15.003H12.3557C12.608 15.003 12.851 14.9076 13.036 14.736C13.221 14.5643 13.3343 14.3291 13.3531 14.0775L14.4715 3.50049"
-      stroke={color}
-      strokeWidth={1.00189}
-      strokeMiterlimit={10}
-      strokeLinecap="round"
-    />
-    <Path
-      d="M11.5021 3.50238L12.0025 1.50048L13.4727 1"
-      stroke={color}
-      strokeWidth={1.00189}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M7.00102 3.50049H15.0028"
-      stroke={color}
-      strokeWidth={1.00189}
-      strokeMiterlimit={10}
-      strokeLinecap="round"
-    />
-  </Svg>
-);
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -134,9 +76,12 @@ const FullCard = ({ route, navigation }) => {
   const [attending, setAttending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [people, setPeople] = useState([]);
+  const [selfPerson, setSelfPerson] = useState(null);
   const [expanded, setExpanded] = useState(false);
   const [imageGallery, setImageGallery] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+  const [openingChat, setOpeningChat] = useState(false);
 
   // Fetch attendance status + attendee profiles (everything the loaded page
   // needs besides the event object itself, which arrives fully formed via
@@ -155,6 +100,10 @@ const FullCard = ({ route, navigation }) => {
       .then((doc) => {
         const events = doc.data().attendingEventIDs.map((e) => e.id);
         setAttending(events.includes(event.id));
+        // Only ever used as a fallback card when the viewer is the sole
+        // attendee (see visibleAttendees) — that only happens when they're
+        // actually in event.attendees, so this is safe to always capture.
+        setSelfPerson({ id: user.uid, ...doc.data() });
       })
       .then(() => getAttendees())
       .then(() => setLoading(false));
@@ -198,6 +147,11 @@ const FullCard = ({ route, navigation }) => {
       db.collection("Public Events").doc(event.id).update({
         attendees: firebase.firestore.FieldValue.arrayUnion(user.uid),
       }).then(() => {
+        // Only joins an event chat that's already running (see
+        // handleEventChat) — attending alone never starts one.
+        addAttendeeToEventChat(event.chatID, user.uid).catch((error) =>
+          console.error("Error adding attendee to event chat: ", error)
+        );
         navigation.goBack();
         alert("You are signed up :)");
       });
@@ -214,10 +168,67 @@ const FullCard = ({ route, navigation }) => {
       db.collection("Public Events").doc(event.id).update({
         attendees: firebase.firestore.FieldValue.arrayRemove(user.uid),
       }).then(() => {
+        // Silent — no "left the event" announcement, unlike joining.
+        removeAttendeeFromEventChat(event.chatID, user.uid).catch((error) =>
+          console.error("Error removing attendee from event chat: ", error)
+        );
         navigation.goBack();
         alert("You withdrew :(");
       });
     });
+  };
+
+  // Opens the event's group chat, creating it first if this is the first
+  // time anyone's tapped it — every current attendee (which, for the host
+  // acting alone before anyone else has joined, may just be them) gets
+  // added at once and a "started the event chat" announcement posted.
+  const handleEventChat = async () => {
+    if (!event.chatID) {
+      Alert.alert("Event chat unavailable", "This event was created before event chats existed.");
+      return;
+    }
+    if (openingChat) return;
+    setOpeningChat(true);
+
+    try {
+      const groupDoc = await db.collection("Groups").doc(event.chatID).get();
+      let group;
+
+      // An empty `uids` means this doc is a leftover shell from before event
+      // chats were lazily created (OrganizeFlow.js used to eagerly create an
+      // empty Groups doc at event-creation time) — treat that the same as
+      // not existing yet, rather than as an already-started, memberless chat.
+      const alreadyStarted = groupDoc.exists && (groupDoc.data().uids || []).length > 0;
+
+      if (alreadyStarted) {
+        const data = groupDoc.data();
+        group = {
+          groupID: event.chatID,
+          uids: data.uids,
+          name: data.name,
+          messages: data.messages,
+          eventID: data.eventID,
+          eventType: data.eventType,
+        };
+      } else {
+        await startEventChat(event, user);
+        group = {
+          groupID: event.chatID,
+          uids: event.attendees,
+          name: event.name,
+          messages: [],
+          eventID: event.id,
+          eventType: event.type ?? null,
+        };
+      }
+
+      navigation.navigate("ChatRoom", { group });
+    } catch (error) {
+      console.error("Error opening event chat: ", error);
+      Alert.alert("Couldn't open event chat", error.message || "Something went wrong.");
+    } finally {
+      setOpeningChat(false);
+    }
   };
 
   // Report an event that the user feels is offensive in some way
@@ -253,6 +264,34 @@ const FullCard = ({ route, navigation }) => {
     });
   };
 
+  // Shared by both the location row and the map preview below it — either
+  // one tapped opens the user's own maps app.
+  const handleOpenMap = () => openMap({ query: event.location, provider: "google" });
+
+  // Delete an event you host — unlike attend/withdraw/inviteFriends above,
+  // this can legitimately reach a private event (MyEvents.js routes both
+  // public and private hosted events through this screen), so it trusts
+  // event.type instead of hardcoding "public" — every event created via the
+  // new wizard always has type set, unlike some older docs.
+  const handleDeleteEvent = async () => {
+    setDeleteDialogVisible(false);
+    try {
+      const collectionName = event.type === "private" ? "Private Events" : "Public Events";
+      await db.collection(collectionName).doc(event.id).delete();
+
+      const storeID = { type: event.type || "public", id: event.id };
+      await db.collection("Users").doc(user.uid).update({
+        hostedEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
+        attendingEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
+        attendedEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
+      });
+
+      navigation.goBack();
+    } catch (err) {
+      Alert.alert("Something went wrong", err.message || "Please try again.");
+    }
+  };
+
   const handleAddPhoto = () => {
     pickAndUploadEventPhoto(event, user).catch((error) => {
       console.error("Image upload failed: ", error);
@@ -275,7 +314,10 @@ const FullCard = ({ route, navigation }) => {
   const infoColor = isHost ? `${tokens.onBackground}CC` : tokens.textMedium;
   const titleColor = isHost ? tokens.onBackground : tokens.textNormal;
   const viewerRole = isHost ? "host" : attending ? "attending" : "guest";
-  const showPhotosSection = viewerRole === "attending" || (viewerRole === "guest" && imageGallery.length > 0);
+  // Attendees and the host can always add photos, so they always see the
+  // section (empty or not); anyone else only sees it once photos exist.
+  const canManagePhotos = viewerRole === "host" || viewerRole === "attending";
+  const showPhotosSection = canManagePhotos || imageGallery.length > 0;
 
   // Report/Withdraw/Invite friends per the two given "..." menu wireframes.
   // The host case isn't covered by a wireframe yet — reporting your own
@@ -300,7 +342,14 @@ const FullCard = ({ route, navigation }) => {
 
   const eventDate = event.startDate ? event.startDate.toDate() : event.date.toDate();
   const eventEndDate = event.endDate ? event.endDate.toDate() : null;
-  const visibleAttendees = expanded ? people : people.slice(0, 3);
+  // event.location is stored as a single "name - address" string — split it
+  // back apart so it always renders as a name/subtitle pair, never one line.
+  const locationInfo = parseLocation(event.location);
+  // people.length === 0 only happens when the viewer themselves is the sole
+  // attendee (otherwise "others" below would still include at least the
+  // host) — show a card for them instead of empty space/placeholder text.
+  const attendeesToShow = people.length === 0 && selfPerson ? [selfPerson] : people;
+  const visibleAttendees = expanded ? attendeesToShow : attendeesToShow.slice(0, 3);
 
   return (
     <Layout>
@@ -356,49 +405,46 @@ const FullCard = ({ route, navigation }) => {
             </InfoRow>
           </View>
 
-          <View style={styles.locationRow}>
-            <Header4Text color={tokens.onBackground} style={styles.locationText} numberOfLines={2}>
-              {event.location}
-            </Header4Text>
-            <TouchableOpacity
-              onPress={() => openMap({ query: event.location, provider: "google" })}
-              hitSlop={8}
-            >
+          <View style={styles.locationBlock}>
+            <TouchableOpacity style={styles.locationRow} onPress={handleOpenMap} activeOpacity={0.7}>
+              <View style={styles.locationText}>
+                <Header4Text color={tokens.onBackground}>{locationInfo?.name}</Header4Text>
+                {!!locationInfo?.address && (
+                  <SubBodyText color={tokens.textMedium}>{locationInfo.address}</SubBodyText>
+                )}
+              </View>
               <Ionicons name="map-outline" size={16} color={tokens.onBackground} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleOpenMap} activeOpacity={0.85}>
+              <StaticMapImage lat={event.locationLat} lng={event.locationLng} address={locationInfo?.address} />
             </TouchableOpacity>
           </View>
 
           <View style={styles.attendingSection}>
             <Header4Text color={titleColor}>Attending</Header4Text>
-            {people.length === 0 ? (
-              <SubBodyText color={tokens.textMedium}>Just yourself</SubBodyText>
-            ) : (
-              <>
-                <View style={styles.attendeeList}>
-                  {visibleAttendees.map((person) => (
-                    <AttendeeListItem
-                      key={person.id}
-                      person={person}
-                      onPress={(p) => navigation.navigate("FullProfile", { person: p })}
-                    />
-                  ))}
-                </View>
-                {people.length > 3 && (
-                  <SmallTextButton
-                    type="Secondary"
+            <View style={styles.attendeeList}>
+              {visibleAttendees.map((person) => (
+                <AttendeeListItem
+                  key={person.id}
+                  person={person}
+                  onPress={(p) => navigation.navigate("FullProfile", { person: p })}
+                />
+              ))}
+            </View>
+            {people.length > 3 && (
+              <SmallTextButton
+                type="Secondary"
+                color={tokens.textMedium}
+                text={expanded ? "Show less" : `${people.length - 3} more`}
+                leadingIcon={
+                  <Ionicons
+                    name={expanded ? "chevron-up" : "chevron-down"}
+                    size={16}
                     color={tokens.textMedium}
-                    text={expanded ? "Show less" : `${people.length - 3} more`}
-                    leadingIcon={
-                      <Ionicons
-                        name={expanded ? "chevron-up" : "chevron-down"}
-                        size={16}
-                        color={tokens.textMedium}
-                      />
-                    }
-                    onPress={toggleExpanded}
                   />
-                )}
-              </>
+                }
+                onPress={toggleExpanded}
+              />
             )}
           </View>
 
@@ -429,7 +475,7 @@ const FullCard = ({ route, navigation }) => {
                 </TouchableOpacity>
               ) : (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photosRow}>
-                  {viewerRole === "attending" && (
+                  {canManagePhotos && (
                     <TouchableOpacity
                       style={[styles.addPhotoTile, { borderColor: tokens.outline }]}
                       onPress={handleAddPhoto}
@@ -442,7 +488,7 @@ const FullCard = ({ route, navigation }) => {
                     <TouchableOpacity
                       key={photo.imageId}
                       onPress={() =>
-                        navigation.navigate("EventPhotoViewer", { photos: imageGallery, initialIndex: photoIndex })
+                        navigation.navigate("EventPhotoViewer", { photos: imageGallery, initialIndex: photoIndex, event })
                       }
                     >
                       <Image source={{ uri: photo.imageUrl }} style={styles.photoThumb} />
@@ -456,15 +502,21 @@ const FullCard = ({ route, navigation }) => {
       )}
 
       {canAct && !loading && (
-        <View style={[styles.footer, { backgroundColor: tokens.background, paddingBottom: insets.bottom + 20 }]}>
+        <View style={[styles.footer, { backgroundColor: tokens.background, paddingBottom: insets.bottom + 8 }]}>
           {viewerRole === "host" ? (
             <>
-              {/* Not wired up yet — needs an Edit event flow + delete-event confirmation before this PRs. */}
+              <LargeButton
+                color="green"
+                leadingIcon={<Ionicons name="chatbubbles-outline" size={16} color={tokens.onPrimary} />}
+                onPress={handleEventChat}
+              >
+                Event chat
+              </LargeButton>
               <LargeButton
                 outlined
-                color={tokens.outline}
-                leadingIcon={<Ionicons name="pencil-outline" size={16} color={tokens.outline} />}
-                onPress={() => {}}
+                color="green"
+                leadingIcon={<Ionicons name="pencil-outline" size={16} color={tokens.primary} />}
+                onPress={() => navigation.navigate("OrganizeFlow", { event })}
               >
                 Edit details
               </LargeButton>
@@ -472,7 +524,7 @@ const FullCard = ({ route, navigation }) => {
                 outlined
                 color={tokens.error}
                 leadingIcon={<Ionicons name="trash-outline" size={16} color={tokens.error} />}
-                onPress={() => {}}
+                onPress={() => setDeleteDialogVisible(true)}
               >
                 Delete event
               </LargeButton>
@@ -487,11 +539,10 @@ const FullCard = ({ route, navigation }) => {
               >
                 Attending
               </LargeButton>
-              {/* Stubbed — no event-chat feature exists yet to navigate to. */}
               <LargeButton
                 color="green"
-                leadingIcon={<Ionicons name="chatbubbles" size={16} color={tokens.onPrimary} />}
-                onPress={() => {}}
+                leadingIcon={<Ionicons name="chatbubbles-outline" size={16} color={tokens.onPrimary} />}
+                onPress={handleEventChat}
               >
                 Event chat
               </LargeButton>
@@ -507,6 +558,22 @@ const FullCard = ({ route, navigation }) => {
           )}
         </View>
       )}
+
+      <DialogOverlay visible={deleteDialogVisible} onDismiss={() => setDeleteDialogVisible(false)}>
+        <Dialog
+          type="Destructive with icon"
+          icon={<Ionicons name="trash-outline" size={40} color={tokens.onBackground} />}
+          title="Delete event?"
+          primaryButtonText="Delete"
+          secondaryButtonText="Cancel"
+          onPrimaryPress={handleDeleteEvent}
+          onSecondaryPress={() => setDeleteDialogVisible(false)}
+        >
+          <SubBodyText color={tokens.onBackground} center>
+            Are you sure you want to delete this event? This action cannot be undone
+          </SubBodyText>
+        </Dialog>
+      </DialogOverlay>
     </Layout>
   );
 };
@@ -539,6 +606,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
+  locationBlock: {
+    gap: 15,
+    width: "100%",
+  },
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -548,18 +619,21 @@ const styles = StyleSheet.create({
   },
   locationText: {
     flexShrink: 1,
+    gap: 2,
   },
   attendingSection: {
     gap: 10,
     width: "100%",
+    marginTop: 10,
   },
   attendeeList: {
     gap: 10,
     width: "100%",
   },
   photosSection: {
-    gap: 10,
+    gap: 15,
     width: "100%",
+    marginTop: 10,
   },
   photosHeader: {
     flexDirection: "row",
