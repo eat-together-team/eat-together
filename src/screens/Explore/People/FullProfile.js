@@ -17,6 +17,7 @@ import {
 import { Layout, TopNav } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from 'expo-constants';
+import FastFoodIcon from "../../../components/icons/FastFoodIcon";
 
 import LargeText from "../../../components/LargeText";
 import MediumText from "../../../components/MediumText";
@@ -297,6 +298,14 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           />
         </View>
 
+        {person.id === user.uid && (
+          <View style={[styles.myEvents, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
+            <TouchableOpacity onPress={() => navigation.navigate("MyEvents", { userId: person.id })}>
+              <FastFoodIcon size={22} color="white" />
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* <View style={styles.badge}>
           <WithBadge
             mealsAttended={person.attendedEventIDs.length}
@@ -492,6 +501,12 @@ const styles = StyleSheet.create({
   palette: {
     position: "absolute",
     left: 20,
+    alignItems: "center",
+  },
+
+  myEvents: {
+    position: "absolute",
+    right: 20,
     alignItems: "center",
   },
 

@@ -21,6 +21,7 @@ const uploadEventPhoto = async (uri, event, user) => {
     eventId: event.id,
     imagePermissions: event.type,
     imageCaption: "Click the Add/Edit Button to insert a caption!",
+    taggedUserIds: [],
   };
 
   await db.collection(dbNameForEvent(event)).doc(event.id).update({
@@ -41,12 +42,13 @@ export const pickAndUploadEventPhoto = (event, user) => {
           text: "Gallery",
           onPress: async () => {
             try {
+              await ImagePicker.requestMediaLibraryPermissionsAsync();
               const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.All,
                 allowsEditing: true,
                 quality: 1,
               });
-              if (!result.cancelled) {
+              if (!result.canceled && result.assets?.[0]?.uri) {
                 await uploadEventPhoto(result.assets[0].uri, event, user);
               }
               resolve();
@@ -65,7 +67,7 @@ export const pickAndUploadEventPhoto = (event, user) => {
                 allowsEditing: true,
                 quality: 1,
               });
-              if (!result.cancelled) {
+              if (!result.canceled && result.assets?.[0]?.uri) {
                 await uploadEventPhoto(result.assets[0].uri, event, user);
               }
               resolve();

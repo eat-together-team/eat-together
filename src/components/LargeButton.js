@@ -39,16 +39,10 @@ const LargeButton = ({ onPress, outlined = false, color = 'green', textColor: te
     <View style={[styles.wrapper, wrapperStyle, style]} onLayout={onLayout}>
       <Pressable onPress={onPress} onPressIn={onPressIn} disabled={disabled} style={styles.inner}>
         <Animated.View pointerEvents="none" style={[rippleStyle, { backgroundColor: rippleColor }]} />
-        {leadingIcon ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            {leadingIcon}
-            <Text style={{ fontSize: 13, fontFamily, color: textColor }}>{children}</Text>
-          </View>
-        ) : (
-          <Text style={{ fontSize: 13, fontFamily, color: textColor, textAlign: 'center' }}>
-            {children}
-          </Text>
-        )}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          {leadingIcon}
+          <Text style={{ fontSize: 13, fontFamily, color: textColor }}>{children}</Text>
+        </View>
       </Pressable>
     </View>
   );

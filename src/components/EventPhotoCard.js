@@ -2,6 +2,7 @@ import React from "react";
 import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
+import TaggedAvatarStack from "./TaggedAvatarStack";
 import { colorTokens } from "../theme/colorTokens";
 import { radiusTokens } from "../theme/radiusTokens";
 import { useTheme } from "../rapi_ui_components";
@@ -13,15 +14,19 @@ export const CARD_SIZE = (screenWidth - GRID_PADDING * 2 - GRID_GAP) / 2;
 
 // Grid card for the Event photos gallery page. `onDelete` is only passed for
 // photos the current user uploaded (the design's own-photo trash
-// affordance) — tapping a card to view the photo full-size isn't wired up
-// yet.
-const EventPhotoCard = ({ photo, onDelete }) => {
+// affordance). `onPress` opens the photo full-size in EventPhotoViewer.
+const EventPhotoCard = ({ photo, taggedPeople = [], onPress, onDelete }) => {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
       <Image source={{ uri: photo.imageUrl }} contentFit="cover" style={styles.image} />
+      {taggedPeople.length > 0 && (
+        <View style={styles.taggedOverlay} pointerEvents="none">
+          <TaggedAvatarStack people={taggedPeople} size={23} borderColor="#fff" />
+        </View>
+      )}
       {onDelete && (
         <TouchableOpacity
           style={[styles.deleteButton, { backgroundColor: tokens.background }]}
@@ -31,7 +36,7 @@ const EventPhotoCard = ({ photo, onDelete }) => {
           <Ionicons name="trash-outline" size={16} color={tokens.onBackground} />
         </TouchableOpacity>
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -45,6 +50,11 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
+  },
+  taggedOverlay: {
+    position: "absolute",
+    left: 10,
+    bottom: 10,
   },
   deleteButton: {
     position: "absolute",

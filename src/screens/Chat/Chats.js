@@ -184,6 +184,75 @@ export const addSystemMessage = (groupID, text) =>
       }),
     });
 
+// Lazily creates an event's group chat, the first time anyone taps "Event
+// chat" on an event that doesn't have one running yet (see FullCard.js) —
+// every current attendee is added at once, not just whoever tapped, and a
+// single "X started the event chat" announcement covers the group as it
+// stands at that moment. Uses `event.chatID`, a deterministic id already
+// stored on the event doc at creation time, as the Groups doc's id.
+export const startEventChat = async (event, user) => {
+  const userDoc = await db.collection("Users").doc(user.uid).get();
+  const firstName = userDoc.data()?.firstName || "Someone";
+
+  await db.collection("Groups").doc(event.chatID).set({
+    uids: event.attendees,
+    name: event.name,
+    messages: [],
+    // Lets GroupSettings.js show the event's details and the inbox show an
+    // "Event" chip on this chat's preview, without a reverse lookup against
+    // both event collections — `type` isn't always set on older event docs,
+    // hence the null fallback (Firestore rejects `undefined` outright).
+    eventID: event.id,
+    eventType: event.type ?? null,
+  });
+
+  await Promise.all(
+    event.attendees.map((uid) =>
+      db.collection("Users").doc(uid).update({
+        groupIDs: firebase.firestore.FieldValue.arrayUnion(event.chatID),
+      })
+    )
+  );
+
+  await addSystemMessage(event.chatID, `${firstName} started the event chat`);
+};
+
+// Adds a newly-attending person to an event's chat and announces it — but
+// only if the chat has actually been started already (attending an event
+// never starts its chat on its own; only the first "Event chat" tap does,
+// via startEventChat above).
+export const addAttendeeToEventChat = async (chatID, uid) => {
+  if (!chatID) return;
+  const groupDoc = await db.collection("Groups").doc(chatID).get();
+  if (!groupDoc.exists) return;
+
+  const userDoc = await db.collection("Users").doc(uid).get();
+  const firstName = userDoc.data()?.firstName || "Someone";
+
+  await db.collection("Groups").doc(chatID).update({
+    uids: firebase.firestore.FieldValue.arrayUnion(uid),
+  });
+  await db.collection("Users").doc(uid).update({
+    groupIDs: firebase.firestore.FieldValue.arrayUnion(chatID),
+  });
+  await addSystemMessage(chatID, `${firstName} joined the event`);
+};
+
+// Silently drops someone from an event's chat when they stop attending — no
+// announcement, mirroring how withdrawing works everywhere else in the app.
+export const removeAttendeeFromEventChat = async (chatID, uid) => {
+  if (!chatID) return;
+  const groupDoc = await db.collection("Groups").doc(chatID).get();
+  if (!groupDoc.exists) return;
+
+  await db.collection("Groups").doc(chatID).update({
+    uids: firebase.firestore.FieldValue.arrayRemove(uid),
+  });
+  await db.collection("Users").doc(uid).update({
+    groupIDs: firebase.firestore.FieldValue.arrayRemove(chatID),
+  });
+};
+
 // Unlike deleteChat's group branch (which only ever removes the *current*
 // user from uids, i.e. "leave"), this actually deletes the Groups doc and
 // unlinks every member — a genuinely destructive, irreversible action for
