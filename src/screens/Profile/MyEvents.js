@@ -14,13 +14,16 @@ import EventListingCard from "../../components/EventListingCard";
 import EventListingCardSkeleton from "../../components/EventListingCardSkeleton";
 import EmptyState from "../../components/EmptyState";
 
-import { db } from "../../provider/Firebase";
+import { db, auth } from "../../provider/Firebase";
 import { compareDates } from "../../utils/methods";
 
 const SKELETON_COUNT = 3;
 
 export default function MyEvents({ route, navigation }) {
   const { userId } = route.params;
+  // Only offer "+ new event" when viewing your own hosted events, not
+  // someone else's (this screen is shared by both — see header comment).
+  const isOwnEvents = userId === auth.currentUser?.uid;
 
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +62,11 @@ export default function MyEvents({ route, navigation }) {
 
   return (
     <Layout>
-      <SmallAppBar title="My events" onBack={() => navigation.goBack()} />
+      <SmallAppBar
+        title="My events"
+        onBack={() => navigation.goBack()}
+        actions={isOwnEvents ? [{ icon: "add", onPress: () => navigation.navigate("OrganizeFlow") }] : []}
+      />
 
       {loading ? (
         <View style={styles.list}>
