@@ -2,15 +2,23 @@ import {View, StyleSheet, Modal, TouchableOpacity} from 'react-native';
 import SmallText from '../../components/SmallText';
 import LargeText from '../../components/LargeText';
 import Button from '../../components/Button';
+import LargeButton from '../../components/LargeButton';
 import * as Progress from 'react-native-progress';
 import CustomButton from '../../components/CustomButton';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../rapi_ui_components';
+import { colorTokens } from '../../theme/colorTokens';
 
 // Carousel to display each card component for restaurant personalizer
 const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished, validateSteps, progress}) => {
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
+  // Matches each step card's own width (CuisineCard is wider than the rest)
+  // so the progress bar/Back-Next row lines up with the card above it.
+  const cardWidth = index === 2 ? 340 : 311;
 
   return (
-    <View>
+    <View style={styles.root}>
         {cards[index]}
         <Modal visible={pressedFinished} transparent={true}>
             <TouchableOpacity style = {styles.overlay} onPress={() => setPressedFinished(false)}>
@@ -91,39 +99,24 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
             <>
                 <Progress.Bar
                   progress={progress}
-                  width={311}
+                  width={cardWidth}
                   height={16}
-                  color="#5DB075"
-                  unfilledColor="#D0D0D0"
+                  color={colors.primary}
+                  unfilledColor={colors.containerMedium}
                   borderWidth={0}
                   borderRadius={8}
-                  style={{ alignSelf: 'center', marginTop: 16 }}
+                  style={{ alignSelf: 'center', marginTop: 30 }}
                 />
-                <View style={styles.buttonContainer}>
-                    <Button
-                        backgroundColor="white"
-                        color="#A9A9A9"
-                        borderWidth={2}
-                        borderColor="#A9A9A9"
-                        noShadow
-                        onPress={decrementIndex}
-                        fontSize={13}
-                        paddingHorizontal={32}
-                        paddingVertical={8}
-                    >
-                        Back
-                    </Button>
-                    <SmallText size={13} style={{ alignSelf: 'center' }}>{index - 1} of {cards.length - 4}</SmallText>
-                    <Button
-                        noShadow
-                        onPress={incrementIndex}
-                        disabled={validateSteps()}
-                        fontSize={13}
-                        paddingHorizontal={32}
-                        paddingVertical={8}
-                    >
-                        {index == cards.length - 2 ? "Finish" : "Next"}
-                    </Button>
+                <View style={[styles.buttonContainer, { width: cardWidth }]}>
+                    <View style={styles.buttonFlex}>
+                        <LargeButton outlined color="gray" onPress={decrementIndex}>Back</LargeButton>
+                    </View>
+                    <SmallText size={13} style={styles.stepLabel}>{index - 1} of {cards.length - 4}</SmallText>
+                    <View style={styles.buttonFlex}>
+                        <LargeButton disabled={validateSteps()} onPress={incrementIndex}>
+                            {index == cards.length - 2 ? "Finish" : "Next"}
+                        </LargeButton>
+                    </View>
                 </View>
             </>
         )}
@@ -131,12 +124,22 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
   )
 }
 const styles = StyleSheet.create({
+    root:{
+        alignItems: 'center',
+    },
     buttonContainer:{
-        width: 311,
         flexDirection:'row',
-        justifyContent:'space-between',
         alignItems:'center',
-        paddingVertical: 16,
+        gap: 41,
+        paddingTop: 16,
+        paddingBottom: 50,
+    },
+    buttonFlex:{
+        flex: 1,
+    },
+    stepLabel:{
+        width: 35,
+        textAlign: 'center',
     },
     backButton:{
         backgroundColor:"#F7F7F7", 

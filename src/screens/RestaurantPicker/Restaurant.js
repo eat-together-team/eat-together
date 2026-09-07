@@ -218,7 +218,7 @@ export default function ({navigation, route}) {
         style={styles.scrollView}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={[styles.scrollContent, index > 4 && styles.scrollContentPadding]}
-        scrollEnabled={index > 4 && (index !== 5 || swipeCardExpanded)}
+        scrollEnabled={index !== 5 || swipeCardExpanded}
       >
       <View style = {styles.outerContainer}>
         <CardCarousel 
