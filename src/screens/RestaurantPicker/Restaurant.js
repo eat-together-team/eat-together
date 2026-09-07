@@ -1,8 +1,7 @@
 import {useState, useEffect} from 'react'
 import {StyleSheet, View, ScrollView, Alert} from "react-native";
-import { Layout, TopNav} from "../../rapi_ui_components";
-import MediumText from "../../components/MediumText";
-import { Ionicons } from "@expo/vector-icons";
+import { Layout } from "../../rapi_ui_components";
+import SmallAppBar from '../../components/SmallAppBar';
 import CuisineCard from './CuisineCard';
 import DietaryPref from './DietaryCard';
 import CardCarousel from './CardCarousel';
@@ -211,14 +210,14 @@ export default function ({navigation, route}) {
 
   return (
     <Layout>
-      <TopNav
-        middleContent={<MediumText size = {17}>Discover Restaurants</MediumText>}
-        leftContent={<Ionicons name="arrow-back" size={20} />}
-        leftAction={() => navigation.goBack()}
+      <SmallAppBar
+        title="Discover restaurants"
+        onBack={() => navigation.goBack()}
       />
       <ScrollView
+        style={styles.scrollView}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, index > 4 && styles.scrollContentPadding]}
         scrollEnabled={index > 4 && (index !== 5 || swipeCardExpanded)}
       >
       <View style = {styles.outerContainer}>
@@ -241,15 +240,22 @@ export default function ({navigation, route}) {
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+  },
+
   scrollContent: {
+    flexGrow: 1,
+  },
+
+  scrollContentPadding: {
     paddingBottom: 100,
   },
-  
+
   outerContainer:{
     flex:1,
     justifyContent:'center',
     alignItems:'center',
-    paddingTop: 20,
   },
   
   buttonContainer:{
