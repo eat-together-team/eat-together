@@ -298,11 +298,13 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           />
         </View>
 
-        <View style={[styles.myEvents, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
-          <TouchableOpacity onPress={() => navigation.navigate("MyEvents", { userId: person.id })}>
-            <FastFoodIcon size={22} color="white" />
-          </TouchableOpacity>
-        </View>
+        {person.id === user.uid && (
+          <View style={[styles.myEvents, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
+            <TouchableOpacity onPress={() => navigation.navigate("MyEvents", { userId: person.id })}>
+              <FastFoodIcon size={22} color="white" />
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* <View style={styles.badge}>
           <WithBadge

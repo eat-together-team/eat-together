@@ -1,9 +1,11 @@
 // "My events" — every event a given user has ever hosted (their
-// hostedEventIDs), reached via the fast-food icon on a profile's top bar
-// (either your own profile or someone else's — route.params.userId picks
-// which). Reuses EventListingCard/EventListingCardSkeleton wholesale; their
-// existing layout (cover photo, title, date/time/location, attendee
-// avatars + host name) already matches this screen's design exactly.
+// hostedEventIDs), reached via the fast-food icon on your own profile's top
+// bar (Me.js only shows it there — FullProfile.js hides the icon on
+// everyone else's profile). Still takes `route.params.userId` rather than
+// assuming the current user, so nothing here breaks if that ever changes.
+// Reuses EventListingCard/EventListingCardSkeleton wholesale; their existing
+// layout (cover photo, title, date/time/location, attendee avatars + host
+// name) already matches this screen's design exactly.
 
 import React, { useEffect, useState } from "react";
 import { View, FlatList, StyleSheet } from "react-native";
