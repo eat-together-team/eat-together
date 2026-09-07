@@ -152,11 +152,9 @@ export default function OrganizeFlow({ navigation, route }) {
     return REQUIRED_FIELDS_MESSAGE;
   };
 
-  // The bottom "Cancel" button always abandons the whole flow; the header's
-  // back arrow instead steps back one page (matching CreateAccountFlow.js's
-  // Back button), except on step 1 where there's nowhere to go back to.
-  const handleCancel = () => navigation.goBack();
-
+  // Steps back one page — used by both the header's back arrow and the
+  // bottom "Back" button — except on step 1, where there's nowhere to go
+  // back to, so it abandons the flow instead.
   const handleBack = () => {
     setError("");
     if (currentStep === 1) {
@@ -458,8 +456,8 @@ export default function OrganizeFlow({ navigation, route }) {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 8 }]}>
         <View style={styles.footerButton}>
-          <LargeButton outlined color={tokens.outline} onPress={handleCancel}>
-            Cancel
+          <LargeButton outlined color={tokens.outline} onPress={handleBack}>
+            Back
           </LargeButton>
         </View>
         {/* Deliberately not passing `disabled` here (unlike CreateAccountFlow's

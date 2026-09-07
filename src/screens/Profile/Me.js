@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
 
   myEvents: {
     position: "absolute",
-    right: 60,
+    right: 70,
     alignItems: "center",
   },
 

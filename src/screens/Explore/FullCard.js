@@ -72,6 +72,12 @@ const FullCard = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
   const event = route.params.event;
   const canAct = user.uid !== tryoutId;
+  // Same "Private event" gating this screen already uses (see the info
+  // badge below) — the gallery's own read/write and the "Add photo"/"View
+  // all" actions below all need to agree on which collection this
+  // particular event's doc (and its eventGallery field) actually lives in.
+  const galleryEventType = event.type === "private" ? "private" : "public";
+  const galleryCollectionName = galleryEventType === "private" ? "Private Events" : "Public Events";
 
   const [attending, setAttending] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -112,13 +118,13 @@ const FullCard = ({ route, navigation }) => {
   // Live photo gallery preview — lets the "Event photos" row update as soon
   // as someone adds a photo, without leaving this screen.
   useEffect(() => {
-    const unsubscribe = db.collection("Public Events").doc(event.id).onSnapshot((doc) => {
+    const unsubscribe = db.collection(galleryCollectionName).doc(event.id).onSnapshot((doc) => {
       const data = doc.data();
       setImageGallery((data && data.eventGallery) || []);
     });
 
     return () => unsubscribe();
-  }, [event.id]);
+  }, [event.id, galleryCollectionName]);
 
   // Adds event to Google Calendar
   const addToCalendar = () => {
@@ -293,8 +299,15 @@ const FullCard = ({ route, navigation }) => {
   };
 
   const handleAddPhoto = () => {
-    pickAndUploadEventPhoto(event, user).catch((error) => {
+    // Force the same type the gallery listener above resolved its
+    // collection from — eventGallery.js's own default (anything not
+    // exactly "public" goes to "Private Events") disagrees with this
+    // screen's "anything not exactly 'private' is public" convention for
+    // an event whose `type` is undefined (an older public-only doc), which
+    // would otherwise write past where the listener is watching.
+    pickAndUploadEventPhoto({ ...event, type: galleryEventType }, user).catch((error) => {
       console.error("Image upload failed: ", error);
+      Alert.alert("Couldn't add photo", error.message || "Please try again.");
     });
   };
 
@@ -454,11 +467,11 @@ const FullCard = ({ route, navigation }) => {
                 <Header4Text color={titleColor}>Event photos</Header4Text>
                 <TouchableOpacity
                   onPress={() =>
-                    // This screen only ever shows public events (see the
-                    // inviteFriends comment above) — event.type is undefined
-                    // on some older docs, which would send EventGallery.js
-                    // looking in "Private Events" instead and find nothing.
-                    navigation.navigate("EventGallery", { event: { ...event, type: "public" } })
+                    // Same galleryEventType as the listener/handleAddPhoto
+                    // above, for the same reason — this must point
+                    // EventGallery.js at whichever collection this event's
+                    // doc (and eventGallery field) actually lives in.
+                    navigation.navigate("EventGallery", { event: { ...event, type: galleryEventType } })
                   }
                 >
                   <SubBodyText color={tokens.textMedium} style={styles.viewAll}>View all</SubBodyText>

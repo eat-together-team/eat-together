@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { View, ScrollView, StyleSheet, Alert } from "react-native";
 import { Image } from "expo-image";
 import { Layout, useTheme } from "../../rapi_ui_components";
 
@@ -67,6 +67,7 @@ export default function EventGallery({ route, navigation }) {
   const handleAddPhoto = () => {
     pickAndUploadEventPhoto(event, user).catch((error) => {
       console.error("Image upload failed: ", error);
+      Alert.alert("Couldn't add photo", error.message || "Please try again.");
     });
   };
 
