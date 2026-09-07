@@ -1,594 +1,291 @@
-// Full recommendation page
+// Recommendation preview — an AI-curated meetup suggestion. Unlike a real
+// event, there's nothing to attend/withdraw from here: the two actions are
+// "Create event" (hands the suggested details to the new-event wizard as a
+// starting point — see OrganizeFlow.js's `prefill` param — so the user can
+// adjust them, post a real event and invite friends) or "Dismiss
+// recommendation" (removes it from the user's notifications for good).
 
-import React, { useState, useEffect, useRef } from "react";
-import { View, ScrollView, StyleSheet, Dimensions, Image, TouchableOpacity, Linking } from "react-native";
-import { Layout, TopNav } from "../../rapi_ui_components";
-import { Ionicons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
+import { View, ScrollView, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import openMap from "react-native-open-maps";
 
-import LargeText from "../../components/LargeText";
-import MediumText from "../../components/MediumText";
-import NormalText from "../../components/NormalText";
+import { Layout, useTheme } from "../../rapi_ui_components";
+import { colorTokens } from "../../theme/colorTokens";
+import { radiusTokens } from "../../theme/radiusTokens";
+import { db, auth } from "../../provider/Firebase";
 
-import Container from "../../components/Container";
-import Button from "../../components/Button";
-import BorderedButton from "../../components/BorderedButton";
-import TagsList from "../../components/TagsList";
-import Link from "../../components/Link";
-import Toggle from "../../components/Toggle";
-import CircularButton from "../../components/CircularButton";
+import SmallAppBar from "../../components/SmallAppBar";
+import InformationCard from "../../components/InformationCard";
+import LargeButton from "../../components/LargeButton";
+import Header3Text from "../../components/typography/Header3Text";
+import Header4Text from "../../components/typography/Header4Text";
+import SubBodyText from "../../components/typography/SubBodyText";
+import StaticMapImage from "../../components/StaticMapImage";
+import RecommendationInfoDialog from "../../components/Recommendations/RecommendationInfoDialog";
 
 import getDate from "../../utils/getDate";
 import getTime from "../../utils/getTime";
+import parseLocation from "../../utils/parseLocation";
 
-import {db, auth} from "../../provider/Firebase";
-import * as firebase from "firebase/compat";
-import openMap from "react-native-open-maps";
-import { getCommonTags, convertToFutureDate } from "../../utils/methods";
-import moment from 'moment';
+const AttendeeRow = ({ person, textColor, bgColor }) => (
+  <View style={[styles.attendeeRow, { backgroundColor: bgColor }]}>
+    <Image
+      source={person.hasImage ? { uri: person.image } : require("../../../assets/logo.png")}
+      style={styles.attendeeAvatar}
+    />
+    <SubBodyText color={textColor}>{`${person.firstName} ${person.lastName}`}</SubBodyText>
+  </View>
+);
 
-import RBSheet from "react-native-raw-bottom-sheet";
-import Checkbox from "../../components/Checkbox";
 const Recommendation = ({ route, navigation }) => {
-  // User and other user states
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
+  const insets = useSafeAreaInsets();
   const user = auth.currentUser;
-  const [groupChat, setGroupChat] = useState(null); // Info for the group chat
+  const event = route.params.event;
+
   const [attendees, setAttendees] = useState([]);
-  const [commonTags, setCommonTags] = useState([]); // Common tags between the user and others
-  const [isAttending, setIsAttending] = useState(false); // Whether the user has accepted the invite or not
+  const [infoVisible, setInfoVisible] = useState(false);
+  const [dismissing, setDismissing] = useState(false);
 
-  const [openMenu, setOpenMenu] = useState(false);
-  const [loading, setLoading] = useState(true); // Loading state for the button
-
-  const showTimeFilterRef = useRef();
-  const [monday, setMonday] = useState(false);
-  const [tuesday, setTuesday] = useState(false);
-  const [wednesday, setWednesday] = useState(false);
-  const [thursday,setThursday] = useState(false);
-  const [dayChosen, setDayChosen] = useState(false);
-  const [startDate,setStartDate] = useState(route.params.event.startDate.toDate());
-  const [endDate, setEndDate] = useState(route.params.event.endDate.toDate());
-  const [mondayVote, setMondayVote] = useState(0);
-  const [tuesdayVote, setTuesdayVote] = useState(0);
-  const [wednesdayVote, setWednesdayVote] = useState(0);
-  const [thursdayVote, setThursdayVote] = useState(0);
-  const [votesChanged, setVotesChanged] = useState(false); // State to track whether votes have changed
-
+  // Load whoever this meetup is suggested with, to show under "With".
   useEffect(() => {
-    let existingTags = {}; // To avoid duplicates
-    // Loads the tags of all the attendees
-    route.params.event.suggestedAttendees.forEach(attendee => {
-      if (attendee !== user.uid) {
-        db.collection("Users").doc(attendee).get().then(doc => {
-          setAttendees(prev => [...prev, doc.data()]);
-          // Find tags that are in common between users
-          const tags = getCommonTags(route.params.userData, doc.data());
-          let newTags = [];
-          tags.forEach(tag => {
-            if (!existingTags[tag.tag]) {
-              existingTags[tag.tag] = true;
-              newTags.push(tag);
-            }
-          });
-
-          setCommonTags(prev => prev.concat(newTags));
-        });
-      }
-    });
-
-    // Check if the user is attending the event
-    const eventIDs = route.params.userData.attendingEventIDs.map(event => event.id);
-    setIsAttending(eventIDs.includes(route.params.event.id));
-    setLoading(false);
-  }, []);
-
-  // Checking group chat updates
-  useEffect(() => {
-    if (route.params.event.chatID) {
-      db.collection("Groups")
-        .doc(route.params.event.chatID)
-        .onSnapshot((doc) => {
-          // Determine unread status
-          let unread = false;
-          if (doc.data().messages.length > 0) {
-            const lastMessage = doc.data().messages[doc.data().messages.length - 1];
-            if (lastMessage.unread && lastMessage.sentBy !== user.uid) {
-              const unread_exists = lastMessage.unread.filter(u => u.uid === user.uid);
-              if (unread_exists.length !== 0) {
-                unread = lastMessage.unread.filter(u => u.uid === user.uid)[0].unread;
-              } else {
-                unread = false;
-              }
-            }
-          }
-
-          const group = {
-            groupID: route.params.event.chatID,
-            uids: doc.data().uids,
-            name: doc.data().name,
-            messages: doc.data().messages,
-            unread: unread
-          };
-
-          setGroupChat(group);
-        });
-    }
-  }, []);
-
-  // Date voting updates
-  useEffect(() => {
-    db.collection("Private Events").doc(route.params.event.id).onSnapshot((doc) => {
-      const voteCount = doc.data().voteCount;
-      setMondayVote(voteCount.mondayCount);
-      setTuesdayVote(voteCount.tuesdayCount);
-      setWednesdayVote(voteCount.wednesdayCount);
-      setThursdayVote(voteCount.thursdayCount);
-
-      const previousVotes = getPreviousVotes(doc.data(), user.uid);
-      if (previousVotes) {
-        setMonday(previousVotes.monday);
-        setTuesday(previousVotes.tuesday);
-        setWednesday(previousVotes.wednesday);
-        setThursday(previousVotes.thursday);
-        setDayChosen(true);
-      }
+    (event.suggestedAttendees || []).forEach((uid) => {
+      if (uid === user.uid) return;
+      db.collection("Users").doc(uid).get().then((doc) => {
+        if (doc.exists) setAttendees((prev) => [...prev, { id: doc.id, ...doc.data() }]);
+      });
     });
   }, []);
 
-  // Confirm attendance to recommended meetup
-  const attend = () => {
-    setLoading(true);
-    const storeID = {
-      type: "recommendation",
-      id: route.params.event.id
-    };
-
-    db.collection("Private Events").doc(route.params.event.id).update({
-      attendees: firebase.firestore.FieldValue.arrayUnion(user.uid),
-    }).then(() => {
-      db.collection("Users").doc(user.uid).update({
-        attendingEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
-        attendedEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
-      }).then(() => {
-        navigation.goBack();
-        alert("You are signed up :)");
-      });
+  // Auto-show the "what's this?" explainer the first time this user ever
+  // opens a recommendation.
+  useEffect(() => {
+    db.collection("Users").doc(user.uid).get().then((doc) => {
+      if (!doc.data()?.settings?.hasSeenRecommendationInfo) setInfoVisible(true);
     });
-  }
+  }, []);
 
-  // Decline attendance to recommended meetup
-  const withdraw = () => {
-    const storeID = {
-      type: "recommendation",
-      id: route.params.event.id,
-    };
+  const markInfoSeen = () => {
+    db.collection("Users").doc(user.uid).update({ "settings.hasSeenRecommendationInfo": true }).catch(() => {});
+  };
 
-    db.collection("Users").doc(user.uid).update({
-      attendingEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
-      attendedEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
-    }).then(() => {
-      db.collection("Private Events").doc(route.params.event.id).update({
-        attendees: firebase.firestore.FieldValue.arrayRemove(user.uid)
-      }).then(() => {
-        alert("You withdrew from the meal :(");
-        navigation.goBack();
-      });
-    });
-  }
+  const closeInfo = () => {
+    setInfoVisible(false);
+    markInfoSeen();
+  };
 
-  // Function to navigate to the chat for this event
-  const goToEventChat = async () => {
-    if (route.params.event.chatID) {
-      navigation.navigate("ChatRoom", {
-        group: groupChat
-      });
-    } else {
-      alert("This feature is still in development and will be applied to your future events!")
+  const goToRecommendationSettings = () => {
+    setInfoVisible(false);
+    markInfoSeen();
+    navigation.navigate("Profile", { screen: "Recommendations" });
+  };
+
+  // Hands the suggestion to the new-event wizard as a starting point, not an
+  // existing event to edit — see OrganizeFlow.js's `prefill` vs `event`
+  // params. Nothing is created (or removed from notifications) unless the
+  // user actually finishes that flow.
+  const createEvent = () => {
+    navigation.navigate("OrganizeFlow", { prefill: event });
+  };
+
+  const dismissRecommendation = async () => {
+    if (dismissing) return;
+    setDismissing(true);
+    try {
+      const userDoc = await db.collection("Users").doc(user.uid).get();
+      const notifications = (userDoc.data()?.notifications || []).filter(
+        (notif) => !(notif.type === "recommendation" && notif.id === event.id)
+      );
+      await db.collection("Users").doc(user.uid).update({ notifications });
+      navigation.goBack();
+    } catch (err) {
+      Alert.alert("Something went wrong", "Please try again.");
+      setDismissing(false);
     }
   };
 
-  useEffect(() => {
-    if (!votesChanged) return; // Only run if votes have changed
-
-    // Listen for changes in the event document
-    const unsubscribe = db.collection("Private Events").doc(route.params.event.id).onSnapshot((eventDoc) => {
-
-      const eventData = eventDoc.data();
-      let newStartDate = startDate;
-      let newEndDate = endDate;
-      if (eventData.userVotes) {
-        const voters = eventData.userVotes;
-        const voteCount = eventData.voteCount;
-        const voter = voters && Object.keys(voters).includes(route.params.userData.id);
-        const userVotes = voters[route.params.userData.id];
-
-        // sets the checkbox variables
-        setMondayVote(voteCount.mondayCount);
-        setTuesdayVote(voteCount.tuesdayCount);
-        setWednesdayVote(voteCount.wednesdayCount);
-        setThursdayVote(voteCount.thursdayCount);
-
-        // calculates the number of days to subtract from thursday
-        setMonday(userVotes.monday);
-        setTuesday(userVotes.tuesday);
-        setWednesday(userVotes.wednesday);
-        setThursday(userVotes.thursday);
-
-        if (voter) {
-          setDayChosen(true);
-
-          // Adjust seconds based on vote counts
-          if (
-            voteCount.mondayCount >= voteCount.tuesdayCount &&
-            voteCount.mondayCount >= voteCount.wednesdayCount &&
-            voteCount.mondayCount >= voteCount.thursdayCount
-          ) {
-            const dayOfWeek = 1;
-            const daysToMonday = dayOfWeek - moment(newStartDate).day();
-            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToMonday, 'days'));
-            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToMonday, 'days'));
-          } else if (
-            voteCount.tuesdayCount >= voteCount.mondayCount &&
-            voteCount.tuesdayCount >= voteCount.wednesdayCount &&
-            voteCount.tuesdayCount >= voteCount.thursdayCount
-          ) {
-            const dayOfWeek = 2;
-            const daysToTuesday = dayOfWeek - moment(newStartDate).day();
-            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToTuesday, 'days'));
-            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToTuesday, 'days'));
-          } else if (
-            voteCount.wednesdayCount >= voteCount.mondayCount &&
-            voteCount.wednesdayCount >= voteCount.tuesdayCount &&
-            voteCount.wednesdayCount >= voteCount.thursdayCount
-          ) {
-            const dayOfWeek = 3;
-            const daysToWednesday = dayOfWeek - moment(newStartDate).day();
-            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToWednesday, 'days'));
-            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToWednesday, 'days'));
-          } else {
-            const dayOfWeek = 4;
-            const daysToThursday = dayOfWeek - moment(newStartDate).day();
-            newStartDate = convertToFutureDate(moment(newStartDate).add(daysToThursday, 'days'));
-            newEndDate = convertToFutureDate(moment(newEndDate).add(daysToThursday, 'days'));
-          }
-
-          // checking whether the start date and new start date are the same or not.
-          if (startDate !== newStartDate || endDate.seconds !== newEndDate) {
-            setStartDate(newStartDate);
-            setEndDate(newEndDate);
-
-            db.collection("Private Events").doc(route.params.event.id).update({
-              startDate: moment(newStartDate).toDate(),
-              endDate: moment(newEndDate).toDate(),
-            });
-          }
-        }
-      }
-    });
-
-    return () => unsubscribe(); // Cleanup listener on unmount
-  }, [votesChanged]);
-
-  const updateAvailabilities = async (monday,tuesday,wednesday,thursday) => {
-    const eventRef = db.collection("Private Events").doc(route.params.event.id);
-    const eventDoc = await eventRef.get();
-    const eventData = eventDoc.data();
-    const userId = route.params.userData.id;
-    let previousVotes = getPreviousVotes(eventData, userId);
-    let voteUpdates = {};
-
-    // Modifying updates
-    if (previousVotes.monday && !monday) {
-      voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(-1);
-    } else {
-      voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(0);
-    }
-    if (previousVotes.tuesday && !tuesday) {
-      voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(-1);
-    } else {
-      voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(0);
-    }
-    if (previousVotes.wednesday && !wednesday) {
-      voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(-1);
-    } else {
-      voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(0);
-    }
-    if (previousVotes.thursday && !thursday) {
-      voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(-1);
-    } else {
-      voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(0);
-    }
-    // New User
-    if (!previousVotes.monday && monday) {
-      voteUpdates["voteCount.mondayCount"] = firebase.firestore.FieldValue.increment(1);
-    }
-    if (!previousVotes.tuesday && tuesday) {
-      voteUpdates["voteCount.tuesdayCount"] = firebase.firestore.FieldValue.increment(1);
-    }
-    if (!previousVotes.wednesday && wednesday) {
-      voteUpdates["voteCount.wednesdayCount"] = firebase.firestore.FieldValue.increment(1);
-    }
-    if (!previousVotes.thursday && thursday) {
-      voteUpdates["voteCount.thursdayCount"] = firebase.firestore.FieldValue.increment(1);
-    }
-    voteUpdates[`userVotes.${userId}`] = { monday, tuesday, wednesday, thursday };
-
-    await eventRef.update(voteUpdates);
-    showTimeFilterRef.current.close();
-    setVotesChanged(true); // Set the votes changed state to true
-  }
-
-  // Fetch previous date votes for a user
-  const getPreviousVotes = (eventData, userId) => {
-    return eventData.userVotes?.[userId] || {};
-  }
+  const eventDate = event.startDate ? event.startDate.toDate() : event.date.toDate();
+  const eventEndDate = event.endDate ? event.endDate.toDate() : null;
+  const location = parseLocation(event.location) || { name: event.location, address: "" };
 
   return (
-    <Layout>
-      <TopNav
-        middleContent={
-          <MediumText center>Recommendation</MediumText>
-        }
-        leftContent={
-          <Ionicons
-            name="chevron-back"
-            size={20}
-          />
-        }
-        leftAction={() => navigation.goBack()}
+    <Layout style={styles.screen}>
+      <SmallAppBar
+        onBack={() => navigation.goBack()}
+        actions={[
+          {
+            icon: "ellipsis-vertical",
+            onPress: () => Alert.alert("Coming soon", "Reporting a recommendation will be available soon."),
+          },
+        ]}
       />
 
-      <ScrollView>
-        <View style={styles.infoContainer}>
-          <Container>
-            <Image
-              style={styles.image}
-              source={route.params.event.hasImage ? {uri: route.params.event.image} : require("../../../assets/stockEvent.png")}
-            />
-            <View style={{...styles.row, "marginTop": 15}}>
-                <LargeText size={18}>
-                    {route.params.event.name}
-                </LargeText>
-                <MediumText size={18}> with:</MediumText>
-            </View>
+      <ScrollView contentContainerStyle={styles.content}>
+        <InformationCard
+          type="Action"
+          text={'This is an event recommendation. Click "create event" to adjust details, create the event and invite your friends!'}
+          actionText="What's this?"
+          onAction={() => setInfoVisible(true)}
+        />
 
+        <View style={[styles.card, { borderColor: tokens.outline, backgroundColor: tokens.background }]}>
+          <Header3Text color={tokens.textMedium}>{event.name}</Header3Text>
+
+          <View style={styles.section}>
+            <Header4Text color={tokens.textMedium}>On</Header4Text>
             <View style={styles.row}>
-              {attendees.map((attendee, index) =>
-                <TouchableOpacity style={styles.row}
-                  onPress={() => {
-                      navigation.navigate("FullProfile", {
-                        person: attendee,
-                      });
-                  }}>
-                  <NormalText size={16}>{index > 0 && " + "}</NormalText>
-                  <Image source={attendee.hasImage ? { uri: attendee.image }
-                    : require("../../../assets/logo.png")} style={styles.profileImg}/>
-                  <NormalText size={16}>{attendee.firstName + " " + attendee.lastName.substring(0, 1) + "."}</NormalText>
-                  {route.params.event.attendees.includes(attendee.id) &&
-                    <Ionicons name="checkmark-circle" size={20} color="#5DB075" />}
-                  {!route.params.event.attendees.includes(attendee.id) &&
-                    <Ionicons name="help-circle" size={20} color="grey" />}
-                </TouchableOpacity>
-              )}
+              <Ionicons name="calendar-outline" size={16} color={tokens.textMedium} />
+              <SubBodyText color={tokens.textMedium} style={styles.rowText}>{getDate(eventDate, false)}</SubBodyText>
             </View>
+            <View style={styles.row}>
+              <Ionicons name="time-outline" size={16} color={tokens.textMedium} />
+              <SubBodyText color={tokens.textMedium} style={styles.rowText}>
+                {getTime(eventDate)}{eventEndDate ? ` - ${getTime(eventEndDate)}` : ""}
+              </SubBodyText>
+            </View>
+          </View>
 
-            <TagsList tags={commonTags}/>
-
-            {/* 3 meetup details (location, date, time} + menu are below */}
-
-            <View style={styles.logistics}>
-              {/* In-event chat button */}
-              <View style={styles.eventChat}>
-                <CircularButton onPress={() => goToEventChat()}>
-                  {/* {groupChat && groupChat.unread && <View style={styles.unread}/>} */}
-                  <Ionicons name="chatbox-ellipses-outline" size={30} />
-                </CircularButton>
-              </View>
-              <View style={styles.row}>
-                <Ionicons name="location-sharp" size={20} />
-                <NormalText paddingHorizontal={10} color="black">
-                  {route.params.event.location}
-                </NormalText>
-                <Link
-                  onPress={() =>
-                    openMap({ query: route.params.event.location, provider: "google" })
-                  }
-                >
-                  (map)
-                </Link>
-              </View>
-
-              <View style={styles.row}>
-                <Ionicons name="calendar-outline" size={20} />
-                <NormalText paddingHorizontal={10} color="black">
-                    {dayChosen ? getDate(moment(startDate).toDate())  : <Link onPress={() => {
-                      showTimeFilterRef.current.open(),
-                      setDayChosen(true)
-                    }}>Choose an available day!</Link> }
-                </NormalText>
-              </View>
-              <RBSheet
-                height={320}
-                ref={showTimeFilterRef}
-                closeOnDragDown={true}
-                closeOnPressMask={false}
-                customStyles={{
-                    wrapper: {
-                        backgroundColor: "rgba(0,0,0,0.5)",
-                    },
-                    draggableIcon: {
-                        backgroundColor: "black"
-                    },
-                    container: {
-                        borderTopLeftRadius: 20,
-                        borderTopRightRadius: 20,
-                        padding: 10
-                    }
-            }}>
-                <View style={styles.checkbox}>
-                  <Checkbox checked = {monday} onPress={() => {
-                        setMonday(!monday);
-                  }} />
-                  <MediumText> Monday: </MediumText>
-                  <MediumText>{mondayVote} Votes </MediumText>
-=                </View>
-                <View style={styles.checkbox}>
-                  <Checkbox checked={tuesday} text="Tuesday" marginBottom={5}
-                      onPress={() => {
-                       setTuesday(!tuesday);
-                  }}/>
-                  <MediumText> Tuesday: </MediumText>
-                  <MediumText>{tuesdayVote} Votes </MediumText>
-                </View>
-                <View style={styles.checkbox}>
-                  <Checkbox checked={wednesday} text="Wednesday" marginBottom={5}
-                      onPress={() => {
-                      setWednesday(!wednesday);
-
-                  }}/>
-                  <MediumText> Wednesday: </MediumText>
-                  <MediumText>{wednesdayVote} Votes </MediumText>
-
-                </View>
-                <View style={styles.checkbox}>
-                  <Checkbox checked={thursday} text="Thursday" marginBottom={5}
-                      onPress={() => {
-                        setThursday(!thursday);
-                  }}/>
-                  <MediumText> Thursday: </MediumText>
-                  <MediumText>{thursdayVote} Votes </MediumText>
-                </View>
-                <Button onPress = {() => updateAvailabilities(monday,tuesday,wednesday,thursday)}>
-                  Set Availabilities
-                </Button>
-            </RBSheet>
-
-              <View style={styles.row}>
-                <Ionicons name="time-outline" size={20} />
-                <NormalText paddingHorizontal={10} color="black">
-                  {route.params.event.startDate ? getTime(moment(startDate).toDate()) : getTime(route.params.event.date.toDate())}
-                  {route.params.event.endDate && " - ".concat(getTime(moment(endDate).toDate()))}
-                </NormalText>
-              </View>
-
-              <View style={styles.row}>
-                <MaterialCommunityIcons name="hand-pointing-right" size={20}/>
-                <Link onPress={() => {showTimeFilterRef.current.open()}} paddingHorizontal={10}>
-                  Modify availabilities
-                </Link>
-              </View>
-
-              <View style={{...styles.row, marginTop: 10}}>
-                <Ionicons name="star-outline" size={20} />
-                <NormalText paddingHorizontal={10} color="black">
-                  Rating: {route.params.event.rating} stars
-                </NormalText>
-              </View>
-
-              <View style={styles.row}>
-                <FontAwesome5 name="comment-dollar" size={20} />
-                <NormalText paddingHorizontal={10} color="black">
-                  Pricing: {route.params.event.price}
-                </NormalText>
-              </View>
-
-              <View style={styles.row}>
-                <FontAwesome5 name="external-link-alt" size={20}/>
-                <Link onPress={() => Linking.openURL(route.params.event.url)} paddingHorizontal={10}>
-                  More info
-                </Link>
+          {attendees.length > 0 && (
+            <View style={styles.section}>
+              <Header4Text color={tokens.textMedium}>With</Header4Text>
+              <View style={styles.attendeeList}>
+                {attendees.map((person) => (
+                  <AttendeeRow
+                    key={person.id}
+                    person={person}
+                    textColor={tokens.onContainerMedium}
+                    bgColor={tokens.containerMedium}
+                  />
+                ))}
               </View>
             </View>
+          )}
 
-            {route.params.event.menu && <View>
-              <Toggle
-                open={openMenu}
-                onPress={() => setOpenMenu(!openMenu)}
-                title="Menu"
-              />
-              {openMenu && route.params.event.menu.map(item => <NormalText>{item}</NormalText>)}
-            </View>}
-          </Container>
-
-          <View style={styles.buttonRow}>
-            {!isAttending ? <Button onPress={attend} disabled={loading}>
-              {!loading ? "Attend!" : "Loading..."}
-            </Button> : <BorderedButton onPress={withdraw} disabled={loading} color="red">
-              {!loading ? "Withdraw :(" : "Loading..."}
-            </BorderedButton>}
+          <View style={styles.section}>
+            <View style={styles.locationRow}>
+              <View style={styles.locationText}>
+                <Header4Text color={tokens.textMedium}>{location.name}</Header4Text>
+                <SubBodyText color={tokens.textMedium}>{location.address}</SubBodyText>
+              </View>
+              <TouchableOpacity onPress={() => openMap({ query: event.location, provider: "google" })}>
+                <Ionicons name="map-outline" size={16} color={tokens.textMedium} />
+              </TouchableOpacity>
+            </View>
+            <StaticMapImage
+              lat={event.locationLat}
+              lng={event.locationLng}
+              address={event.location}
+              style={styles.map}
+            />
           </View>
         </View>
       </ScrollView>
+
+      <View
+        style={[
+          styles.footer,
+          { backgroundColor: tokens.background, paddingBottom: Math.max(insets.bottom, 20) },
+        ]}
+      >
+        <LargeButton
+          color="green"
+          onPress={createEvent}
+          leadingIcon={<Ionicons name="add" size={16} color={tokens.onPrimary} />}
+        >
+          Create event
+        </LargeButton>
+        <LargeButton
+          outlined
+          color={tokens.outline}
+          onPress={dismissRecommendation}
+          disabled={dismissing}
+          leadingIcon={<Ionicons name="close" size={16} color={tokens.outline} />}
+        >
+          {dismissing ? "Dismissing..." : "Dismiss recommendation"}
+        </LargeButton>
+      </View>
+
+      <RecommendationInfoDialog
+        visible={infoVisible}
+        onDismiss={closeInfo}
+        onGoToSettings={goToRecommendationSettings}
+      />
     </Layout>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  image: {
+  screen: {
+    flex: 1,
+  },
+  content: {
+    padding: 20,
+    gap: 18,
+  },
+  card: {
     width: "100%",
-    height: 150,
-    borderRadius: 10
+    borderWidth: 2.5,
+    borderStyle: "dashed",
+    borderRadius: radiusTokens.large,
+    padding: radiusTokens.extraLarge,
+    gap: radiusTokens.extraLarge,
   },
-
-  infoContainer: {
-    marginHorizontal: 30,
-    marginBottom: 50,
-    marginTop: 20
+  section: {
+    gap: 15,
+    width: "100%",
   },
-
   row: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 2,
-    flexWrap: "wrap"
   },
-
-  profileImg: {
-    width: 25,
+  rowText: {
+    marginLeft: 6,
+  },
+  attendeeList: {
+    gap: 10,
+    width: "100%",
+  },
+  attendeeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 13,
+    height: 42,
+    borderRadius: radiusTokens.small,
+    paddingHorizontal: 12,
+  },
+  attendeeAvatar: {
+    width: 26,
     height: 25,
     borderRadius: 25,
-    borderColor: "#5DB075",
-    borderWidth: 1,
-    backgroundColor: "white",
-    marginRight: 3
   },
-
-  buttonRow: {
+  locationRow: {
     flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 30
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    width: "100%",
   },
-
-  imageBackground: {
-    width: Dimensions.get("screen").width,
-    height: 150,
-    marginBottom: 20,
+  locationText: {
+    flex: 1,
   },
-
-  logistics: {
-    marginVertical: 15,
+  map: {
+    height: 175,
+    opacity: 0.8,
   },
-
-  eventChat: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    zIndex: 1,
-  },
-
-  unread: {
-    width: 10,
-    height: 10,
-    borderRadius: 10,
-    backgroundColor: "red",
-    position: "absolute",
-    top: 5,
-    right: 5
-  },
-  checkbox:{
-    flexDirection: "row",
-    padding: 10,
-    alignItems: "center",
-    justifyContent: 'left',
+  footer: {
+    flexDirection: "column",
+    gap: 10,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    borderTopLeftRadius: radiusTokens.medium,
+    borderTopRightRadius: radiusTokens.medium,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 10,
   },
 });
 

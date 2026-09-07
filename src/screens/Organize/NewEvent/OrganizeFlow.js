@@ -9,6 +9,11 @@
 // every field initializes from that event instead of blank, step titles and
 // the final button/dialog switch to their edit wording, and the final step
 // updates the existing doc in place instead of creating a new one.
+//
+// Also accepts `route.params.prefill` (see Recommendation.js) — same
+// field-seeding as `event`, but stays in create mode: the final step posts
+// a brand-new event rather than touching whatever doc the prefill data came
+// from.
 
 import React, { useState, useRef, useEffect } from "react";
 import { View, Text, StyleSheet, Platform, Animated, Alert } from "react-native";
@@ -55,7 +60,13 @@ const pickIcebreakers = () => {
 
 export default function OrganizeFlow({ navigation, route }) {
   const editingEvent = route?.params?.event || null;
+  // A recommendation's suggested details (see Recommendation.js), seeded
+  // into a brand-new event instead of editing anything — distinct from
+  // `event`, which always means "edit this existing event in place" (see
+  // handleSaveChanges below) and must never be confused with a prefill.
+  const prefillEvent = route?.params?.prefill || null;
   const isEditMode = !!editingEvent;
+  const seedEvent = editingEvent || prefillEvent;
 
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState("");
@@ -69,17 +80,21 @@ export default function OrganizeFlow({ navigation, route }) {
     ? "Inter_400Regular"
     : Platform.OS === "ios" ? "AppleSDGothicNeo-Regular" : "sans-serif";
 
-  // Step 1 fields — initialized from `editingEvent` when editing. `date` and
+  // Step 1 fields — initialized from `seedEvent` (editingEvent or a
+  // recommendation prefill) when either is present. `date` and
   // `startTime`/`endTime` all derive from the same source timestamp(s):
   // each field only ever reads the portion (day, or time-of-day) it cares
   // about, so seeding them all from startDate/endDate is safe.
-  const [title, setTitle] = useState(editingEvent?.name || "");
-  const [image, setImage] = useState(editingEvent?.hasImage ? editingEvent.image : "");
-  const [type, setType] = useState(editingEvent?.type || "");
-  const [date, setDate] = useState(editingEvent?.startDate ? editingEvent.startDate.toDate() : null);
-  const [startTime, setStartTime] = useState(editingEvent?.startDate ? editingEvent.startDate.toDate() : null);
-  const [endTime, setEndTime] = useState(editingEvent?.endDate ? editingEvent.endDate.toDate() : null);
-  const [description, setDescription] = useState(editingEvent?.additionalInfo || "");
+  const [title, setTitle] = useState(seedEvent?.name || "");
+  const [image, setImage] = useState(seedEvent?.hasImage ? seedEvent.image : "");
+  // Recommendations are always suggested as private meetups and don't carry
+  // their own `type` field — default a prefill to "private" so this step is
+  // already valid, without pretending an edit's real type is anything else.
+  const [type, setType] = useState(seedEvent?.type || (prefillEvent ? "private" : ""));
+  const [date, setDate] = useState(seedEvent?.startDate ? seedEvent.startDate.toDate() : null);
+  const [startTime, setStartTime] = useState(seedEvent?.startDate ? seedEvent.startDate.toDate() : null);
+  const [endTime, setEndTime] = useState(seedEvent?.endDate ? seedEvent.endDate.toDate() : null);
+  const [description, setDescription] = useState(seedEvent?.additionalInfo || "");
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [startTimePickerVisible, setStartTimePickerVisible] = useState(false);
   const [endTimePickerVisible, setEndTimePickerVisible] = useState(false);
@@ -89,17 +104,17 @@ export default function OrganizeFlow({ navigation, route }) {
   // when editing; older events predating those fields just won't have a
   // map pin available (StaticMapImage renders nothing without lat/lng).
   const [location, setLocation] = useState(
-    editingEvent
+    seedEvent
       ? {
-          ...parseLocation(editingEvent.location),
-          lat: editingEvent.locationLat ?? null,
-          lng: editingEvent.locationLng ?? null,
+          ...parseLocation(seedEvent.location),
+          lat: seedEvent.locationLat ?? null,
+          lng: seedEvent.locationLng ?? null,
         }
       : null
   );
 
   // Step 3 fields — no required fields on this step, tags are optional.
-  const [tags, setTags] = useState(editingEvent?.tags || []);
+  const [tags, setTags] = useState(seedEvent?.tags || []);
 
   // Step 4 — submission state. `postedEvent` carries the just-created
   // event's fields forward to "Invite friends" (InvitePeople.js's
