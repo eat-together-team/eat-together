@@ -1,129 +1,82 @@
 import {View, StyleSheet, Modal, TouchableOpacity} from 'react-native';
 import SmallText from '../../components/SmallText';
-import LargeText from '../../components/LargeText';
-import Button from '../../components/Button';
+import Header2Text from '../../components/typography/Header2Text';
+import BodyText from '../../components/typography/BodyText';
+import LargeButton from '../../components/LargeButton';
 import * as Progress from 'react-native-progress';
-import CustomButton from '../../components/CustomButton';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../rapi_ui_components';
+import { colorTokens } from '../../theme/colorTokens';
+import { radiusTokens } from '../../theme/radiusTokens';
 
 // Carousel to display each card component for restaurant personalizer
 const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished, validateSteps, progress}) => {
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
+  // Matches each step card's own width (the Cuisine/Dietary/Price range steps
+  // are wider than the rest) so the progress bar/Back-Next row lines up with
+  // the card above it.
+  const cardWidth = (index >= 2 && index <= 4) ? 340 : 311;
 
   return (
-    <View>
+    <View style={[styles.root, index >= 5 && styles.rootFullHeight]}>
         {cards[index]}
-        <Modal visible={pressedFinished} transparent={true}>
-            <TouchableOpacity style = {styles.overlay} onPress={() => setPressedFinished(false)}>
-                    <View style = {styles.prefContainer}>
-                        <LargeText  size = {30} center = {true} marginBottom = {30} style = {{marginTop:20}}>Ready to explore?</LargeText>
-                        <View>
-                            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
-                                <SmallText size={25}>Press the </SmallText>
-
-                                <CustomButton
-                                disabled
-                                width={30}
-                                height={30}
-                                borderRadius={50}
-                                backgroundColor="#F8AEAE"
-                                style={{
-                                    aspectRatio: 1,
-                                    marginHorizontal: 5,
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                }}
-                                >
-                                <Ionicons name="close" size={18} />
-                                </CustomButton>
-
-                                <SmallText size={25}> to skip</SmallText>
+        <Modal visible={pressedFinished} transparent={true} animationType="fade">
+            <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setPressedFinished(false)}>
+                <TouchableOpacity
+                    activeOpacity={1}
+                    onPress={() => {}}
+                    style={[styles.dialog, { backgroundColor: colors.background }]}
+                >
+                    <View style={styles.dialogHeader}>
+                        <Ionicons name="fast-food-outline" size={40} color={colors.onBackground} />
+                        <Header2Text color={colors.onBackground}>Ready to explore?</Header2Text>
+                    </View>
+                    <View style={styles.instructions}>
+                        <View style={styles.instructionRow}>
+                            <BodyText color={colors.onBackground} style={styles.instructionText}>Press the</BodyText>
+                            <View style={[styles.iconBadge, { backgroundColor: colors.error }]}>
+                                <Ionicons name="close" size={18} color="white" />
                             </View>
-
-                            <View
-                                style={{
-                                flexDirection: "row",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                marginTop: 40,
-                                }}
-                            >
-                                <SmallText size={25}>Press the </SmallText>
-
-                                <CustomButton
-                                disabled
-                                width={30}
-                                height={30}
-                                borderRadius={50}
-                                paddingVertical={0}
-                                paddingHorizontal={0}
-                                elevation={0}
-                                style={{
-                                    aspectRatio: 1,
-                                    marginHorizontal: 5,
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                }}
-                                >
-                                <Ionicons name="checkmark" size={18} />
-                                </CustomButton>
-
-                                <SmallText size={25}> to save</SmallText>
-                            </View>
+                            <BodyText color={colors.onBackground} style={styles.instructionText}>to skip</BodyText>
                         </View>
-                        <View style = {[{marginTop:30}]}>
-                            <Button
-                                fontSize={16}
-                                paddingHorizontal={25}
-                                paddingVertical={10}
-                                marginHorizontal={15}
-                                onPress = {()=> {
-                                    incrementIndex();
-                                    setPressedFinished(false);
-                                }}
-                            >
-                                Let's go!
-                            </Button>
+                        <View style={styles.instructionRow}>
+                            <BodyText color={colors.onBackground} style={styles.instructionText}>Press the</BodyText>
+                            <View style={[styles.iconBadge, { backgroundColor: colors.primary }]}>
+                                <Ionicons name="checkmark" size={18} color="white" />
+                            </View>
+                            <BodyText color={colors.onBackground} style={styles.instructionText}>to save</BodyText>
                         </View>
                     </View>
+                    <View style={styles.dialogButtons}>
+                        <LargeButton onPress={() => { incrementIndex(); setPressedFinished(false); }}>Let's go!</LargeButton>
+                        <LargeButton outlined color="gray" onPress={() => setPressedFinished(false)}>Exit</LargeButton>
+                    </View>
+                </TouchableOpacity>
             </TouchableOpacity>
         </Modal>
         {(index >= 2 && index <= 4) && (
             <>
                 <Progress.Bar
                   progress={progress}
-                  width={311}
+                  width={cardWidth}
                   height={16}
-                  color="#5DB075"
-                  unfilledColor="#D0D0D0"
+                  color={colors.primary}
+                  unfilledColor={colors.containerMedium}
                   borderWidth={0}
                   borderRadius={8}
-                  style={{ alignSelf: 'center', marginTop: 16 }}
+                  style={{ alignSelf: 'center', marginTop: 30 }}
                 />
-                <View style={styles.buttonContainer}>
-                    <Button
-                        backgroundColor="white"
-                        color="#A9A9A9"
-                        borderWidth={2}
-                        borderColor="#A9A9A9"
-                        noShadow
-                        onPress={decrementIndex}
-                        fontSize={13}
-                        paddingHorizontal={32}
-                        paddingVertical={8}
-                    >
-                        Back
-                    </Button>
-                    <SmallText size={13} style={{ alignSelf: 'center' }}>{index - 1} of {cards.length - 4}</SmallText>
-                    <Button
-                        noShadow
-                        onPress={incrementIndex}
-                        disabled={validateSteps()}
-                        fontSize={13}
-                        paddingHorizontal={32}
-                        paddingVertical={8}
-                    >
-                        {index == cards.length - 2 ? "Finish" : "Next"}
-                    </Button>
+                <View style={[styles.buttonContainer, { width: cardWidth }]}>
+                    <View style={styles.buttonFlex}>
+                        <LargeButton outlined color="gray" onPress={decrementIndex}>Back</LargeButton>
+                    </View>
+                    <SmallText size={13} style={styles.stepLabel}>{index - 1} of {cards.length - 4}</SmallText>
+                    <View style={styles.buttonFlex}>
+                        <LargeButton disabled={validateSteps()} onPress={incrementIndex}>
+                            {index == cards.length - 2 ? "Finish" : "Next"}
+                        </LargeButton>
+                    </View>
                 </View>
             </>
         )}
@@ -131,12 +84,26 @@ const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFini
   )
 }
 const styles = StyleSheet.create({
+    root:{
+        alignItems: 'center',
+    },
+    rootFullHeight:{
+        flex: 1,
+        width: '100%',
+    },
     buttonContainer:{
-        width: 311,
         flexDirection:'row',
-        justifyContent:'space-between',
         alignItems:'center',
-        paddingVertical: 16,
+        gap: 41,
+        paddingTop: 16,
+        paddingBottom: 50,
+    },
+    buttonFlex:{
+        flex: 1,
+    },
+    stepLabel:{
+        flexShrink: 0,
+        textAlign: 'center',
     },
     backButton:{
         backgroundColor:"#F7F7F7", 
@@ -181,14 +148,46 @@ const styles = StyleSheet.create({
         flex:1,
         justifyContent:'center',
         alignItems:'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(0, 0, 0, 0.15)',
     },
-    prefContainer:{
-        display:'flex',
-        backgroundColor:"#F7F7F7",
-        borderRadius:20,
-        height:289,
-        width:315,
+    dialog:{
+        width: 350,
+        alignItems: 'center',
+        gap: 15,
+        padding: 20,
+        borderRadius: radiusTokens.medium,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.25,
+        shadowRadius: 2,
+        elevation: 4,
+    },
+    dialogHeader:{
+        alignItems: 'center',
+        gap: 10,
+    },
+    instructions:{
+        alignItems: 'center',
+        gap: 15,
+    },
+    instructionRow:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    instructionText:{
+        fontSize: 18,
+    },
+    iconBadge:{
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    dialogButtons:{
+        width: '100%',
+        gap: 10,
     },
 })
 export default CardCarousel

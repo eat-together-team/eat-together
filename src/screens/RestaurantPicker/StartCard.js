@@ -1,28 +1,32 @@
 import React from 'react'
 import {StyleSheet, View} from "react-native";
 import RestaurantCard from '../../components/RestaurantCard';
-import Button from '../../components/Button';
-import LargeText from '../../components/LargeText';
-import SmallText from '../../components/SmallText';
+import Header1Text from '../../components/typography/Header1Text';
+import BodyText from '../../components/typography/BodyText';
+import LargeButton from '../../components/LargeButton';
+import { useTheme } from '../../rapi_ui_components';
+import { colorTokens } from '../../theme/colorTokens';
 
 // Explore screen where user can start setting preferences or go straight into exploring restaurants
 const StartCard = ({incrementIndex, skipToSwiping}) => {
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
+
   return (
-    <View style={styles.cardWrapper}>
-        <RestaurantCard height={600}>
-            <View style = {styles.questionContainer}>
+    <View style={[styles.cardWrapper, {backgroundColor: colors.containerLow}]}>
+        <RestaurantCard height={630}>
+            <View style = {styles.content}>
                 <View style = {styles.textWrapper}>
-                    <LargeText color = "#808080" size = {30}>Before we start,</LargeText>
-                    <LargeText color = "#5DB075" size = {30}>Any preferences in mind?</LargeText>
-                    <SmallText size = {13} style={styles.bodyText}>Tell us more about your favorite cuisines, foods, price range, and dietary restrictions so we can provide you more personalized recommendations.</SmallText>
+                    <View style = {styles.headingGroup}>
+                        <Header1Text color={colors.textMedium} style={styles.heading}>Before we start,</Header1Text>
+                        <Header1Text color={colors.primary} style={styles.heading}>Any preferences in mind?</Header1Text>
+                    </View>
+                    <BodyText color={colors.onBackground} style={styles.bodyText}>Tell us more about your favorite cuisines, foods, price range, and dietary restrictions so we can provide you more personalized recommendations.</BodyText>
                 </View>
-            </View>
-            <View style = {styles.buttonContainer}>
-                <Button onPress={incrementIndex} width="80%" fontSize={16} paddingHorizontal={25} 
-                        paddingVertical={10} marginBottom={14} noShadow>Set Preferences</Button>
-                <Button onPress={skipToSwiping} width="80%" fontSize={16} paddingHorizontal={25} 
-                        paddingVertical={10} noShadow backgroundColor="#F7F7F7" color="#5DB075" 
-                        borderWidth={2} borderColor="#5DB075">I'm open to anything!</Button>
+                <View style = {styles.buttonContainer}>
+                    <LargeButton onPress={incrementIndex}>Set preferences</LargeButton>
+                    <LargeButton outlined onPress={skipToSwiping}>I'm open to anything</LargeButton>
+                </View>
             </View>
         </RestaurantCard>
     </View>
@@ -31,37 +35,39 @@ const StartCard = ({incrementIndex, skipToSwiping}) => {
 const styles = StyleSheet.create({
     cardWrapper: {
         width: 311,
-        borderWidth: 2,
-        borderColor: '#D0D0D0',
         borderRadius: 20,
-        backgroundColor: '#F7F7F7',
         overflow: 'hidden',
     },
 
-    questionContainer:{
-        backgroundColor:'#F7F7F7',
-        width: '100%',
-        height: 200,
-        display:'flex',
-        justifyContent:'flex-start',
-        alignItems:'center'
-      },
-
-      textWrapper: {
-        width: '80%',
-        alignItems: 'flex-start',
-      },
-
-      bodyText: {
-        marginTop: 14,
-      },
-
-      buttonContainer:{
+    content: {
         flex: 1,
-        display:'flex',
-        justifyContent:'flex-end',
-        alignItems:'center',
-        paddingBottom: 12,
-      }
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingTop: 8,
+        paddingBottom: 20,
+    },
+
+    textWrapper: {
+        gap: 10,
+        alignItems: 'flex-start',
+    },
+
+    headingGroup: {
+        gap: 0,
+        alignItems: 'flex-start',
+    },
+
+    heading: {
+        fontSize: 30,
+        lineHeight: 32,
+    },
+
+    bodyText: {
+        fontSize: 13,
+    },
+
+    buttonContainer:{
+        gap: 10,
+    }
 })
 export default StartCard

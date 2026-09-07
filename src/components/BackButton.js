@@ -1,34 +1,28 @@
 import { TouchableOpacity } from "react-native"
-import MediumText from "./MediumText"
 import {Ionicons} from '@expo/vector-icons';
-    
+import { useTheme } from '../rapi_ui_components';
+import { colorTokens } from '../theme/colorTokens';
+
 const BackButton = ({ onPress }) => {
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
+
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
       style = {{
-        position:'absolute', 
+        position:'absolute',
         top: 21,
         left: 20,
-        backgroundColor:'white', 
-        width: 42, 
-        height: 42,
-        borderRadius: 20,
-        display: 'flex',
+        backgroundColor: colors.background,
+        width: 30,
+        height: 30,
+        borderRadius: 10,
         justifyContent:"center",
         alignItems:'center',
       }}>
-        
-      <MediumText style={{
-        color: '#5DB075',
-        fontSize: 22,
-        fontWeight: 'bold',
-        padding: 3,
-      }}>
-            
-        <Ionicons name={"arrow-back"} size={22} color="#5DB075" />
-      </MediumText>
+      <Ionicons name="arrow-back" size={16} color={colors.onBackground} />
     </TouchableOpacity>
   )
 }
