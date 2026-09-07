@@ -42,9 +42,7 @@ export default function ({navigation, route}) {
   const [userSkipped, setUserSkipped] = useState(false);
   const [pressedStart, setPressedStart] = useState(false);
   const [progress, setProgress] = useState(0.33);
-  const [swipingFinished, setSwipingFinished] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0); // Index for list of restaurants
-  const [resultVisible, setResultVisible] = useState(true);
   const [swipeCardExpanded, setSwipeCardExpanded] = useState(false);
 
   //Queries Yelp restaurant data
@@ -185,11 +183,9 @@ export default function ({navigation, route}) {
       setPriceRange = {setPriceRange} 
       priceRange = {priceRange}
     />,
-    <SwipeDeck 
-      listOfRestaurants = {result} 
-      setSwipingFinished ={setSwipingFinished} 
-      swipingFinished = {swipingFinished} 
-      userResults = {userResults} 
+    <SwipeDeck
+      listOfRestaurants = {result}
+      userResults = {userResults}
       setUserResults = {setUserResults} 
       incrementIndex = {incrementIndex} 
       currentIndex = {currentIndex}
@@ -200,10 +196,8 @@ export default function ({navigation, route}) {
       setResult = {setResult}
       onExpandedChange={setSwipeCardExpanded}
     />,
-    <Results 
+    <Results
       userResults = {userResults}
-      resultVisible={resultVisible}
-      setResultVisible = {setResultVisible}
       setResult = {setResult}
     />
   ];
@@ -211,13 +205,13 @@ export default function ({navigation, route}) {
   return (
     <Layout>
       <SmallAppBar
-        title="Discover restaurants"
+        title={index === 6 ? "Results" : "Discover restaurants"}
         onBack={() => navigation.goBack()}
       />
       <ScrollView
         style={styles.scrollView}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={[styles.scrollContent, index > 4 && styles.scrollContentPadding]}
+        contentContainerStyle={[styles.scrollContent, (index === 5 && swipeCardExpanded) && styles.scrollContentPadding]}
         scrollEnabled={index !== 5 || swipeCardExpanded}
       >
       <View style = {styles.outerContainer}>

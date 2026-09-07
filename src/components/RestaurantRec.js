@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Image, View, StyleSheet, Linking, Platform, ScrollView} from "react-native";
-import MediumText from "./MediumText";
-import SmallText from "./SmallText";
-import LargeText from './LargeText';
-import Button from './Button';
+import { Image, View, StyleSheet, Linking, Platform, ScrollView, TouchableOpacity } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import Header1Text from "./typography/Header1Text";
+import Header3Text from "./typography/Header3Text";
+import Header4Text from "./typography/Header4Text";
+import BodyText from "./typography/BodyText";
+import SubBodyText from "./typography/SubBodyText";
+import LabelText from "./typography/LabelText";
+import LargeButton from "./LargeButton";
 import ExpandedButton from "./ExpandedButton";
 import BackButton from "./BackButton";
+import StaticMapImage from "./StaticMapImage";
+import { useTheme } from '../rapi_ui_components';
+import { colorTokens } from '../theme/colorTokens';
 
 //Presents each restaurant result from YELP API Response
 const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, setPressedStart, setResult, onExpandedChange, onBack}) => {
+    const { theme } = useTheme();
+    const colors = colorTokens[theme];
     const [expanded, setExpanded] = useState(false);
 
     useEffect(() => {
         onExpandedChange?.(expanded);
     }, [expanded, onExpandedChange]);
 
-    // console.log("Rendering restaurant: " + JSON.stringify(restaurant, null, 2));
     const listOfCategories = restaurant?.categories
         ? restaurant.categories.split(', ')
         : [];
@@ -55,7 +64,7 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
         });
     })();
     const hasHours = formattedHoursByDay.length > 0;
-    
+
     // Opens Yelp app (or browser)
     const handleOpeningURL = async() =>{
         await Linking.openURL(restaurant.url);
@@ -67,7 +76,7 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
     }
 
     // Opens address on maps (Google, apple, web as fallback)
-    const handleAddressEvent = async() => { 
+    const handleAddressEvent = async() => {
         const encodedAddress = encodeURIComponent(restaurant.address);
 
         const url = Platform.select({
@@ -75,11 +84,10 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
             android: `geo:0,0?q=${encodedAddress}`,
             default: `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`
         });
-        
-        console.log(url);
+
         try {
             const supported = await Linking.canOpenURL(url);
-            
+
             if (supported) {
                 await Linking.openURL(url);
             } else {
@@ -94,195 +102,246 @@ const RestaurantRec = ({restaurant, setIndex, setUserSkipped, setCurrentIndex, s
 
     if (!restaurant){
         return (
-        <View style = {{width: 400, height: 600, justifyContent:'center', alignItems:'center'}}>
-            <MediumText center = {true} marginBottom = {20}>
+        <View style={styles.emptyContainer}>
+            <BodyText color={colors.onBackground} center>
                 No Cards Left
-            </MediumText>
-            <Button onPress = {()=> 
-                {
+            </BodyText>
+            <LargeButton
+                style={styles.emptyButton}
+                onPress={() => {
                     setIndex(0);
                     setUserSkipped(false);
                     setCurrentIndex(0);
                     setPressedStart(false);
                     setResult(undefined);
-                }
-                }>
+                }}
+            >
                 Back To Start
-            </Button>
+            </LargeButton>
         </View>
         )
     }
 
     return (
-        <View style = {styles.container}>
-            <Image
-                source={
-                    restaurant.imageUrl
-                        ? { uri: restaurant.imageUrl }
-                        : require("../../assets/foodBackground.png")
-                }
-                style={styles.image}
-            />
-
-            <BackButton onPress={onBack} />
-            <ExpandedButton setExpanded = {setExpanded} expanded = {expanded}/>
-            <View style = {styles.ratingAndCategoryContainer}>
-                <View>
-                    <MediumText size = {13} lineHeight = {15}>{[listOfCategories[0]]}</MediumText>
-                    <MediumText size = {13}>{restaurant.price}  {restaurant.rating}★</MediumText>
-                </View>
-                {listOfCategories[1] && <MediumText size = {13} lineHeight = {15} style = {{marginRight: 30}}>{listOfCategories[1]}</MediumText>}
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <View style={styles.imageWrapper}>
+                <Image
+                    source={
+                        restaurant.imageUrl
+                            ? { uri: restaurant.imageUrl }
+                            : require("../../assets/foodBackground.png")
+                    }
+                    style={styles.image}
+                />
+                <BackButton onPress={onBack} />
+                <ExpandedButton setExpanded={setExpanded} expanded={expanded} />
             </View>
 
-            <View>
-                <LargeText
-                    style={{ marginHorizontal: 30, marginBottom: 10}}
-                    color="#5DB075"
-                    center
-                    numberOfLines={2}
-                    ellipsizeMode="tail"
-                >
-                    {restaurant.name}
-                </LargeText>
-                <SmallText center style={{ marginHorizontal: 30 }}>
-                    {restaurant.description}
-                </SmallText>
-            </View>
-            {expanded && (
-                <View>
-                    <View style = {styles.locationContainer}>
-                        <MediumText center color = "#5DB075">
-                            {hasHours ? 'Location & Hours' : 'Location'}
-                        </MediumText>
-                        {!!addressLine1 && (
-                            <MediumText
-                                onPress={handleAddressEvent}
-                                size={13}
-                                center
-                                style={{ marginTop: 6, textDecorationLine: 'underline' }}
-                            >
-                                {addressLine1}
-                            </MediumText>
-                        )}
-                        {!!addressLine2 && (
-                            <MediumText
-                                size={13}
-                                center
-                                style={{ marginTop: -2, marginBottom: 6 }}
-                            >
-                                {addressLine2}
-                            </MediumText>
-                        )}
-                        {formattedHoursByDay.map(({ day, value }) => (
-                            <View key={day} style={styles.hoursRow}>
-                                <MediumText size={13} style={styles.hoursDay}>
-                                    {day}
-                                </MediumText>
-                                <MediumText
-                                    size={13}
-                                    style={styles.hoursText}
-                                    numberOfLines={1}
-                                    ellipsizeMode="tail"
-                                >
-                                    {value}
-                                </MediumText>
-                            </View>
-                        ))}
-                    </View>
-                    {!!restaurant.photos && restaurant.photos.length > 0 && (
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.photosScroll}
-                            contentContainerStyle={styles.photosContainer}
-                        >
-                            {restaurant.photos.map((photoUrl) => (
-                                <Image
-                                    key={photoUrl}
-                                    source={{ uri: photoUrl }}
-                                    style={styles.photoThumb}
-                                />
-                            ))}
-                        </ScrollView>
+            <View style={styles.content}>
+                <View style={styles.textBlock}>
+                    <Header1Text color={colors.onBackground} style={styles.name} numberOfLines={2} ellipsizeMode="tail">
+                        {restaurant.name}
+                    </Header1Text>
+                    {!!restaurant.description && (
+                        <BodyText color={colors.onBackground} numberOfLines={3} ellipsizeMode="tail">
+                            {restaurant.description}
+                        </BodyText>
                     )}
-                    {/* <View style = {styles.phoneNumberContainer}>
-                        <MediumText center color = "#5DB075">Phone Number</MediumText>
-                        <MediumText onPress = {handleOpeningPhoneNum} center size = {13} style = {{marginTop: 7, textDecorationLine: 'underline'}}>{restaurant.phone}</MediumText>
-                    </View> */}
                 </View>
-            )}
-                {/* <View>
-                    <MediumText center onPress = {handleOpeningURL} marginBottom = {20} lineHeight = {15} size = {13} weight = {600} style = {{textDecorationLine: 'underline'}}>Check it out on Yelp!</MediumText>
-                </View> */}
+
+                <View style={styles.metaRow}>
+                    <View style={styles.metaLeft}>
+                        {!!listOfCategories[0] && (
+                            <SubBodyText color={colors.onBackground}>{listOfCategories[0]}</SubBodyText>
+                        )}
+                        <View style={styles.priceRatingRow}>
+                            <Header3Text color={colors.onBackground} style={styles.price}>{restaurant.price}</Header3Text>
+                            <View style={styles.ratingRow}>
+                                <LabelText color={colors.onBackground}>{restaurant.rating}</LabelText>
+                                <Ionicons name="star" size={10} color={colors.onBackground} />
+                            </View>
+                        </View>
+                    </View>
+                    {!!listOfCategories[1] && (
+                        <SubBodyText color={colors.onBackground} style={styles.metaRight}>{listOfCategories[1]}</SubBodyText>
+                    )}
+                </View>
+
+                {expanded && (
+                    <View style={styles.expandedContent}>
+                        {!!addressLine1 && (
+                            <TouchableOpacity onPress={handleAddressEvent} style={styles.addressRow}>
+                                <View style={styles.addressText}>
+                                    <Header4Text color={colors.onBackground}>{addressLine1}</Header4Text>
+                                    {!!addressLine2 && (
+                                        <SubBodyText color={colors.textMedium}>{addressLine2}</SubBodyText>
+                                    )}
+                                </View>
+                                <Ionicons name="map-outline" size={16} color={colors.onBackground} />
+                            </TouchableOpacity>
+                        )}
+
+                        {!!restaurant.address && (
+                            <StaticMapImage lat={restaurant.lat} lng={restaurant.lng} address={restaurant.address} />
+                        )}
+
+                        {hasHours && (
+                            <View style={[styles.scheduleBox, { backgroundColor: colors.containerLow }]}>
+                                {formattedHoursByDay.map(({ day, value }) => (
+                                    <View key={day} style={styles.hoursRow}>
+                                        <Header4Text color={colors.onBackground} style={styles.hoursDay}>
+                                            {day}
+                                        </Header4Text>
+                                        <SubBodyText
+                                            color={colors.onBackground}
+                                            numberOfLines={1}
+                                            ellipsizeMode="tail"
+                                        >
+                                            {value}
+                                        </SubBodyText>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+
+                        {!!restaurant.photos && restaurant.photos.length > 0 && (
+                            <View style={styles.photosWrapper}>
+                                <ScrollView
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                    contentContainerStyle={styles.photosContainer}
+                                >
+                                    {restaurant.photos.map((photoUrl) => (
+                                        <Image
+                                            key={photoUrl}
+                                            source={{ uri: photoUrl }}
+                                            style={styles.photoThumb}
+                                        />
+                                    ))}
+                                </ScrollView>
+                                <LinearGradient
+                                    colors={[`${colors.background}00`, colors.background]}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    style={styles.photosFade}
+                                    pointerEvents="none"
+                                />
+                            </View>
+                        )}
+                    </View>
+                )}
+            </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        alignSelf:'center',
-        width: 315,
-        height: 'auto',
-        marginTop: 40,
-        borderWidth: 0.2,
-        borderRadius: 40,
+        alignSelf: 'center',
+        width: 347,
+        borderRadius: 20,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.25,
+        shadowRadius: 2,
+        elevation: 4,
+    },
+    imageWrapper: {
+        width: '100%',
+        height: 302,
     },
     image: {
-        width: 315,
-        height: 290,
-        borderTopLeftRadius: 40,
-        borderTopRightRadius: 40,
+        width: '100%',
+        height: '100%',
     },
-    ratingAndCategoryContainer:{
-        display:'flex',
-        flexDirection:'row',
-        justifyContent:'space-between',
-        marginTop: 24,
-        marginBottom: 5,
-        marginLeft: 30,
+    content: {
+        paddingHorizontal: 30,
+        paddingTop: 22,
+        paddingBottom: 15,
+        gap: 31,
     },
-    locationContainer:{
-        marginTop: 5
+    textBlock: {
+        gap: 8,
     },
-    phoneNumberContainer:{
-        marginTop: 5,
+    name: {
+        fontSize: 30,
     },
-    servicesContainer:{
-        marginTop: 5,
-        marginBottom: 5,
+    metaRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+    },
+    metaLeft: {
+        gap: 5,
+    },
+    priceRatingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+    },
+    price: {
+        fontSize: 13,
+    },
+    ratingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
+    },
+    metaRight: {
+        textAlign: 'right',
+    },
+    expandedContent: {
+        gap: 20,
+    },
+    addressRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    addressText: {
+        gap: 2,
+    },
+    scheduleBox: {
+        borderRadius: 10,
+        paddingVertical: 18,
+        gap: 8,
     },
     hoursRow: {
         flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        marginTop: 2,
-        paddingHorizontal: 55,
-        width: '100%',
+        justifyContent: 'space-between',
+        paddingHorizontal: 28,
     },
     hoursDay: {
-        minWidth: 60,
-        textAlign: 'left',
-        marginRight: 8,
-        flexShrink: 0,
+        width: 45,
     },
-    hoursText: {
-        flex: 1,
-        textAlign: 'left',
-    },
-    photosScroll: {
-        marginTop: 10,
-        marginBottom: 16,
+    photosWrapper: {
+        position: 'relative',
     },
     photosContainer: {
-        paddingHorizontal: 15,
+        gap: 15,
     },
     photoThumb: {
-        width: 90,
-        height: 90,
+        width: 114,
+        height: 114,
         borderRadius: 10,
-        marginRight: 6,
+    },
+    photosFade: {
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        bottom: 0,
+        width: 36,
+    },
+    emptyContainer: {
+        width: 315,
+        alignItems: 'center',
+        paddingVertical: 40,
+        gap: 20,
+    },
+    emptyButton: {
+        width: 200,
     },
 });
 
 export default RestaurantRec;
-
