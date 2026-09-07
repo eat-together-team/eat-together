@@ -1,23 +1,27 @@
 import React from 'react'
 import {StyleSheet, View} from "react-native";
 import RestaurantCard from "../../components/RestaurantCard";
-import MediumText from '../../components/MediumText';
+import Header2Text from '../../components/typography/Header2Text';
 import PriceRangeButton from '../../components/PriceRangeButton';
+import { useTheme } from '../../rapi_ui_components';
+import { colorTokens } from '../../theme/colorTokens';
 
 // Price range screen that allows users to set price range preferences
 const PriceRangeCard = ({setPriceRange, priceRange}) => {
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
 
   return (
-    <View style={styles.cardWrapper}>
-        <RestaurantCard height={510}>
-            <View style = {styles.questionContainer}>
-              <MediumText center = "center" marginBottom={10}>What is your price {'\n'}range?</MediumText>
-            </View>
-            <View style = {styles.buttonContainer}>
-              <PriceRangeButton dollars="$" text="$10 and under" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
-              <PriceRangeButton dollars="$$" text="$10 to $30" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
-              <PriceRangeButton dollars="$$$" text="$30 to $60" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
-              <PriceRangeButton dollars="$$$$" text="$60 and above" setPriceRange = {setPriceRange} priceRange = {priceRange}/>
+    <View style={[styles.cardWrapper, { backgroundColor: colors.containerLow }]}>
+        <RestaurantCard height={572} width={340}>
+            <View style={styles.content}>
+              <Header2Text color={colors.onBackground} center>What is your price{'\n'}range?</Header2Text>
+              <View style={styles.buttonContainer}>
+                <PriceRangeButton dollars="$" text="$10 and under" setPriceRange={setPriceRange} priceRange={priceRange}/>
+                <PriceRangeButton dollars="$$" text="$10 to $30" setPriceRange={setPriceRange} priceRange={priceRange}/>
+                <PriceRangeButton dollars="$$$" text="$30 to $60" setPriceRange={setPriceRange} priceRange={priceRange}/>
+                <PriceRangeButton dollars="$$$$" text="$60 and above" setPriceRange={setPriceRange} priceRange={priceRange}/>
+              </View>
             </View>
         </RestaurantCard>
     </View>
@@ -25,27 +29,22 @@ const PriceRangeCard = ({setPriceRange, priceRange}) => {
 }
 const styles = StyleSheet.create({
     cardWrapper: {
-      width: 311,
-      borderWidth: 2,
-      borderColor: '#D0D0D0',
+      width: 340,
       borderRadius: 20,
-      backgroundColor: '#F7F7F7',
       overflow: 'hidden',
     },
-    
-    questionContainer:{
-        backgroundColor:'#F7F7F7',
-        width: '100%',
-        display:'flex',
-        justifyContent:'center',
-        alignItems:'center',
-      },
-      
-      buttonContainer:{
-        height: 410,
-        display:'flex',
-        justifyContent:'space-evenly',
-        alignItems:'center'
-      }
+
+    content: {
+      alignItems: 'center',
+      gap: 31,
+      paddingHorizontal: 20,
+      paddingTop: 0,
+      paddingBottom: 30,
+    },
+
+    buttonContainer: {
+      width: '100%',
+      gap: 20,
+    },
 })
 export default PriceRangeCard

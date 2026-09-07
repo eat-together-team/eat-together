@@ -13,9 +13,10 @@ import { colorTokens } from '../../theme/colorTokens';
 const CardCarousel = ({cards, incrementIndex, decrementIndex, index, pressedFinished, setPressedFinished, validateSteps, progress}) => {
   const { theme } = useTheme();
   const colors = colorTokens[theme];
-  // Matches each step card's own width (CuisineCard is wider than the rest)
-  // so the progress bar/Back-Next row lines up with the card above it.
-  const cardWidth = index === 2 ? 340 : 311;
+  // Matches each step card's own width (the Cuisine/Dietary/Price range steps
+  // are wider than the rest) so the progress bar/Back-Next row lines up with
+  // the card above it.
+  const cardWidth = (index >= 2 && index <= 4) ? 340 : 311;
 
   return (
     <View style={styles.root}>
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     stepLabel:{
-        width: 35,
+        flexShrink: 0,
         textAlign: 'center',
     },
     backButton:{
