@@ -1,499 +1,175 @@
-// Notifications page
+// Notifications page — categorised list of everything waiting on the user.
+// Categories with nothing in them are hidden entirely, header included.
 
-import React, { useEffect, useState, useContext } from "react";
-import {
-  ScrollView,
-  FlatList,
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  TouchableOpacity,
-  Alert,
-  Image,
-} from "react-native";
-import { Layout, TopNav } from "../../rapi_ui_components";
+import React, { useEffect, useRef } from "react";
+import { View, StyleSheet, ScrollView, Animated } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Layout, useTheme } from "../../rapi_ui_components";
+import { colorTokens } from "../../theme/colorTokens";
 
-import Header from "../../components/Header";
-import HorizontalSwitch from "../../components/HorizontalSwitch";
-import MediumText from "../../components/MediumText";
-import SmallText from "../../components/SmallText";
-import Notification from "../../components/Notification";
-import EmptyState from "../../components/EmptyState";
-import Link from "../../components/Link";
+import SmallAppBar from "../../components/SmallAppBar";
+import Header3Text from "../../components/typography/Header3Text";
+import NotificationRow from "../../components/NotificationRow";
+import NotificationSectionSkeleton from "../../components/NotificationSectionSkeleton";
 
-import { db } from "../../provider/Firebase";
-import firebase from "firebase/compat";
-import moment from "moment";
-import { AuthContext } from "../../provider/AuthProvider";
+import useNotificationFeed from "./useNotificationFeed";
+import useDeferredReady from "../../utils/useDeferredReady";
+import { auth, db } from "../../provider/Firebase";
 
-export default function (props) {
-  const user = firebase.auth().currentUser;
-  const updateHasNotif = useContext(AuthContext).updateHasNotif;
+const SKELETON_SECTIONS = 4;
 
-  const [userData, setUserData] = useState({});
-  const [notifications, setNotifications] = useState([]);
-  const [readNotifs, setReadNotifs] = useState([]);
-  const [unreadNotifs, setUnreadNotifs] = useState([]);
-  const [recommendations, setRecommendations] = useState([]);
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [unread, setUnread] = useState(false);
+export default function Notifications({ navigation }) {
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
+  const user = auth.currentUser;
+  const ready = useDeferredReady();
+
+  const { sections, loading, accept, dismiss } = useNotificationFeed(user, {
+    enabled: ready,
+  });
+
+  const contentOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (!user) return;
+    if (loading) return;
+    contentOpacity.setValue(0);
+    Animated.timing(contentOpacity, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [loading]);
 
-    // Update hasNotif to false when page opens
-    db.collection("Users").doc(user.uid).update({ hasNotif: false });
-    updateHasNotif(false);
+  // Tapping a row goes wherever that kind of notification lives. The feed
+  // describes the destination rather than navigating itself, so it stays
+  // free of navigation concerns.
+  const openTarget = (target) => {
+    if (!target) return;
 
-    // --- USER NOTIFICATIONS LISTENER ---
-    const unsubscribeUser = db
-      .collection("Users")
-      .doc(user.uid)
-      .onSnapshot((snap) => {
-        if (!snap.exists) return;
+    switch (target.screen) {
+      case "FullProfile":
+        db.collection("Users")
+          .doc(target.lookupPerson)
+          .get()
+          .then((doc) => {
+            if (doc.exists) navigation.navigate("FullProfile", { person: doc.data() });
+            else alert("This user seems to no longer exist :(");
+          })
+          .catch(() => alert("This user seems to no longer exist :("));
+        break;
 
-        const data = snap.data();
-        setUserData(data);
-
-        const notifications = data.notifications || [];
-        setNotifications(notifications);
-
-        // Skip recommendation entries entirely if the user turned off
-        // "Personalize suggestions" in Settings > Recommendations.
-        const getRecommendations = data.settings?.getRecommendations ?? true;
-
-        const newReadNotifs = [];
-        const newUnreadNotifs = [];
-        const newRecommendations = [];
-
-        notifications.forEach((notif) => {
-          if (notif.type === "recommendation") {
-            if (getRecommendations) newRecommendations.push(notif);
-          } else if (notif.readAt && notif.type !== "user profile") {
-            newReadNotifs.push(notif);
-          } else if (!notif.readAt && notif.type !== "user profile") {
-            newUnreadNotifs.push(notif);
-          }
+      case "NotificationFull": {
+        const invite = target.invite;
+        const end = invite.endDate || invite.startDate || invite.date;
+        navigation.navigate("NotificationFull", {
+          invite,
+          hasPassed: end ? end.toDate().getTime() < Date.now() : false,
         });
+        break;
+      }
 
-        setReadNotifs(newReadNotifs.reverse());
-        setUnreadNotifs(newUnreadNotifs.reverse());
-        setRecommendations(newRecommendations.reverse());
-      });
+      case "FullCard":
+        db.collection(target.eventType === "public event" ? "Public Events" : "Private Events")
+          .doc(target.eventId)
+          .get()
+          .then((doc) => {
+            if (doc.exists) navigation.navigate("FullCard", { event: doc.data() });
+            else alert("This event no longer exists.");
+          })
+          .catch(() => alert("Error fetching this event. Try again later."));
+        break;
 
-    // --- FRIEND REQUESTS LISTENER ---
-    const unsubscribeRequests = db
-      .collection("User Invites")
-      .doc(user.uid)
-      .collection("Connections")
-      .onSnapshot((querySnapshot) => {
-        const list = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          list.push({
-            id: doc.id,
-            username: data.username,
-            profile: data.profile,
-            status: data.status || "pending",
-          });
-        });
-        setRequests(list.reverse());
-      });
+      case "Recommendation":
+        db.collection("Private Events")
+          .doc(target.eventId)
+          .get()
+          .then((doc) => {
+            if (doc.exists) navigation.navigate("Recommendation", { event: doc.data() });
+            else alert("This recommendation is no longer available.");
+          })
+          .catch(() => alert("There seems to be an error fetching this recommendation."));
+        break;
 
-    setLoading(false);
+      case "ChatRoom":
+        navigation.navigate("ChatRoom", { group: target.group });
+        break;
 
-    return () => {
-      unsubscribeUser();
-      unsubscribeRequests();
-    };
-  }, [user]);
-
-  // --- Clear notifications ---
-  const removeReadNotifications = async () => {
-    try {
-      const userDoc = await db.collection("Users").doc(user.uid).get();
-      if (!userDoc.exists) return;
-      const data = userDoc.data();
-      const filtered = (data.notifications || []).filter((notif) => !notif.readAt);
-      await db.collection("Users").doc(user.uid).update({ notifications: filtered });
-      console.log("Read notifications removed");
-    } catch (error) {
-      console.error("Error removing read notifications:", error);
+      default:
+        break;
     }
   };
 
-  const removeUnreadNotifications = async () => {
-    try {
-      const userDoc = await db.collection("Users").doc(user.uid).get();
-      if (!userDoc.exists) return;
-      const data = userDoc.data();
-      const filtered = (data.notifications || []).filter((notif) => notif.readAt);
-      await db.collection("Users").doc(user.uid).update({ notifications: filtered });
-      console.log("Unread notifications removed");
-    } catch (error) {
-      console.error("Error removing unread notifications:", error);
-    }
-  };
-
-  // --- Alerts ---
-  const deleteAlert = () => {
-    Alert.alert(
-      "Delete Notifications",
-      "Are you sure you want to delete all read notifications?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "OK", onPress: () => removeReadNotifications() },
-      ],
-      { cancelable: true }
-    );
-  };
-
-  const deleteUnreadAlert = () => {
-    Alert.alert(
-      "Delete Notifications",
-      "Are you sure you want to delete all unread notifications?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "OK", onPress: () => removeUnreadNotifications() },
-      ],
-      { cancelable: true }
-    );
-  };
-
-  // --- UI ---
   return (
     <Layout>
-      {props.fromNav ? (
-        <Header name="Notifications" navigation={props.navigation} />
-      ) : (
-        <TopNav
-          middleContent={<MediumText center>Notifications</MediumText>}
-          leftContent={<Ionicons name="chevron-back" size={20} />}
-          leftAction={() => props.navigation.goBack()}
-        />
-      )}
-
-      {props.fromNav && (
-        <HorizontalSwitch
-          left="Notifications"
-          right="Messages"
-          current="left"
-          press={() => props.navigation.navigate("ChatMain")}
-          pingRight={unread}
-        />
-      )}
+      <SmallAppBar title="Notifications" onBack={() => navigation.goBack()} />
 
       {loading ? (
-        <View style={styles.noInvitesView}>
-          <ActivityIndicator size={100} color="#5DB075" />
-          <MediumText>Hang tight ...</MediumText>
-        </View>
-      ) : notifications.length > 0 ? (
-        <ScrollView style={{ padding: 5 }}>
-          {/* --- Friend Requests Preview --- */}
-          {requests.length > 0 && (
-            <TouchableOpacity
-              style={styles.friendRequestPreview}
-              onPress={() => props.navigation.navigate("Requests")}
-            >
-              <MediumText style={styles.frTitle}>Friend Requests</MediumText>
-              <View style={styles.frSubHeader}>
-                <MediumText style={styles.frSub}>
-                  You have {requests.length} new friend requests!
-                </MediumText>
-                <Ionicons
-                  name="chevron-forward"
-                  size={20}
-                  color="black"
-                  style={styles.rightArrow}
-                />
-              </View>
-              <View style={styles.avatarRow}>
-                {requests.slice(0, 3).map((req, index) => (
-                  <Image
-                    key={req.id || index}
-                    source={{ uri: req.profile }}
-                    style={[
-                      styles.profilePic,
-                      index === 0 && styles.firstProfilePic,
-                    ]}
-                  />
-                ))}
-                <SmallText numberOfLines={1} ellipsizeMode="tail" style={styles.requestText}>
-                  {requests.slice(0, 3).map((r) => r.username).join(", ")}
-                  {requests.length > 3 ? "..." : ""}
-                </SmallText>
-              </View>
-            </TouchableOpacity>
-          )}
-
-          {/* --- Recommendations --- */}
-          {recommendations.length > 0 && (
-            <View>
-              <FlatList
-                contentContainerStyle={styles.cards}
-                keyExtractor={(item, index) => item.id || index.toString()}
-                data={recommendations}
-                renderItem={({ item }) => (
-                  <Notification
-                    notif={item}
-                    showButton={!!item.type}
-                    onPress={() => {
-                      if (!item.readAt) {
-                        const updated = notifications.map((notif) =>
-                          notif === item ? { ...notif, readAt: new Date() } : notif
-                        );
-                        db.collection("Users").doc(user.uid).update({
-                          notifications: updated,
-                        });
-                      }
-
-                      db.collection("Private Events")
-                        .doc(item.id)
-                        .get()
-                        .then((ss) =>
-                          props.navigation.navigate("Recommendation", {
-                            event: ss.data(),
-                            userData,
-                          })
-                        )
-                        .catch(() =>
-                          alert(
-                            "There seems to be an error fetching this recommendation."
-                          )
-                        );
-                    }}
-                  />
-                )}
-              />
-            </View>
-          )}
-
-          {/* --- Unread Notifications --- */}
-          {unreadNotifs.length > 0 && (
-            <View>
-              <View style={styles.notifStyle}>
-                <MediumText>Unread</MediumText>
-                <Link onPress={deleteUnreadAlert}>Clear Notifications</Link>
-              </View>
-
-              <FlatList
-                contentContainerStyle={styles.cards}
-                keyExtractor={(item, index) => item.id || index.toString()}
-                data={unreadNotifs}
-                renderItem={({ item }) => (
-                  <Notification
-                    notif={item}
-                    showButton={!!item.type}
-                    onPress={() => {
-                      if (!item.readAt) {
-                        const updated = notifications.map((notif) =>
-                          notif === item ? { ...notif, readAt: new Date() } : notif
-                        );
-                        db.collection("Users").doc(user.uid).update({
-                          notifications: updated,
-                        });
-                      }
-                      switch (item.type) {
-                        case "invite":
-                          db.collection("User Invites")
-                            .doc(user.uid)
-                            .collection("Invites")
-                            .doc(item.id)
-                            .get()
-                            .then((ss) => {
-                              const inviteToSend = { ...ss.data(), id: ss.id };
-                              props.navigation.navigate("NotificationFull", {
-                                invite: inviteToSend,
-                                notif: item,
-                                hasPassed:
-                                  (ss.data().endDate
-                                    ? ss.data().endDate.toDate().getTime()
-                                    : ss.data().date.toDate().getTime()) <
-                                  new Date().getTime(),
-                              });
-                            })
-                            .catch(() =>
-                              alert("Error fetching invite, try again later.")
-                            );
-                          break;
-                        case "private event":
-                          db.collection("Private Events")
-                            .doc(item.id)
-                            .get()
-                            .then((ss) =>
-                              props.navigation.navigate("FullCard", {
-                                event: ss.data(),
-                              })
-                            )
-                            .catch(() =>
-                              alert("Error fetching this event. Try again later.")
-                            );
-                          break;
-                        case "public event":
-                          db.collection("Public Events")
-                            .doc(item.id)
-                            .get()
-                            .then((ss) =>
-                              props.navigation.navigate("FullCard", {
-                                event: ss.data(),
-                              })
-                            )
-                            .catch(() =>
-                              alert("Error fetching this event. Try again later.")
-                            );
-                          break;
-                        default:
-                          alert("Sorry, an error has occurred.");
-                      }
-                    }}
-                  />
-                )}
-              />
-            </View>
-          )}
-
-          {/* --- Read Notifications --- */}
-          {readNotifs.length > 0 && (
-            <View>
-              <View style={styles.notifStyle}>
-                <MediumText>Read</MediumText>
-                <Link onPress={deleteAlert}>Clear Notifications</Link>
-              </View>
-
-              <FlatList
-                contentContainerStyle={styles.cards}
-                keyExtractor={(item, index) => item.id || index.toString()}
-                data={readNotifs}
-                renderItem={({ item }) => (
-                  <Notification
-                    notif={item}
-                    showButton={!!item.type}
-                    onPress={() => {
-                      switch (item.type) {
-                        case "invite":
-                          db.collection("User Invites")
-                            .doc(user.uid)
-                            .collection("Invites")
-                            .doc(item.id)
-                            .get()
-                            .then((ss) => {
-                              const inviteToSend = { ...ss.data(), id: ss.id };
-                              props.navigation.navigate("NotificationFull", {
-                                invite: inviteToSend,
-                                notif: item,
-                                hasPassed:
-                                  (ss.data().endDate
-                                    ? ss.data().endDate.toDate().getTime()
-                                    : ss.data().date.toDate().getTime()) <
-                                  new Date().getTime(),
-                              });
-                            })
-                            .catch(() =>
-                              alert("Error fetching invite, try again later.")
-                            );
-                          break;
-                        case "private event":
-                          db.collection("Private Events")
-                            .doc(item.id)
-                            .get()
-                            .then((ss) =>
-                              props.navigation.navigate("FullCard", {
-                                event: ss.data(),
-                              })
-                            )
-                            .catch(() =>
-                              alert("Error fetching event. Try again later.")
-                            );
-                          break;
-                        case "public event":
-                          db.collection("Public Events")
-                            .doc(item.id)
-                            .get()
-                            .then((ss) =>
-                              props.navigation.navigate("FullCard", {
-                                event: ss.data(),
-                              })
-                            )
-                            .catch(() =>
-                              alert("Error fetching event. Try again later.")
-                            );
-                          break;
-                        default:
-                          alert("Sorry, an error has occurred.");
-                      }
-                    }}
-                  />
-                )}
-              />
-            </View>
-          )}
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.sections}>
+            {Array.from({ length: SKELETON_SECTIONS }).map((_, index) => (
+              <NotificationSectionSkeleton key={index} />
+            ))}
+          </View>
         </ScrollView>
+      ) : sections.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Ionicons name="notifications-outline" size={56} color={tokens.textLight} />
+          <Header3Text color={tokens.textLight} center>
+            {"You're all caught up"}
+          </Header3Text>
+        </View>
       ) : (
-        <EmptyState title="No New Notifications" text="You're all clear :)" />
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <Animated.View style={[styles.sections, { opacity: contentOpacity }]}>
+            {sections.map((section) => (
+              <View key={section.key} style={styles.section}>
+                <Header3Text color={tokens.onBackground}>{section.title}</Header3Text>
+                <View>
+                  {section.data.map((item) => (
+                    <NotificationRow
+                      key={item.id}
+                      name={item.name}
+                      body={item.body}
+                      timestamp={item.timestamp}
+                      avatarUri={item.avatarUri}
+                      thumbnail={item.thumbnail}
+                      confirmation={item.confirmation}
+                      action={
+                        item.actionLabel
+                          ? { label: item.actionLabel, onPress: () => accept(item) }
+                          : null
+                      }
+                      dismissLabel={item.dismissLabel}
+                      onDismiss={item.dismiss ? () => dismiss(item) : undefined}
+                      onPress={() => openTarget(item.target)}
+                    />
+                  ))}
+                </View>
+              </View>
+            ))}
+          </Animated.View>
+        </ScrollView>
       )}
     </Layout>
   );
 }
 
 const styles = StyleSheet.create({
-  noInvitesView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  cards: {
-    alignItems: "center",
+  content: {
+    paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 40,
+    paddingBottom: 30,
   },
-  notifStyle: {
-    flexDirection: "row",
+  sections: {
+    gap: 25,
+  },
+  section: {
+    gap: 10,
+  },
+  emptyState: {
+    flex: 1,
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 10,
-  },
-  frTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginLeft: 20,
-    paddingTop: 10,
-  },
-  frSub: {
-    marginLeft: 20,
-    fontSize: 15,
-  },
-  rightArrow: {
-    marginRight: 10,
-  },
-  frSubHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  avatarRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-    marginTop: 5,
-    marginLeft: -6
-  },
-  profilePic: {
-    width: 35,
-    height: 35,
-    borderRadius: 25,
-    marginLeft: -20,
-    marginRight: 5,
-    borderWidth: 1,
-    borderColor: "black",
-  },
-  firstProfilePic: {
-    marginLeft: 25,
-  },
-  requestText: {
-    color: "#777",
+    justifyContent: "center",
+    gap: 20,
   },
 });

@@ -22,8 +22,8 @@ import Link from "../../components/Link";
 import Toggle from '../../components/Toggle';
 import PeopleList from '../../components/PeopleList';
 
-import firebase from "firebase/compat";
 import { db, auth } from "../../provider/Firebase";
+import { acceptEventInvite, declineEventInvite } from "./eventInvites";
 import getDate from '../../utils/getDate';
 import getTime from '../../utils/getTime';
 import openMap from "react-native-open-maps";
@@ -40,7 +40,6 @@ export default function ({ route, navigation }) {
 
     // Get the current user and firebase ref path
     const user = auth.currentUser;
-    const ref = db.collection("User Invites").doc(user.uid).collection("Invites").doc(invite.id);
 
     useEffect(() => {
         getAttendees();
@@ -239,59 +238,19 @@ export default function ({ route, navigation }) {
                 </View>
 
                 <View style = {styles.buttonView}>
-                    <Button onPress = {() => {
-                        const inviteRef = db.collection("Private Events").doc(invite.inviteID)
-                        inviteRef.get().then((doc) => {
-                        let data = doc.data()
-                        let currentAttendees = data.attendees
-                            currentAttendees.push(user.uid)
-                            inviteRef.update({
-                                attendees: currentAttendees
-                            }, {merge: true}).then(() => {
-                                const storeID = {
-                                    type: "private",
-                                    id: invite.inviteID
-                                };
-
-                                db.collection("Users").doc(user.uid).update({
-                                    attendingEventIDs: firebase.firestore.FieldValue.arrayUnion(storeID),
-                                    notifications: firebase.firestore.FieldValue.arrayRemove(route.params.notif)
-                                }).then(() => {
-                                    ref.delete().then(r => {
-                                        alert("Invite accepted! Check the homepage for more details.")
-                                        navigation.goBack();
-                                    })
-                                });
-                            })
-
-
-                        })
+                    <Button onPress={() => {
+                        acceptEventInvite(user, invite).then(() => {
+                            alert("Invite accepted! Check the homepage for more details.");
+                            navigation.goBack();
+                        }).catch(() => alert("Couldn't accept that invite, try again later."));
                     }} marginHorizontal={10}>
                         Accept
                     </Button>
-                    <BorderedButton onPress = {() => {
-                        ref.set({
-                            accepted: "declined"
-                        }, {merge: true}).then(() => {
-                            const storeID = {
-                                type: "private",
-                                id: invite.inviteID
-                            };
-
-                            db.collection("Users").doc(user.uid).update({
-                                attendingEventIDs: firebase.firestore.FieldValue.arrayRemove(storeID),
-                                notifications: firebase.firestore.FieldValue.arrayRemove(route.params.notif)
-                            }).then(() => {
-                                db.collection("Private Events").doc(invite.inviteID).update({
-                                    attendees: firebase.firestore.FieldValue.arrayRemove(user.uid)
-                                }).then(() => {
-                                    ref.delete().then(r => {
-                                        alert("Invite declined. It will be removed from your notifications.");
-                                        navigation.goBack();
-                                    })
-                                })
-                            });
-                        })
+                    <BorderedButton onPress={() => {
+                        declineEventInvite(user, invite).then(() => {
+                            alert("Invite declined. It will be removed from your notifications.");
+                            navigation.goBack();
+                        }).catch(() => alert("Couldn't decline that invite, try again later."));
                     }} color="red" marginHorizontal={10}>
                         Decline
                     </BorderedButton>

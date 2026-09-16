@@ -15,6 +15,7 @@ import PromoImageCard from "../../components/PromoImageCard";
 import PromoImageCardSkeleton from "../../components/PromoImageCardSkeleton";
 
 import useDeferredReady from "../../utils/useDeferredReady";
+import useNotificationCount from "../Notifications/useNotificationCount";
 import { compareDates } from "../../utils/methods";
 import { tryoutId } from "../../utils/constants";
 import { auth, db } from "../../provider/Firebase";
@@ -28,7 +29,6 @@ const PREVIEW_COUNT = 3;
 export default function ({ navigation }) {
   const user = auth.currentUser;
 
-  const [hasNotif, setHasNotif] = useState(false);
   const [events, setEvents] = useState([]);
   const [people, setPeople] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(true);
@@ -37,6 +37,8 @@ export default function ({ navigation }) {
 
   const ready = useDeferredReady();
   const contentOpacity = useRef(new Animated.Value(0)).current;
+
+  const notificationCount = useNotificationCount(user, { enabled: ready });
 
   const { startTutorial } = useTutorial();
   const notificationsTargetRef = useTutorialTarget("notifications");
@@ -51,19 +53,6 @@ export default function ({ navigation }) {
       }).start();
     }
   }, [loading]);
-
-  // Looks for changes to notifications in real-time
-  useEffect(() => {
-    if (!ready) return;
-
-    const unsubscribe = db.collection("Users").doc(user.uid).onSnapshot((doc) => {
-      if (doc.exists) {
-        setHasNotif(doc.data().hasNotif);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [ready]);
 
   // Previews of upcoming events and suggested people (filtered the same way
   // as AllEvents.js and People.js's full lists, just capped to a few rows).
@@ -142,7 +131,8 @@ export default function ({ navigation }) {
         title="Explore"
         actions={[
           {
-            icon: hasNotif ? "notifications" : "notifications-outline",
+            icon: "notifications-outline",
+            showBadge: notificationCount > 0,
             targetRef: notificationsTargetRef,
             onPress: () => {
               if (user.uid === tryoutId) {
