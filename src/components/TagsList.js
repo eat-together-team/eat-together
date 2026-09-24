@@ -66,20 +66,20 @@ const TagsList = props => {
 const styles = StyleSheet.create({
     tagSection: {
         borderWidth: 2,
-        borderRadius: 10,
+        borderRadius: 15,
         marginVertical: 8,
     },
     tagSectionFood: {
-        borderColor: "#F0D4ED",
-        backgroundColor: "#FDE5FF59",
+        borderColor: "#F2E2FC",
+        backgroundColor: "#FBF7FE",
     },
     tagSectionHobby: {
-        borderColor: "#B3D9FF",
-        backgroundColor: "#E8F7FE59",
+        borderColor: "#D5EFFF",
+        backgroundColor: "#F4FAFF",
     },
     tagSectionSchool: {
-        borderColor: "#FFE699",
-        backgroundColor: "#FFFCE559",
+        borderColor: "#F3F0DF",
+        backgroundColor: "#FEFDFB",
     },
 });
 
