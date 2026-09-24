@@ -34,6 +34,7 @@ import { db, auth } from "../../../provider/Firebase";
 import firebase from "firebase/compat";
 import { tryoutId } from "../../../utils/constants";
 import { removeFriend } from "../../../utils/methods";
+import { openDirectMessage } from "../../Chat/Chats";
 
 export const blockPerson = (uid, navigation, back) => {
   Alert.alert("Block", "Are you sure you want to block this user? This can't be undone.", [
@@ -118,14 +119,15 @@ const FullProfile = ({ blockBack, route, navigation }) => {
 
   const [status, setStatus] = useState("Loading"); // Status of connection
   const [disabled, setDisabled] = useState(true); // Disable button if already connected
-  const [color, setColor] = useState("grey"); // Color of button
   const [events, setEvents] = useState([]); // Events that this user has hosted
   const [inviterImage, setInviterImage] = useState(
     "https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png"
   );
   const [personData, setPersonData] = useState(person);
-  const [followButtonLayout, setFollowButtonLayout] = useState({ y: 0, height: 0 });
   const [joinDate, setJoinDate] = useState(null);
+  const [mutualFriends, setMutualFriends] = useState([]); // Up to 5 mutual connections, for the avatar row
+  const [mutualCount, setMutualCount] = useState(0);
+  const [messaging, setMessaging] = useState(false);
 
   const reportPerson = () => {
     navigation.navigate("ReportPerson", {
@@ -158,10 +160,24 @@ const FullProfile = ({ blockBack, route, navigation }) => {
             image: data.image || ""
           }));
 
+          // Mutual connections — shown as an avatar row + "Friends with
+          // X, Y and N more" whenever there's at least one (see spec node
+          // 13-25003); with none, just the plain connection count (13-25618).
+          const myFriendIDs = thisData.friendIDs || [];
+          const theirFriendIDs = data.friendIDs || [];
+          const mutualIDs = myFriendIDs.filter((id) => theirFriendIDs.includes(id));
+          setMutualCount(mutualIDs.length);
+          if (mutualIDs.length > 0) {
+            Promise.all(
+              mutualIDs.slice(0, 5).map((id) => db.collection("Users").doc(id).get())
+            ).then((docs) => {
+              setMutualFriends(docs.filter((d) => d.exists).map((d) => ({ id: d.id, ...d.data() })));
+            });
+          }
+
           if (thisData.friendIDs.includes(data.id)) {
             setDisabled(true);
             setStatus("Connections");
-            setColor("gold");
           } else {
             // STEP 2: Check if you have already requested to connect with user.
             const ref = db
@@ -171,9 +187,8 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               .doc(user.uid);
             ref.get().then((doc) => {
               if (doc.exists) {
-                setDisabled(true);
-                setStatus("Request Sent");
-                setColor("grey");
+                setDisabled(false);
+                setStatus("Pending");
               } else {
                 // STEP 3: Check if user has already requested to follow you.
                 const otherRef = db
@@ -184,13 +199,11 @@ const FullProfile = ({ blockBack, route, navigation }) => {
                 otherRef.get().then((doc) => {
                   if (doc.exists) {
                     setDisabled(true);
-                    setStatus("Check Requests");
-                    setColor("orange");
+                    setStatus("Requested");
                   } else {
                     // STEP 4: Set to default
                     setDisabled(false);
-                    setStatus("Follow");
-                    setColor("#5DB075");
+                    setStatus("Connect");
                   }
                 });
               }
@@ -239,15 +252,81 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               sentAt: Date.now()
             })
             .then(() => {
-              setStatus("Request Sent");
-              setDisabled(true);
-              setColor("grey");
+              setStatus("Pending");
+              setDisabled(false);
             });
         });
     });
   };
 
+  // Withdrawing deletes the same invite doc connect() created — a still-
+  // pending request just isn't accepted yet, so nothing else needs cleanup.
+  const withdrawRequest = () => {
+    Alert.alert(
+      "Withdraw request",
+      "Are you sure you want to withdraw this connection request?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Withdraw",
+          style: "destructive",
+          onPress: () => {
+            db.collection("User Invites")
+              .doc(person.id)
+              .collection("Connections")
+              .doc(user.uid)
+              .delete()
+              .then(() => {
+                setStatus("Connect");
+                setDisabled(false);
+              })
+              .catch(() => alert("Couldn't withdraw that request, try again later."));
+          },
+        },
+      ]
+    );
+  };
+
+  // Opens (or starts) a direct chat with this person — a normal chat if
+  // already connected, otherwise a message request gated by their "Allow
+  // message requests" privacy setting (defaults to on, see AccountPrivacy.js).
+  const message = async () => {
+    if (messaging) return;
+    setMessaging(true);
+    try {
+      const curUserDoc = await db.collection("Users").doc(user.uid).get();
+      const userData = curUserDoc.data();
+      const group = await openDirectMessage(
+        user,
+        userData,
+        { id: person.id, name: person.firstName + " " + person.lastName, username: person.username },
+        status === "Connections"
+      );
+      navigation.navigate("ChatRoom", { group });
+    } catch (error) {
+      console.error("Failed to open chat:", error);
+      alert("Couldn't open that chat, try again later.");
+    } finally {
+      setMessaging(false);
+    }
+  };
+
   const statusBarHeight = Constants.statusBarHeight || (Platform.OS === 'ios' ? 44 : 24);
+
+  const isConnected = status === "Connections";
+  const isPending = status === "Pending";
+  const allowMessageRequests = personData.settings?.allowMessageRequests ?? true;
+  const showMessageButton = isConnected || allowMessageRequests;
+
+  const mutualNames = mutualFriends.map((f) => f.firstName).filter(Boolean);
+  const mutualNamesText =
+    mutualCount === 1
+      ? mutualNames[0]
+      : mutualCount === 2
+      ? `${mutualNames[0]} and ${mutualNames[1]}`
+      : mutualCount > 2
+      ? `${mutualNames[0]}, ${mutualNames[1]} and ${mutualCount - 2} more`
+      : "";
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -257,54 +336,26 @@ const FullProfile = ({ blockBack, route, navigation }) => {
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* if a user has a set profile picture, blur it and set it as their background
-        if they don't set their background to the default eat together green*/}
-        <View style={styles.backgroundContainer}>
+        <View style={styles.page}>
+        {/* Hero section (name/photo, connections, buttons) sizes itself to
+        its own content — the blurred background is an absolute fill
+        *inside* it, so it always matches exactly, whether that's one
+        button, two (Connect + Message), or none. No measuring/guessing.
+        paddingTop lives here (not on `page`) so the background — an
+        absolute child, which ignores its own parent's padding — still
+        reaches hero's true top edge and draws under the status bar, while
+        the normal-flow content is pushed down below it as usual. */}
+        <View style={[styles.hero, { paddingTop: statusBarHeight + 124 }]}>
           {personData.hasImage && personData.image ? (
             <ImageBackground
               source={{ uri: personData.image }}
-              style={[
-                styles.background,
-                {
-                  height:
-                    Math.max(320, followButtonLayout.y + followButtonLayout.height + 10) +
-                    statusBarHeight - 35 + (Platform.OS === 'android' ? 16 : 0),
-                },
-              ]}
+              style={styles.background}
               imageStyle={styles.backgroundImage}
               blurRadius={20}
             />
           ) : (
-            <View
-              style={[
-                styles.background,
-                {
-                  backgroundColor: "#5DB075",
-                  height:
-                    Math.max(360, followButtonLayout.y + followButtonLayout.height) +
-                    statusBarHeight - 25 + (Platform.OS === 'android' ? 16 : 0),
-                },
-              ]}
-            />
+            <View style={[styles.background, { backgroundColor: "#5DB075" }]} />
           )}
-        </View>
-        <View style={[styles.page, { paddingTop: statusBarHeight + 100 }]}>
-        <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
-          <Ionicons
-            name="arrow-back-sharp"
-            size={24}
-            color="white"
-            onPress={() => navigation.goBack()}
-          />
-        </View>
-
-        {person.id === user.uid && (
-          <View style={[styles.myEvents, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
-            <TouchableOpacity onPress={() => navigation.navigate("MyEvents", { userId: person.id })}>
-              <FastFoodIcon size={22} color="white" />
-            </TouchableOpacity>
-          </View>
-        )}
 
         {/* <View style={styles.badge}>
           <WithBadge
@@ -358,26 +409,93 @@ const FullProfile = ({ blockBack, route, navigation }) => {
               })
             }
           >
-            <NormalText color="white" align="left" weight="bold" marginTop={8} marginBottom={8}>
-              {(personData.friendIDs || person.friendIDs || []).length} Connections
-            </NormalText>
+            <View style={styles.connectionsRow}>
+              {mutualFriends.length > 0 && (
+                <View style={styles.mutualAvatars}>
+                  {mutualFriends.map((friend, i) => (
+                    <Image
+                      key={friend.id}
+                      style={[styles.mutualAvatar, i > 0 && { marginLeft: -10 }]}
+                      source={
+                        friend.hasImage && friend.image
+                          ? { uri: friend.image }
+                          : require("../../../../assets/logo.png")
+                      }
+                    />
+                  ))}
+                  {mutualCount > mutualFriends.length && (
+                    <View style={[styles.mutualAvatar, styles.mutualOverflow, { marginLeft: -10 }]}>
+                      <NormalText size={9} color="black" weight="bold">
+                        +{mutualCount - mutualFriends.length}
+                      </NormalText>
+                    </View>
+                  )}
+                </View>
+              )}
+
+              <View>
+                <NormalText color="white" align="left" weight="bold" marginTop={8} marginBottom={mutualCount > 0 ? 0 : 8}>
+                  {(personData.friendIDs || person.friendIDs || []).length} Connections
+                </NormalText>
+                {mutualCount > 0 && (
+                  <NormalText color="white" size={11} marginBottom={8}>
+                    Friends with {mutualNamesText}
+                  </NormalText>
+                )}
+              </View>
+            </View>
           </TouchableOpacity>
         </View>
 
-        {tryoutId != user.uid && (
-          <View 
-            style={styles.links}
-            onLayout={(event) => {
-              const { y, height } = event.nativeEvent.layout;
-              setFollowButtonLayout({ y, height });
-            }}
-          >
-            <TouchableOpacity
-              style={[styles.followButton, { backgroundColor: "white"}]}
-              onPress={connect}
-              disabled={disabled}
-            >
-              <NormalText color="black" center weight="bold">{status}</NormalText>
+        {tryoutId != user.uid && status !== "Loading" && (
+          <View style={styles.links}>
+            {!isConnected && (
+              <TouchableOpacity
+                style={[styles.followButton, isPending ? styles.followButtonOutline : styles.followButtonFilled]}
+                onPress={isPending ? withdrawRequest : status === "Requested" ? undefined : connect}
+                disabled={status === "Requested" ? true : disabled}
+              >
+                {status === "Connect" && (
+                  <Ionicons name="person-add-outline" size={16} color="#646464" style={{ marginRight: 8 }} />
+                )}
+                <NormalText color={isPending ? "white" : "#646464"} center weight="bold">
+                  {isPending ? "Connection request pending" : status === "Requested" ? "Check Requests" : "Connect"}
+                </NormalText>
+              </TouchableOpacity>
+            )}
+
+            {showMessageButton && (
+              <TouchableOpacity
+                style={[styles.followButton, styles.followButtonOutline, !isConnected && { marginTop: 10 }]}
+                onPress={message}
+                disabled={messaging}
+              >
+                <Ionicons name="chatbubble-outline" size={16} color="white" style={{ marginRight: 8 }} />
+                <NormalText color="white" center weight="bold">Message</NormalText>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+        </View>
+
+        {/* Back/food icons are direct children of `page` (not `hero`
+        above), placed *after* it in the tree so they paint on top of its
+        background — their `top` offset assumes a parent that doesn't
+        itself get pushed down by paddingTop, which is only true one level
+        up; nesting them inside hero double-shifts them down the page. */}
+        <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
+          <Ionicons
+            name="arrow-back-sharp"
+            size={24}
+            color="white"
+            onPress={() => navigation.goBack()}
+          />
+        </View>
+
+        {person.id === user.uid && (
+          <View style={[styles.myEvents, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
+            <TouchableOpacity onPress={() => navigation.navigate("MyEvents", { userId: person.id })}>
+              <FastFoodIcon size={22} color="white" />
             </TouchableOpacity>
           </View>
         )}
@@ -462,20 +580,34 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
-  backgroundContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    width: Dimensions.get("window").width,
-  },
   page: {
     alignItems: "center",
     paddingHorizontal: 10,
   },
 
+  // Full-bleed: cancels page's paddingHorizontal so the background and
+  // header content still reach the screen edges. Its own height is never
+  // set explicitly — it's whatever the hero content (icons, name/photo,
+  // connections, buttons) naturally lays out to, plus this bottom padding
+  // (which the background fills too) for breathing room under the button(s).
+  hero: {
+    // No explicit width: alignSelf:'stretch' (overriding page's
+    // alignItems:'center') sizes hero to page's content box *minus* its
+    // margins — since those margins are negative, that subtraction adds
+    // width instead, growing hero past page's padding on both sides.
+    // width:'100%' instead would size hero to that content box directly,
+    // leaving a gap the negative margin only repositions past, not fills.
+    alignSelf: "stretch",
+    marginHorizontal: -10,
+    paddingBottom: 24,
+  },
+
   background: {
-    width: Dimensions.get("window").width,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   backgroundImage: {
     resizeMode: "cover",
@@ -530,6 +662,31 @@ const styles = StyleSheet.create({
     paddingTop: 42,
   },
 
+  connectionsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  mutualAvatars: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 8,
+  },
+
+  mutualAvatar: {
+    width: 27,
+    height: 27,
+    borderRadius: 13.5,
+    borderWidth: 1.5,
+    borderColor: "white",
+    backgroundColor: "white",
+  },
+
+  mutualOverflow: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -556,9 +713,8 @@ const styles = StyleSheet.create({
 
   links: {
     marginTop: 10,
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "center",
-    justifyContent: "flex-start",
     width: "100%",
     paddingHorizontal: 20,
   },
@@ -578,8 +734,24 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     paddingTop: 12,
     width: "95%",
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  followButtonFilled: {
+    backgroundColor: "white",
+  },
+
+  followButtonOutline: {
+    backgroundColor: "transparent",
+    borderColor: "white",
+    borderWidth: 2,
+    // outline buttons have no vertical border padding built in above, so
+    // match the filled button's visual height by trimming the same amount
+    // the border adds.
+    paddingBottom: 10,
+    paddingTop: 10,
   },
 
   bottomActions: {
