@@ -28,6 +28,7 @@ import FunFact from "../../components/FunFact";
 import GalleryRow from "../../components/GalleryRow";
 import EventsRow from "../../components/EventsRow";
 import RestaurantsRow from "../../components/RestaurantsRow";
+import ProfileSkeleton from "../../components/ProfileSkeleton";
 
 import { compareDates } from "../../utils/methods";
 import SmallText from "../../components/SmallText";
@@ -40,6 +41,7 @@ export default function ({ navigation }) {
   const [mealsAttended, setMealsAttended] = useState(0);
   const [mealsSignedUp, setMealsSignedUp] = useState(0);
   const [joinDate, setJoinDate] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [events, setEvents] = useState([]);
 
@@ -65,6 +67,7 @@ export default function ({ navigation }) {
           }
 
           setUserInfo(doc.data());
+          setLoading(false);
           if (doc.data().settings.banner) {
             setBanner(doc.data().settings.banner);
           } else {
@@ -197,7 +200,29 @@ export default function ({ navigation }) {
   }
 
   const statusBarHeight = Constants.statusBarHeight || (Platform.OS === 'ios' ? 44 : 24);
-  
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+        <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
+          <Ionicons
+            name="arrow-back-sharp"
+            size={24}
+            color="black"
+            onPress={() => navigation.goBack()}
+          ></Ionicons>
+        </View>
+        <ScrollView
+          contentContainerStyle={{ paddingTop: statusBarHeight + 54 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <ProfileSkeleton />
+        </ScrollView>
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />

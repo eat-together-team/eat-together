@@ -359,11 +359,15 @@ export const removeFriend = (uid, navigation) => {
 };
 
 /**
- * Database operation to remove friend connection between two users
+ * Database operation to remove friend connection between two users. Exported
+ * (unlike the rest of this file's similar private helpers) so a caller that
+ * already has its own confirmation UI — e.g. a custom Dialog matching a
+ * specific design spec — can trigger the removal directly, without also
+ * going through removeFriend()'s native Alert confirmation on top of theirs.
  * @param {String} uid The user ID of the friend to remove.
  * @param {Object} navigation Navigation object to go back after removal (optional).
  */
-const databaseRemoveFriend = (uid, navigation) => {
+export const databaseRemoveFriend = (uid, navigation) => {
   alert("Friend removed.");
   const user = auth.currentUser;
 

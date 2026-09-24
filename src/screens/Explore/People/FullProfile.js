@@ -14,7 +14,7 @@ import {
   StatusBar,
   Platform
 } from "react-native";
-import { Layout, TopNav } from "../../../rapi_ui_components";
+import { Layout, TopNav, useTheme } from "../../../rapi_ui_components";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from 'expo-constants';
 import FastFoodIcon from "../../../components/icons/FastFoodIcon";
@@ -28,13 +28,19 @@ import NormalText from "../../../components/NormalText";
 import FunFact from "../../../components/FunFact";
 import GalleryRow from "../../../components/GalleryRow";
 import EventsRow from "../../../components/EventsRow";
+import ProfileSkeleton from "../../../components/ProfileSkeleton";
+import Menu from "../../../components/Menu";
+import Dialog from "../../../components/Dialog";
+import DialogOverlay from "../../../components/DialogOverlay";
+import SubBodyText from "../../../components/typography/SubBodyText";
 // import WithBadge from "../../../components/WithBadge";
 
 import { db, auth } from "../../../provider/Firebase";
 import firebase from "firebase/compat";
 import { tryoutId } from "../../../utils/constants";
-import { removeFriend } from "../../../utils/methods";
+import { databaseRemoveFriend } from "../../../utils/methods";
 import { openDirectMessage } from "../../Chat/Chats";
+import { colorTokens } from "../../../theme/colorTokens";
 
 export const blockPerson = (uid, navigation, back) => {
   Alert.alert("Block", "Are you sure you want to block this user? This can't be undone.", [
@@ -103,6 +109,8 @@ const databaseStoreBlockAction = (uid, navigation, back) => {
 
 const FullProfile = ({ blockBack, route, navigation }) => {
   const user = auth.currentUser; // Current user
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
 
   // Safely destructure person with fallbacks
   const person = route?.params?.person || {};
@@ -128,11 +136,37 @@ const FullProfile = ({ blockBack, route, navigation }) => {
   const [mutualFriends, setMutualFriends] = useState([]); // Up to 5 mutual connections, for the avatar row
   const [mutualCount, setMutualCount] = useState(0);
   const [messaging, setMessaging] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [blockDialogVisible, setBlockDialogVisible] = useState(false);
+  const [reportDialogVisible, setReportDialogVisible] = useState(false);
+  const [removeDialogVisible, setRemoveDialogVisible] = useState(false);
 
-  const reportPerson = () => {
-    navigation.navigate("ReportPerson", {
-      user: person,
-    });
+  const confirmBlock = () => {
+    setBlockDialogVisible(false);
+    databaseStoreBlockAction(person.id, navigation, blockBack);
+  };
+
+  // Unlike Block/Remove, this doesn't need a full explanation screen — the
+  // dialog copy already tells the reporter what happens next, so tapping
+  // Report just files it, same one-step flow as the Figma spec.
+  const confirmReport = () => {
+    setReportDialogVisible(false);
+    db.collection("mail").add({
+      to: "eat.together.team@gmail.com",
+      message: {
+        subject: "USER REPORT ON " + person.username + " by " + user.uid,
+        text: "Reported via profile menu.",
+      },
+    }).then(() => {
+      alert("The team has been notified of your report and will take action as soon as possible.");
+    }).catch(() => alert("Couldn't submit that report, try again later."));
+  };
+
+  const confirmRemoveFriend = () => {
+    setRemoveDialogVisible(false);
+    databaseRemoveFriend(person.id);
+    setStatus("Connect");
+    setDisabled(false);
   };
 
   useEffect(() => {
@@ -328,10 +362,53 @@ const FullProfile = ({ blockBack, route, navigation }) => {
       ? `${mutualNames[0]}, ${mutualNames[1]} and ${mutualCount - 2} more`
       : "";
 
+  // Menu only makes sense on someone else's profile — same guard the old
+  // bottom Block/Report buttons used for the tryout demo account.
+  const showPersonMenu = person.id !== user.uid && tryoutId != user.uid;
+  const menuItems = [
+    {
+      icon: <Ionicons name="ban-outline" size={22} color={tokens.onMenuContainer} />,
+      label: "Block user",
+      onPress: () => setBlockDialogVisible(true),
+    },
+    {
+      icon: <Ionicons name="alert-circle-outline" size={22} color={tokens.onMenuContainer} />,
+      label: "Report user",
+      onPress: () => setReportDialogVisible(true),
+    },
+    isConnected && {
+      icon: <Ionicons name="person-remove-outline" size={22} color={tokens.onMenuContainer} />,
+      label: "Remove friend",
+      onPress: () => setRemoveDialogVisible(true),
+    },
+  ].filter(Boolean);
+
+  if (status === "Loading") {
+    return (
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+        <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
+          <Ionicons
+            name="arrow-back-sharp"
+            size={24}
+            color="black"
+            onPress={() => navigation.goBack()}
+          />
+        </View>
+        <ScrollView
+          contentContainerStyle={{ paddingTop: statusBarHeight + 124 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <ProfileSkeleton />
+        </ScrollView>
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
@@ -500,6 +577,66 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           </View>
         )}
 
+        {showPersonMenu && (
+          <View style={[styles.menuButton, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
+            <TouchableOpacity onPress={() => setMenuOpen(true)}>
+              <Ionicons name="ellipsis-vertical" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <Menu
+          visible={menuOpen}
+          onClose={() => setMenuOpen(false)}
+          anchor={{ top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) + 34, right: 20 }}
+          items={menuItems}
+        />
+
+        <DialogOverlay visible={blockDialogVisible} onDismiss={() => setBlockDialogVisible(false)}>
+          <Dialog
+            type="Destructive"
+            title={`Block ${person.firstName}?`}
+            primaryButtonText="Block"
+            secondaryButtonText="Cancel"
+            onPrimaryPress={confirmBlock}
+            onSecondaryPress={() => setBlockDialogVisible(false)}
+          >
+            <SubBodyText color={tokens.onBackground} center>
+              They will not be notified, and will not be able to find your profile in the app going forward
+            </SubBodyText>
+          </Dialog>
+        </DialogOverlay>
+
+        <DialogOverlay visible={reportDialogVisible} onDismiss={() => setReportDialogVisible(false)}>
+          <Dialog
+            type="Destructive"
+            title={`Report ${person.firstName}?`}
+            primaryButtonText="Report"
+            secondaryButtonText="Cancel"
+            onPrimaryPress={confirmReport}
+            onSecondaryPress={() => setReportDialogVisible(false)}
+          >
+            <SubBodyText color={tokens.onBackground} center>
+              They will not be notified, and their profile will be sent to the Eat Together team for further review. To prevent them from interacting with your account, use the Block feature.
+            </SubBodyText>
+          </Dialog>
+        </DialogOverlay>
+
+        <DialogOverlay visible={removeDialogVisible} onDismiss={() => setRemoveDialogVisible(false)}>
+          <Dialog
+            type="Destructive"
+            title="Remove friend?"
+            primaryButtonText="Remove"
+            secondaryButtonText="Cancel"
+            onPrimaryPress={confirmRemoveFriend}
+            onSecondaryPress={() => setRemoveDialogVisible(false)}
+          >
+            <SubBodyText color={tokens.onBackground} center>
+              They will not be notified, and your connection with {person.firstName} will be removed
+            </SubBodyText>
+          </Dialog>
+        </DialogOverlay>
+
         <View style={{ marginTop: 50 }}>
           <TagsList tags={person.tags} filterType="food" />
           <TagsList tags={person.tags} filterType="hobby" />
@@ -554,22 +691,6 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           </View>
         )}
 
-        {tryoutId != user.uid && (
-          <View style={styles.bottomActions}>
-            <TouchableOpacity
-              style={styles.blockButton}
-              onPress={() => blockPerson(person.id, navigation, blockBack)}
-            >
-              <NormalText color="red" weight="bold">Block</NormalText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.reportButton}
-              onPress={reportPerson}
-            >
-              <NormalText color="#797979" weight="bold">Report</NormalText>
-            </TouchableOpacity>
-          </View>
-        )}
         </View>
       </ScrollView>
     </View>
@@ -637,6 +758,12 @@ const styles = StyleSheet.create({
   },
 
   myEvents: {
+    position: "absolute",
+    right: 70,
+    alignItems: "center",
+  },
+
+  menuButton: {
     position: "absolute",
     right: 20,
     alignItems: "center",
@@ -752,41 +879,6 @@ const styles = StyleSheet.create({
     // the border adds.
     paddingBottom: 10,
     paddingTop: 10,
-  },
-
-  bottomActions: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-    marginTop: 32,
-    marginBottom: 40,
-    paddingHorizontal: 20,
-  },
-
-  blockButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 28,
-    minWidth: Platform.OS === "android" ? 150 : 175,
-    marginRight: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    borderColor: "red",
-    borderWidth: 2,
-    borderRadius: 10,
-    color: "red",
-  },
-
-  reportButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 28,
-    minWidth: Platform.OS === "android" ? 150 : 175,
-    alignItems: "center",
-    justifyContent: "center",
-    borderColor: "#797979",
-    borderWidth: 2,
-    borderRadius: 10,
-    color: "#797979",
   },
 
   actionButton: {
