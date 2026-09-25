@@ -190,7 +190,7 @@ export default function ({ navigation }) {
   };
 
   // Update user profile after editing
-  const updateInfo = (newFirstName, newLastName, newPronouns, newBio, newTags, newImage) => {
+  const updateInfo = (newFirstName, newLastName, newPronouns, newBio, newTags, newImage, newSchool) => {
     setUserInfo((prev) => ({
       ...prev,
       firstName: newFirstName,
@@ -199,6 +199,7 @@ export default function ({ navigation }) {
       bio: newBio,
       tags: newTags,
       image: newImage,
+      school: newSchool,
     }));
   };
 

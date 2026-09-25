@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import useScreenOptions from "../../navigation/useScreenOptions";
 import Me from "./Me";
 import Edit from "./Edit";
-import EditTags from "./EditTags";
+import EditUserTags from "../auth/Registration/EditUserTags";
 import Connections from "../Connections/Connections";
 import Requests from "../Connections/Requests";
 
@@ -41,7 +41,7 @@ export default function () {
       {/* Main pages */}
       <Stack.Screen name="Me" component={Me} />
       <Stack.Screen name="Edit" component={Edit} />
-      <Stack.Screen name="EditTags" component={EditTags} />
+      <Stack.Screen name="EditUserTags" options={{ headerShown: false }} component={EditUserTags} />
       <Stack.Screen name="Connections" component={Connections} />
       <Stack.Screen name="Requests">
         {props => <Requests {...props} back="Me" />}
