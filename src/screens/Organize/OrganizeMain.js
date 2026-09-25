@@ -16,6 +16,7 @@ import GroupSettings from "../Chat/GroupSettings";
 import ChatSettings from "../Chat/ChatSettings";
 import MeetupArchive from "../Profile/MeetupArchive";
 import MyEvents from "../Profile/MyEvents";
+import Connections from "../Connections/Connections";
 
 const Stack = createNativeStackNavigator();
 
@@ -43,6 +44,7 @@ export default function () {
       <Stack.Screen name="AddTaggedPerson" component={AddTaggedPerson} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="MyEvents" component={MyEvents} />
+      <Stack.Screen name="Connections" component={Connections} />
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
     </Stack.Navigator>
   );

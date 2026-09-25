@@ -16,6 +16,7 @@ import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import MeetupArchive from "../Profile/MeetupArchive";
 import MyEvents from "../Profile/MyEvents";
+import Connections from "../Connections/Connections";
 import OrganizeFlow from "../Organize/NewEvent/OrganizeFlow";
 import ChatRoom from "../Chat/ChatRoom";
 import Recommendation from "../Recommendations/Recommendation";
@@ -56,6 +57,7 @@ export default function () {
       <Stack.Screen name="AddTaggedPerson" component={AddTaggedPerson} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="MyEvents" component={MyEvents} />
+      <Stack.Screen name="Connections" component={Connections} />
       <Stack.Screen name="OrganizeFlow" component={OrganizeFlow} />
       {/* WYR Game Screens */}
       <Stack.Screen name="StartGame" component={StartGame}/>

@@ -20,6 +20,7 @@ import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import MeetupArchive from "../Profile/MeetupArchive";
 import MyEvents from "../Profile/MyEvents";
+import Connections from "../Connections/Connections";
 import OrganizeFlow from "../Organize/NewEvent/OrganizeFlow";
 import ReportEvent from "../Home/ReportEvent";
 import EventGallery from "../Home/EventGallery";
@@ -61,6 +62,7 @@ export default function () {
       <Stack.Screen name="InvitePeople" component={InvitePeople} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="MyEvents" component={MyEvents} />
+      <Stack.Screen name="Connections" component={Connections} />
       <Stack.Screen name="OrganizeFlow" component={OrganizeFlow} />
       <Stack.Screen name="GroupChat" component={GroupChat}/>
       <Stack.Screen name="ReportPerson" component={ReportPerson}/>

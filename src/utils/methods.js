@@ -1,7 +1,6 @@
 import profaneWords from "./profaneWords";
 import { db, auth } from "../provider/Firebase";
 import firebase from "firebase/compat";
-import { Alert } from "react-native";
 
 /**
  * Sorts an array of people by similarity to the current user.
@@ -344,26 +343,10 @@ export const convertToFutureDate = (date) => {
 }
 
 /**
- * Remove a friend, if we are already connected with them
- * @param {String} uid The user ID of the friend to remove.
- * @param {Object} navigation Navigation object to go back after removal (optional).
- */
-export const removeFriend = (uid, navigation) => {
-  Alert.alert("Remove Friend", "Are you sure you want to remove this friend?", [
-    {
-      text: "Cancel",
-      style: "cancel",
-    },
-    { text: "Remove Connection", style: "destructive", onPress: () => databaseRemoveFriend(uid, navigation) },
-  ]);
-};
-
-/**
- * Database operation to remove friend connection between two users. Exported
- * (unlike the rest of this file's similar private helpers) so a caller that
- * already has its own confirmation UI — e.g. a custom Dialog matching a
- * specific design spec — can trigger the removal directly, without also
- * going through removeFriend()'s native Alert confirmation on top of theirs.
+ * Removes a friend connection between the current user and the given user.
+ * Callers own their own confirmation UI (e.g. a Dialog matching a specific
+ * design spec) — this fires the removal directly with no confirmation of
+ * its own.
  * @param {String} uid The user ID of the friend to remove.
  * @param {Object} navigation Navigation object to go back after removal (optional).
  */

@@ -18,6 +18,7 @@ import ChatSettings from "../Chat/ChatSettings";
 import InvitePeople from "../Organize/InvitePeople";
 import MeetupArchive from "../Profile/MeetupArchive";
 import MyEvents from "../Profile/MyEvents";
+import Connections from "../Connections/Connections";
 import OrganizeFlow from "../Organize/NewEvent/OrganizeFlow";
 import RestaurantMain from "../RestaurantPicker/RestaurantMain";
 import Recommendation from "../Recommendations/Recommendation";
@@ -43,6 +44,7 @@ export default function () {
       </Stack.Screen>
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="MyEvents" component={MyEvents} />
+      <Stack.Screen name="Connections" component={Connections} />
       <Stack.Screen name="OrganizeFlow" component={OrganizeFlow} />
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
       <Stack.Screen name="ReportEvent" component={ReportEvent}/>

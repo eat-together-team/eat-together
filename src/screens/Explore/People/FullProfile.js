@@ -27,7 +27,6 @@ import EventCard from "../../../components/EventCard";
 import NormalText from "../../../components/NormalText";
 import FunFact from "../../../components/FunFact";
 import GalleryRow from "../../../components/GalleryRow";
-import EventsRow from "../../../components/EventsRow";
 import ProfileSkeleton from "../../../components/ProfileSkeleton";
 import Menu from "../../../components/Menu";
 import Dialog from "../../../components/Dialog";
@@ -133,6 +132,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
   );
   const [personData, setPersonData] = useState(person);
   const [joinDate, setJoinDate] = useState(null);
+  const [imageReady, setImageReady] = useState(false);
   const [mutualFriends, setMutualFriends] = useState([]); // Up to 5 mutual connections, for the avatar row
   const [mutualCount, setMutualCount] = useState(0);
   const [messaging, setMessaging] = useState(false);
@@ -193,6 +193,18 @@ const FullProfile = ({ blockBack, route, navigation }) => {
             hasImage: data.hasImage || false,
             image: data.image || ""
           }));
+
+          // The hero background/avatar both point at this same photo URI,
+          // which still has to actually download — Firestore data arriving
+          // isn't "loaded" by itself. Without this, the skeleton swapped out
+          // before the photo finished, showing real layout with a blank
+          // hole where it goes. Prefetching warms the cache both
+          // <Image>/<ImageBackground> instances read from.
+          if (data.hasImage && data.image) {
+            Image.prefetch(data.image).catch(() => {}).finally(() => setImageReady(true));
+          } else {
+            setImageReady(true);
+          }
 
           // Mutual connections — shown as an avatar row + "Friends with
           // X, Y and N more" whenever there's at least one (see spec node
@@ -383,7 +395,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
     },
   ].filter(Boolean);
 
-  if (status === "Loading") {
+  if (status === "Loading" || !imageReady) {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
         <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
@@ -669,33 +681,6 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           </View>
         )}
 
-        {/* events */}
-        {events.length > 0 && (
-          <View style={styles.eventRecordBackground} marginTop={10}>
-            <View style={styles.eventsHeader}>
-              <NormalText>Meetup Archive</NormalText>
-              <TouchableOpacity
-                onPress={() =>
-                navigation.navigate("MeetupArchive", {
-                  events,
-                  profileName: personData?.firstName || person?.firstName || "",
-                })
-              }
-              >
-                <NormalText color="grey">View all</NormalText>
-              </TouchableOpacity>
-            </View>
-            <EventsRow 
-              events={events} 
-              onEventPress={(event) => {
-                navigation.navigate("FullCard", {
-                  event,
-                });
-              }}
-            />
-          </View>
-        )}
-
         </View>
       </ScrollView>
     </View>
@@ -906,19 +891,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
 
-  eventRecordBackground: {
-    width: Dimensions.get("screen").width,
-    alignItems: "center",
-  },
-
-  eventsHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    paddingHorizontal: 14,
-    marginBottom: 10,
-  },
 });
 
 export default FullProfile;

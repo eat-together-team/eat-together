@@ -26,7 +26,6 @@ import EventCard from "../../components/EventCard";
 import { AntDesign } from '@expo/vector-icons';
 import FunFact from "../../components/FunFact";
 import GalleryRow from "../../components/GalleryRow";
-import EventsRow from "../../components/EventsRow";
 import RestaurantsRow from "../../components/RestaurantsRow";
 import ProfileSkeleton from "../../components/ProfileSkeleton";
 
@@ -67,7 +66,20 @@ export default function ({ navigation }) {
           }
 
           setUserInfo(doc.data());
-          setLoading(false);
+          // Firestore data arriving isn't "loaded" by itself — the hero
+          // background/avatar both point at the same photo URI, which still
+          // has to actually download. Swapping the skeleton out before that
+          // finishes showed real layout with a blank hole where the photo
+          // goes. Prefetching warms the cache both <Image>/<ImageBackground>
+          // instances read from, so they paint immediately once this
+          // resolves instead of popping in after.
+          if (doc.data().hasImage && doc.data().image) {
+            Image.prefetch(doc.data().image)
+              .catch(() => {})
+              .finally(() => setLoading(false));
+          } else {
+            setLoading(false);
+          }
           if (doc.data().settings.banner) {
             setBanner(doc.data().settings.banner);
           } else {
@@ -380,29 +392,9 @@ export default function ({ navigation }) {
           <GalleryRow images={userInfo.gallery} />
         </View>
 
-        {/* events */}
-        {events.length > 0 && (
-          <View style={styles.eventRecordBackground} marginTop={10}>
-            <View style={styles.eventsHeader}>
-              <NormalText>Meetup Archive</NormalText>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("MeetupArchive", { events, isOwnProfile: true })}
-              >
-                <NormalText color="grey">View all</NormalText>
-              </TouchableOpacity>
-            </View>
-            <EventsRow 
-              events={events} 
-              onEventPress={(event) => {
-                navigation.navigate("FullCard", { event });
-              }}
-            />
-          </View>
-        )}
-
         {/* starred restaurants */}
         {(userInfo.starredRestaurants || []).length > 0 && (
-          <View style={styles.eventRecordBackground} marginTop={50}>
+          <View style={styles.eventRecordBackground} marginTop={20}>
             <View style={styles.eventsHeader}>
               <NormalText>Starred Restaurants</NormalText>
               <TouchableOpacity
