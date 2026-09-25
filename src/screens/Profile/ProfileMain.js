@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import useScreenOptions from "../../navigation/useScreenOptions";
 import Me from "./Me";
 import Edit from "./Edit";
-import EditTags from "./EditTags";
+import EditUserTags from "../auth/Registration/EditUserTags";
 import Connections from "../Connections/Connections";
 import Requests from "../Connections/Requests";
 
@@ -24,6 +24,7 @@ import ChatRoom from "../Chat/ChatRoom";
 import GroupSettings from "../Chat/GroupSettings";
 import ChatSettings from "../Chat/ChatSettings";
 import Gallery from "../Home/Gallery";
+import GalleryPhotoViewer from "../Home/GalleryPhotoViewer";
 import MeetupArchive from "./MeetupArchive";
 import MyEvents from "./MyEvents";
 import OrganizeFlow from "../Organize/NewEvent/OrganizeFlow";
@@ -40,7 +41,7 @@ export default function () {
       {/* Main pages */}
       <Stack.Screen name="Me" component={Me} />
       <Stack.Screen name="Edit" component={Edit} />
-      <Stack.Screen name="EditTags" component={EditTags} />
+      <Stack.Screen name="EditUserTags" options={{ headerShown: false }} component={EditUserTags} />
       <Stack.Screen name="Connections" component={Connections} />
       <Stack.Screen name="Requests">
         {props => <Requests {...props} back="Me" />}
@@ -66,6 +67,7 @@ export default function () {
 
       {/* Photo Gallery */}
       <Stack.Screen name="Gallery" component={Gallery} />
+      <Stack.Screen name="GalleryPhotoViewer" component={GalleryPhotoViewer} />
       <Stack.Screen name="EventGallery" component={EventGallery} />
       <Stack.Screen name="EventPhotoViewer" component={EventPhotoViewer} />
       <Stack.Screen name="AddTaggedPerson" component={AddTaggedPerson} />

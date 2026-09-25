@@ -13,9 +13,11 @@ import SuggestedPersonRow from "../../components/SuggestedPersonRow";
 import SuggestedPersonRowSkeleton from "../../components/SuggestedPersonRowSkeleton";
 import PromoImageCard from "../../components/PromoImageCard";
 import PromoImageCardSkeleton from "../../components/PromoImageCardSkeleton";
+import EmptySectionPlaceholder from "../../components/EmptySectionPlaceholder";
 
 import useDeferredReady from "../../utils/useDeferredReady";
-import { compareDates } from "../../utils/methods";
+import useNotificationCount from "../Notifications/useNotificationCount";
+import { compareDates, randomize3 } from "../../utils/methods";
 import { tryoutId } from "../../utils/constants";
 import { auth, db } from "../../provider/Firebase";
 import { useTutorial, useTutorialTarget } from "../../provider/TutorialProvider";
@@ -28,7 +30,6 @@ const PREVIEW_COUNT = 3;
 export default function ({ navigation }) {
   const user = auth.currentUser;
 
-  const [hasNotif, setHasNotif] = useState(false);
   const [events, setEvents] = useState([]);
   const [people, setPeople] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(true);
@@ -37,6 +38,8 @@ export default function ({ navigation }) {
 
   const ready = useDeferredReady();
   const contentOpacity = useRef(new Animated.Value(0)).current;
+
+  const notificationCount = useNotificationCount(user, { enabled: ready });
 
   const { startTutorial } = useTutorial();
   const notificationsTargetRef = useTutorialTarget("notifications");
@@ -51,19 +54,6 @@ export default function ({ navigation }) {
       }).start();
     }
   }, [loading]);
-
-  // Looks for changes to notifications in real-time
-  useEffect(() => {
-    if (!ready) return;
-
-    const unsubscribe = db.collection("Users").doc(user.uid).onSnapshot((doc) => {
-      if (doc.exists) {
-        setHasNotif(doc.data().hasNotif);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [ready]);
 
   // Previews of upcoming events and suggested people (filtered the same way
   // as AllEvents.js and People.js's full lists, just capped to a few rows).
@@ -124,7 +114,11 @@ export default function ({ navigation }) {
           }
         });
 
-        setPeople(suggestions.slice(0, PREVIEW_COUNT));
+        // Firestore returns an unordered collection snapshot in a stable
+        // order, so a plain slice(0, N) always surfaced the same N people —
+        // randomize3 already existed for this (a capped Fisher-Yates-style
+        // pick) but was never actually wired in anywhere.
+        setPeople(randomize3(suggestions));
         setPeopleLoading(false);
       });
     });
@@ -142,7 +136,8 @@ export default function ({ navigation }) {
         title="Explore"
         actions={[
           {
-            icon: hasNotif ? "notifications" : "notifications-outline",
+            icon: "notifications-outline",
+            showBadge: notificationCount > 0,
             targetRef: notificationsTargetRef,
             onPress: () => {
               if (user.uid === tryoutId) {
@@ -182,9 +177,9 @@ export default function ({ navigation }) {
           </View>
         ) : (
           <Animated.View style={[styles.sections, { opacity: contentOpacity }]}>
-            {events.length > 0 && (
-              <View style={styles.eventsSection}>
-                <ExploreSectionHeader title="Events" onViewAll={() => navigation.navigate("AllEvents")} />
+            <View style={styles.eventsSection}>
+              <ExploreSectionHeader title="Events" onViewAll={() => navigation.navigate("AllEvents")} />
+              {events.length > 0 ? (
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -198,8 +193,10 @@ export default function ({ navigation }) {
                     />
                   ))}
                 </ScrollView>
-              </View>
-            )}
+              ) : (
+                <EmptySectionPlaceholder icon="calendar-outline" text="There aren't any events right now" />
+              )}
+            </View>
 
             <PromoImageCard
               image={restaurantPickerImage}

@@ -22,7 +22,6 @@ import schoolTags from '../../../utils/schoolTags';
 
 export default function EditUserTags({ navigation, route }) {
   const { selectedTags = [], onSaveTags, title = 'Tags', category = 'items' } = route.params || {};
-  console.log('EditUserTags route.params:', route.params);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [tags, setTags] = useState(selectedTags);
@@ -116,7 +115,7 @@ export default function EditUserTags({ navigation, route }) {
       <View style={styles.infoCardContainer}>
         <InformationCard
           type={showError ? "Error" : "Informative"}
-          text={showError ? `You can choose a maximum of ${MAX_TAGS} tags` : `Choose 1-${MAX_TAGS} tags representing your ${title.toLowerCase()}`}
+          text={showError ? `You can choose a maximum of ${MAX_TAGS} tags` : category === 'education' ? `Choose 1-${MAX_TAGS} tags representing your program of study` : `Choose 1-${MAX_TAGS} tags representing your ${title.toLowerCase()}`}
         />
       </View>
 

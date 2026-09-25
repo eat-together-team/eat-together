@@ -11,7 +11,10 @@ import {
   StatusBar,
   Platform
 } from "react-native";
-import { Layout } from "../../rapi_ui_components";
+import { Layout, useTheme } from "../../rapi_ui_components";
+import { colorTokens } from "../../theme/colorTokens";
+import Header4Text from "../../components/typography/Header4Text";
+import SubBodyText from "../../components/typography/SubBodyText";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import Constants from 'expo-constants';
 import { db, auth } from "../../provider/Firebase";
@@ -26,23 +29,26 @@ import EventCard from "../../components/EventCard";
 import { AntDesign } from '@expo/vector-icons';
 import FunFact from "../../components/FunFact";
 import GalleryRow from "../../components/GalleryRow";
-import EventsRow from "../../components/EventsRow";
-import RestaurantsRow from "../../components/RestaurantsRow";
+import CompactRestaurantCard from "../../components/CompactRestaurantCard";
+import ProfileSkeleton from "../../components/ProfileSkeleton";
+import EmptySectionPlaceholder from "../../components/EmptySectionPlaceholder";
 
 import { compareDates } from "../../utils/methods";
 import SmallText from "../../components/SmallText";
 
 export default function ({ navigation }) {
   const user = auth.currentUser;
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
 
   const [userInfo, setUserInfo] = useState({});
   const [banner, setBanner] = useState({});
   const [mealsAttended, setMealsAttended] = useState(0);
   const [mealsSignedUp, setMealsSignedUp] = useState(0);
   const [joinDate, setJoinDate] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [events, setEvents] = useState([]);
-  const [followButtonLayout, setFollowButtonLayout] = useState({ y: 0, height: 0 });
 
   useEffect(() => {
     async function fetchData() {
@@ -66,6 +72,20 @@ export default function ({ navigation }) {
           }
 
           setUserInfo(doc.data());
+          // Firestore data arriving isn't "loaded" by itself — the hero
+          // background/avatar both point at the same photo URI, which still
+          // has to actually download. Swapping the skeleton out before that
+          // finishes showed real layout with a blank hole where the photo
+          // goes. Prefetching warms the cache both <Image>/<ImageBackground>
+          // instances read from, so they paint immediately once this
+          // resolves instead of popping in after.
+          if (doc.data().hasImage && doc.data().image) {
+            Image.prefetch(doc.data().image)
+              .catch(() => {})
+              .finally(() => setLoading(false));
+          } else {
+            setLoading(false);
+          }
           if (doc.data().settings.banner) {
             setBanner(doc.data().settings.banner);
           } else {
@@ -170,7 +190,7 @@ export default function ({ navigation }) {
   };
 
   // Update user profile after editing
-  const updateInfo = (newFirstName, newLastName, newPronouns, newBio, newTags, newImage) => {
+  const updateInfo = (newFirstName, newLastName, newPronouns, newBio, newTags, newImage, newSchool) => {
     setUserInfo((prev) => ({
       ...prev,
       firstName: newFirstName,
@@ -179,6 +199,7 @@ export default function ({ navigation }) {
       bio: newBio,
       tags: newTags,
       image: newImage,
+      school: newSchool,
     }));
   };
 
@@ -198,30 +219,129 @@ export default function ({ navigation }) {
   }
 
   const statusBarHeight = Constants.statusBarHeight || (Platform.OS === 'ios' ? 44 : 24);
-  
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+        <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
+          <Ionicons
+            name="arrow-back-sharp"
+            size={24}
+            color="black"
+            onPress={() => navigation.goBack()}
+          ></Ionicons>
+        </View>
+        <ScrollView
+          contentContainerStyle={{ paddingTop: statusBarHeight + 54 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <ProfileSkeleton />
+        </ScrollView>
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.backgroundContainer}>
+        <View style={styles.page}>
+        {/* Hero section (name/photo, connections, buttons) sizes itself to
+        its own content — the blurred background is an absolute fill
+        *inside* it, so it always matches exactly, whether that's one
+        button or two, a long name, anything. No measuring/guessing needed.
+        paddingTop lives here (not on `page`) so the background — an
+        absolute child, which ignores its own parent's padding — still
+        reaches hero's true top edge and draws under the status bar, while
+        the normal-flow content is pushed down below it as usual. */}
+        <View style={[styles.hero, { paddingTop: statusBarHeight + 54 }]}>
           {userInfo.hasImage ? (
             <ImageBackground
               source={{ uri: userInfo.image }}
-              style={[styles.background, { height: Math.max(360, followButtonLayout.y + followButtonLayout.height) 
-                + statusBarHeight - 30 + (Platform.OS === 'android' ? 16 : 0) }]}
+              style={styles.background}
               imageStyle={styles.backgroundImage}
               blurRadius={20}
             />
           ) : (
-            <View style={[styles.background, {backgroundColor: '#5DB075', height: Math.max(400, followButtonLayout.y 
-              + followButtonLayout.height + 20) + statusBarHeight + 30 - 40 + (Platform.OS === 'android' ? 16 : 0) }]} />
+            <View style={[styles.background, { backgroundColor: '#5DB075' }]} />
           )}
+
+          <View style={styles.header}>
+            <View style={styles.name}>
+              {/* ensuring that if a user has a long name, like last name, their name doesn't overflow, the text gets smaller to accommodate */}
+              <LargeText color="white" marginTop={4} size={((userInfo.firstName || '') + ' ' + (userInfo.lastName || '')).trim().length > 12 ? 18 : 24}>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
+              <NormalText color="white" weight="bold" marginBottom={10}>@{userInfo.username}</NormalText>
+
+              <View style={styles.infoRow}>
+                <Ionicons name="school-outline" size={16} color="white" style={styles.infoIcon} />
+                <NormalText color="white" marginBottom={2}>{userInfo.school ? userInfo.school : "UW Seattle"}</NormalText>
+              </View>
+
+              <View style={styles.infoRow}>
+                <Ionicons name="restaurant-outline" size={16} color="white" style={styles.infoIcon} />
+                <NormalText color="white" marginBottom={2}>
+                  {mealsAttended + "/" + mealsSignedUp + " meals attended"}
+                </NormalText>
+              </View>
+
+              <View style={styles.infoRow}>
+                <Ionicons name="calendar-outline" size={16} color="white" style={styles.infoIcon} />
+                <NormalText color="white">Joined {joinDate || userInfo.join || "June 2024"}</NormalText>
+              </View>
+            </View>
+
+            <Image
+              style={styles.image}
+              source={
+                userInfo.hasImage
+                  ? { uri: userInfo.image }
+                  : require("../../../assets/logo.png")
+              }
+            />
+          </View>
+
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.connections}
+              onPress={() => {
+                navigation.navigate("Connections", {
+                  user: userInfo,
+                  image: userInfo.image,
+                  updateInfo,
+                });
+              }}
+            >
+              <NormalText color="white" align="left" weight="bold" marginTop={8} marginBottom={8}>
+                {userInfo.friendIDs ? userInfo.friendIDs.length : 0} Connections</NormalText>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.links}>
+            <TouchableOpacity
+              style={styles.profile}
+              onPress={() => {
+                navigation.navigate("Edit", {
+                  user: userInfo,
+                  updateInfo,
+                });
+              }}
+            >
+              <Ionicons name="pencil-outline" size={16} color="white" style={{ marginRight: 8 }} />
+              <NormalText color="white" center weight="bold">Edit profile</NormalText>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={[styles.page, { paddingTop: statusBarHeight + 30 }]}>
+
+        {/* Back/food/settings icons are direct children of `page` (not
+        `hero` above), placed *after* it in the tree so they paint on top
+        of its background — their `top` offset assumes a parent that
+        doesn't itself get pushed down by paddingTop, which is only true
+        one level up; nesting them inside hero double-shifts them down. */}
         <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
           <Ionicons
             name="arrow-back-sharp"
@@ -256,148 +376,57 @@ export default function ({ navigation }) {
           ></Ionicons>
         </View>
 
-        <View style={styles.header}>
-          <View style={styles.name}>
-            {/* ensuring that if a user has a long name, like last name, their name doesn't overflow, the text gets smaller to accommodate */}
-            <LargeText color="white" marginTop={4} size={((userInfo.firstName || '') + ' ' + (userInfo.lastName || '')).trim().length > 12 ? 18 : 24}>{userInfo.firstName + " " + userInfo.lastName}</LargeText>
-            <NormalText color="white" weight="bold" marginBottom={10}>@{userInfo.username}</NormalText>
-
-            <View style={styles.infoRow}>
-              <Ionicons name="school-outline" size={16} color="white" style={styles.infoIcon} />
-              <NormalText color="white" marginBottom={2}>{userInfo.school ? userInfo.school : "UW Seattle"}</NormalText>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Ionicons name="restaurant-outline" size={16} color="white" style={styles.infoIcon} />
-              <NormalText color="white" marginBottom={2}>
-                {mealsAttended + "/" + mealsSignedUp + " meals attended"}
-              </NormalText>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Ionicons name="calendar-outline" size={16} color="white" style={styles.infoIcon} />
-              <NormalText color="white">Joined {joinDate || userInfo.join || "June 2024"}</NormalText>
-            </View>
-          </View>
-
-          <Image
-            style={styles.image}
-            source={
-              userInfo.hasImage
-                ? { uri: userInfo.image }
-                : require("../../../assets/logo.png")
-            }
-          />
-        </View>
-
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.connections}
-            onPress={() => {
-              navigation.navigate("Connections", {
-                user: userInfo,
-                image: userInfo.image,
-                updateInfo,
-              });
-            }}
-          >
-            <NormalText color="white" align="left" weight="bold" marginTop={8} marginBottom={8}>
-              {userInfo.friendIDs ? userInfo.friendIDs.length : 0} Connections</NormalText>
-          </TouchableOpacity>
-        </View>
-
-        <View 
-          style={styles.links}
-          onLayout={(event) => {
-            const { y, height } = event.nativeEvent.layout;
-            setFollowButtonLayout({ y, height });
-          }}
-        >
-          <TouchableOpacity
-            style={styles.profile}
-            onPress={() => {
-              navigation.navigate("Edit", {
-                user: userInfo,
-                updateInfo,
-              });
-            }}
-          >
-          
-          <NormalText color="white" center weight="bold"> Edit profile</NormalText>
-          </TouchableOpacity>
-        </View>
-
         {/* break down tags list */}
-        <View style={{ marginTop: 55 }}>
+        <View style={{ marginTop: 20 }}>
           <TagsList tags={userInfo.tags} filterType="food" />
           <TagsList tags={userInfo.tags} filterType="hobby" />
           <FunFact text={userInfo.bio} />
           <TagsList tags={userInfo.tags} filterType="school" />
         </View>
 
-        {/* gallery */}
+        {/* gallery — always shown on your own profile, even empty (unlike
+        FullProfile.js, which hides the whole section when there's nothing
+        to show someone else) */}
         <View style={styles.galleryBackground}>
           <View style={styles.galleryHeader}>
-            <NormalText>Gallery</NormalText>
+            <Header4Text color={tokens.onBackground}>Gallery</Header4Text>
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate("Gallery", { user: userInfo });
               }}
             >
-              <NormalText color="grey">View all</NormalText>
+              <SubBodyText color={tokens.onBackground} style={{ opacity: 0.5 }}>View all</SubBodyText>
             </TouchableOpacity>
           </View>
-          <GalleryRow images={userInfo.gallery} />
+          {(userInfo.gallery || []).length > 0 ? (
+            <GalleryRow images={userInfo.gallery} />
+          ) : (
+            <EmptySectionPlaceholder icon="images-outline" text="You haven't added anything to your gallery yet" />
+          )}
         </View>
 
-        {/* events */}
-        {events.length > 0 && (
-          <View style={styles.eventRecordBackground} marginTop={10}>
-            <View style={styles.eventsHeader}>
-              <NormalText>Meetup Archive</NormalText>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("MeetupArchive", { events, isOwnProfile: true })}
-              >
-                <NormalText color="grey">View all</NormalText>
-              </TouchableOpacity>
-            </View>
-            <EventsRow 
-              events={events} 
-              onEventPress={(event) => {
-                navigation.navigate("FullCard", { event });
-              }}
-            />
+        {/* favorite restaurants — always shown on your own profile, even
+        empty (unlike FullProfile.js, which hides the whole section when
+        there's nothing to show someone else) */}
+        <View style={styles.eventRecordBackground} marginTop={20}>
+          <View style={styles.eventsHeader}>
+            <Header4Text color={tokens.onBackground}>Favorite restaurants</Header4Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("StarredRestaurants", { userId: user.uid })}
+            >
+              <SubBodyText color={tokens.onBackground} style={{ opacity: 0.5 }}>View all</SubBodyText>
+            </TouchableOpacity>
           </View>
-        )}
-
-        {/* starred restaurants */}
-        {(userInfo.starredRestaurants || []).length > 0 && (
-          <View style={styles.eventRecordBackground} marginTop={50}>
-            <View style={styles.eventsHeader}>
-              <NormalText>Starred Restaurants</NormalText>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("StarredRestaurants", {
-                    restaurants: userInfo.starredRestaurants || [],
-                    isOwnProfile: true,
-                  })
-                }
-              >
-                <NormalText color="grey">View all</NormalText>
-              </TouchableOpacity>
+          {(userInfo.starredRestaurants || []).length > 0 ? (
+            <View style={styles.favoritesList}>
+              {(userInfo.starredRestaurants || []).slice(0, 2).map((restaurant) => (
+                <CompactRestaurantCard key={restaurant.id} restaurant={restaurant} showActions={false} />
+              ))}
             </View>
-            <RestaurantsRow
-              restaurants={userInfo.starredRestaurants || []}
-              onRestaurantPress={(r) =>
-                navigation.navigate("StarredRestaurants", {
-                  restaurants: userInfo.starredRestaurants || [],
-                  isOwnProfile: true,
-                  openRestaurantId: r.id,
-                })
-              }
-            />
-          </View>
-        )}
+          ) : (
+            <EmptySectionPlaceholder icon="restaurant-outline" text="You haven't added any favorite restaurants yet" />
+          )}
+        </View>
         </View>
       </ScrollView>
     </View>
@@ -425,24 +454,43 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
+  favoritesList: {
+    width: "100%",
+    paddingHorizontal: 14,
+    gap: 10,
+  },
+
   scrollContent: {
     flexGrow: 1,
-  },
-  backgroundContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    width: Dimensions.get("window").width,
-    zIndex: 0,
   },
   page: {
     alignItems: "center",
     paddingHorizontal: 10,
   },
 
+  // Full-bleed: cancels page's paddingHorizontal so the background and
+  // header content still reach the screen edges. Its own height is never
+  // set explicitly — it's whatever the hero content (icons, name/photo,
+  // connections, buttons) naturally lays out to, plus this bottom padding
+  // (which the background fills too) for breathing room under the button.
+  hero: {
+    // No explicit width: alignSelf:'stretch' (overriding page's
+    // alignItems:'center') sizes hero to page's content box *minus* its
+    // margins — since those margins are negative, that subtraction adds
+    // width instead, growing hero past page's padding on both sides.
+    // width:'100%' instead would size hero to that content box directly,
+    // leaving a gap the negative margin only repositions past, not fills.
+    alignSelf: "stretch",
+    marginHorizontal: -10,
+    paddingBottom: 24,
+  },
+
   background: {
-    width: Dimensions.get("window").width,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   backgroundImage: {
     resizeMode: "cover",
@@ -479,7 +527,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingBottom: 12,
     paddingTop: 12,
-    width: "95%",
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   palette: {
@@ -549,4 +600,5 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 14,
   },
+
 });

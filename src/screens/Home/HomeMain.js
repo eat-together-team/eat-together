@@ -9,6 +9,7 @@ import EditEvent from "./EditEvent";
 import FullProfile from "../Explore/People/FullProfile";
 
 import Gallery from "./Gallery";
+import GalleryPhotoViewer from "./GalleryPhotoViewer";
 import EventGallery from "./EventGallery";
 import EventPhotoViewer from "./EventPhotoViewer";
 import AddTaggedPerson from "./AddTaggedPerson";
@@ -16,6 +17,8 @@ import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import MeetupArchive from "../Profile/MeetupArchive";
 import MyEvents from "../Profile/MyEvents";
+import Connections from "../Connections/Connections";
+import StarredRestaurants from "../Profile/StarredRestaurants";
 import OrganizeFlow from "../Organize/NewEvent/OrganizeFlow";
 import ChatRoom from "../Chat/ChatRoom";
 import Recommendation from "../Recommendations/Recommendation";
@@ -51,11 +54,14 @@ export default function () {
       <Stack.Screen name="InvitePeople" component={InvitePeople} />
 
       <Stack.Screen name="Gallery" component={Gallery} />
+      <Stack.Screen name="GalleryPhotoViewer" component={GalleryPhotoViewer} />
       <Stack.Screen name="EventGallery" component={EventGallery} />
       <Stack.Screen name="EventPhotoViewer" component={EventPhotoViewer} />
       <Stack.Screen name="AddTaggedPerson" component={AddTaggedPerson} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="MyEvents" component={MyEvents} />
+      <Stack.Screen name="Connections" component={Connections} />
+      <Stack.Screen name="StarredRestaurants" component={StarredRestaurants} />
       <Stack.Screen name="OrganizeFlow" component={OrganizeFlow} />
       {/* WYR Game Screens */}
       <Stack.Screen name="StartGame" component={StartGame}/>

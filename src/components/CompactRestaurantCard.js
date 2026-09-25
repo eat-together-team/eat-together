@@ -7,8 +7,13 @@ import LabelText from './typography/LabelText';
 import { useTheme } from '../rapi_ui_components';
 import { colorTokens } from '../theme/colorTokens';
 
-// Compact list-row version of a restaurant card, used for the final results list
-const CompactRestaurantCard = ({ restaurant, starred, onToggleStar }) => {
+// Compact list-row version of a restaurant card, used for the final results
+// list in the Restaurant Picker as well as the profile's Favorite
+// restaurants section/page. `showActions` hides the heart/share column
+// entirely — used for read-only contexts (a profile preview row, someone
+// else's favorites, a removal-confirmation preview) where tapping either
+// wouldn't do anything sensible.
+const CompactRestaurantCard = ({ restaurant, starred, onToggleStar, showActions = true }) => {
   const { theme } = useTheme();
   const colors = colorTokens[theme];
   const category = (restaurant.categories || '').split(',')[0].trim();
@@ -38,14 +43,16 @@ const CompactRestaurantCard = ({ restaurant, starred, onToggleStar }) => {
           </View>
         </View>
       </View>
-      <View style={styles.actions}>
-        <TouchableOpacity onPress={() => onToggleStar?.(restaurant, !starred)} hitSlop={8}>
-          <Ionicons name={starred ? 'heart' : 'heart-outline'} size={18} color={starred ? colors.error : colors.onBackground} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleShare} hitSlop={8}>
-          <Ionicons name="share-outline" size={18} color={colors.onBackground} />
-        </TouchableOpacity>
-      </View>
+      {showActions && (
+        <View style={styles.actions}>
+          <TouchableOpacity onPress={() => onToggleStar?.(restaurant, !starred)} hitSlop={8}>
+            <Ionicons name={starred ? 'heart' : 'heart-outline'} size={18} color={starred ? colors.error : colors.onBackground} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleShare} hitSlop={8}>
+            <Ionicons name="share-outline" size={18} color={colors.onBackground} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };

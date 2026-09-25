@@ -1,11 +1,10 @@
-// "My events" — every event a given user has ever hosted (their
-// hostedEventIDs), reached via the fast-food icon on your own profile's top
-// bar (Me.js only shows it there — FullProfile.js hides the icon on
-// everyone else's profile). Still takes `route.params.userId` rather than
-// assuming the current user, so nothing here breaks if that ever changes.
-// Reuses EventListingCard/EventListingCardSkeleton wholesale; their existing
-// layout (cover photo, title, date/time/location, attendee avatars + host
-// name) already matches this screen's design exactly.
+// Every event a given user has ever hosted (their hostedEventIDs), reached
+// via the fast-food icon on any profile's top bar — Me.js and FullProfile.js
+// both show it, passing whichever profile is being viewed's `userId` (and
+// `userName`, for the title on someone else's). Reuses
+// EventListingCard/EventListingCardSkeleton wholesale; their existing layout
+// (cover photo, title, date/time/location, attendee avatars + host name)
+// already matches this screen's design exactly.
 
 import React, { useEffect, useState } from "react";
 import { View, FlatList, StyleSheet } from "react-native";
@@ -22,10 +21,11 @@ import { compareDates } from "../../utils/methods";
 const SKELETON_COUNT = 3;
 
 export default function MyEvents({ route, navigation }) {
-  const { userId } = route.params;
+  const { userId, userName } = route.params;
   // Only offer "+ new event" when viewing your own hosted events, not
   // someone else's (this screen is shared by both — see header comment).
   const isOwnEvents = userId === auth.currentUser?.uid;
+  const title = isOwnEvents ? "My past events" : userName ? `${userName}'s past events` : "Past events";
 
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +65,7 @@ export default function MyEvents({ route, navigation }) {
   return (
     <Layout>
       <SmallAppBar
-        title="My events"
+        title={title}
         onBack={() => navigation.goBack()}
         actions={isOwnEvents ? [{ icon: "add", onPress: () => navigation.navigate("OrganizeFlow") }] : []}
       />
@@ -77,7 +77,10 @@ export default function MyEvents({ route, navigation }) {
           ))}
         </View>
       ) : events.length === 0 ? (
-        <EmptyState title="No events yet" text="Events you host will show up here." />
+        <EmptyState
+          title="No events yet"
+          text={isOwnEvents ? "Events you host will show up here." : "Events they host will show up here."}
+        />
       ) : (
         <FlatList
           data={events}

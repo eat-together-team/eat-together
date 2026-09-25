@@ -166,6 +166,58 @@ export const acceptMessageRequest = (user, group) => {
   ]);
 };
 
+// Opens (or lazily creates) the 1-on-1 chat between the current user and
+// `person` — same deterministic-chatID reuse pattern as NewChat.js's
+// handleCreateChat/handleRequest, so messaging someone from their profile
+// always lands in the same thread NewChat.js would have opened, instead of
+// spawning a duplicate Groups doc. `isConnected` picks what happens when no
+// chat exists yet: connections get an instant chat, everyone else gets a
+// message request — the caller is responsible for checking
+// `person.allowMessageRequests` before calling this in the non-connected
+// case, same as NewChat.js's handleRequest does.
+export const openDirectMessage = async (user, userData, person, isConnected) => {
+  const currentUserName = userData.firstName + " " + userData.lastName;
+  const chatID = [userData.username, person.username].sort().join();
+
+  const existing = await db.collection("Groups").doc(chatID).get();
+  if (existing.exists) {
+    const data = existing.data();
+    let name = data.name.replace(currentUserName + ", ", "");
+    if (name.endsWith(", " + currentUserName)) {
+      name = name.slice(0, -1 * (currentUserName.length + 2));
+    }
+
+    await db.collection("Users").doc(user.uid).update({
+      groupIDs: firebase.firestore.FieldValue.arrayUnion(chatID),
+      archivedGroupIDs: firebase.firestore.FieldValue.arrayRemove(chatID),
+    });
+
+    return {
+      groupID: chatID,
+      uids: data.uids,
+      name,
+      messages: data.messages || [],
+      pending: data.pending || false,
+      requestedBy: data.requestedBy || null,
+    };
+  }
+
+  if (isConnected) {
+    createNewChat([person.id, user.uid], chatID, [person.name, currentUserName].join(", "), true);
+    return { groupID: chatID, uids: [person.id, user.uid], name: person.name, messages: [] };
+  }
+
+  await createMessageRequest(user, userData, person, chatID);
+  return {
+    groupID: chatID,
+    uids: [person.id, user.uid],
+    name: person.name,
+    messages: [],
+    pending: true,
+    requestedBy: user.uid,
+  };
+};
+
 // An entry in the chat timeline that isn't a message someone sent — a
 // member added/left, the icon changed, a rename. Stored in the same
 // `messages` array chat bubbles live in (distinguished by `type: "system"`,

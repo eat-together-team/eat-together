@@ -58,6 +58,9 @@ async function sendInvitation(person, invite, host) {
     location: invite.location ?? "",
     name: invite.name ?? "",
     inviteID: invite.id ?? null,
+    // Lets the notifications list show how long ago the invite arrived.
+    // Invites created before this was added simply render without an age.
+    sentAt: Date.now(),
   });
 }
 

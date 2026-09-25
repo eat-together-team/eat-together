@@ -10,12 +10,16 @@ import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import EventGallery from "../Home/EventGallery";
 import EventPhotoViewer from "../Home/EventPhotoViewer";
+import Gallery from "../Home/Gallery";
+import GalleryPhotoViewer from "../Home/GalleryPhotoViewer";
 import AddTaggedPerson from "../Home/AddTaggedPerson";
 import ChatRoom from "../Chat/ChatRoom";
 import GroupSettings from "../Chat/GroupSettings";
 import ChatSettings from "../Chat/ChatSettings";
 import MeetupArchive from "../Profile/MeetupArchive";
 import MyEvents from "../Profile/MyEvents";
+import Connections from "../Connections/Connections";
+import StarredRestaurants from "../Profile/StarredRestaurants";
 
 const Stack = createNativeStackNavigator();
 
@@ -40,9 +44,13 @@ export default function () {
       <Stack.Screen name="ChatSettings" component={ChatSettings} />
       <Stack.Screen name="EventGallery" component={EventGallery} />
       <Stack.Screen name="EventPhotoViewer" component={EventPhotoViewer} />
+      <Stack.Screen name="Gallery" component={Gallery} />
+      <Stack.Screen name="GalleryPhotoViewer" component={GalleryPhotoViewer} />
       <Stack.Screen name="AddTaggedPerson" component={AddTaggedPerson} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
       <Stack.Screen name="MyEvents" component={MyEvents} />
+      <Stack.Screen name="Connections" component={Connections} />
+      <Stack.Screen name="StarredRestaurants" component={StarredRestaurants} />
       <Stack.Screen name="ReportPerson" component={ReportPerson} />
     </Stack.Navigator>
   );
