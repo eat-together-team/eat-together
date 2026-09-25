@@ -31,6 +31,7 @@ import FunFact from "../../components/FunFact";
 import GalleryRow from "../../components/GalleryRow";
 import CompactRestaurantCard from "../../components/CompactRestaurantCard";
 import ProfileSkeleton from "../../components/ProfileSkeleton";
+import EmptySectionPlaceholder from "../../components/EmptySectionPlaceholder";
 
 import { compareDates } from "../../utils/methods";
 import SmallText from "../../components/SmallText";
@@ -399,12 +400,7 @@ export default function ({ navigation }) {
           {(userInfo.gallery || []).length > 0 ? (
             <GalleryRow images={userInfo.gallery} />
           ) : (
-            <View style={styles.galleryEmpty}>
-              <Ionicons name="images-outline" size={40} color={tokens.textLight} />
-              <Header4Text color={tokens.textLight} style={styles.galleryEmptyText}>
-                You haven't added anything to your gallery yet
-              </Header4Text>
-            </View>
+            <EmptySectionPlaceholder icon="images-outline" text="You haven't added anything to your gallery yet" />
           )}
         </View>
 
@@ -427,12 +423,7 @@ export default function ({ navigation }) {
               ))}
             </View>
           ) : (
-            <View style={styles.galleryEmpty}>
-              <Ionicons name="restaurant-outline" size={40} color={tokens.textLight} />
-              <Header4Text color={tokens.textLight} style={styles.galleryEmptyText}>
-                You haven't added any favorite restaurants yet
-              </Header4Text>
-            </View>
+            <EmptySectionPlaceholder icon="restaurant-outline" text="You haven't added any favorite restaurants yet" />
           )}
         </View>
         </View>
@@ -609,19 +600,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
 
-  galleryEmpty: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 30,
-    paddingHorizontal: 40,
-  },
-
-  galleryEmptyText: {
-    fontSize: 17,
-    lineHeight: 22,
-    marginLeft: 16,
-    maxWidth: 182,
-  },
 });

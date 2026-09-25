@@ -72,10 +72,11 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   tagBar: {
-    // Matches AboutChip's real rendered height (7px vertical padding +
-    // 11px text) instead of an arbitrary shorter pill.
-    height: 27,
-    borderRadius: 14,
+    // Matches Tag's real rendered height (10px vertical padding + 16px
+    // line height) now that the row uses the same chip as the profile page,
+    // instead of AboutChip's shorter pill.
+    height: 36,
+    borderRadius: 20,
   },
 });
 

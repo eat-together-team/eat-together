@@ -13,10 +13,11 @@ import SuggestedPersonRow from "../../components/SuggestedPersonRow";
 import SuggestedPersonRowSkeleton from "../../components/SuggestedPersonRowSkeleton";
 import PromoImageCard from "../../components/PromoImageCard";
 import PromoImageCardSkeleton from "../../components/PromoImageCardSkeleton";
+import EmptySectionPlaceholder from "../../components/EmptySectionPlaceholder";
 
 import useDeferredReady from "../../utils/useDeferredReady";
 import useNotificationCount from "../Notifications/useNotificationCount";
-import { compareDates } from "../../utils/methods";
+import { compareDates, randomize3 } from "../../utils/methods";
 import { tryoutId } from "../../utils/constants";
 import { auth, db } from "../../provider/Firebase";
 import { useTutorial, useTutorialTarget } from "../../provider/TutorialProvider";
@@ -113,7 +114,11 @@ export default function ({ navigation }) {
           }
         });
 
-        setPeople(suggestions.slice(0, PREVIEW_COUNT));
+        // Firestore returns an unordered collection snapshot in a stable
+        // order, so a plain slice(0, N) always surfaced the same N people —
+        // randomize3 already existed for this (a capped Fisher-Yates-style
+        // pick) but was never actually wired in anywhere.
+        setPeople(randomize3(suggestions));
         setPeopleLoading(false);
       });
     });
@@ -172,9 +177,9 @@ export default function ({ navigation }) {
           </View>
         ) : (
           <Animated.View style={[styles.sections, { opacity: contentOpacity }]}>
-            {events.length > 0 && (
-              <View style={styles.eventsSection}>
-                <ExploreSectionHeader title="Events" onViewAll={() => navigation.navigate("AllEvents")} />
+            <View style={styles.eventsSection}>
+              <ExploreSectionHeader title="Events" onViewAll={() => navigation.navigate("AllEvents")} />
+              {events.length > 0 ? (
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -188,8 +193,10 @@ export default function ({ navigation }) {
                     />
                   ))}
                 </ScrollView>
-              </View>
-            )}
+              ) : (
+                <EmptySectionPlaceholder icon="calendar-outline" text="There aren't any events right now" />
+              )}
+            </View>
 
             <PromoImageCard
               image={restaurantPickerImage}

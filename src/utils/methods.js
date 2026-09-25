@@ -208,14 +208,16 @@ const isMatch = (startDate, endDate, availabilities) => {
 }
 
 /**
- * Randomly chooses three elements from an array.
+ * Randomly chooses up to three elements from an array (fewer if the array
+ * itself has fewer than three — the loop is capped at copy.length so it
+ * doesn't pick past the end and push `undefined` entries).
  * @param {Array} array Array to choose from.
- * @returns Array of three random elements.
+ * @returns Array of up to three random elements.
  */
 export const randomize3 = (array) => {
     let result = [];
     let copy = array.slice();
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 3 && copy.length > 0; i++) {
         let index = Math.floor(Math.random() * copy.length);
         result.push(copy[index]);
         copy.splice(index, 1);
