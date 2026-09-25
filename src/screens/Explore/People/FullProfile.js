@@ -27,11 +27,13 @@ import EventCard from "../../../components/EventCard";
 import NormalText from "../../../components/NormalText";
 import FunFact from "../../../components/FunFact";
 import GalleryRow from "../../../components/GalleryRow";
+import CompactRestaurantCard from "../../../components/CompactRestaurantCard";
 import ProfileSkeleton from "../../../components/ProfileSkeleton";
 import Menu from "../../../components/Menu";
 import Dialog from "../../../components/Dialog";
 import DialogOverlay from "../../../components/DialogOverlay";
 import SubBodyText from "../../../components/typography/SubBodyText";
+import Header4Text from "../../../components/typography/Header4Text";
 // import WithBadge from "../../../components/WithBadge";
 
 import { db, auth } from "../../../provider/Firebase";
@@ -667,17 +669,39 @@ const FullProfile = ({ blockBack, route, navigation }) => {
           (!personData.settings?.hideGallery || status === "Connections") && (
           <View style={styles.galleryBackground}>
             <View style={styles.galleryHeader}>
-              <NormalText>Gallery</NormalText>
+              <Header4Text color={tokens.onBackground}>Gallery</Header4Text>
               <TouchableOpacity onPress={() => navigation.navigate("Gallery", {
                 userId: person.id,
                 userName: person.firstName || personData?.firstName || "",
                 person: personData || person,
               })
             }>
-                <NormalText color="grey">View all</NormalText>
+                <SubBodyText color={tokens.onBackground} style={{ opacity: 0.5 }}>View all</SubBodyText>
               </TouchableOpacity>
             </View>
             <GalleryRow images={personData.gallery || []} />
+          </View>
+        )}
+
+        {/* favorite restaurants — hidden entirely when empty, unlike
+        Me.js's own-profile version which shows a "nothing yet" message */}
+        {personData.starredRestaurants && personData.starredRestaurants.length > 0 && (
+          <View style={styles.galleryBackground}>
+            <View style={styles.galleryHeader}>
+              <Header4Text color={tokens.onBackground}>Favorite restaurants</Header4Text>
+              <TouchableOpacity onPress={() => navigation.navigate("StarredRestaurants", {
+                userId: person.id,
+                person: personData || person,
+              })
+            }>
+                <SubBodyText color={tokens.onBackground} style={{ opacity: 0.5 }}>View all</SubBodyText>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.favoritesList}>
+              {personData.starredRestaurants.slice(0, 2).map((restaurant) => (
+                <CompactRestaurantCard key={restaurant.id} restaurant={restaurant} showActions={false} />
+              ))}
+            </View>
           </View>
         )}
 
@@ -889,6 +913,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     paddingHorizontal: 14,
+  },
+
+  favoritesList: {
+    width: "100%",
+    paddingHorizontal: 14,
+    gap: 10,
   },
 
 });

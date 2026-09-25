@@ -11,7 +11,10 @@ import {
   StatusBar,
   Platform
 } from "react-native";
-import { Layout } from "../../rapi_ui_components";
+import { Layout, useTheme } from "../../rapi_ui_components";
+import { colorTokens } from "../../theme/colorTokens";
+import Header4Text from "../../components/typography/Header4Text";
+import SubBodyText from "../../components/typography/SubBodyText";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import Constants from 'expo-constants';
 import { db, auth } from "../../provider/Firebase";
@@ -26,7 +29,7 @@ import EventCard from "../../components/EventCard";
 import { AntDesign } from '@expo/vector-icons';
 import FunFact from "../../components/FunFact";
 import GalleryRow from "../../components/GalleryRow";
-import RestaurantsRow from "../../components/RestaurantsRow";
+import CompactRestaurantCard from "../../components/CompactRestaurantCard";
 import ProfileSkeleton from "../../components/ProfileSkeleton";
 
 import { compareDates } from "../../utils/methods";
@@ -34,6 +37,8 @@ import SmallText from "../../components/SmallText";
 
 export default function ({ navigation }) {
   const user = auth.currentUser;
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
 
   const [userInfo, setUserInfo] = useState({});
   const [banner, setBanner] = useState({});
@@ -377,49 +382,59 @@ export default function ({ navigation }) {
           <TagsList tags={userInfo.tags} filterType="school" />
         </View>
 
-        {/* gallery */}
+        {/* gallery — always shown on your own profile, even empty (unlike
+        FullProfile.js, which hides the whole section when there's nothing
+        to show someone else) */}
         <View style={styles.galleryBackground}>
           <View style={styles.galleryHeader}>
-            <NormalText>Gallery</NormalText>
+            <Header4Text color={tokens.onBackground}>Gallery</Header4Text>
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate("Gallery", { user: userInfo });
               }}
             >
-              <NormalText color="grey">View all</NormalText>
+              <SubBodyText color={tokens.onBackground} style={{ opacity: 0.5 }}>View all</SubBodyText>
             </TouchableOpacity>
           </View>
-          <GalleryRow images={userInfo.gallery} />
+          {(userInfo.gallery || []).length > 0 ? (
+            <GalleryRow images={userInfo.gallery} />
+          ) : (
+            <View style={styles.galleryEmpty}>
+              <Ionicons name="images-outline" size={40} color={tokens.textLight} />
+              <Header4Text color={tokens.textLight} style={styles.galleryEmptyText}>
+                You haven't added anything to your gallery yet
+              </Header4Text>
+            </View>
+          )}
         </View>
 
-        {/* starred restaurants */}
-        {(userInfo.starredRestaurants || []).length > 0 && (
-          <View style={styles.eventRecordBackground} marginTop={20}>
-            <View style={styles.eventsHeader}>
-              <NormalText>Starred Restaurants</NormalText>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("StarredRestaurants", {
-                    restaurants: userInfo.starredRestaurants || [],
-                    isOwnProfile: true,
-                  })
-                }
-              >
-                <NormalText color="grey">View all</NormalText>
-              </TouchableOpacity>
-            </View>
-            <RestaurantsRow
-              restaurants={userInfo.starredRestaurants || []}
-              onRestaurantPress={(r) =>
-                navigation.navigate("StarredRestaurants", {
-                  restaurants: userInfo.starredRestaurants || [],
-                  isOwnProfile: true,
-                  openRestaurantId: r.id,
-                })
-              }
-            />
+        {/* favorite restaurants — always shown on your own profile, even
+        empty (unlike FullProfile.js, which hides the whole section when
+        there's nothing to show someone else) */}
+        <View style={styles.eventRecordBackground} marginTop={20}>
+          <View style={styles.eventsHeader}>
+            <Header4Text color={tokens.onBackground}>Favorite restaurants</Header4Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("StarredRestaurants", { userId: user.uid })}
+            >
+              <SubBodyText color={tokens.onBackground} style={{ opacity: 0.5 }}>View all</SubBodyText>
+            </TouchableOpacity>
           </View>
-        )}
+          {(userInfo.starredRestaurants || []).length > 0 ? (
+            <View style={styles.favoritesList}>
+              {(userInfo.starredRestaurants || []).slice(0, 2).map((restaurant) => (
+                <CompactRestaurantCard key={restaurant.id} restaurant={restaurant} showActions={false} />
+              ))}
+            </View>
+          ) : (
+            <View style={styles.galleryEmpty}>
+              <Ionicons name="restaurant-outline" size={40} color={tokens.textLight} />
+              <Header4Text color={tokens.textLight} style={styles.galleryEmptyText}>
+                You haven't added any favorite restaurants yet
+              </Header4Text>
+            </View>
+          )}
+        </View>
         </View>
       </ScrollView>
     </View>
@@ -445,6 +460,12 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 14,
     marginBottom: 10,
+  },
+
+  favoritesList: {
+    width: "100%",
+    paddingHorizontal: 14,
+    gap: 10,
   },
 
   scrollContent: {
@@ -586,5 +607,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     paddingHorizontal: 14,
+  },
+
+  galleryEmpty: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 30,
+    paddingHorizontal: 40,
+  },
+
+  galleryEmptyText: {
+    fontSize: 17,
+    lineHeight: 22,
+    marginLeft: 16,
+    maxWidth: 182,
   },
 });

@@ -3,13 +3,14 @@ import { View, StyleSheet, Animated } from "react-native";
 import { useTheme } from "../rapi_ui_components";
 import { colorTokens } from "../theme/colorTokens";
 import { radiusTokens } from "../theme/radiusTokens";
+import RestaurantCardSkeleton from "./RestaurantCardSkeleton";
 
 // Matches Me.js/FullProfile.js's loaded layout (name/photo, connections,
-// buttons, the three tag sections around the fun fact, gallery, restaurants)
-// so the page doesn't jump once real content replaces it. The gallery and
-// restaurants rows use the same 150x150 tile size as GalleryRow/RestaurantsRow
-// — not the wide list-card look in the older wireframes, since that's not
-// what those components actually render today.
+// buttons, the three tag sections around the fun fact, gallery, favorite
+// restaurants) so the page doesn't jump once real content replaces it. The
+// gallery row uses the same 150x150 tile size as GalleryRow; the favorite
+// restaurants section reuses RestaurantCardSkeleton (matching
+// CompactRestaurantCard's wide row, sliced to 2, same as the real section).
 const ProfileSkeleton = () => {
   const { theme } = useTheme();
   const tokens = colorTokens[theme];
@@ -72,10 +73,9 @@ const ProfileSkeleton = () => {
         <View style={[styles.labelBar, block]} />
         <View style={[styles.viewAllBar, block]} />
       </View>
-      <View style={styles.tileRow}>
-        {[0, 1, 2].map((i) => (
-          <View key={i} style={[styles.tile, block]} />
-        ))}
+      <View style={styles.favoritesList}>
+        <RestaurantCardSkeleton />
+        <RestaurantCardSkeleton />
       </View>
     </Animated.View>
   );
@@ -167,6 +167,9 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: radiusTokens.small,
+  },
+  favoritesList: {
+    gap: 10,
   },
 });
 

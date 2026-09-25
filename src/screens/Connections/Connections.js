@@ -120,12 +120,14 @@ export default function ({ navigation, route }) {
                     onSecondaryPress={() => setRemoveTarget(null)}
                 >
                     {removeTarget && (
-                        <UserListItem
-                            person={{
-                                name: removeTarget.firstName + " " + removeTarget.lastName,
-                                image: removeTarget.hasImage ? removeTarget.image : undefined,
-                            }}
-                        />
+                        <View style={{ width: "100%" }}>
+                            <UserListItem
+                                person={{
+                                    name: removeTarget.firstName + " " + removeTarget.lastName,
+                                    image: removeTarget.hasImage ? removeTarget.image : undefined,
+                                }}
+                            />
+                        </View>
                     )}
                 </Dialog>
             </DialogOverlay>

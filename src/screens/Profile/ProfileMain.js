@@ -24,6 +24,7 @@ import ChatRoom from "../Chat/ChatRoom";
 import GroupSettings from "../Chat/GroupSettings";
 import ChatSettings from "../Chat/ChatSettings";
 import Gallery from "../Home/Gallery";
+import GalleryPhotoViewer from "../Home/GalleryPhotoViewer";
 import MeetupArchive from "./MeetupArchive";
 import MyEvents from "./MyEvents";
 import OrganizeFlow from "../Organize/NewEvent/OrganizeFlow";
@@ -66,6 +67,7 @@ export default function () {
 
       {/* Photo Gallery */}
       <Stack.Screen name="Gallery" component={Gallery} />
+      <Stack.Screen name="GalleryPhotoViewer" component={GalleryPhotoViewer} />
       <Stack.Screen name="EventGallery" component={EventGallery} />
       <Stack.Screen name="EventPhotoViewer" component={EventPhotoViewer} />
       <Stack.Screen name="AddTaggedPerson" component={AddTaggedPerson} />
