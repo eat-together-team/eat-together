@@ -19,15 +19,25 @@ const fetchBusinessDetails = async (businessId) => {
   }
 };
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // Format the response from Yelp API
 const extractRestaurantInfo = async (businesses) => {
   if (!businesses || businesses.length === 0) {
     return [];
   }
 
-  const detailsList = await Promise.all(
-    businesses.map((b) => fetchBusinessDetails(b.id))
-  );
+  // Yelp rate-limits bursts of concurrent requests, so firing all of these
+  // detail calls at once via Promise.all mostly comes back 429'd (each
+  // failure is swallowed by fetchBusinessDetails, which just returns null
+  // for that business) — hours/photos then silently end up empty for most
+  // or all restaurants. Fetching one at a time with a short delay keeps us
+  // under the burst limit.
+  const detailsList = [];
+  for (const business of businesses) {
+    detailsList.push(await fetchBusinessDetails(business.id));
+    await sleep(250);
+  }
 
   return businesses.map((business, index) => {
     const details = detailsList[index] || {};
@@ -45,6 +55,8 @@ const extractRestaurantInfo = async (businesses) => {
       url: business.url,
       hours: details.hours || null,
       photos: Array.isArray(details.photos) ? details.photos.slice(0, 3) : [],
+      lat: business.coordinates?.latitude ?? null,
+      lng: business.coordinates?.longitude ?? null,
     };
   });
 };
@@ -70,6 +82,8 @@ const extractRestaurantInfoFromSearch = (businesses) => {
     url: business.url,
     hours: null,
     photos: [],
+    lat: business.coordinates?.latitude ?? null,
+    lng: business.coordinates?.longitude ?? null,
   }));
 };
 

@@ -1,37 +1,30 @@
 import { TouchableOpacity } from "react-native"
-import MediumText from "./MediumText"
 import {Ionicons} from '@expo/vector-icons';
+import { useTheme } from '../rapi_ui_components';
+import { colorTokens } from '../theme/colorTokens';
 
 const ExpandedButton = ({expanded = false, setExpanded}) => {
-    
-  return (
-            <TouchableOpacity
-                onPress={()=> setExpanded(!expanded)}
-                activeOpacity={0.7}
-                style = {{
-                  position:'absolute', 
-                  top: 21,
-                  right: 20,
-                  backgroundColor:'white', 
-                  width: 42, 
-                  height: 42,
-                  borderRadius: 20,
-                  display: 'flex',
-                  justifyContent:"center",
-                  alignItems:'center',
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
 
-                }}
-            >
-                <MediumText style={{
-                    color: '#5DB075',
-                    fontSize: 22,
-                    fontWeight: 'bold',
-                    padding: 3,
-                    
-                    }}>
-                  <Ionicons name={"resize"} size={22} color="#5DB075" />
-                </MediumText>
-            </TouchableOpacity>
+  return (
+    <TouchableOpacity
+      onPress={()=> setExpanded(!expanded)}
+      activeOpacity={0.7}
+      style = {{
+        position:'absolute',
+        top: 21,
+        right: 20,
+        backgroundColor: colors.background,
+        width: 30,
+        height: 30,
+        borderRadius: 10,
+        justifyContent:"center",
+        alignItems:'center',
+      }}
+    >
+      <Ionicons name={expanded ? "contract" : "expand"} size={16} color={colors.onBackground} />
+    </TouchableOpacity>
   )
 }
 
