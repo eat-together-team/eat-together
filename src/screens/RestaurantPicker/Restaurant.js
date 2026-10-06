@@ -1,8 +1,7 @@
 import {useState, useEffect} from 'react'
 import {StyleSheet, View, ScrollView, Alert} from "react-native";
-import { Layout, TopNav} from "../../rapi_ui_components";
-import MediumText from "../../components/MediumText";
-import { Ionicons } from "@expo/vector-icons";
+import { Layout } from "../../rapi_ui_components";
+import SmallAppBar from '../../components/SmallAppBar';
 import CuisineCard from './CuisineCard';
 import DietaryPref from './DietaryCard';
 import CardCarousel from './CardCarousel';
@@ -43,9 +42,7 @@ export default function ({navigation, route}) {
   const [userSkipped, setUserSkipped] = useState(false);
   const [pressedStart, setPressedStart] = useState(false);
   const [progress, setProgress] = useState(0.33);
-  const [swipingFinished, setSwipingFinished] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0); // Index for list of restaurants
-  const [resultVisible, setResultVisible] = useState(true);
   const [swipeCardExpanded, setSwipeCardExpanded] = useState(false);
 
   //Queries Yelp restaurant data
@@ -186,11 +183,9 @@ export default function ({navigation, route}) {
       setPriceRange = {setPriceRange} 
       priceRange = {priceRange}
     />,
-    <SwipeDeck 
-      listOfRestaurants = {result} 
-      setSwipingFinished ={setSwipingFinished} 
-      swipingFinished = {swipingFinished} 
-      userResults = {userResults} 
+    <SwipeDeck
+      listOfRestaurants = {result}
+      userResults = {userResults}
       setUserResults = {setUserResults} 
       incrementIndex = {incrementIndex} 
       currentIndex = {currentIndex}
@@ -201,25 +196,23 @@ export default function ({navigation, route}) {
       setResult = {setResult}
       onExpandedChange={setSwipeCardExpanded}
     />,
-    <Results 
+    <Results
       userResults = {userResults}
-      resultVisible={resultVisible}
-      setResultVisible = {setResultVisible}
       setResult = {setResult}
     />
   ];
 
   return (
     <Layout>
-      <TopNav
-        middleContent={<MediumText size = {17}>Discover Restaurants</MediumText>}
-        leftContent={<Ionicons name="arrow-back" size={20} />}
-        leftAction={() => navigation.goBack()}
+      <SmallAppBar
+        title={index === 6 ? "Results" : "Discover restaurants"}
+        onBack={() => navigation.goBack()}
       />
       <ScrollView
+        style={styles.scrollView}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.scrollContent}
-        scrollEnabled={index > 4 && (index !== 5 || swipeCardExpanded)}
+        contentContainerStyle={[styles.scrollContent, (index === 5 && swipeCardExpanded) && styles.scrollContentPadding]}
+        scrollEnabled={index !== 5 || swipeCardExpanded}
       >
       <View style = {styles.outerContainer}>
         <CardCarousel 
@@ -241,15 +234,22 @@ export default function ({navigation, route}) {
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+  },
+
   scrollContent: {
+    flexGrow: 1,
+  },
+
+  scrollContentPadding: {
     paddingBottom: 100,
   },
-  
+
   outerContainer:{
     flex:1,
     justifyContent:'center',
     alignItems:'center',
-    paddingTop: 20,
   },
   
   buttonContainer:{

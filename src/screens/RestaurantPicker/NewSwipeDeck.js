@@ -1,14 +1,17 @@
-import { View, Modal, StyleSheet, Animated, PanResponder } from 'react-native';
+import { View, StyleSheet, Animated, PanResponder, TouchableOpacity } from 'react-native';
 import { useEffect, useRef } from 'react';
-import MediumText from '../../components/MediumText';
-import Button from '../../components/Button';
+import BodyText from '../../components/typography/BodyText';
+import LargeButton from '../../components/LargeButton';
 import RestaurantRec from '../../components/RestaurantRec';
-import LargeText from '../../components/LargeText';
-import CustomButton from '../../components/CustomButton';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../rapi_ui_components';
+import { colorTokens } from '../../theme/colorTokens';
 
 // "Swipe Deck" screen that renders each restaurant that is tailored to user preferences
-const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, incrementIndex, currentIndex, setCurrentIndex, setIndex, setUserSkipped, setPressedStart, setUserResults, setResult, onExpandedChange}) => {
+const NewSwipeDeck = ({listOfRestaurants, incrementIndex, currentIndex, setCurrentIndex, setIndex, setUserSkipped, setPressedStart, setUserResults, setResult, onExpandedChange}) => {
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
+  const hasFinishedRef = useRef(false);
   const translateX = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
   const cardOpacity = useRef(new Animated.Value(1)).current;
@@ -43,9 +46,9 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
       }
 
       const next = prevIndex + 1;
-      // If we've reached the end of the list, show the finish modal
+      // If we've reached the end of the list, go straight to the results
       if (!listOfRestaurants[next]) {
-        setSwipingFinished(true);
+        incrementIndex();
         return prevIndex;
       }
       return next;
@@ -202,7 +205,7 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
   if (!Array.isArray(listOfRestaurants)) {
     return (
       <View style = {{marginTop: 300}}>
-        <MediumText>Loading...</MediumText>
+        <BodyText color={colors.onBackground} center>Loading...</BodyText>
       </View>
     )
   }
@@ -212,10 +215,11 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
   // Renders each restaurant as a card
   const renderCard = () => {
     if (!restaurant) {
-      if (!swipingFinished) {
-        setSwipingFinished(true);
+      if (!hasFinishedRef.current) {
+        hasFinishedRef.current = true;
+        incrementIndex();
       }
-      
+
       return null;
     }
     return (
@@ -248,114 +252,71 @@ const NewSwipeDeck = ({listOfRestaurants, swipingFinished, setSwipingFinished, i
   };
 
   return (
-    <View>
-        {renderCard()}
-        
-        {currentIndex <= 9 && <View style = {{marginTop:20}}>
-            <View>
-              <View style = {{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems: "center",}}>
-                <CustomButton
-                  width={67}
-                  height={67}
-                  borderRadius={50}
-                  backgroundColor="#F8AEAE"
-                  onPress={triggerReject}
-                >
-                  <Ionicons name="close" size={50} />
-                </CustomButton>
-                <CustomButton
-                  width={67}
-                  height={67}
-                  borderRadius={50}
-                  onPress={triggerApprove}
-                >
-                  <Ionicons name="checkmark" size={50} />
-                </CustomButton>
-              </View>
-              <View style={{ alignItems: 'center', marginTop: 10 }}>
-                <Button onPress ={()=> setSwipingFinished(true)} 
-                  backgroundColor="white" 
-                  color="#A9A9A9" 
-                  borderWidth={2} 
-                  borderColor="#A9A9A9" 
-                  noShadow
-                  paddingHorizontal={70}
-                  paddingVertical={10}
-                  fontSize={15}
-                >
-                    I'm done
-                </Button>
-              </View>
+    <View style={styles.root}>
+        <View style={styles.cardCenterer}>
+          {renderCard()}
+        </View>
+
+        {currentIndex <= 9 && <View style = {styles.actionsWrapper}>
+            <View style = {styles.swipeButtonsRow}>
+              <TouchableOpacity
+                style={[styles.swipeButton, { backgroundColor: colors.error }]}
+                onPress={triggerReject}
+              >
+                <Ionicons name="close" size={32} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.swipeButton, { backgroundColor: colors.primary }]}
+                onPress={triggerApprove}
+              >
+                <Ionicons name="checkmark" size={32} color="white" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.doneButtonWrapper}>
+              <LargeButton outlined color="gray" onPress={incrementIndex}>
+                I'm done
+              </LargeButton>
             </View>
         </View>}
-        {/* Modal when finished button pressed*/}
-        <Modal visible={swipingFinished} transparent={true}>
-            <View style = {styles.overlay}>
-                <View style = {styles.prefContainer}>
-                    <LargeText color = "#5DB075" center = "center" marginBottom = {10} style ={{marginTop: 70, marginHorizontal: 20}} >
-                      Finish to view your results? 
-                    </LargeText>
-                    <View style = {[styles.buttonContainer, {marginTop:30}]}>
-                        <Button
-                            backgroundColor="white"
-                            color="#A9A9A9"
-                            onPress={() => {
-                                setSwipingFinished(false);
-                            }}
-                            fontSize={16}
-                            paddingHorizontal={25}
-                            paddingVertical={10}
-                            marginHorizontal={10}
-                            noShadow
-                            borderWidth={2}
-                            borderColor="#A9A9A9"
-                        >
-                            Back
-                        </Button>
-                        <Button
-                            fontSize={16}
-                            paddingHorizontal={25}
-                            paddingVertical={10}
-                            marginHorizontal={10}
-                            onPress={incrementIndex}
-                            noShadow
-                        >
-                            Finish
-                        </Button>
-                    </View>
-                </View>
-            </View>
-        </Modal>
     </View>
   );
 };
 const styles = StyleSheet.create({
-  overlay:{
-      flex:1,
-      justifyContent:'center',
-      alignItems:'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    root:{
+      flex: 1,
+      width: '100%',
+      alignItems: 'center',
     },
-    prefContainer:{
-      display:'flex',
-      backgroundColor:"#F7F7F7",
-      borderRadius:20,
-      height:315,
-      width:290,
+    cardCenterer:{
+      flex: 1,
+      width: '100%',
+      justifyContent: 'center',
+      alignItems: 'center',
     },
-    buttonContainer:{
-      display:'flex',
-      flexDirection:'row',
-      justifyContent:'center',
-      alignItems:'flex-end',
-  },
-  finishContainer:{
-      textAlign:'center',
-  },
+    actionsWrapper:{
+      alignItems: 'center',
+      gap: 34,
+      paddingBottom: 40,
+    },
+    swipeButtonsRow:{
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: 260,
+    },
+    swipeButton:{
+      width: 67,
+      height: 67,
+      borderRadius: 33.5,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    doneButtonWrapper:{
+      width: 198,
+    },
   cardWrapper: {
     position: 'relative',
     alignItems: 'center',
-    marginTop: -36,
   },
   rejectOverlay: {
     position: 'absolute',
