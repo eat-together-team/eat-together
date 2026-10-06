@@ -5,19 +5,25 @@ import { useEffect, useContext } from "react";
 import { Alert, Linking, View, StyleSheet } from "react-native";
 import "firebase/firestore";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "./useScreenOptions";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import TabBarIcon from "../components/utils/TabBarIcon";
-import TabBarText from "../components/utils/TabBarText";
+import BottomTabBar from "../components/utils/BottomTabBar";
+import AnimatedTabScreen from "../components/utils/AnimatedTabScreen";
 import ProfilePic from "../components/ProfilePic";
+import { useTheme } from "../provider/ThemeProvider";
+import { colorTokens } from "../theme/colorTokens";
+import { TutorialProvider } from "../provider/TutorialProvider";
+import TutorialOverlay from "../components/Tutorial/TutorialOverlay";
 
 // Screens (Make sure to import if ever adding new screen!)
 import OrganizeMain from "../screens/Organize/OrganizeMain";
 import ExploreMain from "../screens/Explore/ExploreMain";
-import HomeMain from "../screens/Home/HomeMain";
 import TryOut from "../screens/TryOut";
 import ProfileMain from "../screens/Profile/ProfileMain";
 import NotificationsMain from "../screens/Notifications/NotificationsMain";
+import ChatMain from "../screens/Chat/ChatMain";
 import Loading from "../screens/utils/Loading";
 
 // Auth screens
@@ -41,19 +47,35 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// A real page on the outer stack rather than a bottom tab — pressing back
+// (Android hardware back, or the iOS swipe-back gesture) pops it back to
+// MainTabs like any other stack screen, instead of the tab navigator's
+// back-behavior (which would exit the app, since Organize was the first/
+// only tab with no history to fall back to). Registered the same way as
+// "Notifications" below — no options override — so it gets the exact same
+// default push transition (useScreenOptions' simple_push) already used
+// going from Organize to Notifications.
+function OrganizeScreen(props) {
+  const auth_context = useContext(AuthContext);
+  const user = auth_context.currUser;
+  const Screen = user.uid === tryoutId ? TryOut : OrganizeMain;
+  return <Screen {...props} />;
+}
+
 //The experience of logged in user!!
-const MainStack = createStackNavigator();
+const MainStack = createNativeStackNavigator();
 const Main = () => {
   return (
-    <MainStack.Navigator
-      screenOptions={{
-        headerShown: false,
-        animationEnabled: true,
-      }}
-    >
-      <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
-      <MainStack.Screen name="Notifications" component={NotificationsMain} />
-    </MainStack.Navigator>
+    <TutorialProvider>
+      <MainStack.Navigator
+        screenOptions={useScreenOptions()}
+      >
+        <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
+        <MainStack.Screen name="Notifications" component={NotificationsMain} />
+        <MainStack.Screen name="Organize" component={OrganizeScreen} />
+      </MainStack.Navigator>
+      <TutorialOverlay />
+    </TutorialProvider>
   );
 };
 
@@ -63,8 +85,11 @@ const Tabs = createBottomTabNavigator();
 const MainTabs = () => {
   const auth_context = useContext(AuthContext);
   const profileImageUri = auth_context.profileImageUri;
-  const hasNotif = auth_context.hasNotif;
+  const hasUnreadMessages = auth_context.hasUnreadMessages;
   const user = auth_context.currUser;
+
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
 
   const { syncNotificationSettings } = useNotificationSync(user.uid);
 
@@ -100,7 +125,8 @@ const MainTabs = () => {
 
   return (
     <Tabs.Navigator
-      initialRouteName={user.uid === tryoutId ? "Explore" : "Home"}
+      initialRouteName="Explore"
+      tabBar={(props) => <BottomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         animationEnabled: false,
@@ -117,63 +143,74 @@ const MainTabs = () => {
         sceneContainerStyle: { backgroundColor: "#ffffff" },      }}
     >
       <Tabs.Screen
-        name="Home"
-        component={user.uid == tryoutId ? TryOut : HomeMain}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabBarIcon focused={focused} icon={"home-outline"} title="Home" />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="Explore"
-        component={ExploreMain}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               focused={focused}
-              icon={"compass-outline"}
+              icon={focused ? "sparkles" : "sparkles-outline"}
               title="Explore"
             />
           ),
         }}
-      />
-      <Tabs.Screen
-        name="Organize"
-        component={user.uid == tryoutId ? TryOut : OrganizeMain}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabBarIcon
-              focused={focused}
-              icon={"create-outline"}
-              title="Organize"
-            />
-          ),
-        }}
-      />
+      >
+        {(props) => (
+          <AnimatedTabScreen>
+            <ExploreMain {...props} />
+          </AnimatedTabScreen>
+        )}
+      </Tabs.Screen>
       <Tabs.Screen
         name="Notifs"
-        component={user.uid == tryoutId ? TryOut : NotificationsMain}
         options={{
-          tabBarLabel: ({ focused }) => (
-            <TabBarText focused={focused} title="Inbox" />
-          ),
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               focused={focused}
-              icon={hasNotif ? "mail-unread-outline" : "mail-outline"}
+              icon={focused ? "mail-open" : "mail-open-outline"}
+              showBadge={hasUnreadMessages}
               title="Inbox"
             />
           ),
         }}
-      />
+      >
+        {(props) => {
+          const Screen = user.uid == tryoutId ? TryOut : ChatMain;
+          return (
+            <AnimatedTabScreen>
+              <Screen {...props} />
+            </AnimatedTabScreen>
+          );
+        }}
+      </Tabs.Screen>
       <Tabs.Screen
         name="Profile"
-        component={user.uid == tryoutId ? TryOut : ProfileMain}
         options={{
-          tabBarIcon: () => <ProfilePic size={38} uri={profileImageUri} />,
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              focusedColor={tokens.onBackground}
+              iconElement={
+                <ProfilePic
+                  size={32}
+                  uri={profileImageUri}
+                  bordered={focused}
+                  ringColor={tokens.onBackground}
+                />
+              }
+              title="Account"
+            />
+          ),
         }}
-      />
+      >
+        {(props) => {
+          const Screen = user.uid == tryoutId ? TryOut : ProfileMain;
+          return (
+            <AnimatedTabScreen>
+              <Screen {...props} />
+            </AnimatedTabScreen>
+          );
+        }}
+      </Tabs.Screen>
     </Tabs.Navigator>
   );
 };
@@ -183,8 +220,28 @@ export default () => {
   const user = auth_context.user;
   const currUser = auth_context.currUser;
 
+  // NavigationContainer defaults to its own light theme (white background)
+  // when no theme prop is given — react-navigation's native-stack uses
+  // `colors.background` from THIS theme (not our app's own colorTokens) as
+  // the base background behind every screen during a transition, which is
+  // what was still showing through as a white flash in dark mode even after
+  // each screen's own contentStyle was fixed.
+  const { theme } = useTheme();
+  const tokens = colorTokens[theme];
+  const navigationTheme = {
+    dark: theme === "dark",
+    colors: {
+      primary: tokens.primary,
+      background: tokens.background,
+      card: tokens.background,
+      text: tokens.onBackground,
+      border: tokens.outline,
+      notification: tokens.error,
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navigationTheme}>
       {user === null && <Loading />}
       {user === false && <Auth />}
       {user === true &&
