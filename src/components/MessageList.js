@@ -10,8 +10,11 @@ import { Ionicons } from "@expo/vector-icons";
 
 import MediumText from "./MediumText";
 
-import firebase from "firebase/compat";
-import { auth, db } from "../provider/Firebase";
+import { auth } from "../provider/Firebase";
+import {
+  acceptConnectionRequest,
+  declineConnectionRequest,
+} from "../screens/Connections/connectionRequests";
 import TagsList from "./TagsList";
 
 const MessageList = props => {
@@ -40,7 +43,7 @@ const MessageList = props => {
           
           <View style={styles.response}>
             <TouchableOpacity onPress={() => {
-              db.collection("User Invites").doc(user.uid).collection("Connections").doc(person.id).delete().then(() => {
+              declineConnectionRequest(user, person.id).then(() => {
                 alert("Request Declined");
               }).catch(() => {
                 alert("Couldn't delete request, try again later.");
@@ -50,23 +53,10 @@ const MessageList = props => {
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => {
-              const cur = firebase.auth().currentUser;
-              db.collection("Usernames").doc(person.username).get().then((doc) => {
-                if (!doc.exists) return alert("This user seems to no longer exist :(");
-                const otherId = doc.data().id;
-                db.collection("Users").doc(cur.uid).update({
-                  friendIDs: firebase.firestore.FieldValue.arrayUnion(otherId)
-                }).then(() => {
-                  db.collection("Users").doc(otherId).update({
-                    friendIDs: firebase.firestore.FieldValue.arrayUnion(cur.uid)
-                  }).then(() => {
-                    db.collection("User Invites").doc(cur.uid).collection("Connections").doc(otherId).delete().then(() => {
-                      if (props.delete) props.delete(person.id);
-                      alert("Taste Bud Added");
-                    });
-                  });
-                });
-              }).catch(() => alert("This user seems to no longer exist :("));
+              acceptConnectionRequest(user, person.id).then(() => {
+                if (props.delete) props.delete(person.id);
+                alert("Taste Bud Added");
+              }).catch(() => alert("Couldn't accept that request, try again later."));
             }}>
               <View style={{ width: 40, height: 40, justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="checkmark-circle-outline" size={40} color="#5DB075" />

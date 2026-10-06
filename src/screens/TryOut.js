@@ -11,10 +11,12 @@ import { Layout } from "../rapi_ui_components";
 
 import Button from "../components/Button";
 import LargeText from "../components/LargeText";
+import { bridgeSignOut } from "../utils/nativeAuthBridge";
 
 export default function () {
   async function signOut () {
     await firebase.auth().signOut();
+    await bridgeSignOut();
   }
   return (
     <Layout>
