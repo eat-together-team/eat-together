@@ -4,15 +4,7 @@ import {
   SafeAreaViewProps,
 } from "react-native-safe-area-context";
 import { useTheme } from "../../provider/ThemeProvider";
-
-const THEME_COLORS = {
-  light: {
-    backgroundColor: "#FFFFFF",
-  },
-  dark: {
-    backgroundColor: "#000000",
-  },
-} as const;
+import { colorTokens } from "../../theme/colorTokens";
 
 interface Props extends SafeAreaViewProps {
   backgroundColor?: string;
@@ -20,7 +12,7 @@ interface Props extends SafeAreaViewProps {
 
 const Layout: React.FC<Props> = (props: Props) => {
   const { theme } = useTheme();
-  const themeDefaults = THEME_COLORS[theme];
+  const themeDefaults = colorTokens[theme];
   return (
     <SafeAreaView
       {...props}
@@ -29,7 +21,7 @@ const Layout: React.FC<Props> = (props: Props) => {
         props.style,
         {
           flex: 1,
-          backgroundColor: props.backgroundColor ?? themeDefaults.backgroundColor,
+          backgroundColor: props.backgroundColor ?? themeDefaults.background,
         },
       ]}
     >

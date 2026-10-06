@@ -1,13 +1,5 @@
-import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, Dimensions } from 'react-native';
-import Animated, {
-  interpolate,
-  interpolateColor,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  runOnUI,
-} from 'react-native-reanimated';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Pressable, StyleSheet, Dimensions } from 'react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const switchWidthRatio = 0.1;
@@ -16,50 +8,37 @@ const maxSwitchHeight = 22;
 const maxSwitchWidth = 40;
 const SWITCH_HEIGHT = Math.max(maxSwitchHeight, SCREEN_WIDTH * switchHeightRatio);
 const SWITCH_WIDTH = Math.max(maxSwitchWidth, SCREEN_WIDTH * switchWidthRatio);
+const THUMB_TRAVEL = SWITCH_WIDTH - SWITCH_HEIGHT;
 
 const Switch = ({
   value,
   onValueChange,
   style,
-  duration = 400,
+  duration = 150,
   trackColors = { on: '#5db075', off: '#808080' },
 }) => {
-  const height = useSharedValue(0);
-  const width = useSharedValue(0);
-  const isOn = useSharedValue(value ? 1 : 0);
+  const isOn = useRef(new Animated.Value(value ? 1 : 0)).current;
 
-  // Update the shared value when the boolean value prop changes
+  // Animate toward the new boolean value whenever it changes.
+  // backgroundColor interpolation isn't supported by the native driver,
+  // so this whole animation runs on the JS thread — fine for an
+  // occasional toggle, and it avoids Reanimated/worklets entirely.
   useEffect(() => {
-    runOnUI(() => {
-      'worklet';
-      isOn.value = withTiming(value ? 1 : 0, { duration });
-    })();
+    Animated.timing(isOn, {
+      toValue: value ? 1 : 0,
+      duration,
+      useNativeDriver: false,
+    }).start();
   }, [value]);
 
-  const trackAnimatedStyle = useAnimatedStyle(() => {
-    const color = interpolateColor(
-      isOn.value,
-      [0, 1],
-      [trackColors.off, trackColors.on]
-    );
-
-    return {
-      backgroundColor: color,
-      borderRadius: height.value / 2,
-    };
+  const trackColor = isOn.interpolate({
+    inputRange: [0, 1],
+    outputRange: [trackColors.off, trackColors.on],
   });
 
-  const thumbAnimatedStyle = useAnimatedStyle(() => {
-    const moveValue = interpolate(
-      isOn.value,
-      [0, 1],
-      [0, width.value - height.value]
-    );
-
-    return {
-      transform: [{ translateX: moveValue }],
-      borderRadius: height.value / 2,
-    };
+  const thumbTranslateX = isOn.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, THUMB_TRAVEL],
   });
 
   const handlePress = () => {
@@ -70,18 +49,10 @@ const Switch = ({
 
   return (
     <Pressable onPress={handlePress}>
-      <Animated.View
-        onLayout={(e) => {
-          const { height: h, width: w } = e.nativeEvent.layout;
-          runOnUI(() => {
-            'worklet';
-            height.value = h;
-            width.value = w;
-          })();
-        }}
-        style={[switchStyles.track, style, trackAnimatedStyle]}>
+      <Animated.View style={[switchStyles.track, style, { backgroundColor: trackColor }]}>
         <Animated.View
-          style={[switchStyles.thumb, thumbAnimatedStyle]}></Animated.View>
+          style={[switchStyles.thumb, { transform: [{ translateX: thumbTranslateX }] }]}
+        />
       </Animated.View>
     </Pressable>
   );

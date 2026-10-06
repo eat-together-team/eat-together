@@ -1,16 +1,14 @@
 import React from "react";
 import { View } from "react-native";
+import { useTheme } from "../rapi_ui_components";
+import { colorTokens } from "../theme/colorTokens";
 
-const Divider = props => {
-    return (
-        <View style={{
-            width: props.width ? props.width : "100%",
-            borderColor: props.color ? props.color : "#5DB075",
-            borderWidth: 2,
-            marginVertical: 10,
-            justifyContent: props.center ? "center" : "flex-start"
-        }}/>
-    );
-}
+// A hairline separator between grouped content, e.g. settings sections.
+const Divider = ({ style }) => {
+    const { theme } = useTheme();
+    const tokens = colorTokens[theme];
+
+    return <View style={[{ height: 1, backgroundColor: tokens.containerHigh }, style]} />;
+};
 
 export default Divider;
