@@ -12,6 +12,7 @@ const AuthProvider = (props) => {
     "https://static.wixstatic.com/media/d58e38_29c96d2ee659418489aec2315803f5f8~mv2.png"
   );
   const [hasNotif, setHasNotif] = useState(false);
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
 
   useEffect(() => {
     checkLogin();
@@ -27,6 +28,7 @@ const AuthProvider = (props) => {
         }
 
         setHasNotif(doc.data().hasNotif);
+        setHasUnreadMessages(doc.data().hasUnreadMessages);
       });
   }
 
@@ -52,8 +54,10 @@ const AuthProvider = (props) => {
         setCurrUser,
 		    profileImageUri,
         hasNotif,
+        hasUnreadMessages,
         updateProfileImg: image => setProfileImageUri(image),
         updateHasNotif: notif => setHasNotif(notif),
+        updateHasUnreadMessages: unread => setHasUnreadMessages(unread),
       }}
     >
       {props.children}

@@ -1,9 +1,17 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import useScreenOptions from "../../navigation/useScreenOptions";
 
 import Chats from "./Chats";
+import ArchivedChats from "./ArchivedChats";
 import ChatRoom from "./ChatRoom";
 import ChatRoomDetails from "./ChatRoomDetails";
+import ChatSettings from "./ChatSettings";
+import GroupSettings from "./GroupSettings";
+import AddGroupMembers from "./AddGroupMembers";
+import NewChat from "./NewChat";
+import MessageRequests from "./MessageRequests";
+import ImageViewer from "./ImageViewer";
 import FullProfile from "../Explore/People/FullProfile";
 
 
@@ -11,23 +19,37 @@ import Requests from "../Connections/Requests";
 import FullCard from "../Explore/FullCard";
 import ReportPerson from "../Explore/People/ReportPerson";
 import MeetupArchive from "../Profile/MeetupArchive";
+import MyEvents from "../Profile/MyEvents";
+import Connections from "../Connections/Connections";
+import StarredRestaurants from "../Profile/StarredRestaurants";
+import OrganizeFlow from "../Organize/NewEvent/OrganizeFlow";
 import ReportEvent from "../Home/ReportEvent";
+import EventGallery from "../Home/EventGallery";
+import EventPhotoViewer from "../Home/EventPhotoViewer";
+import Gallery from "../Home/Gallery";
+import GalleryPhotoViewer from "../Home/GalleryPhotoViewer";
+import AddTaggedPerson from "../Home/AddTaggedPerson";
+import InvitePeople from "../Organize/InvitePeople";
 import GroupChat from "./GroupChat";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function () {
   return (
     <Stack.Navigator
       initialRouteName="Chats"
-      screenOptions={{
-        headerShown: false,
-        animationEnabled: false,
-      }}
+      screenOptions={useScreenOptions()}
     >
       <Stack.Screen name="Chats" component={Chats} />
+      <Stack.Screen name="ArchivedChats" component={ArchivedChats} />
       <Stack.Screen name="ChatRoom" component={ChatRoom} />
       <Stack.Screen name="ChatRoomDetails" component={ChatRoomDetails}/>
+      <Stack.Screen name="ChatSettings" component={ChatSettings}/>
+      <Stack.Screen name="GroupSettings" component={GroupSettings}/>
+      <Stack.Screen name="AddGroupMembers" component={AddGroupMembers}/>
+      <Stack.Screen name="NewChat" component={NewChat}/>
+      <Stack.Screen name="MessageRequests" component={MessageRequests}/>
+      <Stack.Screen name="ImageViewer" component={ImageViewer}/>
       <Stack.Screen name="FullProfile">
         {props => <FullProfile {...props} blockBack="Chats" />}
       </Stack.Screen>
@@ -37,7 +59,17 @@ export default function () {
         {props => <Requests {...props} back="Chats"/>}
       </Stack.Screen>
       <Stack.Screen name="FullCard" component={FullCard}/>
+      <Stack.Screen name="EventGallery" component={EventGallery} />
+      <Stack.Screen name="EventPhotoViewer" component={EventPhotoViewer} />
+      <Stack.Screen name="Gallery" component={Gallery} />
+      <Stack.Screen name="GalleryPhotoViewer" component={GalleryPhotoViewer} />
+      <Stack.Screen name="AddTaggedPerson" component={AddTaggedPerson} />
+      <Stack.Screen name="InvitePeople" component={InvitePeople} />
       <Stack.Screen name="MeetupArchive" component={MeetupArchive} />
+      <Stack.Screen name="MyEvents" component={MyEvents} />
+      <Stack.Screen name="Connections" component={Connections} />
+      <Stack.Screen name="StarredRestaurants" component={StarredRestaurants} />
+      <Stack.Screen name="OrganizeFlow" component={OrganizeFlow} />
       <Stack.Screen name="GroupChat" component={GroupChat}/>
       <Stack.Screen name="ReportPerson" component={ReportPerson}/>
       <Stack.Screen name="ReportEvent" component={ReportEvent}/>
