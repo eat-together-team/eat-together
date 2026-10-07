@@ -66,6 +66,8 @@ module.exports = {
         }
       ],
       "expo-web-browser",
+      "expo-splash-screen",
+      "expo-status-bar",
       [
         "@react-native-community/datetimepicker"
       ],

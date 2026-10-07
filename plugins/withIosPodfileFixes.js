@@ -22,15 +22,15 @@ function withIosPodfileFixes(config) {
       const reactNativePostInstallCallEnd =
         ":ccache_enabled => ccache_enabled?(podfile_properties),\n    )";
       if (
-        !contents.includes("IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'") &&
+        !contents.includes("IPHONEOS_DEPLOYMENT_TARGET'] = '16.4'") &&
         contents.includes(reactNativePostInstallCallEnd)
       ) {
         const insertion = `${reactNativePostInstallCallEnd}
 
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |build_config|
-        if build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.1
-          build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        if build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 16.4
+          build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.4'
         end
       end
     end`;
