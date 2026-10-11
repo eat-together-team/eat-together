@@ -9,7 +9,7 @@
 // does) — the card still renders at a reasonable fallback position rather
 // than disappearing, since it's the only way to move forward or back.
 
-import React from "react";
+import React, { useState } from "react";
 import { Dimensions, View, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../rapi_ui_components";
@@ -44,21 +44,31 @@ const TutorialCard = ({
 
   const panelColor = theme === "dark" ? colors.primaryContainer : colors.primary;
   const textColor = theme === "dark" ? colors.onPrimaryContainer : colors.onPrimary;
+  const [cardHeight, setCardHeight] = useState(240);
 
-  const positionStyle = anchor === "top"
-    ? {
-        top: target
-          ? Math.max(target.y + target.height + TARGET_GAP, insets.top + EDGE_MARGIN)
-          : insets.top + FALLBACK_TOP_OFFSET,
-      }
-    : {
-        bottom: target
-          ? Math.max(screenHeight - target.y + TARGET_GAP, insets.bottom + EDGE_MARGIN)
-          : insets.bottom + FALLBACK_BOTTOM_OFFSET,
-      };
+  // Position with `top` in window coordinates. `bottom` was relative to the
+  // overlay parent, which had no height, so every bottom-anchored card
+  // (New Event, Explore, Inbox, Account) was laid out above the screen.
+  // The bell card still showed because it is anchored from the top.
+  const unclampedTop = anchor === "top"
+    ? (target
+      ? target.y + target.height + TARGET_GAP
+      : insets.top + FALLBACK_TOP_OFFSET)
+    : (target
+      ? target.y - cardHeight - TARGET_GAP
+      : screenHeight - cardHeight - insets.bottom - FALLBACK_BOTTOM_OFFSET);
+  const minTop = insets.top + EDGE_MARGIN;
+  const maxTop = Math.max(minTop, screenHeight - cardHeight - EDGE_MARGIN);
+  const top = Math.min(Math.max(unclampedTop, minTop), maxTop);
 
   return (
-    <View style={[styles.card, { backgroundColor: panelColor }, positionStyle]}>
+    <View
+      onLayout={(event) => {
+        const nextHeight = Math.round(event.nativeEvent.layout.height);
+        if (nextHeight > 0 && nextHeight !== cardHeight) setCardHeight(nextHeight);
+      }}
+      style={[styles.card, { backgroundColor: panelColor, top }]}
+    >
       <View style={styles.dots}>
         {Array.from({ length: stepCount }).map((_, index) => (
           <View
