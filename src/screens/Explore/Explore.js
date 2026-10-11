@@ -61,6 +61,7 @@ export default function ({ navigation }) {
     if (!ready) return;
 
     let cancelled = false;
+    let tutorialTimer;
     let unsubscribeEvents = () => {};
     let unsubscribePeople = () => {};
 
@@ -77,8 +78,13 @@ export default function ({ navigation }) {
       // "Launch tutorial" in Settings re-triggers it directly rather than
       // through this flag). Folded into this existing user-doc read rather
       // than a dedicated one, since this effect already fetches it.
+      // Wait until the dev launcher has finished its own presentation.
+      // Presenting this dialog's modal in the same turn leaves an empty
+      // white sheet over the app.
       if (!userData.settings?.hasSeenTutorial) {
-        startTutorial();
+        tutorialTimer = setTimeout(() => {
+          if (!cancelled) startTutorial();
+        }, 700);
       }
 
       unsubscribeEvents = db.collection("Public Events").onSnapshot((query) => {
@@ -125,6 +131,7 @@ export default function ({ navigation }) {
 
     return () => {
       cancelled = true;
+      clearTimeout(tutorialTimer);
       unsubscribeEvents();
       unsubscribePeople();
     };
