@@ -1,7 +1,7 @@
 // Controls navigation functionality which includes everything that involves switching screens
 // Sets up login permissions
 
-import { useEffect, useContext } from "react";
+import { useEffect, useContext, useState } from "react";
 import { Alert, Linking, View, StyleSheet } from "react-native";
 import "firebase/firestore";
 import { NavigationContainer } from "@react-navigation/native";
@@ -16,6 +16,7 @@ import { useTheme } from "../provider/ThemeProvider";
 import { colorTokens } from "../theme/colorTokens";
 import { TutorialProvider } from "../provider/TutorialProvider";
 import TutorialOverlay from "../components/Tutorial/TutorialOverlay";
+import { NavigationEpochContext } from "./NavigationEpoch";
 
 // Screens (Make sure to import if ever adding new screen!)
 import OrganizeMain from "../screens/Organize/OrganizeMain";
@@ -67,14 +68,16 @@ const MainStack = createNativeStackNavigator();
 const Main = () => {
   return (
     <TutorialProvider>
-      <MainStack.Navigator
-        screenOptions={useScreenOptions()}
-      >
-        <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
-        <MainStack.Screen name="Notifications" component={NotificationsMain} />
-        <MainStack.Screen name="Organize" component={OrganizeScreen} />
-      </MainStack.Navigator>
-      <TutorialOverlay />
+      <View style={{ flex: 1 }}>
+        <MainStack.Navigator
+          screenOptions={useScreenOptions()}
+        >
+          <MainStack.Screen name="MainTabs">{() => <MainTabs />}</MainStack.Screen>
+          <MainStack.Screen name="Notifications" component={NotificationsMain} />
+          <MainStack.Screen name="Organize" component={OrganizeScreen} />
+        </MainStack.Navigator>
+        <TutorialOverlay />
+      </View>
     </TutorialProvider>
   );
 };
@@ -219,6 +222,7 @@ export default () => {
   const auth_context = useContext(AuthContext);
   const user = auth_context.user;
   const currUser = auth_context.currUser;
+  const [navigationEpoch, setNavigationEpoch] = useState(0);
 
   // NavigationContainer defaults to its own light theme (white background)
   // when no theme prop is given — react-navigation's native-stack uses
@@ -241,7 +245,11 @@ export default () => {
   };
 
   return (
-    <NavigationContainer theme={navigationTheme}>
+    <NavigationEpochContext.Provider value={navigationEpoch}>
+      <NavigationContainer
+        theme={navigationTheme}
+        onStateChange={() => setNavigationEpoch((epoch) => epoch + 1)}
+      >
       {user === null && <Loading />}
       {user === false && <Auth />}
       {user === true &&
@@ -254,6 +262,7 @@ export default () => {
           user === true && <Main />
         )
       }
-    </NavigationContainer>
+      </NavigationContainer>
+    </NavigationEpochContext.Provider>
   );
 };
