@@ -71,11 +71,9 @@ const TutorialProvider = ({ children }) => {
   // 'hidden' | 'intro' | 'steps' | 'outro'
   const [phase, setPhase] = useState("hidden");
   const [stepIndex, setStepIndex] = useState(0);
-  // The step TutorialStepsOverlay is actually showing right now, reported
-  // back via setDisplayedStepIndex — distinct from `stepIndex` (the step
-  // being transitioned *to*) so activeTargetKey (and anything highlighting
-  // off it, like the tab bar) doesn't jump ahead of the card/spotlight
-  // while a step transition's fade-out is still playing.
+  // Reported by TutorialStepsOverlay as the step it has committed to
+  // showing. The highlight follows `stepIndex` directly so a stalled fade
+  // can't leave the spotlight pointing at the previous step.
   const [displayedStepIndex, setDisplayedStepIndex] = useState(null);
   const targetsRef = useRef({});
 
@@ -151,8 +149,8 @@ const TutorialProvider = ({ children }) => {
     })
   ), []);
 
-  const activeTargetKey = phase === "steps" && displayedStepIndex !== null
-    ? TUTORIAL_STEPS[displayedStepIndex].key
+  const activeTargetKey = phase === "steps"
+    ? TUTORIAL_STEPS[stepIndex].key
     : null;
 
   const value = useMemo(() => ({
