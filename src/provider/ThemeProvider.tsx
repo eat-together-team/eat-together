@@ -1,6 +1,8 @@
 import React from "react";
-import { StatusBar } from "react-native";
+import { Platform, useColorScheme } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import * as NavigationBar from "expo-navigation-bar";
 import useCachedResources from "../hooks/useCachedResources";
 
 const THEME_COLORS = {
@@ -37,18 +39,36 @@ const ThemeProvider = (props: {
   children?: React.ReactNode;
   loading?: React.ReactNode;
 }) => {
+  const systemColorScheme = useColorScheme();
   const [theme, setTheme] = React.useState<"light" | "dark">(
-    props.theme || "light"
+    props.theme || (systemColorScheme === "dark" ? "dark" : "light")
   );
+
+  React.useEffect(() => {
+    if (!props.theme) {
+      setTheme(systemColorScheme === "dark" ? "dark" : "light");
+    }
+  }, [systemColorScheme, props.theme]);
+
   const isLoadingComplete = useCachedResources(props.images, props.fonts);
   const isDarkmode = theme === "dark";
+
+  React.useEffect(() => {
+    // Android's edge-to-edge enforcement means the nav bar background can no
+    // longer be colored (it's always transparent), but the icon style is
+    // still ours to set — keep it legible against our own light/dark content
+    // showing through behind it.
+    if (Platform.OS === "android") {
+      NavigationBar.setStyle(isDarkmode ? "light" : "dark");
+    }
+  }, [isDarkmode]);
 
   const themeDefaults = THEME_COLORS[theme];
   return (
     <ThemeContext.Provider value={{ theme, isDarkmode, setTheme }}>
       <StatusBar
         backgroundColor={themeDefaults.statusBarColor}
-        barStyle={isDarkmode ? "light-content" : "dark-content"}
+        style={isDarkmode ? "light" : "dark"}
       />
       <SafeAreaProvider
         style={{

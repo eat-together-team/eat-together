@@ -5,9 +5,9 @@ import MediumText from './MediumText';
 import NormalText from './NormalText';
 
 const Tag = props => {
-    const typeBg = props.type === "school" ? "#FFFCE5"
-        : props.type === "hobby" ? "#E5F7FF"
-        : props.type === "food" ? "#FDE5FF"
+    const typeBg = props.type === "school" ? "#FDF6D4"
+        : props.type === "hobby" ? "#D5EFFF"
+        : props.type === "food" ? "#F2E2FC"
         : props.type ? "#E5FFF2" : undefined;
     const tagStyle = [
         styles.tag,
@@ -16,15 +16,15 @@ const Tag = props => {
         props.justifySpaceBetween && { justifyContent: 'space-between' },
         props.style
     ];
-    const textColor = props.type === "school" ? "#CC9300"
-        : props.type === "hobby" ? "#05097A"
-        : props.type === "food" ? "#460072"
+    const textColor = props.type === "school" ? "#AB6400"
+        : props.type === "hobby" ? "#113264"
+        : props.type === "food" ? "#402060"
         : props.color ?? "white";
     const TextComponent = props.plain ? NormalText : MediumText;
     return (
         <View style={tagStyle}>
-            <View style={[styles.textWrap, props.plain && styles.textWrapLeft]}>
-                <TextComponent size={12} color={textColor} style={props.plain ? { textAlign: 'left' } : undefined}>{props.text}</TextComponent>
+            <View style={[styles.textWrap, props.remove && styles.textWrapFlex, props.plain && styles.textWrapLeft]}>
+                <TextComponent size={12} lineHeight={16} color={textColor} style={props.plain ? { textAlign: 'left' } : undefined}>{props.text}</TextComponent>
             </View>
             {props.remove && 
                 <TouchableOpacity onPress={props.remove} style={styles.close}>
@@ -56,7 +56,8 @@ const styles = StyleSheet.create({
         }),
         ...(Platform.OS === 'android' && { elevation: 0 }),
     },
-    textWrap: {
+    textWrap: {},
+    textWrapFlex: {
         flex: 1,
     },
     textWrapLeft: {
