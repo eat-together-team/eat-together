@@ -1,52 +1,41 @@
 import React from 'react'
-import {TouchableOpacity, StyleSheet, View} from 'react-native';
-import MediumText from './MediumText';
-import SmallText from './SmallText';
-const PriceRangeButton = ({dollars, text, setPriceRange , priceRange}) => {
- 
-  const handlePriceRange = () =>{
-    if(dollars === "$"){
-      setPriceRange(1);
-    }else if (dollars === "$$"){
-      setPriceRange(2);
-    }else if (dollars === "$$$"){
-      setPriceRange(3);
-    }else{
-      setPriceRange(4);
-    }
-  };
+import {TouchableOpacity, StyleSheet} from 'react-native';
+import Header3Text from './typography/Header3Text';
+import SubBodyText from './typography/SubBodyText';
+import { useTheme } from '../rapi_ui_components';
+import { colorTokens } from '../theme/colorTokens';
+
+const PriceRangeButton = ({dollars, text, setPriceRange, priceRange}) => {
+  const { theme } = useTheme();
+  const colors = colorTokens[theme];
+  const isSelected = priceRange === dollars.length;
+  const textColor = isSelected ? colors.onPrimaryContainer : colors.outline;
+
   return (
-    <TouchableOpacity style={styles.priceContainer(priceRange, dollars)} onPress={handlePriceRange}>
-      <View style={styles.textContainer}>
-        <MediumText color="#808080" size={15} center="center">
-          {dollars}
-        </MediumText>
-        <SmallText color="#808080" size={12} center="center">
-          {text}
-        </SmallText>
-      </View>
+    <TouchableOpacity
+      style={[
+        styles.priceContainer,
+        {
+          backgroundColor: isSelected ? colors.primaryContainer : colors.background,
+          borderColor: isSelected ? colors.primary : colors.outline,
+        },
+      ]}
+      onPress={() => setPriceRange(dollars.length)}
+    >
+      <Header3Text color={textColor}>{dollars}</Header3Text>
+      <SubBodyText color={textColor}>{text}</SubBodyText>
     </TouchableOpacity>
   )
 }
 const styles = StyleSheet.create({
-  priceContainer: (priceRange, dollars) => {
-      const isSelected = priceRange === dollars.length;
-      return {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 258,
-        height: 87,
-        backgroundColor: isSelected ? 'rgba(93, 176, 117, 0.3)' : '#FFFFFF',
-        borderRadius: 10,
-        borderWidth: 2,
-        borderColor: isSelected ? '#5DB075' : '#D0D0D0',
-        marginVertical: 10,
-      };
-    },
-  textContainer: {
+  priceContainer: {
+    width: '100%',
+    height: 86,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
+    borderRadius: 10,
+    borderWidth: 2,
   },
-  });
+});
 export default PriceRangeButton
