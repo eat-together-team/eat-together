@@ -4,7 +4,7 @@ module.exports = {
     "owner": "eat-together-team",
     "slug": "eat-together",
     "description": "Connecting students through shared meals.",
-    "version": "1.6.3",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/big_logo.png",
     "scheme": "com.eat.together",
@@ -26,7 +26,7 @@ module.exports = {
         "backgroundColor": "#73AE7B",
         "monochromeImage": "./assets/icons/icon_monochrome.png"
       },
-      "versionCode": 5,
+      "versionCode": 6,
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.MEDIA_LIBRARY",
@@ -37,7 +37,7 @@ module.exports = {
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.eat.together",
-      "buildNumber": "29",
+      "buildNumber": "30",
       "icon": "./assets/big_logo.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -46,7 +46,7 @@ module.exports = {
     "web": {
       "favicon": "./assets/big_logo.png"
     },
-    "runtimeVersion": "1.0.1",
+    "runtimeVersion": "1.0.2",
     "userInterfaceStyle": "automatic",
     "plugins": [
       [
