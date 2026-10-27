@@ -3,6 +3,7 @@ import { Platform, useColorScheme } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as NavigationBar from "expo-navigation-bar";
+import * as SplashScreen from "expo-splash-screen";
 import useCachedResources from "../hooks/useCachedResources";
 
 const THEME_COLORS = {
@@ -53,6 +54,15 @@ const ThemeProvider = (props: {
   const isLoadingComplete = useCachedResources(props.images, props.fonts);
   const isDarkmode = theme === "dark";
 
+  // The splash storyboard is installed as the root view's loading view and
+  // only dismisses on RCTContentDidAppearNotification, which this React Native
+  // version never posts. Until we hide it ourselves it stays on top of the UI.
+  React.useEffect(() => {
+    if (isLoadingComplete) {
+      SplashScreen.hideAsync();
+    }
+  }, [isLoadingComplete]);
+
   React.useEffect(() => {
     // Android's edge-to-edge enforcement means the nav bar background can no
     // longer be colored (it's always transparent), but the icon style is
@@ -72,6 +82,7 @@ const ThemeProvider = (props: {
       />
       <SafeAreaProvider
         style={{
+          flex: 1,
           backgroundColor: themeDefaults.safeAreaBackground,
         }}
       >

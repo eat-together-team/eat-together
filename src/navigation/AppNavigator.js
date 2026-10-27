@@ -244,24 +244,36 @@ export default () => {
     },
   };
 
+  // NavigationContainer has to mount with its real navigator already in
+  // place. Swapping Loading for Auth after the native container exists
+  // leaves a full-screen white screen with the welcome UI never attached.
+  if (user === null || (user === true && !currUser)) {
+    return <Loading />;
+  }
+
+  const needsVerification =
+    user === true &&
+    currUser &&
+    !currUser.emailVerified &&
+    currUser.email !== "rachelhu@uw.edu" &&
+    currUser.email !== "calebcile@gmail.com";
+
+  const rootKey = user === false ? "auth" : needsVerification ? "verify" : "main";
+
   return (
     <NavigationEpochContext.Provider value={navigationEpoch}>
       <NavigationContainer
+        key={rootKey}
         theme={navigationTheme}
         onStateChange={() => setNavigationEpoch((epoch) => epoch + 1)}
       >
-      {user === null && <Loading />}
-      {user === false && <Auth />}
-      {user === true &&
-        currUser &&
-        !currUser.emailVerified &&
-        currUser.email !== "rachelhu@uw.edu" &&
-        currUser.email !== "calebcile@gmail.com" ? (
-          <VerifyEmail setCurrUser={auth_context.setCurrUser}/>
+        {user === false ? (
+          <Auth />
+        ) : needsVerification ? (
+          <VerifyEmail setCurrUser={auth_context.setCurrUser} />
         ) : (
-          user === true && <Main />
-        )
-      }
+          <Main />
+        )}
       </NavigationContainer>
     </NavigationEpochContext.Provider>
   );

@@ -1,6 +1,16 @@
 import * as React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import * as Font from 'expo-font';
+import {
+	Ubuntu_300Light,
+	Ubuntu_300Light_Italic,
+	Ubuntu_400Regular,
+	Ubuntu_400Regular_Italic,
+	Ubuntu_500Medium,
+	Ubuntu_500Medium_Italic,
+	Ubuntu_700Bold,
+	Ubuntu_700Bold_Italic,
+} from '@expo-google-fonts/ubuntu';
 
 import { Asset } from 'expo-asset';
 
@@ -19,14 +29,14 @@ export default function useCachedResources(
 					images && Asset.loadAsync(images),
 					Font.loadAsync({
 						...Ionicons.font,
-						Ubuntu_300Light: require('../fonts/Ubuntu_300Light.ttf'),
-						Ubuntu_300Light_Italic: require('../fonts/Ubuntu_300Light_Italic.ttf'),
-						Ubuntu_400Regular: require('../fonts/Ubuntu_400Regular.ttf'),
-						Ubuntu_400Regular_Italic: require('../fonts/Ubuntu_400Regular_Italic.ttf'),
-						Ubuntu_500Medium: require('../fonts/Ubuntu_500Medium.ttf'),
-						Ubuntu_500Medium_Italic: require('../fonts/Ubuntu_500Medium_Italic.ttf'),
-						Ubuntu_700Bold: require('../fonts/Ubuntu_700Bold.ttf'),
-						Ubuntu_700Bold_Italic: require('../fonts/Ubuntu_700Bold_Italic.ttf'),
+						Ubuntu_300Light,
+						Ubuntu_300Light_Italic,
+						Ubuntu_400Regular,
+						Ubuntu_400Regular_Italic,
+						Ubuntu_500Medium,
+						Ubuntu_500Medium_Italic,
+						Ubuntu_700Bold,
+						Ubuntu_700Bold_Italic,
 						...fonts,
 					}),
 				]);
