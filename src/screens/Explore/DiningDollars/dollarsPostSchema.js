@@ -196,6 +196,12 @@ export function isDollarsPostExpired(data, now = new Date()) {
   return endOfDay < now;
 }
 
+/** "5/17" */
+export function formatAvailableUntil(data) {
+  const expiresAt = toDate(data?.expiresAt);
+  return expiresAt ? `${expiresAt.getMonth() + 1}/${expiresAt.getDate()}` : "";
+}
+
 /** "Offering up to $75" / "Requesting $25" */
 export function dollarsPostHeadline(data) {
   const verb = data?.postType === "request" ? "Requesting" : "Offering";

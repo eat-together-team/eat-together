@@ -33,6 +33,16 @@ export function claimStatusChip(status) {
   return null;
 }
 
+/**
+ * Chip variant for a post as seen by `uid`, derived from the post's mirrored claim fields so
+ * feeds don't need to read the Claims subcollection: "ready" | "pending" | "offer" | "request".
+ */
+export function viewerChipVariant(post, uid) {
+  if (uid && post?.acceptedClaimantID === uid) return "ready";
+  if (uid && (post?.claimantIDs || []).includes(uid)) return "pending";
+  return post?.postType === "request" ? "request" : "offer";
+}
+
 const postRef = (db, postId) => db.collection(DINING_DOLLARS_POSTS_COLLECTION).doc(postId);
 const claimRef = (db, postId, claimantID) =>
   postRef(db, postId).collection(DOLLARS_CLAIMS_SUBCOLLECTION).doc(claimantID);
