@@ -25,6 +25,11 @@ import StarredRestaurants from "../Profile/StarredRestaurants";
 import OrganizeFlow from "../Organize/NewEvent/OrganizeFlow";
 import RestaurantMain from "../RestaurantPicker/RestaurantMain";
 import Recommendation from "../Recommendations/Recommendation";
+import DollarsExchange from "./DiningDollars/DollarsExchange";
+import DollarsPostDetail from "./DiningDollars/DollarsPostDetail";
+import DollarsCreatePost from "./DiningDollars/DollarsCreatePost";
+import DollarsEditPost from "./DiningDollars/DollarsEditPost";
+import DollarsActiveExchanges from "./DiningDollars/DollarsActiveExchanges";
 
 const Stack = createNativeStackNavigator();
 
@@ -59,6 +64,11 @@ export default function () {
       <Stack.Screen name="AddTaggedPerson" component={AddTaggedPerson} />
       <Stack.Screen name="InvitePeople" component={InvitePeople} />
       <Stack.Screen name="Restaurant" component={RestaurantMain} />
+      <Stack.Screen name="DollarsExchange" component={DollarsExchange} />
+      <Stack.Screen name="DollarsPostDetail" component={DollarsPostDetail} />
+      <Stack.Screen name="DollarsCreatePost" component={DollarsCreatePost} />
+      <Stack.Screen name="DollarsEditPost" component={DollarsEditPost} />
+      <Stack.Screen name="DollarsActiveExchanges" component={DollarsActiveExchanges} />
     </Stack.Navigator>
   );
 }

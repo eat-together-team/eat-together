@@ -23,8 +23,7 @@ import { auth, db } from "../../provider/Firebase";
 import { useTutorial, useTutorialTarget } from "../../provider/TutorialProvider";
 
 const restaurantPickerImage = require("../../../assets/restaurantPicker.png");
-// Dining Dollar Exchange hidden until the feature is ready.
-// const diningDollarExchangeImage = require("../../../assets/diningDollarExchange.png");
+const diningDollarExchangeImage = require("../../../assets/diningDollarExchange.png");
 
 const PREVIEW_COUNT = 3;
 
@@ -181,9 +180,7 @@ export default function ({ navigation }) {
               </View>
             </View>
 
-            {/* Dining Dollar Exchange hidden until the feature is ready.
             <PromoImageCardSkeleton />
-            */}
           </View>
         ) : (
           <Animated.View style={[styles.sections, { opacity: contentOpacity }]}>
@@ -231,15 +228,13 @@ export default function ({ navigation }) {
               </View>
             )}
 
-            {/* Dining Dollar Exchange hidden until the feature is ready.
             <PromoImageCard
               image={diningDollarExchangeImage}
               title="Dining Dollar Exchange"
               subtitle="Request and offer up your extra campus dining dollars for cash or payment"
               buttonLabel="Check it out"
-              onPress={() => alert("Coming soon!")}
+              onPress={() => navigation.navigate("DollarsExchange")}
             />
-            */}
           </Animated.View>
         )}
       </ScrollView>
