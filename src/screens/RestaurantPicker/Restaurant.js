@@ -1,5 +1,6 @@
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useRef} from 'react'
 import {StyleSheet, View, ScrollView, Alert} from "react-native";
+import { useFeatureFlag, usePostHog } from 'posthog-react-native';
 import { Layout } from "../../rapi_ui_components";
 import SmallAppBar from '../../components/SmallAppBar';
 import CuisineCard from './CuisineCard';
@@ -14,8 +15,22 @@ import restaurant from '../../restaurantFetch';
 import weighRestaurant from '../../restaurantSorting';
 import foodTagsToYelpCategories from '../../yelpTags';
 
+const SURVEY_CARD_TYPES = [
+  'StartCard',
+  'DontWorryCard',
+  'CuisineCard',
+  'DietaryCard',
+  'PriceRangeCard',
+];
+
 // Renders card carousel and handles business logic 
 export default function ({navigation, route}) {
+
+  const onboardingExperiment = useFeatureFlag('restaurant_onboarding_experiment');
+  const posthog = usePostHog();
+  const initialIndexSetRef = useRef(false);
+  const entryCapturedRef = useRef(false);
+  const capturedSurveyStepsRef = useRef(new Set());
 
   const [categoryAliases, setCategoryAliases] = useState([]);
   const [cuisineTagSelected, setCuisineTagSelected] = useState([]);
@@ -44,6 +59,47 @@ export default function ({navigation, route}) {
   const [progress, setProgress] = useState(0.33);
   const [currentIndex, setCurrentIndex] = useState(0); // Index for list of restaurants
   const [swipeCardExpanded, setSwipeCardExpanded] = useState(false);
+  const indexRef = useRef(index);
+  const variantRef = useRef(onboardingExperiment);
+
+  useEffect(() => {
+    indexRef.current = index;
+    variantRef.current = onboardingExperiment;
+  }, [index, onboardingExperiment]);
+
+  useEffect(() => {
+    if (initialIndexSetRef.current || onboardingExperiment === undefined) {
+      return;
+    }
+
+    initialIndexSetRef.current = true;
+
+    if (onboardingExperiment === 'Survey_first') {
+      setIndex(1);
+    }
+  }, [onboardingExperiment]);
+
+  useEffect(() => {
+    if (entryCapturedRef.current || onboardingExperiment === undefined) {
+      return;
+    }
+
+    entryCapturedRef.current = true;
+    posthog?.capture('rp_experiment_entry', {
+      variant: onboardingExperiment,
+    });
+  }, [onboardingExperiment, posthog]);
+
+  useEffect(() => {
+    return () => {
+      if (indexRef.current < 5) {
+        posthog?.capture('rp_drop_off', {
+          variant: variantRef.current,
+          step: indexRef.current,
+        });
+      }
+    };
+  }, [posthog]);
 
   //Queries Yelp restaurant data
   const findRestaurant = async() =>{
@@ -117,6 +173,17 @@ export default function ({navigation, route}) {
 
   //increment index for button to render next card in carousel
   const incrementIndex = () => {
+    if (
+      index < SURVEY_CARD_TYPES.length &&
+      !capturedSurveyStepsRef.current.has(index)
+    ) {
+      capturedSurveyStepsRef.current.add(index);
+      posthog?.capture('rp_survey_step_completed', {
+        variant: onboardingExperiment,
+        step: index,
+        card_type: SURVEY_CARD_TYPES[index],
+      });
+    }
 
     // only increase progress bar if on pref cards
     if (index >= 2 && index <= 3){
