@@ -1,5 +1,6 @@
 import { View, StyleSheet, Animated, PanResponder, TouchableOpacity } from 'react-native';
 import { useEffect, useRef } from 'react';
+import { usePostHog } from 'posthog-react-native';
 import BodyText from '../../components/typography/BodyText';
 import LargeButton from '../../components/LargeButton';
 import RestaurantRec from '../../components/RestaurantRec';
@@ -9,6 +10,7 @@ import { colorTokens } from '../../theme/colorTokens';
 
 // "Swipe Deck" screen that renders each restaurant that is tailored to user preferences
 const NewSwipeDeck = ({listOfRestaurants, incrementIndex, currentIndex, setCurrentIndex, setIndex, setUserSkipped, setPressedStart, setUserResults, setResult, onExpandedChange}) => {
+  const posthog = usePostHog();
   const { theme } = useTheme();
   const colors = colorTokens[theme];
   const hasFinishedRef = useRef(false);
@@ -39,6 +41,11 @@ const NewSwipeDeck = ({listOfRestaurants, incrementIndex, currentIndex, setCurre
       return;
     }
 
+    posthog?.capture('rp_swipe_like', {
+      restaurant_id: listOfRestaurants[currentIndex]?.id,
+      index: currentIndex,
+    });
+
     setCurrentIndex(prevIndex => {
       const current = listOfRestaurants[prevIndex];
       if (current) {
@@ -57,6 +64,11 @@ const NewSwipeDeck = ({listOfRestaurants, incrementIndex, currentIndex, setCurre
 
   // Ignore if red button is pressed
   const ignoreRestaurant = () => {
+    posthog?.capture('rp_swipe_dislike', {
+      restaurant_id: listOfRestaurants[currentIndex]?.id,
+      index: currentIndex,
+    });
+
     setCurrentIndex((prev) => (prev + 1));
   };
 

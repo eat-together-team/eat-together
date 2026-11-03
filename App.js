@@ -6,6 +6,8 @@ import { ThemeProvider } from "./src/rapi_ui_components";
 import { MenuProvider } from "react-native-popup-menu";
 import { LogBox } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { PostHogProvider } from "posthog-react-native";
+import { POSTHOG_API_KEY } from "@env";
 import * as Network from 'expo-network';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 import 'react-native-reanimated';
@@ -50,13 +52,15 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <MenuProvider>
-        <ThemeProvider images={images}>
-          <AuthProvider>
-            <AppNavigator />
-          </AuthProvider>
-        </ThemeProvider>
-      </MenuProvider>
+      <PostHogProvider apiKey={POSTHOG_API_KEY}>
+        <MenuProvider>
+          <ThemeProvider images={images}>
+            <AuthProvider>
+              <AppNavigator />
+            </AuthProvider>
+          </ThemeProvider>
+        </MenuProvider>
+      </PostHogProvider>
     </GestureHandlerRootView>
   );
 }
