@@ -1,0 +1,32 @@
+diff --git a/node_modules/expo-modules-jsi/apple/Sources/ExpoModulesJSI/Runtime/Values/JavaScriptObject.swift b/node_modules/expo-modules-jsi/apple/Sources/ExpoModulesJSI/Runtime/Values/JavaScriptObject.swift
+index de76b97..a65b46c 100644
+--- a/node_modules/expo-modules-jsi/apple/Sources/ExpoModulesJSI/Runtime/Values/JavaScriptObject.swift
++++ b/node_modules/expo-modules-jsi/apple/Sources/ExpoModulesJSI/Runtime/Values/JavaScriptObject.swift
+@@ -933,19 +933,21 @@ private func withEncodedValue(
+   _ body: (borrowing facebook.jsi.Value) -> Void
+ ) rethrows {
+   try withUnsafeTemporaryAllocation(of: facebook.jsi.Value.self, capacity: 1) { buffer in
+-    // The isolated closure below runs synchronously on this thread.
+-    nonisolated(unsafe) let slot = buffer.baseAddress!
+-    expo.emplaceUndefined(slot)
++    // The isolated closure below runs synchronously on this thread. Swift 6.2 still rejects
++    // `nonisolated(unsafe) let` when that pointer is sent into the actor closure and used again
++    // afterward, so the pointer crosses the closure as a `Sendable` value instead.
++    let slot = UncheckedSendable(buffer.baseAddress!)
++    expo.emplaceUndefined(slot.value)
+     defer {
+-      expo.destroyValues(slot, 1)
++      expo.destroyValues(slot.value, 1)
+     }
+     // The runtime can't be deallocated during a call on its JavaScript thread, so it's borrowed without
+     // a retain.
+     try runtime._withUnsafeGuaranteedRef { runtime in
+       try JavaScriptActor.assumeIsolated {
+-        try encode(JavaScriptValue.Slot(slot), runtime)
++        try encode(JavaScriptValue.Slot(slot.value), runtime)
+       }
+     }
+-    body(slot.pointee)
++    body(slot.value.pointee)
+   }
+ }
