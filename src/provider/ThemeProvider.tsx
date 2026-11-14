@@ -8,11 +8,9 @@ import useCachedResources from "../hooks/useCachedResources";
 
 const THEME_COLORS = {
   light: {
-    statusBarColor: "#FFFFFF",
     safeAreaBackground: "#FFFFFF",
   },
   dark: {
-    statusBarColor: "#000000",
     safeAreaBackground: "#000000",
   },
 } as const;
@@ -76,10 +74,7 @@ const ThemeProvider = (props: {
   const themeDefaults = THEME_COLORS[theme];
   return (
     <ThemeContext.Provider value={{ theme, isDarkmode, setTheme }}>
-      <StatusBar
-        backgroundColor={themeDefaults.statusBarColor}
-        style={isDarkmode ? "light" : "dark"}
-      />
+      <StatusBar style={isDarkmode ? "light" : "dark"} />
       <SafeAreaProvider
         style={{
           flex: 1,

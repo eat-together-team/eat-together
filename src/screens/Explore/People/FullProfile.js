@@ -400,7 +400,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
   if (status === "Loading" || !imageReady) {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
-        <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+        <StatusBar barStyle="dark-content" />
         <View style={[styles.palette, { top: statusBarHeight + (Platform.OS === 'android' ? 10 : 20) }]}>
           <Ionicons
             name="arrow-back-sharp"
@@ -421,7 +421,7 @@ const FullProfile = ({ blockBack, route, navigation }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
-      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      <StatusBar barStyle="light-content" />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         style={{ flex: 1 }}
